@@ -1,0 +1,26 @@
+# Backend
+fastapi
+uvicorn
+
+# Task Queue
+celery
+rabbitmq
+
+# AI/ML
+torch
+torchvision
+openai-clip
+ultralytics
+langchain
+langchain-openai
+
+# Video Processing
+opencv-python
+ffmpeg-python
+
+# Database & Storage
+chromadb
+boto3
+
+# Frontend
+streamlit
