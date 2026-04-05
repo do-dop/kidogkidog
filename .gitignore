@@ -1,0 +1,9 @@
+# .gitignore
+__pycache__/
+*.pyc
+.env
+*.mp4
+*.avi
+*.mov
+.DS_Store
+venv/
