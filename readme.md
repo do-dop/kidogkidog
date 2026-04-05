@@ -102,3 +102,29 @@ fix: ChromaDB 연결 오류 수정
 chore: requirements.txt 업데이트
 docs: README 프로젝트 구조 설명 추가
 ```
+
+---
+ 
+## 🌿 브랜치 전략
+ 
+| 브랜치 | 용도 |
+|---|---|
+| `main` | 최종 배포용 |
+| `dev` | 통합 개발 |
+| `feature/기능명` | 기능별 개발 |
+ 
+**흐름**
+```
+feature/기능명 → dev → main
+```
+ 
+**예시**
+```bash
+git checkout -b feature/clip-embedding
+git checkout -b feature/fastapi-server
+```
+ 
+- `feature/` 브랜치는 항상 `dev` 에서 분기
+- 작업 완료 후 `dev` 로 PR
+- 최종 완성본만 `main` 으로 머지
+ 
