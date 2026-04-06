@@ -4,18 +4,17 @@ uvicorn
 
 # Task Queue
 celery
-rabbitmq
+# rabbitmq  <- 제거 권장
 
 # AI/ML
-torch
-torchvision
+torch==2.2.2
+torchvision==0.17.2
 openai-clip
-ultralytics
 langchain
 langchain-openai
 
 # Video Processing
-opencv-python
+opencv-python-headless
 ffmpeg-python
 
 # Database & Storage
