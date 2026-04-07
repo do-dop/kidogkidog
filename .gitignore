@@ -1,9 +1,19 @@
-# .gitignore
+# 환경변수
+.env
+
+# 파이썬
 __pycache__/
 *.pyc
-.env
+*.pyo
+venv/
+.venv/
+
+# 영상 파일
 *.mp4
 *.avi
 *.mov
+
+# 기타
 .DS_Store
-venv/
+.idea/
+*.egg-info/
