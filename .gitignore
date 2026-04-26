@@ -14,6 +14,8 @@ venv/
 *.mov
 *.jpg
 
+
+# 추출프레임
 pipeline/frames/
 
 # 기타
