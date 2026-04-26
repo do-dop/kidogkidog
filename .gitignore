@@ -14,6 +14,8 @@ venv/
 *.mov
 *.jpg
 
+pipeline/frames/
+
 # 기타
 .DS_Store
 .idea/
