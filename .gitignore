@@ -8,10 +8,11 @@ __pycache__/
 venv/
 .venv/
 
-# 영상 파일
+# 영상, 사진 파일
 *.mp4
 *.avi
 *.mov
+*.jpg
 
 # 기타
 .DS_Store

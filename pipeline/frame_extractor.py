@@ -1,6 +1,6 @@
 import cv2
 import os
-from motion_detector import detect_motion
+from pipeline.motion_detector import detect_motion
 
 
 def extract_frames(video_path, output_dir="pipeline/frames", fps=1):

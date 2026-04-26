@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import cv2
 
 
@@ -63,11 +65,21 @@ def detect_motion(video_path, threshold=30000, min_area=2500, warmup_frames=60):
 
     return motion_segments
 
+def main() -> None:
+    video_path = Path("pipeline/test_video.mp4")
+
+    if not video_path.exists():
+        raise FileNotFoundError(
+            f"영상 파일이 없습니다: {video_path}\n"
+            "pipeline 폴더 안에 test_video.mp4 파일을 넣어주세요."
+        )
+
+    segments = detect_motion(str(video_path))
+
+    print(f"motion 감지된 구간 수: {len(segments)}")
+    for start, end in segments:
+        print(f"  {start}초 ~ {end}초")
+
 
 if __name__ == "__main__":
-    for threshold in [500, 2000, 5000, 10000]:
-        segments = detect_motion("test_video_2.mp4", threshold=threshold)
-        print(f"threshold={threshold}: {len(segments)}개 구간")
-        for start, end in segments:
-            print(f"  {start}초 ~ {end}초")
-        print()
+    main()
