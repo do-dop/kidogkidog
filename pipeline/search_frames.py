@@ -30,14 +30,14 @@ def main() -> None:
     if not frames_dir.exists():
         raise FileNotFoundError(
             f"프레임 폴더가 없습니다: {frames_dir}\n"
-            "먼저 motion_test.py를 실행해서 프레임을 저장하세요."
+            "먼저 frame_extractor.py를 실행해서 프레임을 저장하세요."
         )
 
     frame_paths = sorted(frames_dir.glob("*.jpg"))
     if not frame_paths:
         raise FileNotFoundError(
             f"{frames_dir} 안에 jpg 프레임이 없습니다.\n"
-            "motion_test.py 실행 결과를 확인하세요."
+            "frame_extractor.py 실행 결과를 확인하세요."
         )
 
     query = input("검색할 문장을 입력하세요: ").strip()

@@ -67,12 +67,12 @@ def main():
     frames_dir = Path("pipeline/frames")
 
     if not frames_dir.exists():
-        st.error("`pipeline/frames` 폴더가 없습니다. 먼저 motion_test.py를 실행하세요.")
+        st.error("`pipeline/frames` 폴더가 없습니다. 먼저 frame_extractor.py를 실행하세요.")
         return
 
     frame_paths = sorted(frames_dir.glob("*.jpg"))
     if not frame_paths:
-        st.error("저장된 프레임이 없습니다. 먼저 motion_test.py를 실행해서 프레임을 저장하세요.")
+        st.error("저장된 프레임이 없습니다. 먼저 frame_extractor.py를 실행해서 프레임을 저장하세요.")
         return
 
     st.info(f"현재 저장된 프레임 수: {len(frame_paths)}")
