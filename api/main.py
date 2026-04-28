@@ -12,6 +12,11 @@ celery_app = Celery(
 class ChunkRequest(BaseModel):
     chunk_path: str
 
+class QueryRequest(BaseModel):
+    query: str
+    video_id: str = None  # 특정 영상만 검색할 때 (없으면 전체 검색)
+    top_k: int = 5        # 상위 몇 개 결과 반환
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
@@ -23,6 +28,10 @@ def upload(request: ChunkRequest):
     return {"status": "received", "chunk_path": request.chunk_path}
 
 @app.post("/query")
-def query():
+def query(request: QueryRequest):
     # 자연어 쿼리 수신 (나중에 구현)
-    return {"status": "query received"}
+    return {
+        "status": "ok",
+        "query": request.query,
+        "results": []
+    }

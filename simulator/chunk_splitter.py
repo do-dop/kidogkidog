@@ -3,7 +3,7 @@ import os
 from datetime import datetime
 
 
-def split_video_into_chunks(video_path, chunk_duration=300, output_dir="simulator/chunks"):
+def split_video_into_chunks(video_path, chunk_duration=60, output_dir="simulator/chunks"):
     """
     영상을 5분(300초) 단위로 청크 분할
 

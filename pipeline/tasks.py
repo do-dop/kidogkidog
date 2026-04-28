@@ -2,6 +2,7 @@ from celery import Celery
 from pipeline.motion_detector import detect_motion
 from pipeline.frame_extractor import extract_frames
 from pipeline.s3_uploader import download_video
+from db.metadata import init_db, insert_scene
 import os
 
 celery_app = Celery(
@@ -25,7 +26,19 @@ def process_chunk(chunk_path):
     frames = extract_frames(local_path)
     print(f"프레임 {len(frames)}개 추출 완료")
 
-    # 3. 임시 파일 삭제
+    # 3. SQLite에 메타데이터 저장
+    init_db()
+    video_id = os.path.basename(chunk_path)
+    for frame in frames:
+        insert_scene(
+            video_id=video_id,
+            start_time=frame["timestamp"],
+            end_time=frame["timestamp"] + 1.0,
+            s3_key=chunk_path
+        )
+    print(f"메타데이터 {len(frames)}개 저장 완료!")
+
+    # 4. 임시 파일 삭제
     os.remove(local_path)
     print(f"임시 파일 삭제: {local_path}")
 

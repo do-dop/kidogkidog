@@ -102,7 +102,7 @@ def main():
         st.subheader("최고 유사도 결과")
         best = results[0]
         st.write(f"**Query**: {query}")
-        st.write(f"**Best frame**: {best['name']}")
+        st.write(f"**Best frames**: {best['name']}")
         st.write(f"**Score**: {best['score']:.4f}")
 
 

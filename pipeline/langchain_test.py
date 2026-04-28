@@ -23,7 +23,7 @@ def main() -> None:
         (
             "system",
             "You are a pet behavior assistant. "
-            "Answer only based on the provided retrieved frame results. "
+            "Answer only based on the provided retrieved frames results. "
             "If the evidence is weak, say it is uncertain. "
             "Do not guess unseen events."
         ),
@@ -31,11 +31,11 @@ def main() -> None:
             "user",
             """User query: {query}
 
-Retrieved frame results:
+Retrieved frames results:
 {results}
 
 Please explain:
-1. Which frame is the best match
+1. Which frames is the best match
 2. Why it seems to be the best match
 3. Mention uncertainty if the similarity scores are low
 """
