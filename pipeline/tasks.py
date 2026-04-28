@@ -4,6 +4,7 @@ from pipeline.frame_extractor import extract_frames
 from pipeline.s3_uploader import download_video
 from db.metadata import init_db, insert_scene
 import os
+from pathlib import Path
 
 celery_app = Celery(
     'tasks',
@@ -16,6 +17,9 @@ def process_chunk(chunk_path):
     청크 수신 → S3 다운로드 → motion 감지 → 프레임 추출
     """
     print(f"[Task 시작] {chunk_path}")
+    chunk_key = Path(chunk_path)
+    video_id = chunk_key.parent.name if chunk_key.parent.name != "chunks" else chunk_key.stem
+    frame_output_dir = Path("pipeline/frames") / video_id
 
     # 1. S3에서 청크 다운로드
     local_path = f"/tmp/{os.path.basename(chunk_path)}"
@@ -23,12 +27,15 @@ def process_chunk(chunk_path):
     print(f"다운로드 완료: {local_path}")
 
     # 2. 프레임 추출 (motion 감지 포함)
-    frames = extract_frames(local_path)
+    frames = extract_frames(
+        local_path,
+        output_dir=str(frame_output_dir),
+        frame_prefix=Path(local_path).stem,
+    )
     print(f"프레임 {len(frames)}개 추출 완료")
 
     # 3. SQLite에 메타데이터 저장
     init_db()
-    video_id = os.path.basename(chunk_path)
     for frame in frames:
         insert_scene(
             video_id=video_id,
