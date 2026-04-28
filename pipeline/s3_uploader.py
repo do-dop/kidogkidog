@@ -20,7 +20,3 @@ def upload_video(local_path, s3_key):
 def download_video(s3_key, local_path):
     s3.download_file(BUCKET, s3_key, local_path)
     print(f"다운로드 성공: {local_path}")
-
-
-if __name__ == "__main__":
-    upload_video("test_video_long.mp4", "videos/test_video_long.mp4")

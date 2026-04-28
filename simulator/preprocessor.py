@@ -31,7 +31,3 @@ def standardize_video(input_path, output_dir="simulator/processed"):
     subprocess.run(cmd, check=True)
     print(f"전처리 완료: {output_path}")
     return output_path
-
-
-if __name__ == "__main__":
-    standardize_video("test_video.mp4")

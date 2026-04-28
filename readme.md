@@ -42,11 +42,13 @@ Kidogkidog은 하루종일 녹화된 펫캠 영상에서 원하는 반려동물�
 ## 🏗️ 시스템 구조
 
 ```
-펫캠 영상
-    ↓ 5분 단위 자동 청크 전송
-FastAPI 서버
-    ↓ 이벤트 감지 (OpenCV)
-프레임 추출 (1fps)
+data/videos 영상 폴더
+    ↓ 영상별 청크 분할 + S3 업로드
+FastAPI /upload
+    ↓ Celery 작업 등록
+RabbitMQ
+    ↓ Celery worker 처리
+S3 chunk 다운로드 → motion 감지 → 프레임 추출
     ↓
 CLIP 임베딩 → ChromaDB 저장
     ↓ 자연어 쿼리 입력
@@ -55,6 +57,28 @@ CLIP 임베딩 → ChromaDB 저장
 VLM 응답 생성 + 타임스탬프 반환
     ↓
 Streamlit UI에서 영상 재생
+```
+
+---
+
+## 🚀 로컬 실행
+
+영상 파일은 `data/videos/`에 넣습니다. Streamlit에서 `data/videos`를 입력하면 폴더 안의 영상들을 이름순으로 처리하고, `data/videos/example.mp4`처럼 파일 경로를 입력하면 해당 영상만 처리합니다.
+
+```bash
+docker compose up -d rabbitmq
+uvicorn api.main:app --reload
+celery -A pipeline.tasks worker --loglevel=info --pool=solo
+streamlit run ui/app2.py
+```
+
+로컬 산출물은 Git에 올리지 않습니다.
+
+```text
+pipeline/frames/
+simulator/chunks/
+db/chroma/
+db/*.db
 ```
 
 ---
@@ -73,6 +97,7 @@ Streamlit UI에서 영상 재생
 ```
 kidogkidog/
 ├── api/          # FastAPI 서버
+├── data/videos/  # 로컬 테스트 영상 입력 폴더
 ├── pipeline/     # 영상 처리, 임베딩
 ├── db/           # ChromaDB, SQLite 연결
 ├── ui/           # Streamlit 프론트엔드

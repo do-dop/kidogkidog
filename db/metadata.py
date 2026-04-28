@@ -49,18 +49,3 @@ def get_scenes(video_id):
     rows = cursor.fetchall()
     conn.close()
     return rows
-
-
-if __name__ == "__main__":
-    # DB 초기화 테스트
-    init_db()
-
-    # 더미 데이터 삽입 테스트
-    insert_scene("test_video", 1.0, 5.0, "dog", "chunks/test.mp4")
-    insert_scene("test_video", 10.0, 15.0, "cat", "chunks/test.mp4")
-
-    # 조회 테스트
-    scenes = get_scenes("test_video")
-    print(f"저장된 scene 수: {len(scenes)}")
-    for scene in scenes:
-        print(f"  {scene}")
