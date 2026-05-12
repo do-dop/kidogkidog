@@ -32,6 +32,37 @@ def _frame_id(frame_path, frame_root):
     return "__".join(relative_path.parts)
 
 
+def index_frame(frame_path, frame_root="pipeline/frames", video_id=None, s3_key=None):
+    """
+    단일 프레임을 CLIP 임베딩 후 ChromaDB에 저장
+    """
+    frame_root = Path(frame_root)
+    frame_path = Path(frame_path)
+    frame_id = _frame_id(frame_path, frame_root)
+    frame_video_id = video_id or _video_id_from_frame_path(frame_path, frame_root)
+
+    existing = collection.get(ids=[frame_id])
+    if existing["ids"]:
+        return frame_id
+
+    embedding = embed_image(str(frame_path))
+
+    metadata = {
+        "frame_path": str(frame_path),
+        "timestamp": _timestamp_from_frame_path(frame_path),
+        "video_id": frame_video_id,
+    }
+    if s3_key:
+        metadata["s3_key"] = s3_key
+
+    collection.add(
+        embeddings=[embedding],
+        ids=[frame_id],
+        metadatas=[metadata],
+    )
+    return frame_id
+
+
 def index_frames(frame_dir="pipeline/frames", video_id=None):
     """
     프레임 폴더의 모든 이미지를 CLIP 임베딩 후 ChromaDB에 저장
@@ -41,27 +72,7 @@ def index_frames(frame_dir="pipeline/frames", video_id=None):
     print(f"총 {len(frame_paths)}개 프레임 인덱싱 시작...")
 
     for i, frame_path in enumerate(frame_paths):
-        frame_id = _frame_id(frame_path, frame_root)
-        frame_video_id = video_id or _video_id_from_frame_path(frame_path, frame_root)
-
-        # 이미 저장된 프레임은 스킵
-        existing = collection.get(ids=[frame_id])
-        if existing["ids"]:
-            continue
-
-        # CLIP 임베딩
-        embedding = embed_image(str(frame_path))
-
-        # ChromaDB에 저장
-        collection.add(
-            embeddings=[embedding],
-            ids=[frame_id],
-            metadatas=[{
-                "frame_path": str(frame_path),
-                "timestamp": _timestamp_from_frame_path(frame_path),
-                "video_id": frame_video_id,
-            }]
-        )
+        index_frame(frame_path, frame_root=frame_root, video_id=video_id)
 
         if (i + 1) % 10 == 0:
             print(f"  {i+1}/{len(frame_paths)} 완료...")
@@ -92,9 +103,45 @@ def search(query, top_k=3, video_id=None):
         output.append({
             "frame_id": results["ids"][0][i],
             "frame_path": results["metadatas"][0][i]["frame_path"],
+            "s3_key": results["metadatas"][0][i].get("s3_key"),
             "timestamp": results["metadatas"][0][i]["timestamp"],
             "video_id": results["metadatas"][0][i].get("video_id", "default"),
             "score": 1 - results["distances"][0][i]
         })
 
     return output
+
+
+def get_indexed_frames(video_id=None):
+    """
+    ChromaDB에 저장된 프레임 metadata 조회
+    """
+    results = collection.get(include=["metadatas"])
+    frames = []
+
+    for frame_id, metadata in zip(results["ids"], results["metadatas"]):
+        frame_video_id = metadata.get("video_id", "default")
+        if isinstance(video_id, list) and frame_video_id not in video_id:
+            continue
+        if isinstance(video_id, str) and frame_video_id != video_id:
+            continue
+
+        frames.append({
+            "frame_id": frame_id,
+            "frame_path": metadata.get("frame_path"),
+            "s3_key": metadata.get("s3_key"),
+            "timestamp": metadata.get("timestamp"),
+            "video_id": frame_video_id,
+        })
+
+    return frames
+
+
+def get_indexed_video_ids():
+    """
+    ChromaDB metadata 기준으로 검색 가능한 video_id 목록 조회
+    """
+    return sorted({
+        frame["video_id"]
+        for frame in get_indexed_frames()
+    })
