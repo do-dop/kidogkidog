@@ -12,11 +12,21 @@ venv/
 *.mp4
 *.avi
 *.mov
+*.mkv
+*.m4v
+*.webm
 *.jpg
 
 
 # 추출프레임
 pipeline/frames/
+
+# 청크/로컬 DB 산출물
+simulator/chunks/
+db/chroma/
+db/*.db
+db/*.sqlite
+db/*.sqlite3
 
 # 기타
 .DS_Store

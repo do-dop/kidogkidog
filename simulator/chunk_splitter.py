@@ -1,9 +1,9 @@
 import subprocess
-import os
+from pathlib import Path
 from datetime import datetime
 
 
-def split_video_into_chunks(video_path, chunk_duration=300, output_dir="simulator/chunks"):
+def split_video_into_chunks(video_path, chunk_duration=60, output_dir="simulator/chunks"):
     """
     영상을 5분(300초) 단위로 청크 분할
 
@@ -12,14 +12,17 @@ def split_video_into_chunks(video_path, chunk_duration=300, output_dir="simulato
         chunk_duration: 청크 길이 (초, 기본 5분)
         output_dir: 청크 저장 폴더
     """
-    os.makedirs(output_dir, exist_ok=True)
+    video_path = Path(video_path)
+    video_id = video_path.stem
+    run_id = datetime.now().strftime("%Y%m%d_%H%M%S")
+    run_dir = Path(output_dir) / video_id / run_id
+    run_dir.mkdir(parents=True, exist_ok=True)
 
-    date_str = datetime.now().strftime("%Y%m%d_%H%M%S")
-    output_pattern = f"{output_dir}/petcam_{date_str}_%03d.mp4"
+    output_pattern = str(run_dir / f"petcam_{run_id}_%03d.mp4")
 
     cmd = [
         "ffmpeg",
-        "-i", video_path,
+        "-i", str(video_path),
         "-c", "copy",
         "-map", "0",
         "-segment_time", str(chunk_duration),
@@ -30,18 +33,11 @@ def split_video_into_chunks(video_path, chunk_duration=300, output_dir="simulato
 
     subprocess.run(cmd, check=True)
 
-    chunks = sorted([
-        os.path.join(output_dir, f)
-        for f in os.listdir(output_dir)
-        if f.endswith(".mp4")
-    ])
+    chunks = sorted(run_dir.glob("*.mp4"))
+    chunks = [str(chunk) for chunk in chunks]
 
     print(f"총 {len(chunks)}개 청크 생성 완료!")
     for chunk in chunks:
         print(f"  {chunk}")
 
     return chunks
-
-
-if __name__ == "__main__":
-    split_video_into_chunks("test_video_2.mp4")

@@ -33,7 +33,7 @@ def main() -> None:
             "먼저 frame_extractor.py를 실행해서 프레임을 저장하세요."
         )
 
-    frame_paths = sorted(frames_dir.glob("*.jpg"))
+    frame_paths = sorted(frames_dir.rglob("*.jpg"))
     if not frame_paths:
         raise FileNotFoundError(
             f"{frames_dir} 안에 jpg 프레임이 없습니다.\n"
