@@ -29,17 +29,26 @@ def index_frame_to_chromadb(local_frame_path, video_id, s3_key=None):
     )
 
 
+def get_video_id_from_s3_key(s3_key):
+    key = Path(s3_key)
+    parts = key.parts
+    if len(parts) >= 2 and parts[0] == "chunks":
+        return parts[1]
+    if len(parts) >= 2 and parts[0] == "videos":
+        return key.stem
+    return key.stem
+
+
 @celery_app.task(name='pipeline.tasks.process_chunk')
 def process_chunk(chunk_path):
     """
-    청크 수신 → S3 다운로드 → motion 감지 → 프레임 추출 → CLIP 임베딩 → ChromaDB 저장
+    S3 영상/청크 수신 → 다운로드 → motion 감지 → 프레임 추출 → CLIP 임베딩 → ChromaDB 저장
     """
     print(f"[Task 시작] {chunk_path}")
-    chunk_key = Path(chunk_path)
-    video_id = chunk_key.parent.name if chunk_key.parent.name != "chunks" else chunk_key.stem
+    video_id = get_video_id_from_s3_key(chunk_path)
     frame_output_dir = FRAME_ROOT / video_id
 
-    # 1. S3에서 청크 다운로드
+    # 1. S3에서 영상/청크 다운로드
     local_path = f"/tmp/{os.path.basename(chunk_path)}"
     download_video(chunk_path, local_path)
     print(f"다운로드 완료: {local_path}")
