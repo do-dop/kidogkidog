@@ -19,7 +19,6 @@ from pipeline.vector_store import (
     get_indexed_frames,
     get_indexed_video_ids,
     search,
-    index_frames,
 )
 
 FRAMES_DIR = PROJECT_ROOT / "pipeline" / "frames"
@@ -334,79 +333,70 @@ with tab1:
 # ─────────────────────────────────────────
 with tab2:
     st.subheader("🔍 펫 행동 검색")
-    st.write("자연어 문장을 입력하면 저장된 프레임 중 가장 비슷한 장면 Top-3를 보여줍니다.")
+    st.write("영상을 선택하고 자연어 문장을 입력하면 저장된 프레임 중 가장 비슷한 장면을 보여줍니다.")
 
     video_ids = get_indexed_video_ids()
     if not video_ids:
         st.error("인덱싱된 프레임이 없습니다. 탭 1에서 먼저 영상을 처리해주세요!")
     else:
-        selected_video = st.selectbox("검색할 영상", ["전체"] + video_ids)
+        with st.form("search_form"):
+            selected_video = st.selectbox("검색할 영상", ["전체"] + video_ids)
+            query = st.text_input(
+                "검색어",
+                placeholder="예: a dog eating food",
+            )
+            top_k = st.slider("검색 결과 수", min_value=1, max_value=10, value=3)
+            search_btn = st.form_submit_button("🔍 검색", use_container_width=True)
+
         selected_video_id = None if selected_video == "전체" else selected_video
         indexed_frames = get_indexed_frames(selected_video_id)
+        st.info(f"현재 선택 범위의 인덱싱된 프레임 수: {len(indexed_frames)}")
 
         if not indexed_frames:
-            st.error("저장된 프레임이 없습니다. 탭 1에서 먼저 영상을 처리해주세요!")
-        else:
-            st.info(f"현재 인덱싱된 프레임 수: {len(indexed_frames)}")
-            if st.button("🔄 로컬 프레임 인덱스 갱신"):
-                with st.spinner("ChromaDB 인덱싱 중..."):
-                    index_frames(str(FRAMES_DIR))
-                st.success("인덱싱 완료")
+            st.error("선택한 영상에 저장된 프레임이 없습니다. worker 처리 상태를 확인해주세요.")
+        elif search_btn and query:
+            with st.spinner("ChromaDB에서 검색 중..."):
+                results = search(query, top_k=top_k, video_id=selected_video_id)
 
-            query = st.text_input(
-                "",
-                placeholder="예: a dog eating food",
-                label_visibility="collapsed"
-            )
-
-            col1, col2 = st.columns([1, 5])
-            with col1:
-                search_btn = st.button("🔍 검색", use_container_width=True)
-
-            if search_btn and query:
-                with st.spinner("ChromaDB에서 검색 중..."):
-                    results = search(query, top_k=3, video_id=selected_video_id)
-
-                if not results:
-                    st.warning("검색 결과가 없습니다. 프레임 인덱싱 상태를 확인해주세요.")
-                else:
-                    st.subheader("🏆 Top-3 검색 결과")
-                    cols = st.columns(len(results))
-                    for col, result in zip(cols, results):
-                        with col:
-                            image_source = get_frame_image_source(result)
-                            if image_source:
-                                st.image(image_source, use_container_width=True)
+            if not results:
+                st.warning("검색 결과가 없습니다. 프레임 인덱싱 상태를 확인해주세요.")
+            else:
+                st.subheader(f"🏆 Top-{len(results)} 검색 결과")
+                cols = st.columns(min(len(results), 3))
+                for i, result in enumerate(results):
+                    with cols[i % len(cols)]:
+                        image_source = get_frame_image_source(result)
+                        if image_source:
+                            st.image(image_source, use_container_width=True)
+                        else:
+                            st.caption("만료된 이미지입니다.")
+                        st.write(f"🎬 {result['video_id']}")
+                        global_timestamp = get_global_timestamp(result)
+                        st.write(f"⏱️ {global_timestamp:.2f}초")
+                        st.write(f"⭐ score: {result['score']:.4f}")
+                        try:
+                            clip_path = extract_clip(result)
+                            if clip_path:
+                                st.video(str(clip_path), start_time=0)
                             else:
-                                st.caption("만료된 이미지입니다.")
-                            st.write(f"🎬 {result['video_id']}")
-                            global_timestamp = get_global_timestamp(result)
-                            st.write(f"⏱️ {global_timestamp:.2f}초")
-                            st.write(f"⭐ score: {result['score']:.4f}")
-                            try:
-                                clip_path = extract_clip(result)
-                                if clip_path:
-                                    st.video(str(clip_path), start_time=0)
-                                else:
-                                    st.caption("원본 영상을 찾을 수 없습니다.")
-                            except Exception as exc:
-                                st.caption(f"클립 생성 실패: {exc}")
+                                st.caption("원본 영상을 찾을 수 없습니다.")
+                        except Exception as exc:
+                            st.caption(f"클립 생성 실패: {exc}")
 
-                    st.subheader("✨ 최고 유사도 결과")
-                    best = results[0]
-                    st.write(f"**Query**: {query}")
-                    st.write(f"**Best frame**: {best['frame_id']}")
-                    st.write(f"**Score**: {best['score']:.4f}")
+                st.subheader("✨ 최고 유사도 결과")
+                best = results[0]
+                st.write(f"**Query**: {query}")
+                st.write(f"**Best frame**: {best['frame_id']}")
+                st.write(f"**Score**: {best['score']:.4f}")
+        elif search_btn and not query:
+            st.warning("검색어를 입력해주세요!")
 
-            elif search_btn and not query:
-                st.warning("검색어를 입력해주세요!")
-
-            st.markdown("---")
-            st.markdown("**💡 이런 것들을 검색해보세요:**")
-            cols = st.columns(3)
-            with cols[0]:
-                st.info("🐕 a dog eating food")
-            with cols[1]:
-                st.info("😺 a cat sleeping")
-            with cols[2]:
-                st.info("🎾 a pet playing with toy")
+        st.markdown("---")
+        st.markdown("**💡 이런 것들을 검색해보세요:**")
+        cols = st.columns(3)
+        with cols[0]:
+            st.info("🐕 a dog eating food")
+        with cols[1]:
+            st.info("😺 a cat sleeping")
+        with cols[2]:
+            st.info("🎾 a pet playing with toy")
