@@ -15,7 +15,7 @@ import torch
 import torch.nn.functional as F
 from PIL import Image
 
-from pipeline.s3_uploader import create_presigned_url, object_exists
+from pipeline.s3_uploader import create_presigned_url
 from pipeline.vector_store import (
     get_indexed_frames,
     get_indexed_video_ids,
@@ -168,10 +168,10 @@ def get_frame_count(video_id=None):
 
 @st.cache_data(ttl=900)
 def get_presigned_frame_url(s3_key):
-    if not object_exists(s3_key):
+    try:
+        return create_presigned_url(s3_key)
+    except Exception:
         return None
-
-    return create_presigned_url(s3_key)
 
 
 def get_frame_image_source(result):
@@ -511,6 +511,7 @@ with tab3:
                         image_source = get_frame_image_source(result)
                         if image_source:
                             st.image(image_source, use_container_width=True)
+                            st.link_button("이미지 새 탭에서 열기", image_source)
                         else:
                             st.caption("이미지를 표시할 수 없습니다.")
 
@@ -518,4 +519,14 @@ with tab3:
                         st.write(f"영상: {result['video_id']}")
                         st.write(f"시간: {timestamp:.2f}초")
                         st.write(f"score: {result['score']:.4f}")
+                        if result.get("s3_key"):
+                            st.caption(f"S3: {result['s3_key']}")
                         st.caption(result["frame_id"])
+                        try:
+                            clip_path = extract_clip(result)
+                            if clip_path:
+                                st.video(str(clip_path), start_time=0)
+                            else:
+                                st.caption("원본 영상을 찾을 수 없어 10초 클립을 만들 수 없습니다.")
+                        except Exception as exc:
+                            st.caption(f"10초 클립 생성 실패: {exc}")
