@@ -1,12 +1,13 @@
 from fastapi import FastAPI
 from celery import Celery
 from pydantic import BaseModel
+import os
 
 app = FastAPI()
 
 celery_app = Celery(
     'tasks',
-    broker='amqp://guest:guest@rabbitmq:5672/'
+    broker=os.getenv('CELERY_BROKER_URL', 'amqp://guest:guest@rabbitmq:5672/')
 )
 
 class ChunkRequest(BaseModel):

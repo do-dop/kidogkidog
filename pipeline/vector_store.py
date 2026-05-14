@@ -6,12 +6,22 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 CHROMA_DIR = PROJECT_ROOT / "db" / "chroma"
 CHROMA_DIR.mkdir(parents=True, exist_ok=True)
 
-# ChromaDB 로컬 클라이언트
-client = chromadb.PersistentClient(path=str(CHROMA_DIR))
-collection = client.get_or_create_collection(
-    name="petcam_frames",
-    metadata={"hnsw:space": "cosine"}
-)
+_client = None
+_collection = None
+
+
+def get_collection():
+    """ChromaDB 컬렉션을 필요 시점에 생성"""
+    global _client, _collection
+    if _collection is None:
+        print(f"ChromaDB 연결 시작: {CHROMA_DIR}", flush=True)
+        _client = chromadb.PersistentClient(path=str(CHROMA_DIR))
+        _collection = _client.get_or_create_collection(
+            name="petcam_frames",
+            metadata={"hnsw:space": "cosine"}
+        )
+        print("ChromaDB 연결 완료", flush=True)
+    return _collection
 
 def _timestamp_from_frame_path(frame_path):
     stem = frame_path.stem
@@ -40,12 +50,18 @@ def index_frame(frame_path, frame_root="pipeline/frames", video_id=None, s3_key=
     frame_path = Path(frame_path)
     frame_id = _frame_id(frame_path, frame_root)
     frame_video_id = video_id or _video_id_from_frame_path(frame_path, frame_root)
+    collection = get_collection()
 
+    print(f"ChromaDB 기존 프레임 확인 시작: {frame_id}", flush=True)
     existing = collection.get(ids=[frame_id])
     if existing["ids"]:
+        print(f"ChromaDB 기존 프레임 스킵: {frame_id}", flush=True)
         return frame_id
+    print(f"ChromaDB 기존 프레임 확인 완료: {frame_id}", flush=True)
 
+    print(f"CLIP 이미지 임베딩 시작: {frame_path}", flush=True)
     embedding = embed_image(str(frame_path))
+    print(f"CLIP 이미지 임베딩 완료: {frame_path}", flush=True)
 
     metadata = {
         "frame_path": str(frame_path),
@@ -55,11 +71,13 @@ def index_frame(frame_path, frame_root="pipeline/frames", video_id=None, s3_key=
     if s3_key:
         metadata["s3_key"] = s3_key
 
+    print(f"ChromaDB add 시작: {frame_id}", flush=True)
     collection.add(
         embeddings=[embedding],
         ids=[frame_id],
         metadatas=[metadata],
     )
+    print(f"ChromaDB add 완료: {frame_id}", flush=True)
     return frame_id
 
 
@@ -77,7 +95,7 @@ def index_frames(frame_dir="pipeline/frames", video_id=None):
         if (i + 1) % 10 == 0:
             print(f"  {i+1}/{len(frame_paths)} 완료...")
 
-    print(f"인덱싱 완료! 총 {collection.count()}개 저장됨")
+    print(f"인덱싱 완료! 총 {get_collection().count()}개 저장됨")
 
 
 def search(query, top_k=3, video_id=None):
@@ -85,6 +103,7 @@ def search(query, top_k=3, video_id=None):
     자연어 쿼리로 ChromaDB에서 유사한 프레임 검색
     """
     query_embedding = embed_text(query)
+    collection = get_collection()
 
     query_kwargs = {
         "query_embeddings": [query_embedding],
@@ -116,6 +135,7 @@ def get_indexed_frames(video_id=None):
     """
     ChromaDB에 저장된 프레임 metadata 조회
     """
+    collection = get_collection()
     results = collection.get(include=["metadatas"])
     frames = []
 
