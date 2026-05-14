@@ -253,7 +253,7 @@ def extract_clip(result, lead_seconds=CLIP_LEAD_SECONDS, duration=CLIP_DURATION_
 # ─────────────────────────────────────────
 # 탭 구성
 # ─────────────────────────────────────────
-tab1, tab2 = st.tabs(["🔧 시스템 처리 현황", "🐾 검색 서비스"])
+tab1, tab2, tab3 = st.tabs(["🔧 시스템 처리 현황", "🐾 검색 서비스", "🧪 영상 검색 테스트"])
 
 # ─────────────────────────────────────────
 # 탭 1: 시스템 처리 현황
@@ -471,3 +471,51 @@ with tab2:
                 st.info("😺 a cat sleeping")
             with cols[2]:
                 st.info("🎾 a pet playing with toy")
+
+# ─────────────────────────────────────────
+# 탭 3: 영상별 검색 테스트
+# ─────────────────────────────────────────
+with tab3:
+    st.subheader("🧪 영상별 검색 테스트")
+    st.write("사용자 맞춤 검색 로그와 분리해서, 선택한 영상의 ChromaDB 검색 결과만 확인합니다.")
+
+    test_video_ids = get_indexed_video_ids()
+    if not test_video_ids:
+        st.error("인덱싱된 프레임이 없습니다. worker 처리 완료 후 다시 확인해주세요.")
+    else:
+        with st.form("video_search_test_form"):
+            test_video = st.selectbox("테스트할 영상", ["전체"] + test_video_ids)
+            test_query = st.text_input("검색어", placeholder="예: a dog eating food")
+            test_top_k = st.slider("결과 수", min_value=1, max_value=10, value=3)
+            test_search_btn = st.form_submit_button("검색 테스트", use_container_width=True)
+
+        test_video_id = None if test_video == "전체" else test_video
+        test_frames = get_indexed_frames(test_video_id)
+        st.info(f"선택 범위의 인덱싱된 프레임 수: {len(test_frames)}")
+
+        if not test_frames:
+            st.warning("선택한 영상에 인덱싱된 프레임이 없습니다.")
+        elif test_search_btn and not test_query:
+            st.warning("검색어를 입력해주세요.")
+        elif test_search_btn:
+            with st.spinner("선택한 영상에서 검색 중..."):
+                test_results = search(test_query, top_k=test_top_k, video_id=test_video_id)
+
+            if not test_results:
+                st.warning("검색 결과가 없습니다.")
+            else:
+                st.subheader(f"검색 결과 Top-{len(test_results)}")
+                cols = st.columns(min(len(test_results), 3))
+                for i, result in enumerate(test_results):
+                    with cols[i % len(cols)]:
+                        image_source = get_frame_image_source(result)
+                        if image_source:
+                            st.image(image_source, use_container_width=True)
+                        else:
+                            st.caption("이미지를 표시할 수 없습니다.")
+
+                        timestamp = float(result["timestamp"])
+                        st.write(f"영상: {result['video_id']}")
+                        st.write(f"시간: {timestamp:.2f}초")
+                        st.write(f"score: {result['score']:.4f}")
+                        st.caption(result["frame_id"])
