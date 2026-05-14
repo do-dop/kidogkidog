@@ -4,14 +4,14 @@ from pathlib import Path
 from pipeline.motion_detector import detect_motion
 
 
-def extract_frames(video_path, output_dir="pipeline/frames", fps=1, frame_prefix=None):
+def extract_frames(video_path, output_dir="pipeline/frames", fps=0.5, frame_prefix=None):
     """
     motion 감지된 구간에서만 프레임 추출
 
     Args:
         video_path: 영상 파일 경로
         output_dir: 프레임 저장 폴더
-        fps: 추출할 FPS (기본 1fps)
+        fps: 추출할 FPS (기본 0.5fps, 2초마다 1장)
 
     Returns:
         frame_list: [{"frame_path": ..., "timestamp": ...}, ...]
@@ -48,7 +48,7 @@ def extract_frames(video_path, output_dir="pipeline/frames", fps=1, frame_prefix
                 "timestamp": t
             })
 
-            t += (1.0 / fps)  # 1fps 간격
+            t += (1.0 / fps)
 
     cap.release()
     print(f"총 {len(frame_list)}개 프레임 추출 완료!")
