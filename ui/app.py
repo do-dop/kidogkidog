@@ -2,6 +2,7 @@ import subprocess
 import sys
 import time
 import re
+import uuid
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -20,6 +21,14 @@ from pipeline.vector_store import (
     get_indexed_video_ids,
     search,
     index_frames,
+)
+
+from db.metadata import (
+    init_db,
+    insert_search_log,
+    upsert_user_frequent_query,
+    get_user_top_queries,
+    get_user_recent_queries,
 )
 
 FRAMES_DIR = PROJECT_ROOT / "pipeline" / "frames"
@@ -59,6 +68,19 @@ st.markdown("""
 
 st.markdown('<div class="main-title">🐾 Kidogkidog</div>', unsafe_allow_html=True)
 st.markdown('<div class="sub-title">당신의 펫, 지금 뭐하고 있을까?</div>', unsafe_allow_html=True)
+
+# ─────────────────────────────────────────
+# DB 초기화 및 사용자 식별
+# ─────────────────────────────────────────
+init_db()
+
+if "user_id" not in st.session_state:
+    st.session_state["user_id"] = f"anonymous-{uuid.uuid4()}"
+
+user_id = st.session_state["user_id"]
+
+if "search_query" not in st.session_state:
+    st.session_state["search_query"] = ""
 
 # ─────────────────────────────────────────
 # CLIP 모델 로드
@@ -353,24 +375,63 @@ with tab2:
                     index_frames(str(FRAMES_DIR))
                 st.success("인덱싱 완료")
 
+            # 자주 찾는 검색어 추천
+            top_queries = get_user_top_queries(user_id=user_id, limit=5)
+
+            if top_queries:
+                st.markdown("#### ⭐ 자주 찾는 검색어")
+
+                cols = st.columns(len(top_queries))
+
+                for i, item in enumerate(top_queries):
+                    q = item["query"]
+                    count = item["count"]
+
+                    with cols[i]:
+                        if st.button(f"{q} ({count})", key=f"top_query_{i}"):
+                            st.session_state["search_query"] = q
+                            st.rerun()
+
             query = st.text_input(
                 "",
                 placeholder="예: a dog eating food",
+                key="search_query",
                 label_visibility="collapsed"
-            )
+            )         
 
             col1, col2 = st.columns([1, 5])
             with col1:
                 search_btn = st.button("🔍 검색", use_container_width=True)
 
             if search_btn and query:
+                start_time = time.time()
+
                 with st.spinner("ChromaDB에서 검색 중..."):
                     results = search(query, top_k=3, video_id=selected_video_id)
+
+                latency_ms = int((time.time() - start_time) * 1000)
+                result_count = len(results) if results else 0
+
+                insert_search_log(
+                    user_id=user_id,
+                    query_raw=query,
+                    video_id=selected_video_id,
+                    top_k=3,
+                    result_count=result_count,
+                    latency_ms=latency_ms,
+                )
+
+                upsert_user_frequent_query(
+                    user_id=user_id,
+                    query_raw=query,
+                )
 
                 if not results:
                     st.warning("검색 결과가 없습니다. 프레임 인덱싱 상태를 확인해주세요.")
                 else:
                     st.subheader("🏆 Top-3 검색 결과")
+
+                    # 검색 결과 표시
                     cols = st.columns(len(results))
                     for col, result in zip(cols, results):
                         with col:
