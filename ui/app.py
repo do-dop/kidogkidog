@@ -1,6 +1,7 @@
 import subprocess
 import sys
 import time
+import re
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -13,10 +14,21 @@ import torch
 import torch.nn.functional as F
 from PIL import Image
 
-from pipeline.vector_store import search, index_frames
+from pipeline.s3_uploader import create_presigned_url, object_exists
+from pipeline.vector_store import (
+    get_indexed_frames,
+    get_indexed_video_ids,
+    search,
+    index_frames,
+)
 
 FRAMES_DIR = PROJECT_ROOT / "pipeline" / "frames"
+VIDEO_DIR = PROJECT_ROOT / "data" / "videos"
+CLIP_DIR = Path("/tmp/kidogkidog_clips")
 VIDEO_EXTENSIONS = {".mp4", ".mov", ".avi", ".mkv", ".m4v"}
+CHUNK_DURATION_SECONDS = 60
+CLIP_LEAD_SECONDS = 3
+CLIP_DURATION_SECONDS = 10
 
 # ─────────────────────────────────────────
 # 페이지 설정
@@ -129,9 +141,91 @@ def get_video_ids():
 
 
 def get_frame_count(video_id=None):
-    if not FRAMES_DIR.exists():
+    return len(get_indexed_frames(video_id))
+
+
+@st.cache_data(ttl=900)
+def get_presigned_frame_url(s3_key):
+    if not object_exists(s3_key):
+        return None
+
+    return create_presigned_url(s3_key)
+
+
+def get_frame_image_source(result):
+    s3_key = result.get("s3_key")
+    if s3_key:
+        return get_presigned_frame_url(s3_key)
+
+    frame_path = result.get("frame_path")
+    if frame_path and Path(frame_path).exists():
+        return frame_path
+
+    return None
+
+
+def find_source_video(video_id):
+    for extension in VIDEO_EXTENSIONS:
+        video_path = VIDEO_DIR / f"{video_id}{extension}"
+        if video_path.exists():
+            return video_path
+    return None
+
+
+def get_chunk_index(frame_path):
+    match = re.search(r"_(\d{3})_frame_", Path(frame_path).name)
+    if not match:
         return 0
-    return len(get_frame_paths(video_id))
+    return int(match.group(1))
+
+
+def get_global_timestamp(result):
+    chunk_index = get_chunk_index(result["frame_path"])
+    return chunk_index * CHUNK_DURATION_SECONDS + float(result["timestamp"])
+
+
+def extract_clip(result, lead_seconds=CLIP_LEAD_SECONDS, duration=CLIP_DURATION_SECONDS):
+    video_id = result["video_id"]
+    source_video = find_source_video(video_id)
+    if source_video is None:
+        return None
+
+    global_timestamp = get_global_timestamp(result)
+    start_time = max(global_timestamp - lead_seconds, 0)
+
+    CLIP_DIR.mkdir(parents=True, exist_ok=True)
+    output_path = CLIP_DIR / f"{video_id}_{start_time:.2f}_{duration}.mp4"
+    if output_path.exists():
+        return output_path
+
+    subprocess.run(
+        [
+            "ffmpeg",
+            "-y",
+            "-hide_banner",
+            "-loglevel",
+            "error",
+            "-ss",
+            f"{start_time:.2f}",
+            "-i",
+            str(source_video),
+            "-t",
+            str(duration),
+            "-c:v",
+            "libx264",
+            "-preset",
+            "veryfast",
+            "-crf",
+            "23",
+            "-c:a",
+            "aac",
+            "-b:a",
+            "128k",
+            str(output_path),
+        ],
+        check=True,
+    )
+    return output_path
 
 
 # ─────────────────────────────────────────
@@ -208,9 +302,7 @@ with tab1:
 
             final_count = get_frame_count(target_video_ids)
             st.write(f"✅ 프레임 추출 완료! 총 {final_count}개")
-            st.write("🔎 ChromaDB 인덱싱 중...")
-            index_frames(str(FRAMES_DIR))
-            st.write("✅ ChromaDB 인덱싱 완료")
+            st.write("✅ ChromaDB 인덱싱 확인 완료")
             status.update(label="✅ 파이프라인 완료!", state="complete")
 
         # 처리 결과 요약
@@ -222,15 +314,20 @@ with tab1:
 
         # 추출된 프레임 갤러리
         st.subheader("🖼️ 추출된 프레임")
-        if FRAMES_DIR.exists():
-            frame_files = get_frame_paths(target_video_ids)[:12]
-            if frame_files:
-                cols = st.columns(4)
-                for i, frame_path in enumerate(frame_files):
-                    with cols[i % 4]:
-                        img = Image.open(frame_path)
-                        timestamp = frame_path.stem.rsplit("_frame_", 1)[-1]
-                        st.image(img, caption=f"⏱️ {timestamp}초", use_container_width=True)
+        indexed_frames = get_indexed_frames(target_video_ids)[:12]
+        if indexed_frames:
+            cols = st.columns(4)
+            for i, frame in enumerate(indexed_frames):
+                with cols[i % 4]:
+                    image_source = get_frame_image_source(frame)
+                    if image_source:
+                        st.image(
+                            image_source,
+                            caption=f"⏱️ {float(frame['timestamp']):.2f}초",
+                            use_container_width=True,
+                        )
+                    else:
+                        st.caption("만료된 이미지입니다.")
 
 # ─────────────────────────────────────────
 # 탭 2: 고객용 검색 서비스
@@ -239,19 +336,19 @@ with tab2:
     st.subheader("🔍 펫 행동 검색")
     st.write("자연어 문장을 입력하면 저장된 프레임 중 가장 비슷한 장면 Top-3를 보여줍니다.")
 
-    if not FRAMES_DIR.exists():
-        st.error("`pipeline/frames` 폴더가 없습니다.")
+    video_ids = get_indexed_video_ids()
+    if not video_ids:
+        st.error("인덱싱된 프레임이 없습니다. 탭 1에서 먼저 영상을 처리해주세요!")
     else:
-        video_ids = get_video_ids()
         selected_video = st.selectbox("검색할 영상", ["전체"] + video_ids)
         selected_video_id = None if selected_video == "전체" else selected_video
-        frame_paths = get_frame_paths(selected_video_id)
+        indexed_frames = get_indexed_frames(selected_video_id)
 
-        if not frame_paths:
+        if not indexed_frames:
             st.error("저장된 프레임이 없습니다. 탭 1에서 먼저 영상을 처리해주세요!")
         else:
-            st.info(f"현재 저장된 프레임 수: {len(frame_paths)}")
-            if st.button("🔄 인덱스 갱신"):
+            st.info(f"현재 인덱싱된 프레임 수: {len(indexed_frames)}")
+            if st.button("🔄 로컬 프레임 인덱스 갱신"):
                 with st.spinner("ChromaDB 인덱싱 중..."):
                     index_frames(str(FRAMES_DIR))
                 st.success("인덱싱 완료")
@@ -277,10 +374,23 @@ with tab2:
                     cols = st.columns(len(results))
                     for col, result in zip(cols, results):
                         with col:
-                            st.image(result["frame_path"], use_container_width=True)
+                            image_source = get_frame_image_source(result)
+                            if image_source:
+                                st.image(image_source, use_container_width=True)
+                            else:
+                                st.caption("만료된 이미지입니다.")
                             st.write(f"🎬 {result['video_id']}")
-                            st.write(f"⏱️ {result['timestamp']}초")
+                            global_timestamp = get_global_timestamp(result)
+                            st.write(f"⏱️ {global_timestamp:.2f}초")
                             st.write(f"⭐ score: {result['score']:.4f}")
+                            try:
+                                clip_path = extract_clip(result)
+                                if clip_path:
+                                    st.video(str(clip_path), start_time=0)
+                                else:
+                                    st.caption("원본 영상을 찾을 수 없습니다.")
+                            except Exception as exc:
+                                st.caption(f"클립 생성 실패: {exc}")
 
                     st.subheader("✨ 최고 유사도 결과")
                     best = results[0]
