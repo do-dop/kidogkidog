@@ -49,6 +49,14 @@ def download_video(s3_key, local_path):
     print(f"다운로드 성공: {local_path}")
 
 
+def download_bytes(s3_key):
+    if not BUCKET:
+        raise ValueError("AWS_BUCKET_NAME 환경변수가 설정되어 있지 않습니다.")
+
+    response = s3.get_object(Bucket=BUCKET, Key=s3_key)
+    return response["Body"].read()
+
+
 def create_presigned_url(s3_key, expires_in=3600):
     if not BUCKET:
         raise ValueError("AWS_BUCKET_NAME 환경변수가 설정되어 있지 않습니다.")

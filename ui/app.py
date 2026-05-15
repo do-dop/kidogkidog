@@ -15,7 +15,7 @@ import torch
 import torch.nn.functional as F
 from PIL import Image
 
-from pipeline.s3_uploader import create_presigned_url
+from pipeline.s3_uploader import download_bytes, download_video, object_exists
 from pipeline.vector_store import (
     get_indexed_frames,
     get_indexed_video_ids,
@@ -34,6 +34,7 @@ from db.metadata import (
 FRAMES_DIR = PROJECT_ROOT / "pipeline" / "frames"
 VIDEO_DIR = PROJECT_ROOT / "data" / "videos"
 CLIP_DIR = Path("/tmp/kidogkidog_clips")
+SOURCE_VIDEO_CACHE_DIR = Path("/tmp/kidogkidog_source_videos")
 VIDEO_EXTENSIONS = {".mp4", ".mov", ".avi", ".mkv", ".m4v"}
 CHUNK_DURATION_SECONDS = 60
 CLIP_LEAD_SECONDS = 3
@@ -167,9 +168,9 @@ def get_frame_count(video_id=None):
 
 
 @st.cache_data(ttl=900)
-def get_presigned_frame_url(s3_key):
+def get_s3_frame_bytes(s3_key):
     try:
-        return create_presigned_url(s3_key)
+        return download_bytes(s3_key)
     except Exception:
         return None
 
@@ -177,7 +178,7 @@ def get_presigned_frame_url(s3_key):
 def get_frame_image_source(result):
     s3_key = result.get("s3_key")
     if s3_key:
-        return get_presigned_frame_url(s3_key)
+        return get_s3_frame_bytes(s3_key)
 
     frame_path = result.get("frame_path")
     if frame_path and Path(frame_path).exists():
@@ -191,6 +192,18 @@ def find_source_video(video_id):
         video_path = VIDEO_DIR / f"{video_id}{extension}"
         if video_path.exists():
             return video_path
+
+    SOURCE_VIDEO_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    for extension in VIDEO_EXTENSIONS:
+        s3_key = f"videos/{video_id}{extension}"
+        if not object_exists(s3_key):
+            continue
+
+        cached_video_path = SOURCE_VIDEO_CACHE_DIR / f"{video_id}{extension}"
+        if not cached_video_path.exists():
+            download_video(s3_key, str(cached_video_path))
+        return cached_video_path
+
     return None
 
 
@@ -511,7 +524,6 @@ with tab3:
                         image_source = get_frame_image_source(result)
                         if image_source:
                             st.image(image_source, use_container_width=True)
-                            st.link_button("이미지 새 탭에서 열기", image_source)
                         else:
                             st.caption("이미지를 표시할 수 없습니다.")
 
