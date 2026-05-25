@@ -23,7 +23,7 @@ from pipeline.vector_store import (
     search,
 )
 
-from db.metadata import (
+from db.metadata import ( 
     init_db,
     insert_search_log,
     upsert_user_frequent_query,
