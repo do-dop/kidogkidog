@@ -24,6 +24,7 @@ from pipeline.vector_store import (
 )
 from pipeline.query_suggester import suggest_queries, get_suggestion_events
 from pipeline.query_analyzer import build_prompt_context
+from pipeline.rag_chain import run_rag_query
 
 from db.metadata import (
     init_db,
@@ -523,6 +524,96 @@ with tab2:
                 search_btn = st.form_submit_button("🔍 검색", use_container_width=True)
 
             if search_btn and query:
+                start_time = time.time()
+
+                with st.spinner("ChromaDB 검색 및 AI 답변 생성 중..."):
+                    rag_result = run_rag_query(
+                        query=query,
+                        video_id=selected_video_id,
+                        top_k=top_k,
+                        user_id=user_id,
+                    )
+
+                results = rag_result.get("results", [])
+                answer = rag_result.get("answer", "")
+                used_llm = rag_result.get("used_llm", False)
+
+                latency_ms = int((time.time() - start_time) * 1000)
+                result_count = len(results) if results else 0
+
+                insert_search_log(
+                    user_id=user_id,
+                    query_raw=query,
+                    video_id=selected_video_id,
+                    top_k=top_k,
+                    result_count=result_count,
+                    latency_ms=latency_ms,
+                )
+
+                upsert_user_frequent_query(
+                    user_id=user_id,
+                    query_raw=query,
+                )
+
+                if answer:
+                    st.subheader("🤖 AI 답변")
+                    st.write(answer)
+
+                    if used_llm:
+                        st.caption("LangChain + LLM으로 검색 결과 기반 답변을 생성했습니다.")
+                    else:
+                        st.caption("OPENAI_API_KEY가 없거나 LLM 호출에 실패하여 검색 metadata 기반 답변을 표시했습니다.")
+
+                if not results:
+                    st.warning("검색 결과가 없습니다. 프레임 인덱싱 상태를 확인해주세요.")
+                else:
+                    st.subheader(f"🏆 Top-{len(results)} 검색 결과")
+
+                    cols = st.columns(min(len(results), 3))
+
+                    for i, result in enumerate(results):
+                        with cols[i % len(cols)]:
+                            image_source = get_frame_image_source(result)
+
+                            if image_source:
+                                st.image(image_source, use_container_width=True)
+                            else:
+                                st.caption("만료된 이미지입니다.")
+
+                            st.write(f"🎬 {result['video_id']}")
+
+                            global_timestamp = get_global_timestamp(result)
+
+                            st.write(f"⏱️ {global_timestamp:.2f}초")
+                            st.write(f"⭐ score: {result['score']:.4f}")
+
+                            if result.get("object_labels"):
+                                st.caption(f"감지 객체: {result['object_labels']}")
+
+                            try:
+                                clip_path = extract_clip(result)
+
+                                if clip_path:
+                                    st.video(str(clip_path), start_time=0)
+                                else:
+                                    st.caption("원본 영상을 찾을 수 없습니다.")
+                            except Exception as exc:
+                                st.caption(f"클립 생성 실패: {exc}")
+
+                    st.subheader("✨ 최고 유사도 결과")
+
+                    best = results[0]
+
+                    st.write(f"**Query**: {query}")
+                    st.write(f"**Best frame**: {best['frame_id']}")
+                    st.write(f"**Score**: {best['score']:.4f}")
+
+                    if best.get("object_labels"):
+                        st.write(f"**Detected objects**: {best['object_labels']}")
+
+            elif search_btn and not query:
+                st.warning("검색어를 입력해주세요!")
+
                 start_time = time.time()
 
                 with st.spinner("ChromaDB에서 검색 중..."):
