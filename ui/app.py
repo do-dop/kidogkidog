@@ -22,8 +22,10 @@ from pipeline.vector_store import (
     index_frames,
     search,
 )
+from pipeline.query_suggester import suggest_queries, get_suggestion_events
+from pipeline.query_analyzer import build_prompt_context
 
-from db.metadata import ( 
+from db.metadata import (
     init_db,
     insert_search_log,
     upsert_user_frequent_query,
@@ -441,6 +443,56 @@ with tab2:
 
                 st.success("인덱싱 완료")
 
+            # 장면 후보 기반 추천 질문
+            suggested_queries = suggest_queries(
+                user_id=user_id,
+                video_id=selected_video_id,
+                limit=6,
+            )
+
+            prompt_context = build_prompt_context(
+                user_id=user_id,
+                video_id=selected_video_id,
+            )
+
+            scene_events = get_suggestion_events(
+                video_id=selected_video_id,
+                limit=5,
+            )
+
+            if suggested_queries:
+                st.markdown("#### 💡 이 영상에서 확인해볼 만한 질문")
+
+                if scene_events:
+                    with st.expander("추천 질문 생성에 사용된 장면 후보 보기"):
+                        for event in scene_events:
+                            timestamp = event.get("timestamp")
+                            timestamp_text = f"{timestamp:.1f}초" if timestamp is not None else "여러 구간"
+                            labels = ", ".join(event.get("labels", [])) or "없음"
+
+                            st.write(f"- **{timestamp_text}** / `{event.get('event_type')}` / {labels}")
+                            st.caption(event.get("description", ""))
+
+                object_summary = ", ".join(
+                    f"{item['label']}({item['count']})"
+                    for item in prompt_context.get("dominant_objects", [])[:5]
+                )
+
+                if object_summary:
+                    st.caption(f"감지된 주요 객체: {object_summary}")
+
+                cols = st.columns(min(len(suggested_queries), 3))
+
+                for i, suggested_query in enumerate(suggested_queries):
+                    with cols[i % len(cols)]:
+                        if st.button(
+                            suggested_query,
+                            key=f"scene_suggested_query_{selected_video_id}_{i}",
+                            use_container_width=True,
+                        ):
+                            st.session_state["search_query"] = suggested_query
+                            st.rerun()
+
             # 자주 찾는 검색어 추천
             top_queries = get_user_top_queries(user_id=user_id, limit=5)
 
@@ -461,7 +513,7 @@ with tab2:
             with st.form("search_form"):
                 query = st.text_input(
                     "검색어",
-                    placeholder="예: a dog eating food",
+                    placeholder="예: 강아지가 특정 물체 근처에 머무른 장면",
                     key="search_query",
                     label_visibility="collapsed",
                 )
@@ -516,6 +568,9 @@ with tab2:
                             st.write(f"⏱️ {global_timestamp:.2f}초")
                             st.write(f"⭐ score: {result['score']:.4f}")
 
+                            if result.get("object_labels"):
+                                st.caption(f"감지 객체: {result['object_labels']}")
+
                             try:
                                 clip_path = extract_clip(result)
 
@@ -534,22 +589,17 @@ with tab2:
                     st.write(f"**Best frame**: {best['frame_id']}")
                     st.write(f"**Score**: {best['score']:.4f}")
 
+                    if best.get("object_labels"):
+                        st.write(f"**Detected objects**: {best['object_labels']}")
+
             elif search_btn and not query:
                 st.warning("검색어를 입력해주세요!")
 
             st.markdown("---")
-            st.markdown("**💡 이런 것들을 검색해보세요:**")
-
-            cols = st.columns(3)
-
-            with cols[0]:
-                st.info("🐕 a dog eating food")
-
-            with cols[1]:
-                st.info("😺 a cat sleeping")
-
-            with cols[2]:
-                st.info("🎾 a pet playing with toy")
+            st.caption(
+                "💡 추천 질문은 행동을 미리 정의한 것이 아니라, "
+                "프레임별 객체 라벨 변화와 눈에 띄는 장면 후보를 바탕으로 자동 생성됩니다."
+            )
 
 
 # ─────────────────────────────────────────
@@ -566,7 +616,7 @@ with tab3:
     else:
         with st.form("video_search_test_form"):
             test_video = st.selectbox("테스트할 영상", ["전체"] + test_video_ids)
-            test_query = st.text_input("검색어", placeholder="예: a dog eating food")
+            test_query = st.text_input("검색어", placeholder="예: 강아지가 특정 물체 근처에 머무른 장면")
             test_top_k = st.slider("결과 수", min_value=1, max_value=10, value=3)
             test_search_btn = st.form_submit_button("검색 테스트", use_container_width=True)
 
@@ -604,6 +654,9 @@ with tab3:
                         st.write(f"영상: {result['video_id']}")
                         st.write(f"시간: {timestamp:.2f}초")
                         st.write(f"score: {result['score']:.4f}")
+
+                        if result.get("object_labels"):
+                            st.caption(f"감지 객체: {result['object_labels']}")
 
                         if result.get("s3_key"):
                             st.caption(f"S3: {result['s3_key']}")

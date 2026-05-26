@@ -45,7 +45,7 @@ def get_yolo_model():
 
 def detect_objects(
     frame_path: str,
-    confidence_threshold: float = 0.35,
+    confidence_threshold: float = 0.5,
     target_labels: Set[str] | None = None,
 ) -> List[str]:
     """
