@@ -7,8 +7,30 @@ services:
       - "8000:8000"
     env_file:
       - .env
+    environment:
+      CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672/
+    volumes:
+      - ./db:/app/db
+      - clip-cache:/root/.cache/clip
     depends_on:
       - chromadb
+      - rabbitmq
+    networks:
+      - kidognet
+
+  worker:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    command: celery -A pipeline.tasks worker --loglevel=info --concurrency=1
+    env_file:
+      - .env
+    environment:
+      CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672/
+    volumes:
+      - ./db:/app/db
+      - clip-cache:/root/.cache/clip
+    depends_on:
       - rabbitmq
     networks:
       - kidognet
@@ -31,3 +53,6 @@ services:
 networks:
   kidognet:
     driver: bridge
+
+volumes:
+  clip-cache:
