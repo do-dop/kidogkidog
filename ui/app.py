@@ -22,7 +22,11 @@ from pipeline.vector_store import (
     index_frames,
     search,
 )
-from pipeline.query_suggester import suggest_queries, get_suggestion_events
+from pipeline.query_suggester import (
+    suggest_queries,
+    get_suggestion_events,
+    get_suggestion_behavior_events,
+)
 from pipeline.query_analyzer import build_prompt_context
 from pipeline.rag_chain import run_rag_query
 
@@ -32,6 +36,7 @@ from db.metadata import (
     upsert_user_frequent_query,
     get_user_top_queries,
     get_user_recent_queries,
+    get_scene_records,
 )
 
 FRAMES_DIR = PROJECT_ROOT / "pipeline" / "frames"
@@ -85,6 +90,9 @@ user_id = st.session_state["user_id"]
 
 if "search_query" not in st.session_state:
     st.session_state["search_query"] = ""
+
+if "pipeline_processing" not in st.session_state:
+    st.session_state["pipeline_processing"] = False
 
 # ─────────────────────────────────────────
 # CLIP 모델 로드
@@ -187,7 +195,25 @@ def get_video_ids():
 
 
 def get_frame_count(video_id=None):
-    return len(get_indexed_frames(video_id))
+    """
+    처리 진행 상황 확인용 프레임 개수 조회.
+
+    기존에는 ChromaDB의 get_indexed_frames()를 사용했지만,
+    Celery worker가 ChromaDB에 쓰는 중 Streamlit이 동시에 읽으면
+    ChromaDB sqlite 파일이 꼬일 수 있어 SQLite scenes 기준으로 조회한다.
+    """
+    try:
+        if isinstance(video_id, list):
+            return sum(
+                len(get_scene_records(video_id=item))
+                for item in video_id
+            )
+
+        return len(get_scene_records(video_id=video_id))
+
+    except Exception as exc:
+        print(f"프레임 개수 조회 실패: {exc}", flush=True)
+        return 0
 
 
 @st.cache_data(ttl=900)
@@ -235,7 +261,6 @@ def find_source_video(video_id):
         return cached_video_path
 
     return None
-
 
 def get_chunk_index(frame_path):
     match = re.search(r"_(\d{3})_frame_", Path(frame_path).name)
@@ -314,9 +339,17 @@ with tab1:
     video_path = st.text_input("처리할 영상 파일 또는 폴더", value="data/videos")
 
     if st.button("🎬 펫캠 영상 수신 시작", use_container_width=True):
+        st.session_state["pipeline_processing"] = True
+
+        # 새 영상 처리 후 추천질문/행동이벤트를 다시 불러오기 위해 캐시 초기화
+        for key in list(st.session_state.keys()):
+            if key.startswith(("suggested_queries_", "behavior_events_", "scene_events_")):
+                st.session_state.pop(key, None)
+
         target_video_ids = get_target_video_ids(video_path)
 
         if not target_video_ids:
+            st.session_state["pipeline_processing"] = False
             st.error("처리할 영상 파일이 없습니다. 폴더에 mp4/mov/avi/mkv/m4v 파일을 넣어주세요.")
             st.stop()
 
@@ -353,12 +386,18 @@ with tab1:
             process.wait()
 
             if process.returncode != 0:
+                st.session_state["pipeline_processing"] = False
                 st.error("Edge Simulator 실행에 실패했습니다. 영상 경로와 FastAPI 서버 상태를 확인해주세요.")
                 st.stop()
 
             st.write(f"✅ Edge Simulator 완료! 총 {chunk_count}개 청크 전송")
 
             # 2. Celery 처리 대기
+            #
+            # 주의:
+            # 이 카운트는 ChromaDB가 아니라 SQLite scenes 기준으로 확인한다.
+            # Celery가 ChromaDB에 쓰는 중 Streamlit이 ChromaDB를 읽으면
+            # ChromaDB 인덱스가 꼬일 수 있기 때문이다.
             st.write("⚙️ Celery worker 처리 중... (프레임 추출 대기)")
 
             prev_count = get_frame_count(target_video_ids)
@@ -375,15 +414,17 @@ with tab1:
                     prev_count = current_count
 
                 # 처리 완료 판단: 30초 동안 변화 없으면 완료로 간주
+                # 단, Celery worker가 실제로 모든 청크를 끝냈는지는 터미널 로그에서 확인하는 것이 가장 안전하다.
                 if timeout > 30 and current_count == prev_count and current_count > 0:
                     break
 
             final_count = get_frame_count(target_video_ids)
 
             st.write(f"✅ 프레임 추출 완료! 총 {final_count}개")
-            st.write("✅ ChromaDB 인덱싱 확인 완료")
+            st.write("⏳ ChromaDB 안정성을 위해 검색 탭은 아직 비활성화 상태입니다.")
+            st.write("Celery 터미널에서 모든 청크 처리 완료를 확인한 뒤 아래 활성화 버튼을 눌러주세요.")
 
-            status.update(label="✅ 파이프라인 완료!", state="complete")
+            status.update(label="✅ 파이프라인 전송 완료!", state="complete")
 
         # 처리 결과 요약
         col1, col2 = st.columns(2)
@@ -392,34 +433,43 @@ with tab1:
             st.metric("전송된 청크 수", f"{chunk_count}개")
 
         with col2:
-            st.metric("추출된 프레임", f"{get_frame_count(target_video_ids)}개")
+            st.metric("저장된 프레임 메타데이터", f"{get_frame_count(target_video_ids)}개")
 
-        # 추출된 프레임 갤러리
-        st.subheader("🖼️ 추출된 프레임")
+        st.info(
+            "프레임 갤러리와 검색 기능은 ChromaDB를 읽어야 하므로, "
+            "Celery worker가 모든 청크 처리를 끝낸 뒤 활성화 버튼을 눌러주세요."
+        )
 
-        indexed_frames = get_indexed_frames(target_video_ids)[:12]
+    if st.session_state.get("pipeline_processing"):
+        st.warning(
+            "영상 처리 중에는 ChromaDB 안정성을 위해 검색 탭을 비활성화합니다. "
+            "Celery 터미널에서 모든 청크 처리가 끝난 것을 확인한 뒤 아래 버튼을 눌러주세요."
+        )
 
-        if indexed_frames:
-            cols = st.columns(4)
+        if st.button("✅ Celery 처리 완료 확인 - 검색 기능 활성화", use_container_width=True):
+            st.session_state["pipeline_processing"] = False
 
-            for i, frame in enumerate(indexed_frames):
-                with cols[i % 4]:
-                    image_source = get_frame_image_source(frame)
+            # 새로 생성된 행동 이벤트/추천질문을 다시 불러오기 위해 캐시 초기화
+            for key in list(st.session_state.keys()):
+                if key.startswith(("suggested_queries_", "behavior_events_", "scene_events_")):
+                    st.session_state.pop(key, None)
 
-                    if image_source:
-                        st.image(
-                            image_source,
-                            caption=f"⏱️ {float(frame['timestamp']):.2f}초",
-                            use_container_width=True,
-                        )
-                    else:
-                        st.caption("만료된 이미지입니다.")
+            st.success("검색 기능이 활성화되었습니다.")
+            st.rerun()
+
 
 
 # ─────────────────────────────────────────
 # 탭 2: 고객용 검색 서비스
 # ─────────────────────────────────────────
 with tab2:
+    if st.session_state.get("pipeline_processing"):
+        st.info(
+            "현재 영상 처리 중입니다. "
+            "ChromaDB가 저장되는 동안 검색을 실행하면 인덱스가 꼬일 수 있어 검색 탭을 잠시 비활성화했습니다."
+        )
+        st.stop()
+
     st.subheader("🔍 펫 행동 검색")
     st.write("영상을 선택하고 자연어 문장을 입력하면 저장된 프레임 중 가장 비슷한 장면을 보여줍니다.")
 
@@ -428,8 +478,8 @@ with tab2:
     if not video_ids:
         st.error("인덱싱된 프레임이 없습니다. 탭 1에서 먼저 영상을 처리해주세요!")
     else:
-        selected_video = st.selectbox("검색할 영상", ["전체"] + video_ids)
-        selected_video_id = None if selected_video == "전체" else selected_video
+        selected_video = st.selectbox("검색할 영상", video_ids)
+        selected_video_id = selected_video
 
         indexed_frames = get_indexed_frames(selected_video_id)
 
@@ -444,24 +494,129 @@ with tab2:
 
                 st.success("인덱싱 완료")
 
-            # 장면 후보 기반 추천 질문
-            suggested_queries = suggest_queries(
-                user_id=user_id,
-                video_id=selected_video_id,
-                limit=6,
+            # 행동 이벤트 기반 추천 질문
+            #
+            # Streamlit은 버튼 클릭 시 전체 스크립트를 다시 실행한다.
+            # 그래서 suggest_queries()를 매번 새로 호출하면
+            # 추천질문 버튼을 누를 때마다 질문이 바뀐다.
+            # 이를 막기 위해 영상별 추천질문/행동이벤트를 session_state에 저장한다.
+            suggestion_scope = selected_video_id or "all"
+
+            suggested_queries_key = f"suggested_queries_{suggestion_scope}"
+            behavior_events_key = f"behavior_events_{suggestion_scope}"
+            scene_events_key = f"scene_events_{suggestion_scope}"
+
+            refresh_suggestions = st.button(
+                "🔄 추천 질문 새로고침",
+                key=f"refresh_suggestions_{suggestion_scope}",
             )
+
+            if refresh_suggestions:
+                st.session_state.pop(suggested_queries_key, None)
+                st.session_state.pop(behavior_events_key, None)
+                st.session_state.pop(scene_events_key, None)
+
+            if suggested_queries_key not in st.session_state:
+                st.session_state[suggested_queries_key] = suggest_queries(
+                    user_id=user_id,
+                    video_id=selected_video_id,
+                    limit=6,
+                )
+
+            if behavior_events_key not in st.session_state:
+                st.session_state[behavior_events_key] = get_suggestion_behavior_events(
+                    video_id=selected_video_id,
+                    limit=5,
+                )
+
+            suggested_queries = st.session_state[suggested_queries_key]
+            behavior_events = st.session_state[behavior_events_key]
 
             prompt_context = build_prompt_context(
                 user_id=user_id,
                 video_id=selected_video_id,
             )
 
-            scene_events = get_suggestion_events(
-                video_id=selected_video_id,
-                limit=5,
-            )
+            # 행동 이벤트가 아직 없을 때만 기존 장면 후보를 fallback으로 보여준다.
+            if not behavior_events:
+                if scene_events_key not in st.session_state:
+                    st.session_state[scene_events_key] = get_suggestion_events(
+                        video_id=selected_video_id,
+                        limit=5,
+                    )
 
-            if suggested_queries:
+                scene_events = st.session_state[scene_events_key]
+            else:
+                scene_events = []
+
+            if behavior_events:
+                st.markdown("#### 🐾 오늘 발견한 주요 행동")
+
+                for event in behavior_events[:3]:
+                    start_time = event.get("start_time")
+                    end_time = event.get("end_time")
+
+                    if start_time is not None and end_time is not None:
+                        time_text = f"{float(start_time):.1f}초 ~ {float(end_time):.1f}초"
+                    else:
+                        time_text = "시간 정보 없음"
+
+                    summary = event.get("summary") or event.get("action") or "행동 설명 없음"
+                    action = event.get("action") or "알 수 없음"
+                    target_object = event.get("target_object")
+                    duration = event.get("duration")
+                    repeat_count = event.get("repeat_count")
+                    confidence = event.get("confidence")
+                    interestingness = event.get("interestingness")
+
+                    st.markdown(f"**{time_text}**")
+                    st.write(summary)
+
+                    detail_items = []
+
+                    if action:
+                        detail_items.append(f"행동: {action}")
+
+                    if target_object:
+                        detail_items.append(f"대상: {target_object}")
+
+                    if duration is not None:
+                        detail_items.append(f"지속 시간: {float(duration):.1f}초")
+
+                    if repeat_count:
+                        detail_items.append(f"반복 후보: {repeat_count}회")
+
+                    if confidence is not None:
+                        detail_items.append(f"신뢰도: {float(confidence):.2f}")
+
+                    if interestingness is not None:
+                        detail_items.append(f"흥미도: {float(interestingness):.2f}")
+
+                    if detail_items:
+                        st.caption(" · ".join(detail_items))
+
+                    st.markdown("---")
+
+                with st.expander("행동 분석 근거 보기"):
+                    for event in behavior_events:
+                        start_time = event.get("start_time")
+                        end_time = event.get("end_time")
+
+                        if start_time is not None and end_time is not None:
+                            time_text = f"{float(start_time):.1f}초 ~ {float(end_time):.1f}초"
+                        else:
+                            time_text = "시간 정보 없음"
+
+                        st.write(f"- **{time_text}** / {event.get('summary') or event.get('action') or '행동 설명 없음'}")
+
+                        evidence = event.get("evidence") or []
+
+                        for item in evidence:
+                            st.caption(f"  - {item}")
+
+                st.markdown("#### 💡 이 행동에서 확인해볼 만한 질문")
+
+            elif suggested_queries:
                 st.markdown("#### 💡 이 영상에서 확인해볼 만한 질문")
 
                 if scene_events:
@@ -482,13 +637,14 @@ with tab2:
                 if object_summary:
                     st.caption(f"감지된 주요 객체: {object_summary}")
 
+            if suggested_queries:
                 cols = st.columns(min(len(suggested_queries), 3))
 
                 for i, suggested_query in enumerate(suggested_queries):
                     with cols[i % len(cols)]:
                         if st.button(
                             suggested_query,
-                            key=f"scene_suggested_query_{selected_video_id}_{i}",
+                            key=f"behavior_suggested_query_{selected_video_id}_{i}",
                             use_container_width=True,
                         ):
                             st.session_state["search_query"] = suggested_query
@@ -697,6 +853,13 @@ with tab2:
 # 탭 3: 영상별 검색 테스트
 # ─────────────────────────────────────────
 with tab3:
+    if st.session_state.get("pipeline_processing"):
+        st.info(
+            "현재 영상 처리 중입니다. "
+            "ChromaDB 안정성을 위해 영상 검색 테스트 탭을 비활성화했습니다."
+        )
+        st.stop()
+
     st.subheader("🧪 영상별 검색 테스트")
     st.write("사용자 맞춤 검색 로그와 분리해서, 선택한 영상의 ChromaDB 검색 결과만 확인합니다.")
 

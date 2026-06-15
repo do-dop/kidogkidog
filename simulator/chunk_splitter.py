@@ -22,13 +22,28 @@ def split_video_into_chunks(video_path, chunk_duration=60, output_dir="simulator
 
     cmd = [
         "ffmpeg",
+        "-y",
         "-i", str(video_path),
-        "-c", "copy",
-        "-map", "0",
+
+        # 아이폰 MOV에 들어있는 위치정보/메타데이터 stream은 제외하고
+        # 첫 번째 video stream과 audio stream만 사용
+        "-map", "0:v:0",
+        "-map", "0:a?",
+
+        # 브라우저/Streamlit/OpenCV에서 잘 읽히도록 H.264 mp4로 변환
+        "-c:v", "libx264",
+        "-preset", "veryfast",
+        "-crf", "23",
+        "-pix_fmt", "yuv420p",
+
+        # 오디오는 있으면 AAC로 변환, 없으면 무시
+        "-c:a", "aac",
+        "-b:a", "128k",
+
         "-segment_time", str(chunk_duration),
         "-f", "segment",
         "-reset_timestamps", "1",
-        output_pattern
+        str(output_pattern),
     ]
 
     subprocess.run(cmd, check=True)
