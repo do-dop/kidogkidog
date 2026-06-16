@@ -57,6 +57,26 @@ def download_bytes(s3_key):
     return response["Body"].read()
 
 
+def get_object_metadata(s3_key):
+    if not BUCKET:
+        raise ValueError("AWS_BUCKET_NAME 환경변수가 설정되어 있지 않습니다.")
+
+    return s3.head_object(Bucket=BUCKET, Key=s3_key)
+
+
+def download_range(s3_key, start, end):
+    if not BUCKET:
+        raise ValueError("AWS_BUCKET_NAME 환경변수가 설정되어 있지 않습니다.")
+
+    response = s3.get_object(
+        Bucket=BUCKET,
+        Key=s3_key,
+        Range=f"bytes={start}-{end}",
+    )
+
+    return response["Body"].read()
+
+
 def create_presigned_url(s3_key, expires_in=3600):
     if not BUCKET:
         raise ValueError("AWS_BUCKET_NAME 환경변수가 설정되어 있지 않습니다.")
@@ -66,6 +86,19 @@ def create_presigned_url(s3_key, expires_in=3600):
         Params={"Bucket": BUCKET, "Key": s3_key},
         ExpiresIn=expires_in,
     )
+
+
+def list_objects(prefix):
+    if not BUCKET:
+        raise ValueError("AWS_BUCKET_NAME 환경변수가 설정되어 있지 않습니다.")
+
+    paginator = s3.get_paginator("list_objects_v2")
+    objects = []
+
+    for page in paginator.paginate(Bucket=BUCKET, Prefix=prefix):
+        objects.extend(page.get("Contents", []))
+
+    return objects
 
 
 def object_exists(s3_key):
