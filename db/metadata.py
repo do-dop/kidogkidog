@@ -609,6 +609,31 @@ def get_user_top_queries(user_id, limit=5):
     ]
 
 
+def delete_user_frequent_query(user_id, query_raw):
+    """
+    사용자별 자주 찾는 검색어에서 특정 검색어를 삭제한다.
+    """
+    query_norm = normalize_query(query_raw)
+
+    if not query_norm:
+        return 0
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    cursor.execute('''
+        DELETE FROM user_frequent_queries
+        WHERE user_id = ?
+          AND query_norm = ?
+    ''', (user_id, query_norm))
+
+    deleted_count = cursor.rowcount
+    conn.commit()
+    conn.close()
+
+    return deleted_count
+
+
 def get_user_recent_queries(user_id, limit=5):
     """
     사용자별 최근 검색어 조회

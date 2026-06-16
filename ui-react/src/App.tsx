@@ -1,8 +1,9 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 
-type Screen = "live" | "recordings" | "search" | "chunkPlayback" | "searchPlayback";
+type Screen = "live" | "recordings" | "search" | "chunkPlayback" | "searchPlayback" | "profile";
 type Theme = "dark" | "light";
 type TimeFilter = "all" | "오전" | "오후" | "저녁" | "야간";
+type SuggestionStatus = "idle" | "loading" | "ready" | "fallback";
 
 type Tag = {
   icon: string;
@@ -38,6 +39,8 @@ type SearchResult = {
   videoId?: string;
   videoUrl?: string;
   thumbnailUrl?: string;
+  s3Key?: string;
+  framePath?: string;
 };
 
 type ApiQueryResult = {
@@ -48,7 +51,11 @@ type ApiQueryResult = {
     score?: number;
     object_labels?: string;
     frame_id?: string;
+    frame_path?: string;
+    s3_key?: string;
   }>;
+  behavior_events?: BehaviorEvent[];
+  used_llm?: boolean;
 };
 
 type ApiChunk = {
@@ -104,7 +111,24 @@ type ApiBehaviorEventsResult = {
   events: BehaviorEvent[];
 };
 
-const petName = "코코";
+type UserQuery = {
+  query: string;
+  count?: number;
+  created_at?: string;
+  last_searched_at?: string;
+};
+
+type ApiSuggestionsResult = {
+  questions?: string[];
+  behavior_events?: BehaviorEvent[];
+  top_queries?: UserQuery[];
+  recent_queries?: UserQuery[];
+};
+
+const defaultPetName = "코코";
+const defaultUserName = "도";
+const defaultPetAvatar = "🐕";
+const petAvatarOptions = ["🐕", "🐈", "🐦", "🐰", "🐹", "🐢", "🐠", "🦜"];
 
 const gradients = [
   "linear-gradient(135deg,#3a2e24,#241c16)",
@@ -113,14 +137,6 @@ const gradients = [
   "linear-gradient(160deg,#342a3c,#1d1826)",
   "linear-gradient(135deg,#3b2824,#241614)",
   "linear-gradient(150deg,#2a343c,#161f24)",
-];
-
-const suggestions = [
-  "밥 먹는 장면",
-  "소파 위에 있을 때",
-  "사람과 함께 있는 순간",
-  "뛰어노는 모습",
-  "문 앞에서 기다릴 때",
 ];
 
 const recordings: Recording[] = [
@@ -136,19 +152,22 @@ const recordings: Recording[] = [
   { id: "demo-2310", time: "23:10", duration: "5:00", period: "야간", thumb: 3, motion: "낮음", recordingDate: "2026-06-16", tags: [{ icon: "🐶", label: "dog" }, { icon: "🛏️", label: "bed" }] },
 ];
 
-const fallbackResults: SearchResult[] = [
-  { id: "result-1", time: "14:23", duration: "0:14", score: 0.94, note: "밥그릇 앞에서 사료를 먹는 모습", thumb: 0, objects: [{ icon: "🐶", label: "dog" }, { icon: "🥣", label: "bowl" }] },
-  { id: "result-2", time: "09:12", duration: "0:22", score: 0.88, note: "물그릇에서 물을 마시는 장면", thumb: 1, objects: [{ icon: "🐶", label: "dog" }, { icon: "💧", label: "water" }] },
-  { id: "result-3", time: "19:45", duration: "0:09", score: 0.81, note: "사람에게 간식을 받아먹는 모습", thumb: 4, objects: [{ icon: "🐶", label: "dog" }, { icon: "🧍", label: "person" }] },
-  { id: "result-4", time: "12:30", duration: "0:31", score: 0.73, note: "밥그릇 근처를 서성이는 모습", thumb: 2, objects: [{ icon: "🐶", label: "dog" }, { icon: "🥣", label: "bowl" }] },
-];
-
 const liveEvents = [
   { icon: "pets", text: "소파 근처에 있어요", time: "방금", tags: ["dog", "couch"] },
   { icon: "restaurant", text: "밥그릇 앞에서 식사 중이에요", time: "2분 전", tags: ["dog", "bowl"] },
   { icon: "directions_walk", text: "거실을 돌아다니고 있어요", time: "8분 전", tags: ["dog", "floor"] },
   { icon: "bedtime", text: "방석 위에서 쉬고 있어요", time: "15분 전", tags: ["dog", "bed"] },
 ];
+
+function getOrCreateUserId() {
+  const key = "kidogkidog_user_id";
+  const stored = window.localStorage.getItem(key);
+  if (stored) return stored;
+
+  const nextId = `react-${crypto.randomUUID()}`;
+  window.localStorage.setItem(key, nextId);
+  return nextId;
+}
 
 function Icon({ children, filled = false }: { children: string; filled?: boolean }) {
   return (
@@ -205,10 +224,32 @@ function labelsToTags(labels?: string): Tag[] {
     .map((label) => ({ icon: label.toLowerCase().includes("dog") ? "🐶" : "•", label }));
 }
 
-function mapApiResults(payload: ApiQueryResult): SearchResult[] {
+function findRecordingForFrame(result: NonNullable<ApiQueryResult["results"]>[number], items: Recording[]) {
+  const s3Key = result.s3_key || "";
+  const frameId = result.frame_id || "";
+
+  const directMatch = items.find((recording) => {
+    const stem = chunkStem(recording);
+    return Boolean(stem && (s3Key.includes(stem) || frameId.includes(stem)));
+  });
+
+  if (directMatch) return directMatch;
+
+  const seconds = Number(result.timestamp ?? 0);
+  return items.find((recording) => {
+    if (!result.video_id || recording.videoId !== result.video_id) return false;
+    const start = recording.startSeconds ?? 0;
+    const end = start + 60;
+    return seconds >= start && seconds < end;
+  });
+}
+
+function mapApiResults(payload: ApiQueryResult, items: Recording[] = []): SearchResult[] {
   const results = payload.results ?? [];
   return results.map((result, index) => {
     const seconds = Number(result.timestamp ?? 0);
+    const recording = findRecordingForFrame(result, items);
+    const frameThumbnailUrl = result.s3_key ? mediaUrl(`/media/s3?key=${encodeURIComponent(result.s3_key)}`) : undefined;
     return {
       id: result.frame_id ?? `api-result-${index}`,
       time: formatSeconds(seconds),
@@ -219,8 +260,24 @@ function mapApiResults(payload: ApiQueryResult): SearchResult[] {
       objects: labelsToTags(result.object_labels),
       startSeconds: seconds,
       videoId: result.video_id,
+      videoUrl: recording?.videoUrl,
+      thumbnailUrl: frameThumbnailUrl || recording?.thumbnailUrl,
+      s3Key: result.s3_key,
+      framePath: result.frame_path,
     };
   });
+}
+
+function pickRelevantResults(items: SearchResult[]) {
+  const sortedItems = [...items].sort((a, b) => b.score - a.score).slice(0, 3);
+  const topScore = sortedItems[0]?.score;
+
+  if (topScore === undefined) return [];
+
+  const closeScoreCutoff = Math.max(topScore - 0.03, topScore * 0.9);
+  const relevantItems = sortedItems.filter((item) => item.score >= closeScoreCutoff);
+
+  return relevantItems.length > 0 ? relevantItems : sortedItems.slice(0, 1);
 }
 
 function mediaUrl(mediaPath?: string | null, fallbackUrl?: string | null) {
@@ -283,33 +340,6 @@ function chunkStem(recording: Recording) {
   return recording.id.split("/").at(-1)?.replace(/\.mp4$/i, "") || recording.id;
 }
 
-function makeFallbackBehaviorEvents(items: Recording[]): BehaviorEvent[] {
-  const source = items.length > 0 ? items : recordings;
-  const picks = source.slice(0, 3);
-  const templates = [
-    { action: "휴식", target_object: "방석", summary: `${petName}가 방석 근처에서 오래 머물렀어요.`, confidence: 0.91, interestingness: 0.86 },
-    { action: "식사", target_object: "밥그릇", summary: "밥그릇 주변에서 먹거나 냄새를 맡는 행동이 보여요.", confidence: 0.88, interestingness: 0.82 },
-    { action: "이동", target_object: "거실", summary: "거실 안에서 움직임이 많아진 구간이에요.", confidence: 0.84, interestingness: 0.78 },
-  ];
-
-  return picks.map((recording, index) => {
-    const start = recording.startSeconds ?? index * 60;
-    const template = templates[index % templates.length];
-
-    return {
-      id: `demo-behavior-${recording.id}`,
-      video_id: recording.videoId,
-      start_time: start + 8,
-      end_time: start + 34,
-      subject: petName,
-      repeat_count: index === 2 ? 2 : 1,
-      source_frames: [{ s3_key: `${chunkStem(recording)}_frame_demo.jpg`, timestamp: start + 12 }],
-      demo: true,
-      ...template,
-    };
-  });
-}
-
 function behaviorTitle(event: BehaviorEvent) {
   const action = event.action || "행동";
   const target = event.target_object ? ` · ${event.target_object}` : "";
@@ -348,24 +378,45 @@ function scoreBehavior(event: BehaviorEvent) {
 export default function App() {
   const [theme, setTheme] = useState<Theme>("dark");
   const [screen, setScreen] = useState<Screen>("live");
+  const [userId] = useState(() => getOrCreateUserId());
+  const [userName, setUserName] = useState(() => window.localStorage.getItem("kidogkidog_user_name") || defaultUserName);
+  const [petName, setPetName] = useState(() => window.localStorage.getItem("kidogkidog_pet_name") || defaultPetName);
+  const [notificationBehavior, setNotificationBehavior] = useState(() => window.localStorage.getItem("kidogkidog_notification_behavior") || "");
+  const [profileUserNameDraft, setProfileUserNameDraft] = useState(userName);
+  const [profilePetNameDraft, setProfilePetNameDraft] = useState(petName);
+  const [profileNotificationDraft, setProfileNotificationDraft] = useState(notificationBehavior);
+  const [profileNotice, setProfileNotice] = useState("");
+  const [notificationOpen, setNotificationOpen] = useState(false);
+  const [hasUnreadNotification, setHasUnreadNotification] = useState(true);
+  const [petAvatar, setPetAvatar] = useState(() => window.localStorage.getItem("kidogkidog_pet_avatar") || defaultPetAvatar);
+  const [avatarPickerOpen, setAvatarPickerOpen] = useState(false);
+  const [editingPetName, setEditingPetName] = useState(false);
+  const [petNameDraft, setPetNameDraft] = useState(petName);
   const [selectedYear, setSelectedYear] = useState(2026);
   const [selectedMonth, setSelectedMonth] = useState(6);
   const [selectedDay, setSelectedDay] = useState(16);
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("all");
   const [searchStartHour, setSearchStartHour] = useState(0);
   const [searchEndHour, setSearchEndHour] = useState(24);
+  const [selectedSearchVideoId, setSelectedSearchVideoId] = useState("");
   const [query, setQuery] = useState("");
   const [answer, setAnswer] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [suggestionStatus, setSuggestionStatus] = useState<SuggestionStatus>("idle");
+  const [suggestionNotice, setSuggestionNotice] = useState("");
+  const [topQueries, setTopQueries] = useState<UserQuery[]>([]);
   const [recordingsLoading, setRecordingsLoading] = useState(false);
   const [recordingsNotice, setRecordingsNotice] = useState("");
+  const [reindexing, setReindexing] = useState(false);
+  const [behaviorRefreshToken, setBehaviorRefreshToken] = useState(0);
   const [s3Recordings, setS3Recordings] = useState<Recording[]>([]);
   const [behaviorEvents, setBehaviorEvents] = useState<BehaviorEvent[]>([]);
   const [behaviorNotice, setBehaviorNotice] = useState("");
   const [apiNotice, setApiNotice] = useState("");
-  const [activeResult, setActiveResult] = useState<SearchResult>(fallbackResults[0]);
+  const [activeResult, setActiveResult] = useState<SearchResult | null>(null);
   const [activeRecording, setActiveRecording] = useState<Recording>(recordings[0]);
 
   useEffect(() => {
@@ -424,14 +475,113 @@ export default function App() {
   }, []);
 
   const recordingItems = s3Recordings.length > 0 ? s3Recordings : recordings;
+  const searchVideoOptions = useMemo(
+    () => Array.from(new Set(recordingItems.map((recording) => recording.videoId).filter(Boolean))) as string[],
+    [recordingItems],
+  );
   const selectedDate = dateKey(selectedYear, selectedMonth, selectedDay);
+
+  useEffect(() => {
+    if (selectedSearchVideoId || s3Recordings.length === 0) return;
+
+    const latestRecording = [...s3Recordings]
+      .filter((recording) => recording.videoId)
+      .sort((a, b) => {
+        const aTime = a.recordedAt || `${a.recordingDate || ""}T${a.time}`;
+        const bTime = b.recordedAt || `${b.recordingDate || ""}T${b.time}`;
+        return aTime.localeCompare(bTime);
+      })
+      .at(-1);
+
+    if (latestRecording?.videoId) {
+      setSelectedSearchVideoId(latestRecording.videoId);
+    }
+  }, [s3Recordings, selectedSearchVideoId]);
+
+  useEffect(() => {
+    let ignore = false;
+
+    async function loadSuggestions() {
+      if (s3Recordings.length > 0 && searchVideoOptions.length > 0 && !selectedSearchVideoId) {
+        setSuggestions([]);
+        setTopQueries([]);
+        setSuggestionStatus("loading");
+        setSuggestionNotice("영상 청크를 연결한 뒤 추천 질문을 생성합니다.");
+        return;
+      }
+
+      setSuggestionStatus("loading");
+      setSuggestionNotice("");
+
+      const params = new URLSearchParams({
+        user_id: userId,
+        limit: "3",
+      });
+
+      if (selectedSearchVideoId) {
+        params.set("video_id", selectedSearchVideoId);
+      }
+
+      try {
+        const response = await fetch(`/api/suggestions?${params.toString()}`);
+
+        if (!response.ok) throw new Error(`API ${response.status}`);
+
+        const payload = (await response.json()) as ApiSuggestionsResult;
+        const nextSuggestions = payload.questions ?? [];
+
+        if (!ignore) {
+          setSuggestions(nextSuggestions);
+          setSuggestionStatus(payload.questions?.length ? "ready" : "fallback");
+          setTopQueries(payload.top_queries ?? []);
+
+          if (payload.behavior_events?.length) {
+            setBehaviorEvents((current) => {
+              const merged = [...payload.behavior_events!, ...current];
+              const seen = new Set<string>();
+              return merged.filter((event) => {
+                const key = String(event.id);
+                if (seen.has(key)) return false;
+                seen.add(key);
+                return true;
+              });
+            });
+          }
+
+          setSuggestionNotice(
+            payload.questions?.length
+              ? "분석된 행동 이벤트에서 추천 질문을 생성했습니다."
+              : "추천 질문을 만들 수 있는 분석 결과가 아직 없습니다.",
+          );
+        }
+      } catch {
+        if (!ignore) {
+          setSuggestions([]);
+          setSuggestionStatus("fallback");
+          setTopQueries([]);
+          setSuggestionNotice("추천 질문 API에 연결하지 못했습니다.");
+        }
+      }
+    }
+
+    loadSuggestions();
+
+    return () => {
+      ignore = true;
+    };
+  }, [s3Recordings.length, searchVideoOptions.length, selectedSearchVideoId, userId]);
 
   useEffect(() => {
     let ignore = false;
 
     async function loadBehaviorEvents() {
       try {
-        const response = await fetch("/api/recordings/events?limit=60");
+        const params = new URLSearchParams({ limit: "5" });
+        if (selectedSearchVideoId) {
+          params.set("video_id", selectedSearchVideoId);
+        }
+
+        const response = await fetch(`/api/recordings/events?${params.toString()}`);
 
         if (!response.ok) throw new Error(`API ${response.status}`);
 
@@ -439,13 +589,13 @@ export default function App() {
         const nextEvents = payload.events ?? [];
 
         if (!ignore) {
-          setBehaviorEvents(nextEvents.length > 0 ? nextEvents : makeFallbackBehaviorEvents(recordingItems));
-          setBehaviorNotice(nextEvents.length > 0 ? "DB 메타데이터에서 주요 행동을 불러왔습니다." : "DB에 표시할 행동 이벤트가 없어 데모 행동을 표시합니다.");
+          setBehaviorEvents(nextEvents.length > 0 ? nextEvents : []);
+          setBehaviorNotice(nextEvents.length > 0 ? "DB 메타데이터에서 주요 행동을 불러왔습니다." : "DB에 표시할 주요 행동 이벤트가 아직 없습니다.");
         }
       } catch {
         if (!ignore) {
-          setBehaviorEvents(makeFallbackBehaviorEvents(recordingItems));
-          setBehaviorNotice("행동 이벤트 API에 연결하지 못해 데모 행동을 표시합니다.");
+          setBehaviorEvents([]);
+          setBehaviorNotice("행동 이벤트 API에 연결하지 못했습니다.");
         }
       }
     }
@@ -455,7 +605,7 @@ export default function App() {
     return () => {
       ignore = true;
     };
-  }, [recordingItems]);
+  }, [recordingItems, selectedSearchVideoId, behaviorRefreshToken]);
 
   const filteredRecordings = useMemo(
     () => recordingItems.filter((recording) => {
@@ -483,7 +633,7 @@ export default function App() {
     [activeRecording, behaviorEvents],
   );
 
-  const visibleResults = results.length > 0 ? results : fallbackResults;
+  const visibleResults = results;
   const currentVideoRecordings = recordingItems.filter(
     (recording) => recording.videoId && activeRecording.videoId
       ? recording.videoId === activeRecording.videoId
@@ -496,9 +646,17 @@ export default function App() {
     search: ["AI 검색", "자연어로 물어보면 관련 장면을 찾아드려요"],
     chunkPlayback: ["녹화 영상 재생", "S3 청크를 원본 흐름대로 확인합니다"],
     searchPlayback: ["검색 결과 재생", "AI가 찾은 장면과 근거를 검토합니다"],
+    profile: ["마이페이지", "사용자와 알림 설정을 관리합니다"],
   }[screen];
 
   function go(nextScreen: Screen) {
+    if (nextScreen === "profile") {
+      setProfileUserNameDraft(userName);
+      setProfilePetNameDraft(petName);
+      setProfileNotificationDraft(notificationBehavior);
+      setProfileNotice("");
+    }
+
     setScreen(nextScreen);
   }
 
@@ -512,10 +670,11 @@ export default function App() {
     setScreen("chunkPlayback");
   }
 
-  async function submitSearch(event?: FormEvent) {
-    event?.preventDefault();
-    if (!query.trim()) return;
+  async function runSearch(searchText: string) {
+    const nextQuery = searchText.trim();
+    if (!nextQuery) return;
 
+    setQuery(nextQuery);
     setSubmitted(true);
     setLoading(true);
     setApiNotice("");
@@ -525,8 +684,10 @@ export default function App() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          query,
-          top_k: 6,
+          query: nextQuery,
+          video_id: selectedSearchVideoId || undefined,
+          top_k: 3,
+          user_id: userId,
           time_range: {
             start_hour: searchStartHour,
             end_hour: searchEndHour,
@@ -537,29 +698,133 @@ export default function App() {
       if (!response.ok) throw new Error(`API ${response.status}`);
 
       const payload = (await response.json()) as ApiQueryResult;
-      const nextResults = mapApiResults(payload);
-      setAnswer(payload.answer || `${query}와 관련된 장면을 찾았어요.`);
-      setResults(nextResults.length > 0 ? nextResults : fallbackResults);
-      setActiveResult(nextResults[0] ?? fallbackResults[0]);
+      const nextResults = pickRelevantResults(mapApiResults(payload, recordingItems));
+      setAnswer(payload.answer || `${nextQuery}와 관련된 장면을 찾았어요.`);
+      setResults(nextResults);
+      setActiveResult(nextResults[0] ?? null);
+
+      if (payload.behavior_events?.length) {
+        setBehaviorEvents((current) => {
+          const merged = [...payload.behavior_events!, ...current];
+          const seen = new Set<string>();
+          return merged.filter((event) => {
+            const key = String(event.id);
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+          });
+        });
+      }
     } catch {
-      setAnswer(`데모 데이터 기준으로 "${query}"와 관련된 장면을 찾았어요. 백엔드를 켜면 실제 검색 결과가 여기에 표시됩니다.`);
-      setResults(fallbackResults);
-      setActiveResult(fallbackResults[0]);
-      setApiNotice("FastAPI 서버에 연결하지 못해 데모 결과를 표시하고 있습니다.");
+      setAnswer(`"${nextQuery}" 검색 중 문제가 발생했습니다. 백엔드와 인덱스 상태를 확인해주세요.`);
+      setResults([]);
+      setActiveResult(null);
+      setApiNotice("FastAPI 서버 또는 검색 인덱스에 연결하지 못했습니다.");
     } finally {
       setLoading(false);
     }
   }
 
+  async function submitSearch(event?: FormEvent) {
+    event?.preventDefault();
+    await runSearch(query);
+  }
+
   function applySuggestion(text: string) {
     setQuery(text);
-    setSubmitted(true);
-    setAnswer(`오늘 ${petName}의 영상에서 "${text}"와 관련된 장면을 4개 찾았어요.`);
-    setResults(fallbackResults);
-    setActiveResult(fallbackResults[0]);
+    setSubmitted(false);
+    setApiNotice("");
+  }
+
+  async function reindexLocalFrames() {
+    setReindexing(true);
+    setRecordingsNotice("로컬 프레임 인덱스를 갱신하는 중입니다.");
+
+    const params = new URLSearchParams();
+    if (selectedSearchVideoId) {
+      params.set("video_id", selectedSearchVideoId);
+    }
+
+    try {
+      const response = await fetch(`/api/frames/reindex${params.toString() ? `?${params.toString()}` : ""}`, {
+        method: "POST",
+      });
+
+      if (!response.ok) throw new Error(`API ${response.status}`);
+
+      setRecordingsNotice("로컬 프레임 인덱스 갱신이 완료되었습니다.");
+      setBehaviorRefreshToken((value) => value + 1);
+    } catch {
+      setRecordingsNotice("로컬 프레임 인덱스 갱신에 실패했습니다. 프레임 폴더와 백엔드를 확인해주세요.");
+    } finally {
+      setReindexing(false);
+    }
+  }
+
+  async function removeTopQuery(queryToRemove: string) {
+    const previousQueries = topQueries;
+    setTopQueries((items) => items.filter((item) => item.query !== queryToRemove));
+
+    try {
+      const response = await fetch(`/api/users/${encodeURIComponent(userId)}/frequent-queries`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: queryToRemove }),
+      });
+
+      if (!response.ok) throw new Error(`API ${response.status}`);
+    } catch {
+      setTopQueries(previousQueries);
+      setSuggestionNotice("자주 찾는 검색어를 삭제하지 못했습니다.");
+    }
+  }
+
+  function startPetNameEdit() {
+    setAvatarPickerOpen(false);
+    setPetNameDraft(petName);
+    setEditingPetName(true);
+  }
+
+  function savePetName() {
+    const nextName = petNameDraft.trim() || defaultPetName;
+    setPetName(nextName);
+    window.localStorage.setItem("kidogkidog_pet_name", nextName);
+    setEditingPetName(false);
+  }
+
+  function saveProfile() {
+    const nextUserName = profileUserNameDraft.trim() || defaultUserName;
+    const nextPetName = profilePetNameDraft.trim() || defaultPetName;
+
+    setUserName(nextUserName);
+    setPetName(nextPetName);
+    setPetNameDraft(nextPetName);
+    setNotificationBehavior(profileNotificationDraft);
+    setHasUnreadNotification(true);
+
+    window.localStorage.setItem("kidogkidog_user_name", nextUserName);
+    window.localStorage.setItem("kidogkidog_pet_name", nextPetName);
+    window.localStorage.setItem("kidogkidog_notification_behavior", profileNotificationDraft);
+
+    setProfileUserNameDraft(nextUserName);
+    setProfilePetNameDraft(nextPetName);
+    setProfileNotice("저장되었습니다.");
+  }
+
+  function cancelPetNameEdit() {
+    setPetNameDraft(petName);
+    setEditingPetName(false);
+  }
+
+  function selectPetAvatar(nextAvatar: string) {
+    setPetAvatar(nextAvatar);
+    window.localStorage.setItem("kidogkidog_pet_avatar", nextAvatar);
+    setAvatarPickerOpen(false);
   }
 
   function stepResult(delta: number) {
+    if (!activeResult || visibleResults.length === 0) return;
+
     const index = Math.max(0, visibleResults.findIndex((item) => item.id === activeResult.id));
     const nextIndex = Math.min(visibleResults.length - 1, Math.max(0, index + delta));
     setActiveResult(visibleResults[nextIndex]);
@@ -601,13 +866,64 @@ export default function App() {
           );
         })}
 
-        <div className="pet-status">
-          <div className="pet-avatar">🐕</div>
-          <div>
-            <strong>{petName}</strong>
-            <p>거실 카메라 · 온라인</p>
+        <div className={editingPetName ? "pet-status editing" : "pet-status"} onClick={() => {
+          if (!editingPetName) startPetNameEdit();
+        }}>
+          <div className="pet-avatar-wrap" onClick={(event) => event.stopPropagation()}>
+            <button
+              className={avatarPickerOpen ? "pet-avatar active" : "pet-avatar"}
+              type="button"
+              aria-label="펫 아이콘 변경"
+              onClick={() => setAvatarPickerOpen((open) => !open)}
+            >
+              {petAvatar}
+            </button>
+            {avatarPickerOpen && (
+              <div className="pet-avatar-picker">
+                {petAvatarOptions.map((avatar) => (
+                  <button
+                    className={avatar === petAvatar ? "active" : ""}
+                    type="button"
+                    key={avatar}
+                    onClick={() => selectPetAvatar(avatar)}
+                    aria-label={`${avatar} 선택`}
+                  >
+                    {avatar}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
-          <span className="status-dot" />
+          {editingPetName ? (
+            <div className="pet-edit" onClick={(event) => event.stopPropagation()}>
+              <input
+                value={petNameDraft}
+                autoFocus
+                maxLength={12}
+                onChange={(event) => setPetNameDraft(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") savePetName();
+                  if (event.key === "Escape") cancelPetNameEdit();
+                }}
+              />
+              <div className="pet-edit-actions">
+                <button type="button" onClick={savePetName} aria-label="이름 저장"><Icon>check</Icon></button>
+                <button type="button" onClick={cancelPetNameEdit} aria-label="이름 수정 취소"><Icon>close</Icon></button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="pet-info">
+                <div className="pet-name-row">
+                  <strong>{petName}</strong>
+                  <button className="pet-edit-button" type="button" aria-label="펫 이름 수정">
+                    <Icon>edit</Icon>
+                  </button>
+                </div>
+                <p>거실 카메라 · 온라인 <span className="status-dot" /></p>
+              </div>
+            </>
+          )}
         </div>
       </aside>
 
@@ -621,11 +937,33 @@ export default function App() {
             <button className="icon-button" onClick={() => setTheme(theme === "dark" ? "light" : "dark")} aria-label="테마 전환">
               <Icon>{theme === "dark" ? "light_mode" : "dark_mode"}</Icon>
             </button>
-            <button className="icon-button" aria-label="알림">
-              <Icon>notifications</Icon>
-              <span className="notification-dot" />
+            <div className="notification-wrap">
+              <button className="icon-button" onClick={() => {
+                setNotificationOpen((open) => !open);
+                setHasUnreadNotification(false);
+              }} aria-label="알림">
+                <Icon>notifications</Icon>
+                {hasUnreadNotification && <span className="notification-dot" />}
+              </button>
+              {notificationOpen && (
+                <div className="notification-popover">
+                  <div className="notification-popover-head">
+                    <strong>알림</strong>
+                    <button type="button" onClick={() => setNotificationOpen(false)} aria-label="알림 닫기">
+                      <Icon>close</Icon>
+                    </button>
+                  </div>
+                  <p>
+                    {notificationBehavior.trim()
+                      ? `알림 조건: ${notificationBehavior}`
+                      : "마이페이지에서 알림받고 싶은 내용을 입력하세요!"}
+                  </p>
+                </div>
+              )}
+            </div>
+            <button className="user-avatar" type="button" onClick={() => go("profile")} aria-label="마이페이지">
+              {Array.from(userName.trim() || defaultUserName)[0]}
             </button>
-            <div className="user-avatar">도</div>
           </div>
         </header>
 
@@ -680,14 +1018,15 @@ export default function App() {
               <TimeChips value={timeFilter} onChange={setTimeFilter} />
               <div className="recording-toolbar">
                 <p className={s3Recordings.length > 0 ? "notice success" : "notice"}>{recordingsLoading ? "S3 청크 목록을 불러오는 중입니다." : recordingsNotice}</p>
-                <button className="secondary-button" onClick={() => window.location.reload()}>
-                  <Icon>refresh</Icon>
-                  새로고침
+                <button className="secondary-button" onClick={reindexLocalFrames} disabled={reindexing}>
+                  <Icon>{reindexing ? "progress_activity" : "sync"}</Icon>
+                  {reindexing ? "갱신 중" : "로컬 프레임 인덱스 갱신"}
                 </button>
               </div>
               <BehaviorHighlights
                 items={highlightedBehaviors}
                 notice={behaviorNotice}
+                petName={petName}
                 onOpen={(recording) => openRecording(recording)}
               />
               <div className="clip-grid">
@@ -710,6 +1049,15 @@ export default function App() {
                   <DateFilter selectedYear={selectedYear} setSelectedYear={setSelectedYear} selectedMonth={selectedMonth} setSelectedMonth={setSelectedMonth} selectedDay={selectedDay} setSelectedDay={setSelectedDay} compact />
                 </div>
                 <div className="filter-group">
+                  <span>검색할 영상</span>
+                  <select className="video-select" value={selectedSearchVideoId} onChange={(event) => setSelectedSearchVideoId(event.target.value)}>
+                    <option value="">전체 영상</option>
+                    {searchVideoOptions.map((videoId) => (
+                      <option value={videoId} key={videoId}>{videoId}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="filter-group">
                   <span>시간대</span>
                   <TimeRangeBar
                     startHour={searchStartHour}
@@ -722,7 +1070,7 @@ export default function App() {
                 </div>
                 <div className="filter-summary">
                   <span>선택 범위</span>
-                  <strong>{selectedYear}년 {selectedMonth}월 {selectedDay}일 · {formatHourRange(searchStartHour, searchEndHour)}</strong>
+                  <strong>{selectedSearchVideoId || "전체 영상"} · {selectedYear}년 {selectedMonth}월 {selectedDay}일 · {formatHourRange(searchStartHour, searchEndHour)}</strong>
                 </div>
               </aside>
 
@@ -736,14 +1084,45 @@ export default function App() {
                   <form className="search-bar" onSubmit={submitSearch}>
                     <Icon>search</Icon>
                     <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="예: 강아지가 밥 먹는 장면 찾아줘" />
-                    <button type="submit" disabled={loading}>{loading ? "검색 중" : "검색"}</button>
+                    <button className={loading ? "loading" : ""} type="submit" disabled={loading}>{loading ? "검색 중" : "검색"}</button>
                   </form>
                   <div className="suggestions">
                     <span><Icon>auto_awesome</Icon>추천</span>
-                    {suggestions.map((item) => (
-                      <button key={item} onClick={() => applySuggestion(item)}>{item}</button>
-                    ))}
+                    {suggestionStatus === "loading" ? (
+                      <div className="suggestion-loading">
+                        <span className="loading-mark"><Icon filled>auto_awesome</Icon></span>
+                        <strong>추천질문 생성중입니다</strong>
+                      </div>
+                    ) : (
+                      suggestions.map((item) => (
+                        <button key={item} onClick={() => applySuggestion(item)}>{item}</button>
+                      ))
+                    )}
                   </div>
+                  {suggestionNotice && <p className="suggestion-note">{suggestionNotice}</p>}
+                  {topQueries.length > 0 && (
+                    <div className="query-summary">
+                      <span className="query-summary-label">자주 찾는 검색어</span>
+                      {topQueries.map((item) => (
+                        <span className="query-chip" key={item.query}>
+                          <button className="query-chip-main" type="button" onClick={() => applySuggestion(item.query)}>
+                            {item.query}{item.count ? ` ${item.count}` : ""}
+                          </button>
+                          <button
+                            className="query-chip-remove"
+                            type="button"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              void removeTopQuery(item.query);
+                            }}
+                            aria-label={`${item.query} 삭제`}
+                          >
+                            <Icon>close</Icon>
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 {submitted ? (
@@ -773,6 +1152,66 @@ export default function App() {
                     <p>"{petName}가 밥 먹는 장면"처럼 입력하면 AI가 하루 영상에서 관련 구간을 찾아드려요.</p>
                   </div>
                 )}
+              </div>
+            </section>
+          )}
+
+          {screen === "profile" && (
+            <section className="profile-page">
+              <div className="profile-card">
+                <div className="profile-head">
+                  <div className="profile-avatar">{Array.from(userName.trim() || defaultUserName)[0]}</div>
+                  <div>
+                    <span>마이페이지</span>
+                    <strong>{profileUserNameDraft.trim() || userName.trim() || defaultUserName}</strong>
+                  </div>
+                </div>
+
+                <label className="profile-field">
+                  <span>사용자 이름</span>
+                  <input
+                    value={profileUserNameDraft}
+                    maxLength={12}
+                    onChange={(event) => {
+                      setProfileUserNameDraft(event.target.value);
+                      setProfileNotice("");
+                    }}
+                    placeholder="사용자 이름"
+                  />
+                </label>
+
+                <label className="profile-field">
+                  <span>반려동물 이름</span>
+                  <input
+                    value={profilePetNameDraft}
+                    maxLength={12}
+                    onChange={(event) => {
+                      setProfilePetNameDraft(event.target.value);
+                      setProfileNotice("");
+                    }}
+                    placeholder="반려동물 이름"
+                  />
+                </label>
+
+                <label className="profile-field">
+                  <span>알림 받고 싶은 행동</span>
+                  <textarea
+                    value={profileNotificationDraft}
+                    onChange={(event) => {
+                      setProfileNotificationDraft(event.target.value);
+                      setProfileNotice("");
+                    }}
+                    placeholder="예: 밥 먹는 장면, 물 마시는 장면, 오래 움직이지 않는 상황"
+                    rows={4}
+                  />
+                </label>
+                <div className="profile-actions">
+                  {profileNotice && <span>{profileNotice}</span>}
+                  <button className="primary-button" type="button" onClick={saveProfile}>
+                    <Icon>save</Icon>
+                    저장
+                  </button>
+                </div>
               </div>
             </section>
           )}
@@ -827,7 +1266,7 @@ export default function App() {
             </section>
           )}
 
-          {screen === "searchPlayback" && (
+          {screen === "searchPlayback" && activeResult && (
             <section className="playback-page stack">
               <div className="playback-head">
                 <button className="secondary-button" onClick={() => go("search")}>
@@ -1097,10 +1536,12 @@ function TimeRangeBar({
 function BehaviorHighlights({
   items,
   notice,
+  petName,
   onOpen,
 }: {
   items: Array<{ event: BehaviorEvent; recording: Recording }>;
   notice: string;
+  petName: string;
   onOpen: (recording: Recording) => void;
 }) {
   if (items.length === 0) {
@@ -1188,13 +1629,13 @@ function ClipCard({ clip, eventCount = 0, onOpen }: { clip: Recording; eventCoun
 }
 
 function ResultCard({ result, onOpen }: { result: SearchResult; onOpen: () => void }) {
-  const score = Math.round(result.score * 100);
+  const score = result.score.toFixed(3);
 
   return (
     <button className="result-card" onClick={onOpen}>
       <div className={result.thumbnailUrl ? "thumb has-image" : "thumb"} style={result.thumbnailUrl ? { backgroundImage: `url(${result.thumbnailUrl})` } : { background: gradients[result.thumb] }}>
         <span className="time-pill">{result.time}</span>
-        <span className="score-pill">{score}%</span>
+        <span className="score-pill">유사도 {score}</span>
         <div className="play-circle"><Icon filled>play_arrow</Icon></div>
       </div>
       <div className="result-body">
