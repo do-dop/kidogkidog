@@ -14,7 +14,7 @@ DEFAULT_BEHAVIOR_QUESTIONS = [
 def suggest_queries(
     user_id: str | None = None,
     video_id: str | None = None,
-    limit: int = 6,
+    limit: int = 3,
 ) -> list[str]:
     """
     추천 질문 생성.
