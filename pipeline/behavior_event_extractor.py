@@ -6,40 +6,6 @@ from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
 
-
-PET_LABELS = {
-    "dog",
-    "cat",
-    "bird",
-}
-
-CARE_OBJECT_LABELS = {
-    "bowl",
-    "cup",
-    "bottle",
-    "sports ball",
-    "remote",
-    "backpack",
-    "handbag",
-    "suitcase",
-    "bed",
-    "couch",
-    "chair",
-    "dining table",
-}
-
-FOOD_WATER_OBJECTS = {
-    "bowl",
-    "cup",
-    "bottle",
-}
-
-REST_OBJECTS = {
-    "bed",
-    "couch",
-    "chair",
-}
-
 DEFAULT_MODEL = "gpt-4o-mini"
 MAX_REPRESENTATIVE_FRAMES = 6
 SEGMENT_GAP_SECONDS = 3.0
@@ -504,6 +470,9 @@ def _build_segment_context(frames: list[dict]) -> dict:
 def _build_vlm_prompt(segment_context: dict) -> str:
     """
     VLM 행동 분석 프롬프트 생성
+
+    동물 종류는 코드에서 dog/cat/bird로 고정하지 않고,
+    이미지 자체를 보고 모델이 판단하게 한다.
     """
     context_json = json.dumps(
         segment_context,
@@ -520,8 +489,11 @@ def _build_vlm_prompt(segment_context: dict) -> str:
 중요한 규칙:
 - 이미지에서 확인 가능한 내용만 말한다.
 - 확실하지 않은 행동은 단정하지 말고 "~로 보임", "~하는 것으로 보임"처럼 표현한다.
-- 단순히 "dog가 보임" 같은 객체 탐지 설명은 피한다.
-- 강아지의 행동, 대상, 반복 여부, 지속 시간을 중심으로 설명한다.
+- 단순히 객체 라벨이 보인다는 설명은 피한다.
+- 동물 종류는 코드나 metadata의 라벨을 그대로 따라 쓰지 말고, 이미지를 보고 판단한다.
+- 동물 종류가 확실하면 subject에 자연스러운 한국어 동물명을 적는다.
+- 동물 종류가 불확실하면 subject는 "반려동물"이라고 적는다.
+- 행동, 대상, 반복 여부, 지속 시간을 중심으로 설명한다.
 - 보호자에게 유용한 행동일수록 interestingness를 높게 준다.
 - 건강, 식사, 물 섭취, 불안, 반복 행동, 사람/물체와의 상호작용은 중요하게 본다.
 - JSON 객체만 출력한다.
@@ -532,8 +504,8 @@ def _build_vlm_prompt(segment_context: dict) -> str:
 
 출력 형식:
 {{
-  "subject": "dog",
-  "action": "강아지가 무엇을 하는 것으로 보이는지 짧게 작성",
+  "subject": "이미지에서 판단한 동물명 또는 반려동물",
+  "action": "무엇을 하는 것으로 보이는지 짧게 작성",
   "target_object": "행동 대상이 있으면 작성, 없으면 null",
   "summary": "사용자가 이해하기 쉬운 한 문장 요약",
   "repeat_count": 1,
@@ -546,12 +518,13 @@ def _build_vlm_prompt(segment_context: dict) -> str:
 }}
 """.strip()
 
-
 def _build_fallback_behavior_event(frames: list[dict]) -> dict | None:
     """
-    VLM을 사용할 수 없을 때 object_labels와 motion 구간 기반으로 행동 이벤트를 만든다.
+    VLM을 사용할 수 없을 때 motion 구간 기반으로 최소 행동 이벤트를 만든다.
 
-    이 fallback은 실제 행동을 강하게 단정하지 않는다.
+    fallback에서는 동물 종류를 코드로 판단하지 않는다.
+    dog/cat/bird 같은 라벨을 subject로 쓰지 않고,
+    항상 '반려동물'로 일반화한다.
     """
     if not frames:
         return None
@@ -560,96 +533,42 @@ def _build_fallback_behavior_event(frames: list[dict]) -> dict | None:
     end_time = _get_group_end(frames)
     duration = round(end_time - start_time, 2)
 
+    if duration <= 0:
+        return None
+
     label_counter = Counter()
-    frames_with_pet = 0
-    frames_with_food_water = 0
-    frames_with_person = 0
 
     for frame in frames:
         labels = set(_parse_object_labels(frame.get("object_labels")))
         label_counter.update(labels)
 
-        if labels & PET_LABELS:
-            frames_with_pet += 1
-
-        if labels & FOOD_WATER_OBJECTS:
-            frames_with_food_water += 1
-
-        if "person" in labels:
-            frames_with_person += 1
-
-    labels_seen = set(label_counter.keys())
-    pet_labels = labels_seen & PET_LABELS
-    care_objects = labels_seen & CARE_OBJECT_LABELS
-    food_water_objects = labels_seen & FOOD_WATER_OBJECTS
-    rest_objects = labels_seen & REST_OBJECTS
-
-    # 반려동물이 전혀 잡히지 않았지만 motion만 있는 경우는 추천 가치가 낮으므로 제외
-    if not pet_labels:
-        return None
-
-    subject = sorted(pet_labels)[0]
-    target_object = None
-    action = "움직임이 있는 구간에서 반복적으로 감지됨"
-    summary = f"{subject}가 {duration:.1f}초 동안 움직임이 있는 구간에서 반복적으로 감지되었습니다."
-    evidence = [
-        f"motion 구간 {start_time:.1f}초~{end_time:.1f}초에서 프레임 {len(frames)}개 추출",
-        f"반려동물 라벨이 {frames_with_pet}개 프레임에서 감지됨",
+    detected_labels = [
+        label
+        for label, _ in label_counter.most_common(5)
     ]
 
-    confidence = 0.55
-    interestingness = 0.55
+    subject = "반려동물"
+    target_object = None
+    action = "움직임이 있는 구간으로 감지됨"
+    summary = f"반려동물이 {duration:.1f}초 동안 움직임을 보인 것으로 추정되는 구간입니다."
 
-    if food_water_objects:
-        target_object = sorted(food_water_objects)[0]
-        action = "물그릇이나 식기 주변에 머무르는 것으로 보임"
-        summary = (
-            f"{subject}가 {target_object} 주변에서 {duration:.1f}초 동안 "
-            "움직임을 보인 구간입니다."
-        )
-        evidence.append(f"{target_object} 라벨이 {frames_with_food_water}개 프레임에서 함께 감지됨")
-        confidence = 0.65
-        interestingness = 0.82
+    evidence = [
+        f"motion 구간 {start_time:.1f}초~{end_time:.1f}초에서 프레임 {len(frames)}개 추출",
+    ]
 
-    elif rest_objects:
-        target_object = sorted(rest_objects)[0]
-        action = "휴식 공간 주변에 머무르는 것으로 보임"
-        summary = (
-            f"{subject}가 {target_object} 주변에서 움직임을 보인 구간입니다."
-        )
-        evidence.append(f"{target_object} 라벨이 함께 감지됨")
-        confidence = 0.6
-        interestingness = 0.62
+    if detected_labels:
+        evidence.append(f"함께 감지된 객체 라벨: {detected_labels}")
 
-    elif care_objects:
-        target_object = sorted(care_objects)[0]
-        action = "주변 물체에 관심을 보이는 후보 구간"
-        summary = (
-            f"{subject}가 {target_object} 근처에서 움직임을 보인 구간입니다."
-        )
-        evidence.append(f"{target_object} 라벨이 함께 감지됨")
-        confidence = 0.58
-        interestingness = 0.7
-
-    if frames_with_person > 0:
-        action = "사람이 함께 감지된 구간에서 움직임을 보임"
-        summary = (
-            f"사람이 함께 감지된 구간에서 {subject}의 움직임을 확인할 수 있습니다."
-        )
-        evidence.append(f"person 라벨이 {frames_with_person}개 프레임에서 함께 감지됨")
-        confidence = max(confidence, 0.62)
-        interestingness = max(interestingness, 0.76)
-
-    # 같은 구간에서 프레임이 여러 개면 반복성 후보로 본다.
-    repeat_count = max(frames_with_pet, len(frames))
+    confidence = 0.45
+    interestingness = 0.5
 
     if duration >= 10:
         interestingness += 0.05
         evidence.append(f"{duration:.1f}초 동안 지속된 구간")
 
-    if repeat_count >= 4:
+    if len(frames) >= 4:
         interestingness += 0.05
-        evidence.append("여러 프레임에서 유사한 객체 구성이 반복됨")
+        evidence.append("여러 프레임에서 움직임이 이어짐")
 
     return {
         "subject": subject,
@@ -657,12 +576,11 @@ def _build_fallback_behavior_event(frames: list[dict]) -> dict | None:
         "target_object": target_object,
         "summary": summary,
         "duration": duration,
-        "repeat_count": repeat_count,
+        "repeat_count": len(frames),
         "confidence": round(min(confidence, 0.95), 2),
         "interestingness": round(min(interestingness, 0.95), 2),
         "evidence": evidence,
     }
-
 
 def _normalize_behavior_event(
     event: dict,
@@ -862,21 +780,12 @@ def _parse_object_labels(raw_labels: Any) -> list[str]:
         if label.strip()
     ]
 
-
 def _guess_subject_from_frames(frames: list[dict]) -> str | None:
     """
-    프레임 라벨에서 주체를 추정한다.
+    fallback에서 프레임 라벨만 보고 동물 종류를 추정하지 않는다.
+    동물 종류 판단은 VLM이 하도록 둔다.
     """
-    counter = Counter()
-
-    for frame in frames:
-        labels = set(_parse_object_labels(frame.get("object_labels")))
-        counter.update(labels & PET_LABELS)
-
-    if not counter:
-        return None
-
-    return counter.most_common(1)[0][0]
+    return "반려동물"
 
 
 def _get_group_start(frames: list[dict]) -> float:
