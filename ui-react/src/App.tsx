@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 
 type Screen = "live" | "recordings" | "search" | "chunkPlayback" | "searchPlayback" | "profile";
 type Theme = "dark" | "light";
@@ -22,6 +22,7 @@ type Recording = {
   recordingDate?: string;
   recordedAt?: string;
   startSeconds?: number;
+  playbackStartSeconds?: number;
   videoId?: string;
   videoUrl?: string;
   thumbnailUrl?: string;
@@ -36,6 +37,7 @@ type SearchResult = {
   thumb: number;
   objects: Tag[];
   startSeconds?: number;
+  playbackStartSeconds?: number;
   videoId?: string;
   videoUrl?: string;
   thumbnailUrl?: string;
@@ -205,6 +207,27 @@ function formatDuration(seconds: number) {
   return `${minute}:${String(second).padStart(2, "0")}`;
 }
 
+function durationToSeconds(duration?: string) {
+  if (!duration) return undefined;
+
+  const [minute, second = "0"] = duration.split(":");
+  const totalSeconds = Number(minute) * 60 + Number(second);
+  return Number.isFinite(totalSeconds) ? totalSeconds : undefined;
+}
+
+function addSecondsToClockTime(time: string, seconds: number) {
+  const [hour, minute] = time.split(":").map(Number);
+  if (!Number.isFinite(hour) || !Number.isFinite(minute)) return formatSeconds(seconds);
+
+  const totalSeconds = (((hour * 60 + minute) * 60) + Math.max(0, Math.floor(seconds))) % (24 * 60 * 60);
+  const nextHour = Math.floor(totalSeconds / 3600);
+  const nextMinute = Math.floor((totalSeconds % 3600) / 60);
+  const nextSecond = totalSeconds % 60;
+
+  const base = `${String(nextHour).padStart(2, "0")}:${String(nextMinute).padStart(2, "0")}`;
+  return nextSecond > 0 ? `${base}:${String(nextSecond).padStart(2, "0")}` : base;
+}
+
 function formatHour(hour: number) {
   return `${String(hour).padStart(2, "0")}:00`;
 }
@@ -259,6 +282,7 @@ function mapApiResults(payload: ApiQueryResult, items: Recording[] = []): Search
       thumb: index % gradients.length,
       objects: labelsToTags(result.object_labels),
       startSeconds: seconds,
+      playbackStartSeconds: recording ? Math.max(0, seconds - (recording.startSeconds ?? 0)) : seconds,
       videoId: result.video_id,
       videoUrl: recording?.videoUrl,
       thumbnailUrl: frameThumbnailUrl || recording?.thumbnailUrl,
@@ -347,8 +371,19 @@ function behaviorTitle(event: BehaviorEvent) {
 }
 
 function behaviorTimeLabel(event: BehaviorEvent, recording?: Recording) {
-  if (recording?.time) return recording.time;
-  return formatSeconds(event.start_time ?? 0);
+  const eventStart = event.start_time ?? 0;
+
+  if (!recording) return formatSeconds(eventStart);
+
+  const offset = Math.max(0, eventStart - (recording.startSeconds ?? 0));
+  const eventEnd = event.end_time ?? eventStart + (event.duration ?? 0);
+  const clipDuration = durationToSeconds(recording.duration);
+  const endOffset = Math.max(offset, eventEnd - (recording.startSeconds ?? 0));
+  const displayEndOffset = clipDuration === undefined ? endOffset : Math.min(endOffset, clipDuration);
+  const startLabel = addSecondsToClockTime(recording.time, offset);
+  const endLabel = addSecondsToClockTime(recording.time, displayEndOffset);
+
+  return startLabel === endLabel ? startLabel : `${startLabel}-${endLabel}`;
 }
 
 function eventMatchesRecording(event: BehaviorEvent, recording: Recording) {
@@ -665,8 +700,15 @@ export default function App() {
     setScreen("searchPlayback");
   }
 
-  function openRecording(recording: Recording) {
-    setActiveRecording(recording);
+  function openRecording(recording: Recording, event?: BehaviorEvent) {
+    const playbackStartSeconds = event
+      ? Math.max(0, (event.start_time ?? 0) - (recording.startSeconds ?? 0))
+      : undefined;
+
+    setActiveRecording({
+      ...recording,
+      playbackStartSeconds,
+    });
     setScreen("chunkPlayback");
   }
 
@@ -1106,7 +1148,7 @@ export default function App() {
                       {topQueries.map((item) => (
                         <span className="query-chip" key={item.query}>
                           <button className="query-chip-main" type="button" onClick={() => applySuggestion(item.query)}>
-                            {item.query}{item.count ? ` ${item.count}` : ""}
+                            {item.query}
                           </button>
                           <button
                             className="query-chip-remove"
@@ -1227,7 +1269,14 @@ export default function App() {
               </div>
               <div className="playback-grid">
                 <div className="stack">
-                  <VideoPanel label="S3 청크 재생" camera={activeRecording.note || `${activeRecording.videoId ?? "영상"} · ${activeRecording.time}`} time={activeRecording.time} videoUrl={activeRecording.videoUrl} wide />
+                  <VideoPanel
+                    label={activeRecording.playbackStartSeconds !== undefined ? "행동 구간 자동 점프" : "S3 청크 재생"}
+                    camera={activeRecording.note || `${activeRecording.videoId ?? "영상"} · ${activeRecording.time}`}
+                    time={activeRecording.playbackStartSeconds !== undefined ? addSecondsToClockTime(activeRecording.time, activeRecording.playbackStartSeconds) : activeRecording.time}
+                    videoUrl={activeRecording.videoUrl}
+                    startAtSeconds={activeRecording.playbackStartSeconds}
+                    wide
+                  />
                   <div className="chunk-info-grid">
                     <Metric icon="movie" label="원본 영상" value={activeRecording.videoId || "알 수 없음"} />
                     <Metric icon="schedule" label="청크 구간" value={`${activeRecording.time} · ${activeRecording.duration}`} />
@@ -1277,7 +1326,7 @@ export default function App() {
               </div>
               <div className="playback-grid">
                 <div className="stack">
-                  <VideoPanel label="검색 구간 자동 점프" camera={activeResult.note} time={activeResult.time} videoUrl={activeResult.videoUrl} wide />
+                  <VideoPanel label="검색 구간 자동 점프" camera={activeResult.note} time={activeResult.time} videoUrl={activeResult.videoUrl} startAtSeconds={activeResult.playbackStartSeconds} wide />
                   <Timeline activeResult={activeResult} results={visibleResults} />
                   <div className="button-row">
                     <button className="secondary-button" onClick={() => stepResult(-1)}><Icon>skip_previous</Icon>이전 결과</button>
@@ -1312,11 +1361,55 @@ export default function App() {
   );
 }
 
-function VideoPanel({ label, camera, time, videoUrl, wide = false }: { label: string; camera: string; time: string; videoUrl?: string; wide?: boolean }) {
+function VideoPanel({
+  label,
+  camera,
+  time,
+  videoUrl,
+  startAtSeconds = 0,
+  wide = false,
+}: {
+  label: string;
+  camera: string;
+  time: string;
+  videoUrl?: string;
+  startAtSeconds?: number;
+  wide?: boolean;
+}) {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const safeStartAtSeconds = Math.max(0, Number.isFinite(startAtSeconds) ? startAtSeconds : 0);
+  const videoKey = `${videoUrl || "empty"}-${safeStartAtSeconds}`;
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !videoUrl) return;
+
+    const seek = () => {
+      if (safeStartAtSeconds <= 0) return;
+
+      try {
+        const canSeek = !Number.isFinite(video.duration) || safeStartAtSeconds < video.duration;
+        if (!canSeek) return;
+        video.currentTime = safeStartAtSeconds;
+        void video.play().catch(() => undefined);
+      } catch {
+        // Keep the player visible even if the browser cannot seek this media URL.
+      }
+    };
+
+    if (video.readyState >= HTMLMediaElement.HAVE_METADATA) {
+      seek();
+      return;
+    }
+
+    video.addEventListener("loadedmetadata", seek, { once: true });
+    return () => video.removeEventListener("loadedmetadata", seek);
+  }, [safeStartAtSeconds, videoUrl]);
+
   return (
     <div className={`${wide ? "video-panel wide" : "video-panel"} ${videoUrl ? "with-media" : ""}`}>
       {videoUrl ? (
-        <video className="video-player" src={videoUrl} controls autoPlay muted playsInline />
+        <video key={videoKey} ref={videoRef} className="video-player" src={videoUrl} controls autoPlay muted playsInline />
       ) : (
         <div className="video-gradient" />
       )}
@@ -1542,7 +1635,7 @@ function BehaviorHighlights({
   items: Array<{ event: BehaviorEvent; recording: Recording }>;
   notice: string;
   petName: string;
-  onOpen: (recording: Recording) => void;
+  onOpen: (recording: Recording, event?: BehaviorEvent) => void;
 }) {
   if (items.length === 0) {
     return (
@@ -1570,7 +1663,7 @@ function BehaviorHighlights({
       </div>
       <div className="behavior-row">
         {items.map(({ event, recording }) => (
-          <button className="behavior-card" key={`${event.id}-${recording.id}`} onClick={() => onOpen(recording)}>
+          <button className="behavior-card" key={`${event.id}-${recording.id}`} onClick={() => onOpen(recording, event)}>
             <div className="behavior-icon"><Icon filled>auto_awesome</Icon></div>
             <div>
               <span>{behaviorTimeLabel(event, recording)} · {recording.period}</span>
