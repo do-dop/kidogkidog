@@ -520,7 +520,7 @@ with tab2:
                 st.session_state[suggested_queries_key] = suggest_queries(
                     user_id=user_id,
                     video_id=selected_video_id,
-                    limit=6,
+                    limit=3,
                 )
 
             if behavior_events_key not in st.session_state:
@@ -614,7 +614,7 @@ with tab2:
                         for item in evidence:
                             st.caption(f"  - {item}")
 
-                st.markdown("#### 💡 이 행동에서 확인해볼 만한 질문")
+                st.markdown("#### 💡 이 영상에서 확인해볼 만한 질문")
 
             elif suggested_queries:
                 st.markdown("#### 💡 이 영상에서 확인해볼 만한 질문")
@@ -675,7 +675,7 @@ with tab2:
                     label_visibility="collapsed",
                 )
 
-                top_k = st.slider("검색 결과 수", min_value=1, max_value=10, value=3)
+                top_k = st.slider("검색 결과 수", min_value=1, max_value=5, value=3)
 
                 search_btn = st.form_submit_button("🔍 검색", use_container_width=True)
 
