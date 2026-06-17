@@ -602,6 +602,44 @@ def get_behavior_events(video_id=None, limit=5):
     return [_row_to_behavior_event(row) for row in rows]
 
 
+def get_behavior_event_by_id(event_id):
+    """
+    behavior_events row id로 행동 이벤트 1개 조회
+    """
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+
+    cursor.execute('''
+        SELECT
+            id,
+            video_id,
+            start_time,
+            end_time,
+            subject,
+            action,
+            target_object,
+            summary,
+            duration,
+            repeat_count,
+            confidence,
+            interestingness,
+            evidence_json,
+            source_frames_json,
+            created_at
+        FROM behavior_events
+        WHERE id = ?
+    ''', (event_id,))
+
+    row = cursor.fetchone()
+    conn.close()
+
+    if not row:
+        return None
+
+    return _row_to_behavior_event(row)
+
+
 def get_top_behavior_events(video_id=None, limit=5):
     """
     추천질문 생성에 사용할 주요 행동 이벤트 조회
