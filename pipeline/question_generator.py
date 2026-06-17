@@ -1,25 +1,26 @@
 import json
 import os
+import re
 from typing import Any
 
 from pipeline.behavior_event_extractor import format_behavior_events_for_prompt
 
 
 DEFAULT_GENERATED_QUESTIONS = [
-    "반려동물이 특정 위치 근처에 머무른 장면이 있나요?",
+    "특정 위치 근처에 머무른 장면이 있나요?",
     "영상 중간에 새롭게 등장한 객체나 사람이 있나요?",
-    "반려동물이 움직이거나 위치를 바꾼 장면이 있나요?",
-    "반려동물이 주변 물체에 관심을 보인 장면이 있나요?",
+    "움직이거나 위치를 바꾼 장면이 있나요?",
+    "주변 물체 근처에 머무른 장면이 있나요?",
     "처음과 달라진 장면이 있었나요?",
 ]
 
 
 DEFAULT_BEHAVIOR_QUESTIONS = [
-    "반려동물이 가장 오래 집중한 행동은 무엇인가요?",
-    "반려동물이 같은 행동을 반복한 구간이 있나요?",
-    "반려동물이 특정 물체에 관심을 보인 장면이 있나요?",
-    "평소와 달라 보이는 행동이 있었나요?",
-    "보호자가 확인해볼 만한 특이 행동이 있나요?",
+    "가장 오래 이어진 행동은 무엇인가요?",
+    "같은 행동이 반복된 구간이 있나요?",
+    "특정 물체 근처에 오래 머문 장면이 있나요?",
+    "움직임이 많았던 장면은 언제였나요?",
+    "확인해볼 만한 행동이 있었나요?",
 ]
 
 def generate_questions_from_behavior_events(
@@ -241,13 +242,12 @@ def _fallback_questions_from_behavior_events(events: list[dict], limit: int = 5)
     """
     LLM 호출이 불가능할 때 사용하는 행동 이벤트 기반 fallback 질문 생성.
 
-    fallback은 모델이 동물 종류를 판단할 수 없는 상황이므로
-    dog/cat/parrot 같은 동물명을 코드에서 고정하지 않고 "반려동물"로 표현한다.
+    question generation prompt와 같은 방향으로 주어를 붙이지 않고,
+    behavior_event의 action/target/duration/repeat_count만 질문으로 바꾼다.
     """
     questions = []
 
     for event in events:
-        subject = _subject_text_for_fallback(event.get("subject"))
         action = event.get("action") or ""
         target = event.get("target_object") or event.get("target")
         summary = event.get("summary") or ""
@@ -255,27 +255,28 @@ def _fallback_questions_from_behavior_events(events: list[dict], limit: int = 5)
         repeat_count = int(event.get("repeat_count") or 0)
 
         target_text = _target_to_korean(target)
+        action_text = _action_to_question_text(action)
 
         if target_text:
-            questions.append(f"{subject}이/가 {target_text}에 관심을 보인 구간은 언제인가요?")
+            questions.append(f"{target_text} 근처에 머문 장면이 있나요?")
 
         if repeat_count >= 3:
             if target_text:
-                questions.append(f"{subject}이/가 {target_text} 주변에서 비슷한 행동을 반복한 장면이 있나요?")
+                questions.append(f"{target_text} 주변에서 비슷한 행동이 반복된 장면이 있나요?")
             else:
-                questions.append(f"{subject}이/가 같은 행동을 반복한 구간이 있나요?")
+                questions.append("같은 행동이 반복된 구간이 있나요?")
 
         if duration >= 10:
             if target_text:
-                questions.append(f"{subject}이/가 {target_text}에 오래 머문 구간은 언제인가요?")
+                questions.append(f"{target_text} 근처에 오래 머문 구간은 언제인가요?")
             else:
-                questions.append(f"{subject}이/가 한 행동을 오래 지속한 구간이 있나요?")
+                questions.append("오래 이어진 행동이 있는 구간은 언제인가요?")
 
         if "사람" in action or "person" in str(target).lower() or "사람" in summary:
-            questions.append(f"사람이 등장한 뒤 {subject}의 반응을 확인할 수 있나요?")
+            questions.append("사람이 화면에 등장한 장면이 있나요?")
 
-        if action:
-            questions.append(f"{subject}이/가 {action} 장면을 확인할 수 있나요?")
+        if action_text:
+            questions.append(f"{action_text} 장면이 있나요?")
 
     questions.extend(DEFAULT_BEHAVIOR_QUESTIONS)
 
@@ -300,20 +301,20 @@ def _fallback_questions_from_events(events: list[dict], limit: int = 5) -> list[
             questions.append(f"영상 중간에 새롭게 등장한 객체({label_text})가 있나요?")
 
         elif event_type in {"person_detected", "person_repeatedly_detected"}:
-            questions.append("사람이 등장한 뒤 반려동물의 반응을 확인할 수 있나요?")
+            questions.append("사람이 화면에 등장한 장면이 있나요?")
 
         elif event_type in {
             "pet_object_co_occurrence",
             "pet_object_pair_repeated",
             "repeated_pet_object_pair",
         }:
-            questions.append(f"반려동물이 주변 객체({label_text}) 근처에 머무른 장면이 있나요?")
+            questions.append(f"주변 객체({label_text}) 근처에 머무른 장면이 있나요?")
 
         elif event_type == "person_pet_pair_repeated":
-            questions.append("사람과 반려동물이 함께 보이는 구간에서 반려동물의 반응을 확인할 수 있나요?")
+            questions.append("사람과 함께 보이는 구간이 있나요?")
 
         elif event_type == "pet_repeatedly_detected":
-            questions.append("반려동물이 반복적으로 감지된 구간에서 어떤 움직임이 있었나요?")
+            questions.append("반복적으로 움직임이 감지된 구간이 있나요?")
 
         elif event_type == "scene_label_changed":
             if timestamp is not None:
@@ -349,6 +350,26 @@ def _subject_text_for_fallback(subject: str | None) -> str:
         return "반려동물"
 
     return subject_text
+
+
+def _action_to_question_text(action: str | None) -> str | None:
+    if not action:
+        return None
+
+    text = str(action).strip()
+    if not text:
+        return None
+
+    text = re.sub(r"^반려동물(이|가)\s*", "", text)
+    text = re.sub(r"^동물(이|가)\s*", "", text)
+    text = text.replace("것으로 보임", "").replace("있는 것으로 보임", "")
+    text = text.replace("것으로 추정됨", "").replace("있는 것으로 추정됨", "")
+    text = text.strip(" .")
+
+    if not text:
+        return None
+
+    return text
 
 
 def _target_to_korean(target: str | None) -> str | None:

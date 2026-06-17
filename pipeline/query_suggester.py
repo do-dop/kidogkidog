@@ -3,11 +3,11 @@ from pipeline.question_generator import generate_questions_from_behavior_events
 
 
 DEFAULT_BEHAVIOR_QUESTIONS = [
-    "반려동물이 가장 오래 집중한 행동은 무엇인가요?",
-    "반려동물이 같은 행동을 반복한 구간이 있나요?",
-    "반려동물이 특정 물체에 관심을 보인 장면이 있나요?",
-    "평소와 달라 보이는 행동이 있었나요?",
-    "보호자가 확인해볼 만한 특이 행동이 있나요?",
+    "가장 오래 이어진 행동은 무엇인가요?",
+    "같은 행동이 반복된 구간이 있나요?",
+    "특정 물체 근처에 오래 머문 장면이 있나요?",
+    "움직임이 많았던 장면은 언제였나요?",
+    "확인해볼 만한 행동이 있었나요?",
 ]
 
 
@@ -54,6 +54,7 @@ def get_suggestion_behavior_events(
     )
 
     filtered_events = []
+    seen_signatures = set()
 
     for event in events:
         confidence = event.get("confidence")
@@ -64,7 +65,15 @@ def get_suggestion_behavior_events(
         if float(confidence) < 0.3:
             continue
 
+        signature = _behavior_event_signature(event)
+        if signature in seen_signatures:
+            continue
+
+        seen_signatures.add(signature)
         filtered_events.append(event)
+
+        if len(filtered_events) >= limit:
+            break
 
     return filtered_events[:limit]
 
@@ -92,6 +101,33 @@ def has_behavior_events(video_id: str | None = None) -> bool:
     )
 
     return bool(behavior_events)
+
+
+def _behavior_event_signature(event: dict) -> str:
+    text = " ".join(
+        str(event.get(key) or "")
+        for key in ("action", "target_object", "summary")
+    ).lower().replace(" ", "")
+
+    keyword_groups = [
+        ("feeding", ["먹이", "음식", "밥", "그릇", "사료", "먹는", "섭취", "bowl", "food"]),
+        ("water", ["물", "마시", "water"]),
+        ("exploring", ["탐색", "살피", "주변환경"]),
+        ("movement", ["이동", "움직", "돌아다니", "걷"]),
+        ("person", ["사람", "보호자", "person"]),
+        ("vehicle", ["차량", "자동차", "차안", "차아래", "vehicle", "car"]),
+    ]
+
+    for group_name, keywords in keyword_groups:
+        if any(keyword in text for keyword in keywords):
+            return group_name
+
+    action = str(event.get("action") or "").strip()
+    target = str(event.get("target_object") or "").strip()
+    if action or target:
+        return f"{action}:{target}"
+
+    return str(event.get("id"))
 
 
 def _deduplicate_keep_order(items: list[str]) -> list[str]:

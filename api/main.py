@@ -12,8 +12,18 @@ from celery import Celery
 from pydantic import BaseModel
 import os
 
-from db.metadata import get_behavior_events, get_scene_records
+from db.metadata import (
+    delete_user_frequent_query,
+    get_scene_records,
+    get_user_recent_queries,
+    get_user_top_queries,
+    init_db,
+    insert_search_log,
+    upsert_user_frequent_query,
+)
+from pipeline.query_suggester import get_suggestion_behavior_events, suggest_queries
 from pipeline.rag_chain import run_rag_query
+from pipeline.vector_store import index_frames
 from pipeline.s3_uploader import (
     create_presigned_url,
     download_bytes,
@@ -24,6 +34,9 @@ from pipeline.s3_uploader import (
 )
 
 app = FastAPI()
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+FRAMES_DIR = PROJECT_ROOT / "pipeline" / "frames"
 
 app.add_middleware(
     CORSMiddleware,
@@ -52,6 +65,21 @@ class QueryRequest(BaseModel):
     video_id: str | None = None
     top_k: int = 5
     user_id: str | None = None
+
+
+class SuggestionRequest(BaseModel):
+    user_id: str | None = None
+    video_id: str | None = None
+    limit: int = 5
+
+
+class FrequentQueryDeleteRequest(BaseModel):
+    query: str
+
+
+@app.on_event("startup")
+def startup():
+    init_db()
 
 
 @app.get("/health")
@@ -296,10 +324,10 @@ def list_recording_chunks(video_id: str | None = None):
 
 @app.get("/recordings/events")
 def list_recording_events(video_id: str | None = None, limit: int = 50):
-    safe_limit = max(1, min(limit, 100))
+    safe_limit = max(1, min(limit, 5))
 
     try:
-        events = get_behavior_events(video_id=video_id, limit=safe_limit)
+        events = get_suggestion_behavior_events(video_id=video_id, limit=safe_limit)
     except Exception as exc:
         if "no such table: behavior_events" in str(exc):
             return {
@@ -317,6 +345,111 @@ def list_recording_events(video_id: str | None = None, limit: int = 50):
         "status": "ok",
         "count": len(events),
         "events": events,
+    }
+
+
+@app.post("/frames/reindex")
+def reindex_local_frames(video_id: str | None = None):
+    if not FRAMES_DIR.exists():
+        raise HTTPException(
+            status_code=404,
+            detail=f"프레임 폴더가 없습니다: {FRAMES_DIR}",
+        )
+
+    try:
+        if video_id:
+            target_dir = FRAMES_DIR / video_id
+            if not target_dir.exists():
+                raise HTTPException(
+                    status_code=404,
+                    detail=f"영상 프레임 폴더가 없습니다: {target_dir}",
+                )
+            index_frames(str(target_dir), video_id=video_id)
+        else:
+            index_frames(str(FRAMES_DIR))
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail=f"로컬 프레임 인덱스 갱신 실패: {exc}",
+        ) from exc
+
+    return {
+        "status": "ok",
+        "video_id": video_id,
+        "frame_root": str(FRAMES_DIR if not video_id else FRAMES_DIR / video_id),
+    }
+
+
+@app.get("/suggestions")
+def get_suggestions(
+    user_id: str | None = None,
+    video_id: str | None = None,
+    limit: int = 5,
+):
+    safe_limit = max(1, min(limit, 10))
+
+    try:
+        questions = suggest_queries(
+            user_id=user_id,
+            video_id=video_id,
+            limit=safe_limit,
+        )
+        behavior_events = get_suggestion_behavior_events(
+            video_id=video_id,
+            limit=5,
+        )
+        top_queries = get_user_top_queries(user_id=user_id, limit=5) if user_id else []
+        recent_queries = get_user_recent_queries(user_id=user_id, limit=5) if user_id else []
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail=f"추천 질문을 생성하지 못했습니다: {exc}",
+        ) from exc
+
+    return {
+        "status": "ok",
+        "video_id": video_id,
+        "questions": questions,
+        "behavior_events": behavior_events,
+        "top_queries": top_queries,
+        "recent_queries": recent_queries,
+    }
+
+
+@app.post("/suggestions")
+def post_suggestions(request: SuggestionRequest):
+    return get_suggestions(
+        user_id=request.user_id,
+        video_id=request.video_id,
+        limit=request.limit,
+    )
+
+
+@app.delete("/users/{user_id}/frequent-queries")
+def delete_frequent_query(user_id: str, request: FrequentQueryDeleteRequest):
+    if not user_id.strip():
+        raise HTTPException(status_code=400, detail="user_id가 필요합니다.")
+
+    if not request.query.strip():
+        raise HTTPException(status_code=400, detail="query가 필요합니다.")
+
+    try:
+        deleted_count = delete_user_frequent_query(
+            user_id=user_id,
+            query_raw=request.query,
+        )
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail=f"자주 찾는 검색어를 삭제하지 못했습니다: {exc}",
+        ) from exc
+
+    return {
+        "status": "ok",
+        "deleted_count": deleted_count,
+        "query": request.query,
     }
 
 
@@ -348,12 +481,37 @@ def query(request: QueryRequest):
 
     top_k = max(1, min(request.top_k, 10))
 
-    rag_result = run_rag_query(
-        query=request.query,
-        video_id=request.video_id,
-        top_k=top_k,
-        user_id=request.user_id,
-    )
+    import time
+
+    started_at = time.perf_counter()
+
+    try:
+        rag_result = run_rag_query(
+            query=request.query,
+            video_id=request.video_id,
+            top_k=top_k,
+            user_id=request.user_id,
+        )
+    finally:
+        latency_ms = int((time.perf_counter() - started_at) * 1000)
+
+    if request.user_id:
+        result_count = len(rag_result.get("results", []))
+        try:
+            insert_search_log(
+                user_id=request.user_id,
+                query_raw=request.query,
+                video_id=request.video_id,
+                top_k=top_k,
+                result_count=result_count,
+                latency_ms=latency_ms,
+            )
+            upsert_user_frequent_query(
+                user_id=request.user_id,
+                query_raw=request.query,
+            )
+        except Exception as exc:
+            print(f"검색 로그 저장 실패: {exc}", flush=True)
 
     return {
         "status": "ok",
@@ -362,5 +520,6 @@ def query(request: QueryRequest):
         "top_k": top_k,
         "answer": rag_result["answer"],
         "results": rag_result["results"],
+        "behavior_events": rag_result.get("behavior_events", []),
         "used_llm": rag_result["used_llm"],
     }
