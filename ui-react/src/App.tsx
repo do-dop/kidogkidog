@@ -1044,13 +1044,6 @@ export default function App() {
             <section className="recording-page stack">
               <DateFilter selectedYear={selectedYear} setSelectedYear={setSelectedYear} selectedMonth={selectedMonth} setSelectedMonth={setSelectedMonth} selectedDay={selectedDay} setSelectedDay={setSelectedDay} />
               <TimeChips value={timeFilter} onChange={setTimeFilter} />
-              <div className="recording-toolbar">
-                <p className={s3Recordings.length > 0 ? "notice success" : "notice"}>{recordingsLoading ? "S3 청크 목록을 불러오는 중입니다." : recordingsNotice}</p>
-                <button className="secondary-button" onClick={reindexLocalFrames} disabled={reindexing}>
-                  <Icon>{reindexing ? "progress_activity" : "sync"}</Icon>
-                  {reindexing ? "갱신 중" : "로컬 프레임 인덱스 갱신"}
-                </button>
-              </div>
               <BehaviorHighlights
                 items={highlightedBehaviors}
                 notice={behaviorNotice}
