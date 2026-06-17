@@ -28,7 +28,7 @@ def split_video_into_chunks(video_path, chunk_duration=60, output_dir="simulator
         # 아이폰 MOV에 들어있는 위치정보/메타데이터 stream은 제외하고
         # 첫 번째 video stream과 audio stream만 사용
         "-map", "0:v:0",
-        "-map", "0:a?",
+        "-map", "0:a:0?",
 
         # 브라우저/Streamlit/OpenCV에서 잘 읽히도록 H.264 mp4로 변환
         "-c:v", "libx264",

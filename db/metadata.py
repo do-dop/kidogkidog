@@ -4,7 +4,108 @@ import re
 import json
 from collections import Counter
 
-DB_PATH = "db/kidogkidog.db"
+DB_BACKEND = os.getenv("KIDOGKIDOG_DB_BACKEND", "").lower()
+DB_PATH = os.getenv("KIDOGKIDOG_DB_PATH", "db/kidogkidog.db")
+MYSQL_HOST = os.getenv("MYSQL_HOST") or os.getenv("RDS_HOST")
+MYSQL_PORT = int(os.getenv("MYSQL_PORT") or os.getenv("RDS_PORT") or "3306")
+MYSQL_USER = os.getenv("MYSQL_USER") or os.getenv("RDS_USER")
+MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD") or os.getenv("RDS_PASSWORD")
+MYSQL_DATABASE = os.getenv("MYSQL_DATABASE") or os.getenv("RDS_DATABASE") or os.getenv("MYSQL_DB")
+
+
+def _using_mysql():
+    return DB_BACKEND in {"mysql", "rds"} or bool(MYSQL_HOST)
+
+
+def _translate_sql(sql):
+    if not _using_mysql():
+        return sql
+
+    return sql.replace("?", "%s")
+
+
+class _Cursor:
+    def __init__(self, cursor):
+        self._cursor = cursor
+
+    def execute(self, sql, params=None):
+        return self._cursor.execute(_translate_sql(sql), params or ())
+
+    def fetchall(self):
+        return self._cursor.fetchall()
+
+    @property
+    def lastrowid(self):
+        return self._cursor.lastrowid
+
+    @property
+    def rowcount(self):
+        return self._cursor.rowcount
+
+
+class _Connection:
+    def __init__(self, raw_connection, backend):
+        self._raw_connection = raw_connection
+        self._backend = backend
+        self._dict_rows = False
+
+    @property
+    def row_factory(self):
+        return None
+
+    @row_factory.setter
+    def row_factory(self, value):
+        self._dict_rows = value is not None
+
+        if self._backend == "sqlite":
+            self._raw_connection.row_factory = value
+
+    def cursor(self):
+        if self._backend == "mysql":
+            import pymysql
+
+            return _Cursor(
+                self._raw_connection.cursor(
+                    pymysql.cursors.DictCursor if self._dict_rows else pymysql.cursors.Cursor
+                )
+            )
+
+        return _Cursor(self._raw_connection.cursor())
+
+    def commit(self):
+        return self._raw_connection.commit()
+
+    def close(self):
+        return self._raw_connection.close()
+
+
+def _connect():
+    if _using_mysql():
+        if not MYSQL_HOST or not MYSQL_USER or not MYSQL_DATABASE:
+            raise RuntimeError(
+                "MySQL/RDS 사용 시 MYSQL_HOST, MYSQL_USER, MYSQL_DATABASE 환경변수가 필요합니다."
+            )
+
+        import pymysql
+
+        return _Connection(
+            pymysql.connect(
+                host=MYSQL_HOST,
+                port=MYSQL_PORT,
+                user=MYSQL_USER,
+                password=MYSQL_PASSWORD or "",
+                database=MYSQL_DATABASE,
+                charset="utf8mb4",
+                autocommit=False,
+            ),
+            "mysql",
+        )
+
+    db_dir = os.path.dirname(DB_PATH)
+    if db_dir:
+        os.makedirs(db_dir, exist_ok=True)
+
+    return _Connection(sqlite3.connect(DB_PATH), "sqlite")
 
 
 def normalize_query(query: str) -> str:
@@ -22,7 +123,7 @@ def normalize_query(query: str) -> str:
     query = re.sub(r"\s+", " ", query)
     query = re.sub(r"^[^\w가-힣]+|[^\w가-힣]+$", "", query)
 
-    return query
+    return query[:255]
 
 
 def _to_json_text(value):
@@ -59,98 +160,161 @@ def _from_json_text(value, default=None):
 
 def init_db():
     """DB 및 테이블 초기화"""
-    os.makedirs("db", exist_ok=True)
-
-    conn = sqlite3.connect(DB_PATH)
+    conn = _connect()
     cursor = conn.cursor()
 
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS scenes (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            video_id TEXT NOT NULL,
-            start_time REAL NOT NULL,
-            end_time REAL NOT NULL,
-            object_labels TEXT,
-            s3_key TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
+    if _using_mysql():
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS scenes (
+                id BIGINT PRIMARY KEY AUTO_INCREMENT,
+                video_id VARCHAR(255) NOT NULL,
+                start_time DOUBLE NOT NULL,
+                end_time DOUBLE NOT NULL,
+                object_labels TEXT,
+                s3_key TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                INDEX idx_scenes_video_time (video_id, start_time)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+        ''')
 
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS behavior_events (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            video_id TEXT NOT NULL,
-            start_time REAL NOT NULL,
-            end_time REAL NOT NULL,
-            subject TEXT,
-            action TEXT,
-            target_object TEXT,
-            summary TEXT,
-            duration REAL,
-            repeat_count INTEGER DEFAULT 0,
-            confidence REAL,
-            interestingness REAL,
-            evidence_json TEXT,
-            source_frames_json TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS behavior_events (
+                id BIGINT PRIMARY KEY AUTO_INCREMENT,
+                video_id VARCHAR(255) NOT NULL,
+                start_time DOUBLE NOT NULL,
+                end_time DOUBLE NOT NULL,
+                subject VARCHAR(255),
+                action TEXT,
+                target_object VARCHAR(255),
+                summary TEXT,
+                duration DOUBLE,
+                repeat_count INTEGER DEFAULT 0,
+                confidence DOUBLE,
+                interestingness DOUBLE,
+                evidence_json JSON,
+                source_frames_json JSON,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                INDEX idx_behavior_events_video_time (video_id, start_time),
+                INDEX idx_behavior_events_video_score (video_id, interestingness, confidence)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+        ''')
 
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS search_logs (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id TEXT NOT NULL,
-            query_raw TEXT NOT NULL,
-            query_norm TEXT NOT NULL,
-            video_id TEXT,
-            top_k INTEGER,
-            result_count INTEGER,
-            latency_ms INTEGER,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS search_logs (
+                id BIGINT PRIMARY KEY AUTO_INCREMENT,
+                user_id VARCHAR(255) NOT NULL,
+                query_raw TEXT NOT NULL,
+                query_norm VARCHAR(255) NOT NULL,
+                video_id VARCHAR(255),
+                top_k INTEGER,
+                result_count INTEGER,
+                latency_ms INTEGER,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                INDEX idx_search_logs_user_created_at (user_id, created_at),
+                INDEX idx_search_logs_query_norm (query_norm)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+        ''')
 
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS user_frequent_queries (
-            user_id TEXT NOT NULL,
-            query_norm TEXT NOT NULL,
-            query_display TEXT NOT NULL,
-            count INTEGER NOT NULL DEFAULT 1,
-            last_searched_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            PRIMARY KEY (user_id, query_norm)
-        )
-    ''')
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS user_frequent_queries (
+                user_id VARCHAR(255) NOT NULL,
+                query_norm VARCHAR(255) NOT NULL,
+                query_display TEXT NOT NULL,
+                count INTEGER NOT NULL DEFAULT 1,
+                last_searched_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                PRIMARY KEY (user_id, query_norm),
+                INDEX idx_user_frequent_queries_user_count (user_id, count)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+        ''')
+    else:
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS scenes (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                video_id TEXT NOT NULL,
+                start_time REAL NOT NULL,
+                end_time REAL NOT NULL,
+                object_labels TEXT,
+                s3_key TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
 
-    cursor.execute('''
-        CREATE INDEX IF NOT EXISTS idx_search_logs_user_created_at
-        ON search_logs(user_id, created_at DESC)
-    ''')
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS behavior_events (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                video_id TEXT NOT NULL,
+                start_time REAL NOT NULL,
+                end_time REAL NOT NULL,
+                subject TEXT,
+                action TEXT,
+                target_object TEXT,
+                summary TEXT,
+                duration REAL,
+                repeat_count INTEGER DEFAULT 0,
+                confidence REAL,
+                interestingness REAL,
+                evidence_json TEXT,
+                source_frames_json TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
 
-    cursor.execute('''
-        CREATE INDEX IF NOT EXISTS idx_search_logs_query_norm
-        ON search_logs(query_norm)
-    ''')
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS search_logs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id TEXT NOT NULL,
+                query_raw TEXT NOT NULL,
+                query_norm TEXT NOT NULL,
+                video_id TEXT,
+                top_k INTEGER,
+                result_count INTEGER,
+                latency_ms INTEGER,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
 
-    cursor.execute('''
-        CREATE INDEX IF NOT EXISTS idx_user_frequent_queries_user_count
-        ON user_frequent_queries(user_id, count DESC)
-    ''')
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS user_frequent_queries (
+                user_id TEXT NOT NULL,
+                query_norm TEXT NOT NULL,
+                query_display TEXT NOT NULL,
+                count INTEGER NOT NULL DEFAULT 1,
+                last_searched_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (user_id, query_norm)
+            )
+        ''')
 
-    cursor.execute('''
-        CREATE INDEX IF NOT EXISTS idx_scenes_video_time
-        ON scenes(video_id, start_time)
-    ''')
+        cursor.execute('''
+            CREATE INDEX IF NOT EXISTS idx_search_logs_user_created_at
+            ON search_logs(user_id, created_at DESC)
+        ''')
 
-    cursor.execute('''
-        CREATE INDEX IF NOT EXISTS idx_behavior_events_video_time
-        ON behavior_events(video_id, start_time)
-    ''')
+        cursor.execute('''
+            CREATE INDEX IF NOT EXISTS idx_search_logs_query_norm
+            ON search_logs(query_norm)
+        ''')
 
-    cursor.execute('''
-        CREATE INDEX IF NOT EXISTS idx_behavior_events_video_score
-        ON behavior_events(video_id, interestingness DESC, confidence DESC)
-    ''')
+        cursor.execute('''
+            CREATE INDEX IF NOT EXISTS idx_user_frequent_queries_user_count
+            ON user_frequent_queries(user_id, count DESC)
+        ''')
+
+        cursor.execute('''
+            CREATE INDEX IF NOT EXISTS idx_scenes_video_time
+            ON scenes(video_id, start_time)
+        ''')
+
+        cursor.execute('''
+            CREATE INDEX IF NOT EXISTS idx_behavior_events_video_time
+            ON behavior_events(video_id, start_time)
+        ''')
+
+        cursor.execute('''
+            CREATE INDEX IF NOT EXISTS idx_behavior_events_video_score
+            ON behavior_events(video_id, interestingness DESC, confidence DESC)
+        ''')
 
     conn.commit()
     conn.close()
@@ -160,7 +324,7 @@ def init_db():
 
 def insert_scene(video_id, start_time, end_time, object_labels=None, s3_key=None):
     """프레임 메타데이터 저장"""
-    conn = sqlite3.connect(DB_PATH)
+    conn = _connect()
     cursor = conn.cursor()
 
     cursor.execute('''
@@ -174,7 +338,7 @@ def insert_scene(video_id, start_time, end_time, object_labels=None, s3_key=None
 
 def get_scenes(video_id):
     """특정 영상의 모든 scene 조회"""
-    conn = sqlite3.connect(DB_PATH)
+    conn = _connect()
     cursor = conn.cursor()
 
     cursor.execute('SELECT * FROM scenes WHERE video_id = ?', (video_id,))
@@ -189,7 +353,7 @@ def get_scene_records(video_id=None):
     scenes 테이블을 dict 형태로 조회한다.
     scene_event_extractor.py에서 사용한다.
     """
-    conn = sqlite3.connect(DB_PATH)
+    conn = _connect()
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
@@ -219,7 +383,7 @@ def delete_behavior_events(video_id):
 
     같은 영상을 다시 처리할 때 behavior_events가 중복 저장되는 것을 막기 위해 사용한다.
     """
-    conn = sqlite3.connect(DB_PATH)
+    conn = _connect()
     cursor = conn.cursor()
 
     cursor.execute('''
@@ -267,7 +431,7 @@ def insert_behavior_event(
     if duration is None:
         duration = round(float(end_time) - float(start_time), 2)
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = _connect()
     cursor = conn.cursor()
 
     cursor.execute('''
@@ -376,7 +540,7 @@ def get_behavior_events(video_id=None, limit=5):
 
     interestingness와 confidence가 높은 순서로 반환한다.
     """
-    conn = sqlite3.connect(DB_PATH)
+    conn = _connect()
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
@@ -489,7 +653,7 @@ def get_behavior_events_overlapping(video_id, start_time, end_time, limit=5):
 
     나중에 RAG 답변에서 검색된 프레임 timestamp 주변의 행동 이벤트를 함께 보여줄 때 사용한다.
     """
-    conn = sqlite3.connect(DB_PATH)
+    conn = _connect()
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
@@ -547,7 +711,7 @@ def insert_search_log(
     """
     query_norm = normalize_query(query_raw)
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = _connect()
     cursor = conn.cursor()
 
     cursor.execute('''
@@ -588,30 +752,52 @@ def upsert_user_frequent_query(user_id, query_raw):
 
     query_display = query_raw.strip()
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = _connect()
     cursor = conn.cursor()
 
-    cursor.execute('''
-        INSERT INTO user_frequent_queries (
+    if _using_mysql():
+        cursor.execute('''
+            INSERT INTO user_frequent_queries (
+                user_id,
+                query_norm,
+                query_display,
+                count,
+                last_searched_at,
+                updated_at
+            )
+            VALUES (?, ?, ?, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+            ON DUPLICATE KEY UPDATE
+                count = count + 1,
+                query_display = VALUES(query_display),
+                last_searched_at = CURRENT_TIMESTAMP,
+                updated_at = CURRENT_TIMESTAMP
+        ''', (
             user_id,
             query_norm,
-            query_display,
-            count,
-            last_searched_at,
-            updated_at
-        )
-        VALUES (?, ?, ?, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-        ON CONFLICT(user_id, query_norm)
-        DO UPDATE SET
-            count = count + 1,
-            query_display = excluded.query_display,
-            last_searched_at = CURRENT_TIMESTAMP,
-            updated_at = CURRENT_TIMESTAMP
-    ''', (
-        user_id,
-        query_norm,
-        query_display
-    ))
+            query_display
+        ))
+    else:
+        cursor.execute('''
+            INSERT INTO user_frequent_queries (
+                user_id,
+                query_norm,
+                query_display,
+                count,
+                last_searched_at,
+                updated_at
+            )
+            VALUES (?, ?, ?, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+            ON CONFLICT(user_id, query_norm)
+            DO UPDATE SET
+                count = count + 1,
+                query_display = excluded.query_display,
+                last_searched_at = CURRENT_TIMESTAMP,
+                updated_at = CURRENT_TIMESTAMP
+        ''', (
+            user_id,
+            query_norm,
+            query_display
+        ))
 
     conn.commit()
     conn.close()
@@ -623,7 +809,7 @@ def get_user_top_queries(user_id, limit=5):
 
     count가 높은 순서대로 반환한다.
     """
-    conn = sqlite3.connect(DB_PATH)
+    conn = _connect()
     cursor = conn.cursor()
 
     cursor.execute('''
@@ -656,7 +842,7 @@ def delete_user_frequent_query(user_id, query_raw):
     if not query_norm:
         return 0
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = _connect()
     cursor = conn.cursor()
 
     cursor.execute('''
@@ -676,7 +862,7 @@ def get_user_recent_queries(user_id, limit=5):
     """
     사용자별 최근 검색어 조회
     """
-    conn = sqlite3.connect(DB_PATH)
+    conn = _connect()
     cursor = conn.cursor()
 
     cursor.execute('''
@@ -703,7 +889,7 @@ def get_global_top_queries(limit=5):
     """
     전체 사용자 기준 자주 검색된 검색어 조회
     """
-    conn = sqlite3.connect(DB_PATH)
+    conn = _connect()
     cursor = conn.cursor()
 
     cursor.execute('''
@@ -737,7 +923,7 @@ def get_video_top_queries(video_id, limit=5):
     """
     특정 영상 기준 자주 검색된 검색어 조회
     """
-    conn = sqlite3.connect(DB_PATH)
+    conn = _connect()
     cursor = conn.cursor()
 
     if video_id:
@@ -820,7 +1006,7 @@ def get_video_object_labels(video_id=None):
     """
     특정 영상 또는 전체 영상의 scene object_labels를 펼쳐서 반환한다.
     """
-    conn = sqlite3.connect(DB_PATH)
+    conn = _connect()
     cursor = conn.cursor()
 
     if video_id:
