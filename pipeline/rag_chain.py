@@ -1,9 +1,10 @@
 import os
 from typing import Any
 
-from pipeline.vector_store import search
+from pipeline.vector_store import get_indexed_frames, search_with_query_expansion
 from pipeline.query_analyzer import build_prompt_hint
 from db.metadata import (
+    get_behavior_event_by_id,
     get_top_behavior_events,
     get_behavior_events_overlapping,
 )
@@ -20,6 +21,9 @@ def run_rag_query(
     video_id: str | None = None,
     top_k: int = 5,
     user_id: str | None = None,
+    source_event_id: int | None = None,
+    event_start: float | None = None,
+    event_end: float | None = None,
 ) -> dict:
     """
     사용자 질문을 받아 ChromaDB에서 관련 프레임을 검색하고,
@@ -34,8 +38,23 @@ def run_rag_query(
     """
     retrieved_frames = []
 
+    source_event = _resolve_source_event(
+        source_event_id=source_event_id,
+        event_start=event_start,
+        event_end=event_end,
+        video_id=video_id,
+    )
+
+    if source_event:
+        return _run_event_grounded_query(
+            query=query,
+            source_event=source_event,
+            top_k=top_k,
+            user_id=user_id,
+        )
+
     try:
-        retrieved_frames = search(
+        retrieved_frames = search_with_query_expansion(
             query=query,
             top_k=top_k,
             video_id=video_id,
@@ -53,12 +72,29 @@ def run_rag_query(
         limit=5,
     )
 
+    if not retrieved_frames and behavior_events:
+        retrieved_frames = _frames_from_behavior_events(
+            behavior_events=behavior_events,
+            video_id=video_id,
+            limit=top_k,
+        )
+
+    if not retrieved_frames and not behavior_events:
+        retrieved_frames = _fallback_indexed_frames(
+            video_id=video_id,
+            limit=top_k,
+        )
+
     if not retrieved_frames and not behavior_events:
         return {
             "query": query,
             "video_id": video_id,
-            "answer": "관련 프레임이나 행동 이벤트를 찾지 못했습니다. 검색어를 조금 다르게 입력해보세요.",
+            "answer": (
+                f"질문 '{query}'과 정확히 맞는 장면은 아직 찾지 못했습니다. "
+                "다만 이 영상의 인덱스가 충분하지 않거나 분석 결과가 아직 생성 중일 수 있어요."
+            ),
             "results": [],
+            "evidence_items": [],
             "behavior_events": [],
             "used_llm": False,
         }
@@ -88,6 +124,98 @@ def run_rag_query(
         "video_id": video_id,
         "answer": answer,
         "results": retrieved_frames,
+        "evidence_items": retrieved_frames,
+        "behavior_events": behavior_events,
+        "used_llm": used_llm,
+    }
+
+
+def _resolve_source_event(
+    source_event_id: int | None,
+    event_start: float | None,
+    event_end: float | None,
+    video_id: str | None,
+) -> dict[str, Any] | None:
+    if source_event_id is not None:
+        try:
+            event = get_behavior_event_by_id(source_event_id)
+            if event:
+                return event
+        except Exception as exc:
+            print(f"source_event_id 조회 실패: {exc}", flush=True)
+
+    if event_start is None or event_end is None:
+        return None
+
+    return {
+        "id": source_event_id,
+        "video_id": video_id,
+        "start_time": event_start,
+        "end_time": event_end,
+        "summary": "추천 질문과 연결된 행동 구간",
+        "source_frames": [],
+    }
+
+
+def _run_event_grounded_query(
+    query: str,
+    source_event: dict[str, Any],
+    top_k: int,
+    user_id: str | None,
+) -> dict:
+    event_video_id = source_event.get("video_id")
+    behavior_events = [source_event]
+    retrieved_frames = []
+
+    try:
+        candidate_frames = search_with_query_expansion(
+            query=query,
+            top_k=max(top_k * 5, 20),
+            video_id=event_video_id,
+        )
+        retrieved_frames = _filter_frames_to_event_window(
+            frames=candidate_frames,
+            event=source_event,
+            margin_seconds=3.0,
+        )[:top_k]
+    except Exception as exc:
+        print(f"event 기반 CLIP 검색 실패: {exc}", flush=True)
+        retrieved_frames = []
+
+    if not retrieved_frames:
+        retrieved_frames = _frames_from_behavior_events(
+            behavior_events=behavior_events,
+            video_id=event_video_id,
+            limit=top_k,
+        )
+
+    retrieved_frames = _attach_event_window_to_frames(retrieved_frames, source_event)
+    retrieved_context = _build_retrieved_context(retrieved_frames)
+    behavior_context = _build_behavior_event_context(behavior_events)
+    prompt_hint = build_prompt_hint(user_id=user_id, video_id=event_video_id)
+
+    answer = _generate_answer_with_langchain(
+        query=query,
+        retrieved_context=retrieved_context,
+        behavior_context=behavior_context,
+        prompt_hint=prompt_hint,
+    )
+
+    used_llm = answer != DEFAULT_FALLBACK_MESSAGE
+
+    if not used_llm:
+        answer = _build_fallback_answer(
+            query=query,
+            retrieved_frames=retrieved_frames,
+            behavior_events=behavior_events,
+        )
+
+    return {
+        "query": query,
+        "video_id": event_video_id,
+        "answer": answer,
+        "results": retrieved_frames,
+        "evidence_items": retrieved_frames,
         "behavior_events": behavior_events,
         "used_llm": used_llm,
     }
@@ -161,6 +289,145 @@ def _get_relevant_behavior_events(
     )
 
     return candidates[:limit]
+
+
+def _frames_from_behavior_events(
+    behavior_events: list[dict[str, Any]],
+    video_id: str | None,
+    limit: int = 5,
+) -> list[dict[str, Any]]:
+    frames = []
+
+    for event in behavior_events:
+        event_video_id = event.get("video_id") or video_id or "default"
+        source_frames = event.get("source_frames") or []
+
+        if not isinstance(source_frames, list):
+            continue
+
+        for frame in source_frames:
+            if not isinstance(frame, dict):
+                continue
+
+            timestamp = frame.get("timestamp")
+            if timestamp is None:
+                timestamp = event.get("start_time")
+
+            frames.append({
+                "frame_id": frame.get("frame_id") or f"event-{event.get('id')}-{timestamp}",
+                "frame_path": frame.get("frame_path"),
+                "s3_key": frame.get("s3_key"),
+                "timestamp": timestamp,
+                "video_id": event_video_id,
+                "object_labels": _normalize_labels(frame.get("object_labels")),
+                "score": float(event.get("confidence") or event.get("interestingness") or 0.5),
+            })
+
+            if len(frames) >= limit:
+                return frames
+
+    return frames[:limit]
+
+
+def _filter_frames_to_event_window(
+    frames: list[dict[str, Any]],
+    event: dict[str, Any],
+    margin_seconds: float = 3.0,
+) -> list[dict[str, Any]]:
+    start_time = _safe_float(event.get("start_time"))
+    end_time = _safe_float(event.get("end_time"))
+
+    if start_time is None or end_time is None:
+        return frames
+
+    lower_bound = max(start_time - margin_seconds, 0.0)
+    upper_bound = end_time + margin_seconds
+
+    return [
+        frame
+        for frame in frames
+        if (timestamp := _safe_float(frame.get("timestamp"))) is not None
+        and lower_bound <= timestamp <= upper_bound
+    ]
+
+
+def _attach_event_window_to_frames(
+    frames: list[dict[str, Any]],
+    event: dict[str, Any],
+) -> list[dict[str, Any]]:
+    start_time = _safe_float(event.get("start_time"))
+    end_time = _safe_float(event.get("end_time"))
+    output = []
+
+    for frame in frames:
+        timestamp = _safe_float(frame.get("timestamp"))
+        item = dict(frame)
+        item["source_event_id"] = event.get("id")
+        item["event_start"] = start_time
+        item["event_end"] = end_time
+
+        representative_timestamp = timestamp if timestamp is not None else start_time
+        item["representative_timestamp"] = representative_timestamp
+
+        if representative_timestamp is not None:
+            item["playback_start"] = max(representative_timestamp - 3.0, 0.0)
+            item["playback_end"] = representative_timestamp + 5.0
+        else:
+            item["playback_start"] = start_time
+            item["playback_end"] = end_time
+
+        output.append(item)
+
+    return output
+
+
+def _fallback_indexed_frames(video_id: str | None, limit: int = 5) -> list[dict[str, Any]]:
+    try:
+        frames = get_indexed_frames(video_id=video_id)
+    except Exception as exc:
+        print(f"대체 프레임 조회 실패: {exc}", flush=True)
+        return []
+
+    fallback_frames = []
+
+    for index, frame in enumerate(frames[:limit]):
+        fallback_frames.append({
+            "frame_id": frame.get("frame_id") or f"fallback-{index}",
+            "frame_path": frame.get("frame_path"),
+            "s3_key": frame.get("s3_key"),
+            "timestamp": frame.get("timestamp"),
+            "video_id": frame.get("video_id") or video_id or "default",
+            "object_labels": frame.get("object_labels", ""),
+            "score": 0.0,
+        })
+
+    if not fallback_frames and video_id:
+        fallback_frames.append({
+            "frame_id": f"fallback-{video_id}-0",
+            "frame_path": None,
+            "s3_key": None,
+            "timestamp": 0.0,
+            "video_id": video_id,
+            "object_labels": "",
+            "score": 0.0,
+        })
+
+    return fallback_frames
+
+
+def _normalize_labels(value) -> str:
+    if not value:
+        return ""
+    if isinstance(value, list):
+        return ",".join(str(item) for item in value)
+    return str(value)
+
+
+def _safe_float(value):
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
 
 
 def _behavior_query_score(query: str, event: dict[str, Any]) -> float:
@@ -445,6 +712,7 @@ def _build_fallback_answer(
 
     if retrieved_frames:
         top_items = []
+        has_strong_match = any(float(frame.get("score") or 0.0) > 0 for frame in retrieved_frames)
 
         for frame in retrieved_frames[:3]:
             timestamp = frame.get("timestamp")
@@ -459,13 +727,24 @@ def _build_fallback_answer(
 
         joined = "\n".join(top_items)
 
+        if not has_strong_match:
+            return (
+                f"질문 '{query}'과 정확히 일치하는 장면은 아직 뚜렷하게 찾지 못했습니다.\n\n"
+                "다만 같은 영상에서 확인 가능한 유사 후보 구간은 아래와 같습니다.\n\n"
+                f"{joined}\n\n"
+                "영상 분석 결과가 더 쌓이면 추천 질문과 검색 매칭이 더 안정적으로 연결됩니다."
+            )
+
         return (
-            f"질문 '{query}'에 대해 검색된 프레임 기준으로는 아래 시간대를 확인해볼 수 있습니다.\n\n"
+            f"질문 '{query}'과 관련된 후보 장면은 아래 시간대에서 확인해볼 수 있습니다.\n\n"
             f"{joined}\n\n"
             "단, 현재 답변은 검색 metadata 기반이며, 실제 행동을 확정하는 것은 아닙니다."
         )
 
-    return "관련 행동 이벤트나 검색 프레임을 찾지 못했습니다."
+    return (
+        f"질문 '{query}'과 정확히 맞는 장면은 아직 찾지 못했습니다. "
+        "다만 영상 분석 결과가 생성되는 중일 수 있어 잠시 후 다시 검색해보면 더 가까운 후보가 나올 수 있습니다."
+    )
 
 
 def _deduplicate_behavior_events(events: list[dict[str, Any]]) -> list[dict[str, Any]]:

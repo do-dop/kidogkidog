@@ -1860,6 +1860,19 @@ button {
   font-weight: 600;
 }
 
+.answer-card .answer-loading {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 28px;
+}
+
+.answer-card .answer-loading .loading-mark {
+  width: 24px;
+  height: 24px;
+  color: #fff;
+}
+
 .result-header {
   justify-content: space-between;
   color: var(--text-3);
@@ -1972,19 +1985,45 @@ button {
 }
 
 .chunk-event-row strong {
+  display: block;
+  margin-top: 4px;
   font-size: 14px;
 }
 
 .chunk-event-row p {
-  display: -webkit-box;
   margin-top: 4px;
-  overflow: hidden;
   color: var(--text-2);
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
   font-size: 12px;
   font-weight: 700;
   line-height: 1.45;
+}
+
+.chunk-event-time {
+  color: var(--accent);
+  font-family: "Nunito", sans-serif;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.chunk-event-row small {
+  display: block;
+  margin-top: 7px;
+  color: var(--text-3);
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+.chunk-event-row ul {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 8px 0 0;
+  padding-left: 16px;
+  color: var(--text-3);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.4;
 }
 
 .chunk-event-row > span {
