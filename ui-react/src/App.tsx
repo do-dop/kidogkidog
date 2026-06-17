@@ -188,15 +188,7 @@ const liveEvents = [
   { icon: "bedtime", text: "방석 위에서 쉬고 있어요", time: "15분 전", tags: ["dog", "bed"] },
 ];
 
-function getOrCreateUserId() {
-  const key = "kidogkidog_user_id";
-  const stored = window.localStorage.getItem(key);
-  if (stored) return stored;
-
-  const nextId = `react-${crypto.randomUUID()}`;
-  window.localStorage.setItem(key, nextId);
-  return nextId;
-}
+const demoUserId = "kidog-demo";
 
 function Icon({ children, filled = false }: { children: string; filled?: boolean }) {
   return (
@@ -491,7 +483,7 @@ function scoreBehavior(event: BehaviorEvent) {
 export default function App() {
   const [theme, setTheme] = useState<Theme>("light");
   const [screen, setScreen] = useState<Screen>("search");
-  const [userId] = useState(() => getOrCreateUserId());
+  const [userId] = useState(demoUserId);
   const [userName, setUserName] = useState(() => window.localStorage.getItem("kidogkidog_user_name") || defaultUserName);
   const [petName, setPetName] = useState(() => window.localStorage.getItem("kidogkidog_pet_name") || defaultPetName);
   const [notificationBehavior, setNotificationBehavior] = useState(() => window.localStorage.getItem("kidogkidog_notification_behavior") || "");
