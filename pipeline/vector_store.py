@@ -1,10 +1,14 @@
 import chromadb
 from pipeline.clip_embedder import embed_image, embed_text
 from pathlib import Path
+import os
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-CHROMA_DIR = PROJECT_ROOT / "db" / "chroma"
-CHROMA_DIR.mkdir(parents=True, exist_ok=True)
+CHROMA_DIR = Path(os.getenv("CHROMA_DB_PATH", PROJECT_ROOT / "db" / "chroma"))
+CHROMA_HOST = os.getenv("CHROMA_HOST")
+CHROMA_PORT = int(os.getenv("CHROMA_PORT", "8000"))
+CHROMA_SSL = os.getenv("CHROMA_SSL", "").lower() in {"1", "true", "yes"}
+CHROMA_COLLECTION = os.getenv("CHROMA_COLLECTION", "petcam_frames")
 
 _client = None
 _collection = None
@@ -14,10 +18,23 @@ def get_collection():
     """ChromaDB 컬렉션을 필요 시점에 생성"""
     global _client, _collection
     if _collection is None:
-        print(f"ChromaDB 연결 시작: {CHROMA_DIR}", flush=True)
-        _client = chromadb.PersistentClient(path=str(CHROMA_DIR))
+        if CHROMA_HOST:
+            print(
+                f"ChromaDB 서버 연결 시작: host={CHROMA_HOST}, port={CHROMA_PORT}, ssl={CHROMA_SSL}",
+                flush=True,
+            )
+            _client = chromadb.HttpClient(
+                host=CHROMA_HOST,
+                port=CHROMA_PORT,
+                ssl=CHROMA_SSL,
+            )
+        else:
+            CHROMA_DIR.mkdir(parents=True, exist_ok=True)
+            print(f"ChromaDB 로컬 연결 시작: {CHROMA_DIR}", flush=True)
+            _client = chromadb.PersistentClient(path=str(CHROMA_DIR))
+
         _collection = _client.get_or_create_collection(
-            name="petcam_frames",
+            name=CHROMA_COLLECTION,
             metadata={"hnsw:space": "cosine"}
         )
         print("ChromaDB 연결 완료", flush=True)

@@ -411,8 +411,8 @@ function scoreBehavior(event: BehaviorEvent) {
 }
 
 export default function App() {
-  const [theme, setTheme] = useState<Theme>("dark");
-  const [screen, setScreen] = useState<Screen>("live");
+  const [theme, setTheme] = useState<Theme>("light");
+  const [screen, setScreen] = useState<Screen>("search");
   const [userId] = useState(() => getOrCreateUserId());
   const [userName, setUserName] = useState(() => window.localStorage.getItem("kidogkidog_user_name") || defaultUserName);
   const [petName, setPetName] = useState(() => window.localStorage.getItem("kidogkidog_pet_name") || defaultPetName);
@@ -453,6 +453,7 @@ export default function App() {
   const [apiNotice, setApiNotice] = useState("");
   const [activeResult, setActiveResult] = useState<SearchResult | null>(null);
   const [activeRecording, setActiveRecording] = useState<Recording>(recordings[0]);
+  const didDefaultSearchVideoRef = useRef(false);
 
   useEffect(() => {
     let ignore = false;
@@ -517,7 +518,7 @@ export default function App() {
   const selectedDate = dateKey(selectedYear, selectedMonth, selectedDay);
 
   useEffect(() => {
-    if (selectedSearchVideoId || s3Recordings.length === 0) return;
+    if (didDefaultSearchVideoRef.current || selectedSearchVideoId || s3Recordings.length === 0) return;
 
     const latestRecording = [...s3Recordings]
       .filter((recording) => recording.videoId)
@@ -529,6 +530,7 @@ export default function App() {
       .at(-1);
 
     if (latestRecording?.videoId) {
+      didDefaultSearchVideoRef.current = true;
       setSelectedSearchVideoId(latestRecording.videoId);
     }
   }, [s3Recordings, selectedSearchVideoId]);
@@ -537,14 +539,6 @@ export default function App() {
     let ignore = false;
 
     async function loadSuggestions() {
-      if (s3Recordings.length > 0 && searchVideoOptions.length > 0 && !selectedSearchVideoId) {
-        setSuggestions([]);
-        setTopQueries([]);
-        setSuggestionStatus("loading");
-        setSuggestionNotice("영상 청크를 연결한 뒤 추천 질문을 생성합니다.");
-        return;
-      }
-
       setSuggestionStatus("loading");
       setSuggestionNotice("");
 
@@ -1126,7 +1120,10 @@ export default function App() {
                   <form className="search-bar" onSubmit={submitSearch}>
                     <Icon>search</Icon>
                     <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="예: 강아지가 밥 먹는 장면 찾아줘" />
-                    <button className={loading ? "loading" : ""} type="submit" disabled={loading}>{loading ? "검색 중" : "검색"}</button>
+                    <button className={loading ? "loading" : ""} type="submit" disabled={loading}>
+                      {loading && <span className="button-spinner" />}
+                      {loading ? "검색 중" : "검색"}
+                    </button>
                   </form>
                   <div className="suggestions">
                     <span><Icon>auto_awesome</Icon>추천</span>
@@ -1167,7 +1164,13 @@ export default function App() {
                   )}
                 </div>
 
-                {submitted ? (
+                {loading ? (
+                  <div className="search-loading-card">
+                    <span className="search-spinner" />
+                    <strong>AI가 영상을 검색하고 있어요</strong>
+                    <p>선택한 영상과 시간대에서 비슷한 장면을 찾는 중입니다.</p>
+                  </div>
+                ) : submitted ? (
                   <div className="search-results stack">
                     {apiNotice && <p className="notice">{apiNotice}</p>}
                     <div className="answer-card">
@@ -1577,6 +1580,10 @@ function TimeRangeBar({
 }) {
   const startPct = (startHour / 24) * 100;
   const endPct = (endHour / 24) * 100;
+  const thumbSize = 18;
+  const thumbRadius = thumbSize / 2;
+  const startOffset = thumbRadius - (startPct / 100) * thumbSize;
+  const endOffset = thumbRadius - (endPct / 100) * thumbSize;
 
   function updateStart(value: number) {
     onChange(Math.min(value, endHour - 1), endHour);
@@ -1595,7 +1602,13 @@ function TimeRangeBar({
       </div>
       <div className="range-slider">
         <div className="range-track" />
-        <div className="range-fill" style={{ left: `${startPct}%`, width: `${endPct - startPct}%` }} />
+        <div
+          className="range-fill"
+          style={{
+            left: `calc(${startPct}% + ${startOffset}px)`,
+            width: `calc(${endPct - startPct}% + ${endOffset - startOffset}px)`,
+          }}
+        />
         <input
           aria-label="검색 시작 시간"
           min="0"

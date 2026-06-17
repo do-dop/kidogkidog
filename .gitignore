@@ -1,5 +1,6 @@
 # 환경변수
 .env
+ui-react/.env.remote
 
 # 파이썬
 __pycache__/
