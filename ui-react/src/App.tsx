@@ -31,12 +31,18 @@ type Recording = {
 type SearchResult = {
   id: string;
   time: string;
+  clockTime?: string;
+  displayDateTime?: string;
+  dateLabel?: string;
+  offsetLabel?: string;
+  chunkLabel?: string;
   duration: string;
   score: number;
   note: string;
   thumb: number;
   objects: Tag[];
   startSeconds?: number;
+  playbackStartSeconds?: number;
   seekStartSeconds?: number;
   seekEndSeconds?: number;
   videoId?: string;
@@ -219,6 +225,26 @@ function formatSeconds(seconds: number) {
   return `${String(minute).padStart(2, "0")}:${String(second).padStart(2, "0")}`;
 }
 
+function formatDateLabel(date?: string) {
+  if (!date) return undefined;
+
+  const [year, month, day] = date.split("-").map(Number);
+  if (!year || !month || !day) return date;
+
+  return `${year}.${String(month).padStart(2, "0")}.${String(day).padStart(2, "0")}`;
+}
+
+function formatLiveDateTime(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hour = String(date.getHours()).padStart(2, "0");
+  const minute = String(date.getMinutes()).padStart(2, "0");
+  const second = String(date.getSeconds()).padStart(2, "0");
+
+  return `${year}.${month}.${day} ${hour}:${minute}:${second}`;
+}
+
 function formatDuration(seconds: number) {
   const safeSeconds = Math.max(0, Number.isFinite(seconds) ? seconds : 0);
   const minute = Math.floor(safeSeconds / 60);
@@ -245,6 +271,23 @@ function addSecondsToClockTime(time: string, seconds: number) {
 
   const base = `${String(nextHour).padStart(2, "0")}:${String(nextMinute).padStart(2, "0")}`;
   return nextSecond > 0 ? `${base}:${String(nextSecond).padStart(2, "0")}` : base;
+}
+
+function resultDateTime(recording: Recording | undefined, seconds: number) {
+  const durationSeconds = durationToSeconds(recording?.duration);
+  const offset = recording && durationSeconds && seconds <= durationSeconds + 1
+    ? Math.max(0, Math.floor(seconds))
+    : Math.max(0, Math.floor(seconds - (recording?.startSeconds ?? 0)));
+  const clockTime = recording ? addSecondsToClockTime(recording.time, offset) : formatSeconds(seconds);
+  const dateLabel = formatDateLabel(recording?.recordingDate);
+
+  return {
+    clockTime,
+    dateLabel,
+    displayDateTime: dateLabel ? `${dateLabel} ${clockTime}` : clockTime,
+    offsetLabel: `청크 +${formatSeconds(offset)}`,
+    chunkLabel: recording?.duration ? `${recording.time}부터 ${recording.duration}` : undefined,
+  };
 }
 
 function formatHour(hour: number) {
@@ -294,6 +337,11 @@ function mapApiResults(payload: ApiQueryResult, items: Recording[] = []): Search
     const playbackEnd = result.playback_end !== undefined ? Number(result.playback_end) : undefined;
     const recording = findRecordingForFrame(result, items);
     const frameThumbnailUrl = result.s3_key ? mediaUrl(`/media/s3?key=${encodeURIComponent(result.s3_key)}`) : undefined;
+    const dateTime = resultDateTime(recording, seconds);
+    const recordingDurationSeconds = durationToSeconds(recording?.duration);
+    const playbackStartSeconds = recording && recordingDurationSeconds && playbackStart <= recordingDurationSeconds + 1
+      ? Math.max(0, playbackStart)
+      : recording ? Math.max(0, playbackStart - (recording.startSeconds ?? 0)) : playbackStart;
     const eventStart = result.event_start;
     const eventEnd = result.event_end;
     const noteParts = [];
@@ -304,13 +352,19 @@ function mapApiResults(payload: ApiQueryResult, items: Recording[] = []): Search
 
     return {
       id: result.frame_id ?? `api-result-${index}`,
-      time: formatSeconds(seconds),
+      time: dateTime.clockTime,
+      clockTime: dateTime.clockTime,
+      displayDateTime: dateTime.displayDateTime,
+      dateLabel: dateTime.dateLabel,
+      offsetLabel: dateTime.offsetLabel,
+      chunkLabel: dateTime.chunkLabel,
       duration: "0:10",
       score: result.score ?? 0,
       note: noteParts.join(" · ") || (result.object_labels ? `감지 객체: ${result.object_labels}` : "검색어와 유사한 장면"),
       thumb: index % gradients.length,
       objects: labelsToTags(result.object_labels),
       startSeconds: seconds,
+      playbackStartSeconds,
       seekStartSeconds: playbackStart,
       seekEndSeconds: playbackEnd,
       videoId: result.video_id,
@@ -487,6 +541,7 @@ export default function App() {
   const [userName, setUserName] = useState(() => window.localStorage.getItem("kidogkidog_user_name") || defaultUserName);
   const [petName, setPetName] = useState(() => window.localStorage.getItem("kidogkidog_pet_name") || defaultPetName);
   const [notificationBehavior, setNotificationBehavior] = useState(() => window.localStorage.getItem("kidogkidog_notification_behavior") || "");
+  const [now, setNow] = useState(() => new Date());
   const [profileUserNameDraft, setProfileUserNameDraft] = useState(userName);
   const [profilePetNameDraft, setProfilePetNameDraft] = useState(petName);
   const [profileNotificationDraft, setProfileNotificationDraft] = useState(notificationBehavior);
@@ -529,6 +584,11 @@ export default function App() {
   const [activeResult, setActiveResult] = useState<SearchResult | null>(null);
   const [activeRecording, setActiveRecording] = useState<Recording>(recordings[0]);
   const didDefaultSearchVideoRef = useRef(false);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(new Date()), 1000);
+    return () => window.clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     let ignore = false;
@@ -771,6 +831,22 @@ export default function App() {
     [activeRecording.videoId, behaviorEvents],
   );
 
+  const livePreviewRecording = useMemo(() => {
+    const items = s3Recordings.filter((recording) => recording.videoId === "IMG_8472");
+    return [...items].sort((a, b) => {
+      const aTime = a.recordedAt || `${a.recordingDate || ""}T${a.time}`;
+      const bTime = b.recordedAt || `${b.recordingDate || ""}T${b.time}`;
+      return bTime.localeCompare(aTime);
+    })[0];
+  }, [s3Recordings]);
+
+  const livePreviewEvents = useMemo(
+    () => livePreviewRecording ? eventsForRecording(livePreviewRecording, behaviorEvents) : [],
+    [behaviorEvents, livePreviewRecording],
+  );
+
+  const liveDetectionItems = highlightedBehaviors.slice(0, 4);
+
   const visibleResults = results;
   const currentVideoRecordings = recordingItems.filter(
     (recording) => recording.videoId && activeRecording.videoId
@@ -835,6 +911,7 @@ export default function App() {
         body: JSON.stringify({
           query: nextQuery,
           video_id: selectedSearchVideoId || undefined,
+          recording_date: `${selectedYear}-${String(selectedMonth).padStart(2, "0")}-${String(selectedDay).padStart(2, "0")}`,
           top_k: 3,
           user_id: userId,
           source_event_id: activeSuggestionSource?.source_event_id ?? undefined,
@@ -1132,10 +1209,17 @@ export default function App() {
           {screen === "live" && (
             <section className="live-grid">
               <div className="stack">
-                <VideoPanel label="LIVE" camera="거실 카메라" time="14:32:08" />
+                <VideoPanel
+                  label="LIVE"
+                  camera=""
+                  time={formatLiveDateTime(now)}
+                  videoUrl={livePreviewRecording?.videoUrl}
+                  showControls={false}
+                  loop
+                />
                 <div className="metric-row">
-                  <Metric icon="pets" label="현재 상태" value="소파 근처에서 휴식 중" />
-                  <Metric icon="schedule" label="오늘 활동 시간" value="3.2시간 · 클립 12개" />
+                  <Metric icon="pets" label="현재 상태" value={livePreviewEvents[0]?.summary || "최근 수신 청크를 분석 중"} />
+                  <Metric icon="schedule" label="오늘 수신 영상" value={`${s3Recordings.length || recordingItems.length}개 청크 · ${livePreviewRecording?.videoId || "데모"}`} />
                 </div>
               </div>
               <aside className="side-panel">
@@ -1146,23 +1230,33 @@ export default function App() {
                 </div>
                 <div className="moment-card">
                   <span>지금 이 순간</span>
-                  <strong>{petName}가 소파 근처에 있어요</strong>
+                  <strong>{livePreviewEvents[0]?.summary || `${petName}의 최근 녹화 청크를 확인 중이에요`}</strong>
                   <div className="tag-row">
-                    <span className="tag">🐶 dog</span>
-                    <span className="tag">🛋️ couch</span>
-                    <span className="confidence">97%</span>
+                    {livePreviewRecording ? tagList(livePreviewRecording.tags) : <span className="tag">🎬 demo</span>}
+                    <span className="confidence">{Math.round(((livePreviewEvents[0]?.confidence ?? 0.84) * 100))}%</span>
                   </div>
                 </div>
                 <p className="section-kicker">최근 감지 기록</p>
                 <div className="event-list">
-                  {liveEvents.map((event) => (
-                    <div className="event-item" key={event.text}>
-                      <div className="event-icon"><Icon>{event.icon}</Icon></div>
+                  {(liveDetectionItems.length > 0 ? liveDetectionItems : liveEvents).map((item) => (
+                    "event" in item ? (
+                      <button className="event-item live-event-button" key={`${item.event.id}-${item.recording.id}`} onClick={() => openRecording(item.recording, item.event)}>
+                        <div className="event-icon"><Icon filled>auto_awesome</Icon></div>
+                        <div>
+                          <strong>{behaviorTitle(item.event)}</strong>
+                          <p>{item.event.summary || `${petName}의 행동 변화가 감지된 구간입니다.`}</p>
+                          <span>{behaviorTimeLabel(item.event, item.recording)} · {scoreBehavior(item.event)}%</span>
+                        </div>
+                      </button>
+                    ) : (
+                    <div className="event-item" key={item.text}>
+                      <div className="event-icon"><Icon>{item.icon}</Icon></div>
                       <div>
-                        <strong>{event.text}</strong>
-                        <p>{event.tags.join(" · ")} <span>{event.time}</span></p>
+                        <strong>{item.text}</strong>
+                        <p>{item.tags.join(" · ")} <span>{item.time}</span></p>
                       </div>
                     </div>
+                    )
                   ))}
                 </div>
                 <button className="primary-button" onClick={() => go("search")}>
@@ -1297,7 +1391,7 @@ export default function App() {
                   <div className="search-results stack">
                     {apiNotice && <p className="notice">{apiNotice}</p>}
                     <div className="answer-card">
-                      <div><Icon filled>auto_awesome</Icon></div>
+                      <div><Icon filled>pets</Icon></div>
                       <div>
                         <span>AI 답변</span>
                         {loading ? (
@@ -1463,8 +1557,8 @@ export default function App() {
               </div>
               <div className="playback-grid">
                 <div className="stack">
-                  <VideoPanel label="검색 구간 자동 점프" camera={activeResult.note} time={activeResult.time} videoUrl={activeResult.videoUrl} startAtSeconds={activeResult.seekStartSeconds} wide />
-                  <Timeline activeResult={activeResult} results={visibleResults} />
+                  <VideoPanel label="검색 결과 시각으로 이동" camera={activeResult.note} time={activeResult.displayDateTime || activeResult.time} videoUrl={activeResult.videoUrl} startAtSeconds={activeResult.playbackStartSeconds ?? activeResult.seekStartSeconds} wide />
+                  <Timeline activeResult={activeResult} results={visibleResults} onSelect={setActiveResult} />
                   <div className="button-row">
                     <button className="secondary-button" onClick={() => stepResult(-1)}><Icon>skip_previous</Icon>이전 결과</button>
                     <button className="primary-button" onClick={() => stepResult(1)}>다음 결과<Icon>skip_next</Icon></button>
@@ -1472,10 +1566,10 @@ export default function App() {
                 </div>
                 <aside className="side-panel">
                   <div className="answer-card compact">
-                    <div><Icon filled>auto_awesome</Icon></div>
+                    <div><Icon filled>pets</Icon></div>
                     <div>
                       <span>AI 답변</span>
-                      <p>{answer || `${activeResult.time} 구간에서 ${activeResult.note}이 확인됐어요.`}</p>
+                      <p>{answer || `${activeResult.displayDateTime || activeResult.time} 시각에서 ${activeResult.note}이 확인됐어요.`}</p>
                     </div>
                   </div>
                   <p className="section-kicker">검색된 장면 {visibleResults.length}개</p>
@@ -1483,7 +1577,7 @@ export default function App() {
                     {visibleResults.map((result) => (
                       <button className={result.id === activeResult.id ? "side-result active" : "side-result"} key={result.id} onClick={() => setActiveResult(result)}>
                         <div style={result.thumbnailUrl ? { backgroundImage: `url(${result.thumbnailUrl})` } : { background: gradients[result.thumb] }} />
-                        <span>{result.time}</span>
+                        <span>{result.displayDateTime || result.time}</span>
                         <strong>{result.note}</strong>
                       </button>
                     ))}
@@ -1505,6 +1599,8 @@ function VideoPanel({
   videoUrl,
   startAtSeconds = 0,
   wide = false,
+  showControls = true,
+  loop = false,
 }: {
   label: string;
   camera: string;
@@ -1512,6 +1608,8 @@ function VideoPanel({
   videoUrl?: string;
   startAtSeconds?: number;
   wide?: boolean;
+  showControls?: boolean;
+  loop?: boolean;
 }) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const safeStartAtSeconds = Math.max(0, Number.isFinite(startAtSeconds) ? startAtSeconds : 0);
@@ -1546,13 +1644,13 @@ function VideoPanel({
   return (
     <div className={`${wide ? "video-panel wide" : "video-panel"} ${videoUrl ? "with-media" : ""}`}>
       {videoUrl ? (
-        <video key={videoKey} ref={videoRef} className="video-player" src={videoUrl} controls autoPlay muted playsInline />
+        <video key={videoKey} ref={videoRef} className="video-player" src={videoUrl} controls={showControls} autoPlay muted playsInline loop={loop} />
       ) : (
         <div className="video-gradient" />
       )}
       <div className="video-badge"><span />{label}</div>
       <div className="video-time">{time}</div>
-      <div className="video-camera"><Icon>videocam</Icon>{camera}</div>
+      {camera && <div className="video-camera"><Icon>videocam</Icon>{camera}</div>}
       <div className="video-controls">
         <button><Icon>volume_up</Icon></button>
         <button><Icon>fullscreen</Icon></button>
@@ -1909,42 +2007,75 @@ function ResultCard({ result, onOpen }: { result: SearchResult; onOpen: () => vo
   return (
     <button className="result-card" onClick={onOpen}>
       <div className={result.thumbnailUrl ? "thumb has-image" : "thumb"} style={result.thumbnailUrl ? { backgroundImage: `url(${result.thumbnailUrl})` } : { background: gradients[result.thumb] }}>
-        <span className="time-pill">{result.time}</span>
+        <span className="datetime-pill">
+          {result.dateLabel && <small>{result.dateLabel}</small>}
+          <strong>{result.clockTime || result.time}</strong>
+        </span>
         <span className="score-pill">유사도 {score}</span>
         <div className="play-circle"><Icon filled>play_arrow</Icon></div>
       </div>
       <div className="result-body">
         <strong>{result.note}</strong>
+        <p>{[result.chunkLabel, result.offsetLabel].filter(Boolean).join(" · ")}</p>
         <div className="tag-row">{tagList(result.objects)}</div>
       </div>
     </button>
   );
 }
 
-function Timeline({ activeResult, results }: { activeResult: SearchResult; results: SearchResult[] }) {
-  const timelinePercent = (result: SearchResult) => {
-    if (typeof result.startSeconds === "number") {
-      return (result.startSeconds / 86400) * 100;
-    }
+function Timeline({
+  activeResult,
+  results,
+  onSelect,
+}: {
+  activeResult: SearchResult;
+  results: SearchResult[];
+  onSelect: (result: SearchResult) => void;
+}) {
+  const sameVideoResults = results.filter((result) => {
+    if (activeResult.videoUrl && result.videoUrl) return result.videoUrl === activeResult.videoUrl;
+    if (activeResult.videoId && result.videoId) return result.videoId === activeResult.videoId;
+    return true;
+  });
 
-    return timeToPercent(result.time);
+  const maxResultSecond = Math.max(
+    60,
+    ...sameVideoResults.map((result) => result.playbackStartSeconds ?? result.startSeconds ?? 0),
+    activeResult.playbackStartSeconds ?? activeResult.startSeconds ?? 0,
+  );
+  const timelineDuration = Math.ceil(maxResultSecond / 15) * 15;
+  const tickStep = timelineDuration <= 60 ? 15 : timelineDuration <= 180 ? 30 : 60;
+  const ticks = Array.from(
+    { length: Math.floor(timelineDuration / tickStep) + 1 },
+    (_, index) => index * tickStep,
+  );
+
+  const timelinePercent = (result: SearchResult) => {
+    const second = result.playbackStartSeconds ?? result.startSeconds ?? 0;
+    return Math.min(100, Math.max(0, (second / timelineDuration) * 100));
   };
 
   return (
     <div className="timeline-card">
-      <p><Icon>timeline</Icon>오늘 타임라인 · 검색 결과 구간 하이라이트</p>
+      <p><Icon>timeline</Icon>발견된 장면 위치 · 같은 영상 기준</p>
       <div className="timeline">
-        {results.map((result) => (
-          <span className="timeline-marker" key={result.id} style={{ left: `${timelinePercent(result)}%` }} />
+        {sameVideoResults.map((result) => (
+          <button
+            type="button"
+            className={result.id === activeResult.id ? "timeline-marker active" : "timeline-marker"}
+            key={result.id}
+            onClick={() => onSelect(result)}
+            style={{ left: `${timelinePercent(result)}%` }}
+            title={result.displayDateTime || result.time}
+            aria-label={`${result.displayDateTime || result.time} 장면으로 이동`}
+          />
         ))}
         <span className="playhead" style={{ left: `${timelinePercent(activeResult)}%` }} />
       </div>
       <div className="timeline-labels">
-        <span>00</span>
-        <span>06</span>
-        <span>12</span>
-        <span>18</span>
-        <span>24</span>
+        {ticks.map((tick) => (
+          <span key={tick}>{formatSeconds(tick)}</span>
+        ))}
       </div>
     </div>
   );

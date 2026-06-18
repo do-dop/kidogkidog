@@ -1,9 +1,11 @@
 import os
+import re
+from datetime import datetime, timedelta
 from typing import Any
 
 from pipeline.vector_store import get_indexed_frames, search_with_query_expansion
 from pipeline.query_analyzer import build_prompt_hint
-from db.metadata import (
+from db.behavior_events import (
     get_behavior_event_by_id,
     get_top_behavior_events,
     get_behavior_events_overlapping,
@@ -21,6 +23,8 @@ def run_rag_query(
     video_id: str | None = None,
     top_k: int = 5,
     user_id: str | None = None,
+    recording_date: str | None = None,
+    time_range: dict[str, int] | None = None,
     source_event_id: int | None = None,
     event_start: float | None = None,
     event_end: float | None = None,
@@ -58,6 +62,8 @@ def run_rag_query(
             query=query,
             top_k=top_k,
             video_id=video_id,
+            recording_date=recording_date,
+            time_range=time_range,
         )
     except Exception as exc:
         # ChromaDB가 깨졌거나 인덱스 파일이 불안정할 때도
@@ -69,6 +75,8 @@ def run_rag_query(
         query=query,
         video_id=video_id,
         retrieved_frames=retrieved_frames,
+        recording_date=recording_date,
+        time_range=time_range,
         limit=5,
     )
 
@@ -225,6 +233,8 @@ def _get_relevant_behavior_events(
     query: str,
     video_id: str | None,
     retrieved_frames: list[dict[str, Any]],
+    recording_date: str | None = None,
+    time_range: dict[str, int] | None = None,
     limit: int = 5,
 ) -> list[dict[str, Any]]:
     """
@@ -255,7 +265,7 @@ def _get_relevant_behavior_events(
                 limit=5,
             )
 
-            candidates.extend(overlapping_events)
+            candidates.extend(_filter_events_by_datetime(overlapping_events, recording_date, time_range))
 
         except Exception as exc:
             print(f"겹치는 행동 이벤트 조회 실패: {exc}", flush=True)
@@ -266,7 +276,7 @@ def _get_relevant_behavior_events(
             video_id=video_id,
             limit=10,
         )
-        candidates.extend(top_events)
+        candidates.extend(_filter_events_by_datetime(top_events, recording_date, time_range))
 
     except Exception as exc:
         print(f"주요 행동 이벤트 조회 실패: {exc}", flush=True)
@@ -289,6 +299,83 @@ def _get_relevant_behavior_events(
     )
 
     return candidates[:limit]
+
+
+def _frame_recorded_at_from_key(s3_key: str | None):
+    if not s3_key:
+        return None
+
+    match = re.search(
+        r"petcam_(\d{8})_(\d{6})_(\d{3})_frame_([0-9.]+)\.jpg$",
+        s3_key,
+    )
+
+    if not match:
+        return None
+
+    base = datetime.strptime(
+        f"{match.group(1)}{match.group(2)}",
+        "%Y%m%d%H%M%S",
+    )
+    return base + timedelta(seconds=int(match.group(3)) * 60 + float(match.group(4)))
+
+
+def _matches_datetime_filter(recorded_at, recording_date: str | None, time_range: dict[str, int] | None):
+    if recording_date:
+        if not recorded_at or recorded_at.date().isoformat() != recording_date:
+            return False
+
+    if not time_range:
+        return True
+
+    start_hour = time_range.get("start_hour")
+    end_hour = time_range.get("end_hour")
+
+    if start_hour is None or end_hour is None:
+        return True
+
+    try:
+        start_hour = int(start_hour)
+        end_hour = int(end_hour)
+    except (TypeError, ValueError):
+        return True
+
+    if start_hour <= 0 and end_hour >= 24:
+        return True
+
+    if not recorded_at:
+        return False
+
+    event_hour = recorded_at.hour + recorded_at.minute / 60 + recorded_at.second / 3600
+
+    if start_hour <= end_hour:
+        return start_hour <= event_hour < end_hour
+
+    return event_hour >= start_hour or event_hour < end_hour
+
+
+def _filter_events_by_datetime(
+    events: list[dict[str, Any]],
+    recording_date: str | None,
+    time_range: dict[str, int] | None,
+):
+    if not recording_date and not time_range:
+        return events
+
+    filtered_events = []
+
+    for event in events:
+        source_frames = event.get("source_frames") or []
+        recorded_times = [
+            _frame_recorded_at_from_key(frame.get("s3_key"))
+            for frame in source_frames
+            if isinstance(frame, dict)
+        ]
+
+        if any(_matches_datetime_filter(recorded_at, recording_date, time_range) for recorded_at in recorded_times):
+            filtered_events.append(event)
+
+    return filtered_events
 
 
 def _frames_from_behavior_events(

@@ -1,6 +1,7 @@
 import chromadb
 from pipeline.clip_embedder import embed_image, embed_text
 from pathlib import Path
+from datetime import datetime, timedelta
 import os
 import re
 
@@ -13,6 +14,65 @@ CHROMA_COLLECTION = os.getenv("CHROMA_COLLECTION", "petcam_frames")
 
 _client = None
 _collection = None
+
+
+def _frame_recorded_at(metadata):
+    s3_key = metadata.get("s3_key") or metadata.get("frame_path") or ""
+    filename = Path(s3_key).name
+    match = re.search(
+        r"petcam_(\d{8})_(\d{6})_(\d{3})_frame_([0-9.]+)\.jpg$",
+        filename,
+    )
+
+    if not match:
+        return None
+
+    base = datetime.strptime(
+        f"{match.group(1)}{match.group(2)}",
+        "%Y%m%d%H%M%S",
+    )
+    chunk_offset = int(match.group(3)) * 60
+    frame_offset = float(match.group(4))
+    return base + timedelta(seconds=chunk_offset + frame_offset)
+
+
+def _matches_datetime_filter(metadata, recording_date=None, time_range=None):
+    if not recording_date and not time_range:
+        return True
+
+    recorded_at = _frame_recorded_at(metadata)
+
+    if recording_date:
+        if not recorded_at or recorded_at.date().isoformat() != recording_date:
+            return False
+
+    if not time_range:
+        return True
+
+    start_hour = time_range.get("start_hour")
+    end_hour = time_range.get("end_hour")
+
+    if start_hour is None or end_hour is None:
+        return True
+
+    try:
+        start_hour = int(start_hour)
+        end_hour = int(end_hour)
+    except (TypeError, ValueError):
+        return True
+
+    if start_hour <= 0 and end_hour >= 24:
+        return True
+
+    if not recorded_at:
+        return False
+
+    frame_hour = recorded_at.hour + recorded_at.minute / 60 + recorded_at.second / 3600
+
+    if start_hour <= end_hour:
+        return start_hour <= frame_hour < end_hour
+
+    return frame_hour >= start_hour or frame_hour < end_hour
 
 
 def get_collection():
@@ -140,16 +200,20 @@ def index_frames(frame_dir="pipeline/frames", video_id=None):
     print(f"인덱싱 완료! 총 {get_collection().count()}개 저장됨")
 
 
-def search(query, top_k=3, video_id=None):
+def search(query, top_k=3, video_id=None, recording_date=None, time_range=None):
     """
     자연어 쿼리로 ChromaDB에서 유사한 프레임 검색
     """
     query_embedding = embed_text(query)
     collection = get_collection()
 
+    requested_results = top_k
+    has_filter = bool(recording_date or time_range)
+    query_results = min(max(top_k * 30, top_k), 200) if has_filter else top_k
+
     query_kwargs = {
         "query_embeddings": [query_embedding],
-        "n_results": top_k,
+        "n_results": query_results,
     }
     if video_id:
         query_kwargs["where"] = {"video_id": video_id}
@@ -163,6 +227,9 @@ def search(query, top_k=3, video_id=None):
     for i in range(len(results["ids"][0])):
         metadata = results["metadatas"][0][i]
 
+        if not _matches_datetime_filter(metadata, recording_date=recording_date, time_range=time_range):
+            continue
+
         output.append({
             "frame_id": results["ids"][0][i],
             "frame_path": metadata["frame_path"],
@@ -172,6 +239,9 @@ def search(query, top_k=3, video_id=None):
             "object_labels": metadata.get("object_labels", ""),
             "score": 1 - results["distances"][0][i],
         })
+
+        if len(output) >= requested_results:
+            break
 
     return output
 
@@ -211,7 +281,7 @@ def expand_search_query(original_query: str) -> list[str]:
         return [original_query]
 
 
-def search_with_query_expansion(query, top_k=3, video_id=None):
+def search_with_query_expansion(query, top_k=3, video_id=None, recording_date=None, time_range=None):
     """
     원문 검색 결과에 확장 검색 결과를 보조로 합친 뒤 score 기준으로 정렬한다.
     """
@@ -224,6 +294,8 @@ def search_with_query_expansion(query, top_k=3, video_id=None):
                 expanded_query,
                 top_k=top_k,
                 video_id=video_id,
+                recording_date=recording_date,
+                time_range=time_range,
             )
             merged_results.extend(query_results)
         except Exception as exc:

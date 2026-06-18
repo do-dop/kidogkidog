@@ -4,7 +4,9 @@ from pipeline.s3_uploader import download_video, upload_frame
 from pipeline.vector_store import index_frame
 from pipeline.yolo_detector import detect_objects
 from pipeline.behavior_event_extractor import extract_behavior_events
-from db.metadata import init_db, insert_scene, insert_behavior_events
+from db.behavior_events import insert_behavior_events
+from db.scenes import insert_scene
+from db.schema import init_db
 import os
 import json
 from pathlib import Path
