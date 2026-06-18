@@ -2,7 +2,7 @@ import json
 from collections import Counter, defaultdict
 from typing import Any
 
-from db.metadata import get_scene_records
+from db.scenes import get_scene_records
 
 
 # 너무 배경처럼 자주 잡히는 객체들

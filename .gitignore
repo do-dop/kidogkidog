@@ -1,6 +1,10 @@
 # 환경변수
-.env
-ui-react/.env.remote
+.env*
+!.env.sample
+!.env.example
+ui-react/.env*
+!ui-react/.env.sample
+!ui-react/.env.example
 
 # 파이썬
 __pycache__/
@@ -33,6 +37,7 @@ db/*.sqlite3
 .DS_Store
 .idea/
 *.egg-info/
+docs/source_code.md
 
 # 프론트엔드
 node_modules/

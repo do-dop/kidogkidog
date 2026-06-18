@@ -1,7 +1,7 @@
-from db.metadata import (
+from db.scenes import get_video_top_object_labels
+from db.search_history import (
     get_global_top_queries,
     get_user_top_queries,
-    get_video_top_object_labels,
 )
 from pipeline.scene_event_extractor import extract_scene_events, summarize_scene_events
 

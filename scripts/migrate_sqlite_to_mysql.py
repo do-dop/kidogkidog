@@ -3,7 +3,7 @@ import sqlite3
 
 import pymysql
 
-from db.metadata import init_db
+from db.schema import init_db
 
 
 SQLITE_SOURCE_DB_PATH = os.getenv("SQLITE_SOURCE_DB_PATH", "db/kidogkidog.db")
