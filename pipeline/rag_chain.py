@@ -49,6 +49,7 @@ def run_rag_query(
         video_id=video_id,
     )
 
+
     if source_event:
         return _run_event_grounded_query(
             query=query,
