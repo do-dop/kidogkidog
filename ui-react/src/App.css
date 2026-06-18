@@ -1957,7 +1957,7 @@ button {
   padding: 15px;
 }
 
-.answer-card > div:first-child {
+.answer-card > div:first-child:not(.brand-mark) {
   display: grid;
   place-items: center;
   width: 38px;
@@ -1968,10 +1968,15 @@ button {
   flex-shrink: 0;
 }
 
+.answer-card .answer-mark {
+  flex-shrink: 0;
+}
+
 .answer-card p {
   margin: 5px 0 0;
   line-height: 1.6;
   font-weight: 600;
+  white-space: pre-line;
 }
 
 .answer-card .answer-loading {

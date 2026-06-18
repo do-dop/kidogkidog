@@ -1391,7 +1391,7 @@ export default function App() {
                   <div className="search-results stack">
                     {apiNotice && <p className="notice">{apiNotice}</p>}
                     <div className="answer-card">
-                      <div><Icon filled>pets</Icon></div>
+                      <div className="brand-mark answer-mark"><Icon filled>pets</Icon></div>
                       <div>
                         <span>AI 답변</span>
                         {loading ? (
@@ -1566,7 +1566,7 @@ export default function App() {
                 </div>
                 <aside className="side-panel">
                   <div className="answer-card compact">
-                    <div><Icon filled>pets</Icon></div>
+                    <div className="brand-mark answer-mark"><Icon filled>pets</Icon></div>
                     <div>
                       <span>AI 답변</span>
                       <p>{answer || `${activeResult.displayDateTime || activeResult.time} 시각에서 ${activeResult.note}이 확인됐어요.`}</p>
