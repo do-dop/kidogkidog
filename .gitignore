@@ -1,5 +1,6 @@
 # 환경변수
 .env
+ui-react/.env.remote
 
 # 파이썬
 __pycache__/
@@ -32,3 +33,8 @@ db/*.sqlite3
 .DS_Store
 .idea/
 *.egg-info/
+
+# 프론트엔드
+node_modules/
+dist/
+*.tsbuildinfo
