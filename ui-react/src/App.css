@@ -760,12 +760,27 @@ button {
 .event-item {
   display: flex;
   gap: 12px;
+  width: 100%;
   padding: 12px;
   border-radius: 14px;
   background: var(--surface-2);
+  border: 1px solid transparent;
+  color: var(--text);
+  text-align: left;
+}
+
+.live-event-button {
+  min-height: 92px;
+  cursor: pointer;
+}
+
+.live-event-button:hover {
+  border-color: var(--accent-line);
+  background: var(--accent-soft);
 }
 
 .event-icon {
+  flex: 0 0 auto;
   display: grid;
   place-items: center;
   width: 36px;
@@ -776,13 +791,31 @@ button {
 }
 
 .event-item p {
+  display: -webkit-box;
   margin: 6px 0 0;
+  overflow: hidden;
   color: var(--text-3);
   font-size: 12px;
+  line-height: 1.4;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .event-item p span {
   float: right;
+}
+
+.event-item > div:last-child {
+  min-width: 0;
+}
+
+.event-item > div:last-child > span {
+  display: block;
+  margin-top: 7px;
+  color: var(--accent);
+  font-family: "Nunito", sans-serif;
+  font-size: 12px;
+  font-weight: 900;
 }
 
 .primary-button,
@@ -1222,6 +1255,7 @@ button {
 }
 
 .time-pill,
+.datetime-pill,
 .duration-pill,
 .motion-pill,
 .score-pill {
@@ -1239,6 +1273,28 @@ button {
 .time-pill {
   top: 9px;
   left: 9px;
+}
+
+.datetime-pill {
+  top: 9px;
+  left: 9px;
+  display: inline-flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 94px;
+  line-height: 1.05;
+  background: rgba(20, 15, 12, 0.72);
+}
+
+.datetime-pill small {
+  font-size: 10px;
+  font-weight: 800;
+  opacity: 0.78;
+}
+
+.datetime-pill strong {
+  font-size: 13px;
+  font-weight: 950;
 }
 
 .duration-pill,
@@ -1936,6 +1992,13 @@ button {
   padding: 13px 14px;
 }
 
+.result-body p {
+  margin: -2px 0 0;
+  color: var(--text-3);
+  font-size: 12px;
+  font-weight: 800;
+}
+
 .playback-head {
   gap: 12px;
 }
@@ -2090,8 +2153,21 @@ button {
 
 .timeline-marker {
   width: 7px;
+  padding: 0;
   border-radius: 3px;
+  border: 0;
   background: var(--accent-line);
+  cursor: pointer;
+}
+
+.timeline-marker.active {
+  width: 9px;
+  background: var(--accent);
+  box-shadow: 0 0 12px rgba(240, 138, 60, 0.8);
+}
+
+.timeline-marker:hover {
+  background: var(--accent);
 }
 
 .playhead {
@@ -2103,6 +2179,7 @@ button {
 .timeline-labels {
   display: flex;
   justify-content: space-between;
+  gap: 8px;
   margin-top: 9px;
   color: var(--text-3);
   font-family: "Nunito", sans-serif;
@@ -2117,7 +2194,7 @@ button {
 
 .side-result {
   display: grid;
-  grid-template-columns: 96px 44px 1fr;
+  grid-template-columns: 96px 112px 1fr;
   align-items: center;
   gap: 10px;
   width: 100%;

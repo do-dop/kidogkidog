@@ -30,7 +30,7 @@ def split_video_into_chunks(video_path, chunk_duration=60, output_dir="simulator
         "-map", "0:v:0",
         "-map", "0:a:0?",
 
-        # 브라우저/Streamlit/OpenCV에서 잘 읽히도록 H.264 mp4로 변환
+        # 브라우저/OpenCV에서 잘 읽히도록 H.264 mp4로 변환
         "-c:v", "libx264",
         "-preset", "veryfast",
         "-crf", "23",

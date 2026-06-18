@@ -1,4 +1,4 @@
-from db.metadata import get_top_behavior_events
+from db.behavior_events import get_top_behavior_events
 from pipeline.question_generator import generate_questions_from_behavior_events
 
 
@@ -76,31 +76,6 @@ def get_suggestion_behavior_events(
             break
 
     return filtered_events[:limit]
-
-
-def get_suggestion_events(
-    video_id: str | None = None,
-    limit: int = 5,
-) -> list[dict]:
-    """
-    예전 scene_event 기반 추천 근거 함수.
-
-    현재는 객체/장면 후보 기반 추천을 사용하지 않으므로 빈 리스트를 반환한다.
-    app.py에서 이 함수를 import하고 있을 수 있어서 함수 이름만 유지한다.
-    """
-    return []
-
-
-def has_behavior_events(video_id: str | None = None) -> bool:
-    """
-    특정 영상에 행동 이벤트가 존재하는지 확인한다.
-    """
-    behavior_events = get_top_behavior_events(
-        video_id=video_id,
-        limit=1,
-    )
-
-    return bool(behavior_events)
 
 
 def _behavior_event_signature(event: dict) -> str:
