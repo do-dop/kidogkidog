@@ -195,6 +195,42 @@ def get_top_behavior_events(video_id=None, limit=5):
     return get_behavior_events(video_id=video_id, limit=limit)
 
 
+def get_behavior_event_by_id(event_id):
+    """
+    추천 질문과 연결된 단일 행동 이벤트 조회
+    """
+    conn = connect()
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+
+    cursor.execute('''
+        SELECT
+            id,
+            video_id,
+            start_time,
+            end_time,
+            subject,
+            action,
+            target_object,
+            summary,
+            duration,
+            repeat_count,
+            confidence,
+            interestingness,
+            evidence_json,
+            source_frames_json,
+            created_at
+        FROM behavior_events
+        WHERE id = ?
+        LIMIT 1
+    ''', (event_id,))
+
+    row = cursor.fetchone()
+    conn.close()
+
+    return _row_to_behavior_event(row) if row else None
+
+
 def get_behavior_events_overlapping(video_id, start_time, end_time, limit=5):
     """
     특정 시간 구간과 겹치는 행동 이벤트 조회

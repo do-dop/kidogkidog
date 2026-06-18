@@ -18,6 +18,9 @@ class QueryRequest(BaseModel):
     user_id: str | None = None
     recording_date: str | None = None
     time_range: TimeRangeRequest | None = None
+    source_event_id: int | None = None
+    event_start: float | None = None
+    event_end: float | None = None
 
 
 class SuggestionRequest(BaseModel):

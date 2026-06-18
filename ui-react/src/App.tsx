@@ -43,11 +43,16 @@ type SearchResult = {
   objects: Tag[];
   startSeconds?: number;
   playbackStartSeconds?: number;
+  seekStartSeconds?: number;
+  seekEndSeconds?: number;
   videoId?: string;
   videoUrl?: string;
   thumbnailUrl?: string;
   s3Key?: string;
   framePath?: string;
+  eventStart?: number;
+  eventEnd?: number;
+  representativeTimestamp?: number;
 };
 
 type ApiQueryResult = {
@@ -60,7 +65,14 @@ type ApiQueryResult = {
     frame_id?: string;
     frame_path?: string;
     s3_key?: string;
+    source_event_id?: number | string;
+    event_start?: number;
+    event_end?: number;
+    representative_timestamp?: number;
+    playback_start?: number;
+    playback_end?: number;
   }>;
+  evidence_items?: ApiQueryResult["results"];
   behavior_events?: BehaviorEvent[];
   used_llm?: boolean;
 };
@@ -127,15 +139,31 @@ type UserQuery = {
 
 type ApiSuggestionsResult = {
   questions?: string[];
+  question_sources?: SuggestedQuestion[];
   behavior_events?: BehaviorEvent[];
+  indexed_frame_count?: number;
   top_queries?: UserQuery[];
   recent_queries?: UserQuery[];
+};
+
+type SuggestedQuestion = {
+  question: string;
+  source_event_id?: number | string | null;
+  event_start?: number | null;
+  event_end?: number | null;
 };
 
 const defaultPetName = "코코";
 const defaultUserName = "도";
 const defaultPetAvatar = "🐕";
 const petAvatarOptions = ["🐕", "🐈", "🐦", "🐰", "🐹", "🐢", "🐠", "🦜"];
+const defaultBehaviorQuestions = new Set([
+  "가장 오래 이어진 행동은 무엇인가요?",
+  "같은 행동이 반복된 구간이 있나요?",
+  "특정 물체 근처에 오래 머문 장면이 있나요?",
+  "움직임이 많았던 장면은 언제였나요?",
+  "확인해볼 만한 행동이 있었나요?",
+]);
 
 const gradients = [
   "linear-gradient(135deg,#3a2e24,#241c16)",
@@ -302,16 +330,26 @@ function findRecordingForFrame(result: NonNullable<ApiQueryResult["results"]>[nu
 }
 
 function mapApiResults(payload: ApiQueryResult, items: Recording[] = []): SearchResult[] {
-  const results = payload.results ?? [];
+  const results = payload.evidence_items ?? payload.results ?? [];
   return results.map((result, index) => {
-    const seconds = Number(result.timestamp ?? 0);
+    const seconds = Number(result.representative_timestamp ?? result.timestamp ?? 0);
+    const playbackStart = Number(result.playback_start ?? seconds);
+    const playbackEnd = result.playback_end !== undefined ? Number(result.playback_end) : undefined;
     const recording = findRecordingForFrame(result, items);
     const frameThumbnailUrl = result.s3_key ? mediaUrl(`/media/s3?key=${encodeURIComponent(result.s3_key)}`) : undefined;
     const dateTime = resultDateTime(recording, seconds);
     const recordingDurationSeconds = durationToSeconds(recording?.duration);
-    const playbackStartSeconds = recording && recordingDurationSeconds && seconds <= recordingDurationSeconds + 1
-      ? Math.max(0, seconds)
-      : recording ? Math.max(0, seconds - (recording.startSeconds ?? 0)) : seconds;
+    const playbackStartSeconds = recording && recordingDurationSeconds && playbackStart <= recordingDurationSeconds + 1
+      ? Math.max(0, playbackStart)
+      : recording ? Math.max(0, playbackStart - (recording.startSeconds ?? 0)) : playbackStart;
+    const eventStart = result.event_start;
+    const eventEnd = result.event_end;
+    const noteParts = [];
+
+    if (playbackEnd !== undefined) {
+      noteParts.push(`재생 구간: ${formatSeconds(playbackStart)}~${formatSeconds(playbackEnd)}`);
+    }
+
     return {
       id: result.frame_id ?? `api-result-${index}`,
       time: dateTime.clockTime,
@@ -322,16 +360,21 @@ function mapApiResults(payload: ApiQueryResult, items: Recording[] = []): Search
       chunkLabel: dateTime.chunkLabel,
       duration: "0:10",
       score: result.score ?? 0,
-      note: result.object_labels ? `감지 객체: ${result.object_labels}` : "검색어와 유사한 장면",
+      note: noteParts.join(" · ") || (result.object_labels ? `감지 객체: ${result.object_labels}` : "검색어와 유사한 장면"),
       thumb: index % gradients.length,
       objects: labelsToTags(result.object_labels),
       startSeconds: seconds,
       playbackStartSeconds,
+      seekStartSeconds: playbackStart,
+      seekEndSeconds: playbackEnd,
       videoId: result.video_id,
       videoUrl: recording?.videoUrl,
       thumbnailUrl: frameThumbnailUrl || recording?.thumbnailUrl,
       s3Key: result.s3_key,
       framePath: result.frame_path,
+      eventStart,
+      eventEnd,
+      representativeTimestamp: seconds,
     };
   });
 }
@@ -346,6 +389,18 @@ function pickRelevantResults(items: SearchResult[]) {
   const relevantItems = sortedItems.filter((item) => item.score >= closeScoreCutoff);
 
   return relevantItems.length > 0 ? relevantItems : sortedItems.slice(0, 1);
+}
+
+function _suggestionSourceMap(items: SuggestedQuestion[], visibleQuestions: string[]) {
+  const visibleSet = new Set(visibleQuestions);
+  const sourceMap: Record<string, SuggestedQuestion> = {};
+
+  for (const item of items) {
+    if (!item.question || !visibleSet.has(item.question)) continue;
+    sourceMap[item.question] = item;
+  }
+
+  return sourceMap;
 }
 
 function mediaUrl(mediaPath?: string | null, fallbackUrl?: string | null) {
@@ -383,7 +438,12 @@ function getWeekDays(year: number, month: number, day: number) {
 }
 
 function mapApiChunks(payload: ApiChunksResult): Recording[] {
-  return (payload.chunks ?? []).map((chunk, index) => ({
+  return (payload.chunks ?? [])
+    .filter((chunk) => {
+      const identity = `${chunk.video_id} ${chunk.filename} ${chunk.s3_key}`.toLowerCase();
+      return !identity.includes("cat5min");
+    })
+    .map((chunk, index) => ({
     id: chunk.id,
     time: chunk.time_label || formatSeconds(chunk.start_seconds),
     duration: formatDuration(chunk.duration_seconds),
@@ -430,6 +490,21 @@ function behaviorTimeLabel(event: BehaviorEvent, recording?: Recording) {
   return startLabel === endLabel ? startLabel : `${startLabel}-${endLabel}`;
 }
 
+function behaviorVideoTimeLabel(event: BehaviorEvent) {
+  const startTime = event.start_time;
+  const endTime = event.end_time;
+
+  if (startTime !== undefined && endTime !== undefined) {
+    return `${Number(startTime).toFixed(1)}초 ~ ${Number(endTime).toFixed(1)}초`;
+  }
+
+  if (startTime !== undefined) {
+    return `${Number(startTime).toFixed(1)}초`;
+  }
+
+  return "시간 정보 없음";
+}
+
 function eventMatchesRecording(event: BehaviorEvent, recording: Recording) {
   const recordingStem = chunkStem(recording);
   const frameHit = event.source_frames?.some((frame) => frame.s3_key?.includes(recordingStem));
@@ -448,6 +523,11 @@ function eventMatchesRecording(event: BehaviorEvent, recording: Recording) {
 
 function eventsForRecording(recording: Recording, events: BehaviorEvent[]) {
   return events.filter((event) => eventMatchesRecording(event, recording));
+}
+
+function eventsForVideo(videoId: string | undefined, events: BehaviorEvent[]) {
+  if (!videoId) return [];
+  return events.filter((event) => event.video_id === videoId);
 }
 
 function scoreBehavior(event: BehaviorEvent) {
@@ -479,19 +559,24 @@ export default function App() {
   const [searchStartHour, setSearchStartHour] = useState(0);
   const [searchEndHour, setSearchEndHour] = useState(24);
   const [selectedSearchVideoId, setSelectedSearchVideoId] = useState("");
+  const previousSearchVideoId = useRef("");
   const [query, setQuery] = useState("");
   const [answer, setAnswer] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [suggestionSources, setSuggestionSources] = useState<Record<string, SuggestedQuestion>>({});
+  const [activeSuggestionSource, setActiveSuggestionSource] = useState<SuggestedQuestion | null>(null);
   const [suggestionStatus, setSuggestionStatus] = useState<SuggestionStatus>("idle");
   const [suggestionNotice, setSuggestionNotice] = useState("");
+  const [indexedFrameCount, setIndexedFrameCount] = useState<number | null>(null);
   const [topQueries, setTopQueries] = useState<UserQuery[]>([]);
   const [recordingsLoading, setRecordingsLoading] = useState(false);
   const [recordingsNotice, setRecordingsNotice] = useState("");
   const [reindexing, setReindexing] = useState(false);
   const [behaviorRefreshToken, setBehaviorRefreshToken] = useState(0);
+  const [suggestionRefreshToken, setSuggestionRefreshToken] = useState(0);
   const [s3Recordings, setS3Recordings] = useState<Recording[]>([]);
   const [behaviorEvents, setBehaviorEvents] = useState<BehaviorEvent[]>([]);
   const [behaviorNotice, setBehaviorNotice] = useState("");
@@ -587,10 +672,12 @@ export default function App() {
 
   useEffect(() => {
     let ignore = false;
+    let retryTimer: number | undefined;
 
     async function loadSuggestions() {
       setSuggestionStatus("loading");
       setSuggestionNotice("");
+      setIndexedFrameCount(null);
 
       const params = new URLSearchParams({
         user_id: userId,
@@ -608,10 +695,10 @@ export default function App() {
 
         const payload = (await response.json()) as ApiSuggestionsResult;
         const nextSuggestions = payload.questions ?? [];
+        const generatedSuggestions = nextSuggestions.filter((question) => !defaultBehaviorQuestions.has(question));
 
         if (!ignore) {
-          setSuggestions(nextSuggestions);
-          setSuggestionStatus(payload.questions?.length ? "ready" : "fallback");
+          setIndexedFrameCount(payload.indexed_frame_count ?? null);
           setTopQueries(payload.top_queries ?? []);
 
           if (payload.behavior_events?.length) {
@@ -627,17 +714,26 @@ export default function App() {
             });
           }
 
-          setSuggestionNotice(
-            payload.questions?.length
-              ? "분석된 행동 이벤트에서 추천 질문을 생성했습니다."
-              : "추천 질문을 만들 수 있는 분석 결과가 아직 없습니다.",
-          );
+          if (generatedSuggestions.length) {
+            setSuggestions(generatedSuggestions);
+            setSuggestionSources(_suggestionSourceMap(payload.question_sources ?? [], generatedSuggestions));
+            setSuggestionStatus("ready");
+            setSuggestionNotice("분석된 행동 이벤트에서 추천 질문을 생성했습니다.");
+          } else {
+            setSuggestions([]);
+            setSuggestionSources({});
+            setSuggestionStatus("loading");
+            setSuggestionNotice("");
+            retryTimer = window.setTimeout(loadSuggestions, 5000);
+          }
         }
       } catch {
         if (!ignore) {
           setSuggestions([]);
+          setSuggestionSources({});
           setSuggestionStatus("fallback");
           setTopQueries([]);
+          setIndexedFrameCount(null);
           setSuggestionNotice("추천 질문 API에 연결하지 못했습니다.");
         }
       }
@@ -647,8 +743,27 @@ export default function App() {
 
     return () => {
       ignore = true;
+      if (retryTimer !== undefined) {
+        window.clearTimeout(retryTimer);
+      }
     };
-  }, [s3Recordings.length, searchVideoOptions.length, selectedSearchVideoId, userId]);
+  }, [s3Recordings.length, searchVideoOptions.length, selectedSearchVideoId, userId, suggestionRefreshToken]);
+
+  useEffect(() => {
+    if (previousSearchVideoId.current === selectedSearchVideoId) return;
+
+    if (previousSearchVideoId.current) {
+      setQuery("");
+      setSubmitted(false);
+      setAnswer("");
+      setResults([]);
+      setActiveResult(null);
+      setActiveSuggestionSource(null);
+      setApiNotice("");
+    }
+
+    previousSearchVideoId.current = selectedSearchVideoId;
+  }, [selectedSearchVideoId]);
 
   useEffect(() => {
     let ignore = false;
@@ -710,6 +825,10 @@ export default function App() {
   const activeRecordingEvents = useMemo(
     () => eventsForRecording(activeRecording, behaviorEvents),
     [activeRecording, behaviorEvents],
+  );
+  const activeVideoEvents = useMemo(
+    () => eventsForVideo(activeRecording.videoId, behaviorEvents),
+    [activeRecording.videoId, behaviorEvents],
   );
 
   const livePreviewRecording = useMemo(() => {
@@ -780,6 +899,10 @@ export default function App() {
     setSubmitted(true);
     setLoading(true);
     setApiNotice("");
+    setAnswer("");
+    setResults([]);
+    setActiveResult(null);
+    setActiveSuggestionSource(null);
 
     try {
       const response = await fetch("/api/query", {
@@ -791,6 +914,9 @@ export default function App() {
           recording_date: `${selectedYear}-${String(selectedMonth).padStart(2, "0")}-${String(selectedDay).padStart(2, "0")}`,
           top_k: 3,
           user_id: userId,
+          source_event_id: activeSuggestionSource?.source_event_id ?? undefined,
+          event_start: activeSuggestionSource?.event_start ?? undefined,
+          event_end: activeSuggestionSource?.event_end ?? undefined,
           time_range: {
             start_hour: searchStartHour,
             end_hour: searchEndHour,
@@ -835,13 +961,21 @@ export default function App() {
 
   function applySuggestion(text: string) {
     setQuery(text);
+    setActiveSuggestionSource(suggestionSources[text] ?? null);
     setSubmitted(false);
+    setAnswer("");
+    setResults([]);
+    setActiveResult(null);
     setApiNotice("");
   }
 
   async function reindexLocalFrames() {
     setReindexing(true);
     setRecordingsNotice("로컬 프레임 인덱스를 갱신하는 중입니다.");
+    setSuggestions([]);
+    setSuggestionSources({});
+    setSuggestionStatus("loading");
+    setSuggestionNotice("");
 
     const params = new URLSearchParams();
     if (selectedSearchVideoId) {
@@ -857,6 +991,7 @@ export default function App() {
 
       setRecordingsNotice("로컬 프레임 인덱스 갱신이 완료되었습니다.");
       setBehaviorRefreshToken((value) => value + 1);
+      setSuggestionRefreshToken((value) => value + 1);
     } catch {
       setRecordingsNotice("로컬 프레임 인덱스 갱신에 실패했습니다. 프레임 폴더와 백엔드를 확인해주세요.");
     } finally {
@@ -1204,7 +1339,12 @@ export default function App() {
                   </form>
                   <div className="suggestions">
                     <span><Icon>auto_awesome</Icon>추천</span>
-                    {suggestionStatus === "loading" ? (
+                    {selectedSearchVideoId && indexedFrameCount === 0 ? (
+                      <div className="suggestion-loading suggestion-message">
+                        <Icon>info</Icon>
+                        <strong>로컬에서 이 영상을 먼저 인덱싱해주세요</strong>
+                      </div>
+                    ) : suggestionStatus === "loading" ? (
                       <div className="suggestion-loading">
                         <span className="loading-mark"><Icon filled>auto_awesome</Icon></span>
                         <strong>추천질문 생성중입니다</strong>
@@ -1254,18 +1394,29 @@ export default function App() {
                       <div><Icon filled>pets</Icon></div>
                       <div>
                         <span>AI 답변</span>
-                        <p>{answer}</p>
+                        {loading ? (
+                          <p className="answer-loading">
+                            <span className="loading-mark"><Icon filled>auto_awesome</Icon></span>
+                            답변 생성중입니다
+                          </p>
+                        ) : (
+                          <p>{answer}</p>
+                        )}
                       </div>
                     </div>
-                    <div className="result-header">
-                      <strong>관련 장면 {visibleResults.length}개</strong>
-                      <span>유사도 순</span>
-                    </div>
-                    <div className="result-grid">
-                      {visibleResults.map((result) => (
-                        <ResultCard key={result.id} result={result} onOpen={() => openResult(result)} />
-                      ))}
-                    </div>
+                    {!loading && (
+                      <>
+                        <div className="result-header">
+                          <strong>관련 장면 {visibleResults.length}개</strong>
+                          <span>유사도 순</span>
+                        </div>
+                        <div className="result-grid">
+                          {visibleResults.map((result) => (
+                            <ResultCard key={result.id} result={result} onOpen={() => openResult(result)} />
+                          ))}
+                        </div>
+                      </>
+                    )}
                   </div>
                 ) : (
                   <div className="empty-state">
@@ -1372,7 +1523,7 @@ export default function App() {
                     <strong>{activeRecording.note || activeRecording.id}</strong>
                     <p>S3에 저장된 1분 단위 원본 청크입니다. 이 화면은 녹화 파일 탐색과 연속 재생에 집중합니다.</p>
                   </div>
-                  <BehaviorEventPanel events={activeRecordingEvents} recording={activeRecording} />
+                  <BehaviorEventPanel videoEvents={activeVideoEvents} chunkEvents={activeRecordingEvents} recording={activeRecording} />
                   <button className="primary-button" onClick={() => {
                     setQuery(`${activeRecording.videoId || "이 영상"} ${activeRecording.time} 근처 장면`);
                     go("search");
@@ -1406,7 +1557,7 @@ export default function App() {
               </div>
               <div className="playback-grid">
                 <div className="stack">
-                  <VideoPanel label="검색 결과 시각으로 이동" camera={activeResult.note} time={activeResult.displayDateTime || activeResult.time} videoUrl={activeResult.videoUrl} startAtSeconds={activeResult.playbackStartSeconds} wide />
+                  <VideoPanel label="검색 결과 시각으로 이동" camera={activeResult.note} time={activeResult.displayDateTime || activeResult.time} videoUrl={activeResult.videoUrl} startAtSeconds={activeResult.playbackStartSeconds ?? activeResult.seekStartSeconds} wide />
                   <Timeline activeResult={activeResult} results={visibleResults} onSelect={setActiveResult} />
                   <div className="button-row">
                     <button className="secondary-button" onClick={() => stepResult(-1)}><Icon>skip_previous</Icon>이전 결과</button>
@@ -1732,18 +1883,7 @@ function BehaviorHighlights({
   onOpen: (recording: Recording, event?: BehaviorEvent) => void;
 }) {
   if (items.length === 0) {
-    return (
-      <section className="behavior-strip empty">
-        <div className="behavior-strip-head">
-          <div>
-            <span>오늘 발견한 주요행동</span>
-            <strong>아직 표시할 행동이 없습니다</strong>
-          </div>
-          <Icon>auto_awesome</Icon>
-        </div>
-        <p>{notice || "영상 분석이 완료되면 주요 행동이 여기에 모입니다."}</p>
-      </section>
-    );
+    return null;
   }
 
   return (
@@ -1772,27 +1912,73 @@ function BehaviorHighlights({
   );
 }
 
-function BehaviorEventPanel({ events, recording }: { events: BehaviorEvent[]; recording: Recording }) {
+function behaviorDetailItems(event: BehaviorEvent) {
+  const items = [];
+
+  if (event.action) items.push(`행동: ${event.action}`);
+  if (event.target_object) items.push(`대상: ${event.target_object}`);
+  if (event.duration !== undefined) items.push(`지속 시간: ${Number(event.duration).toFixed(1)}초`);
+  if (event.repeat_count) items.push(`반복 후보: ${event.repeat_count}회`);
+  if (event.confidence !== undefined) items.push(`신뢰도: ${Number(event.confidence).toFixed(2)}`);
+  if (event.interestingness !== undefined) items.push(`흥미도: ${Number(event.interestingness).toFixed(2)}`);
+
+  return items;
+}
+
+function behaviorEvidenceItems(event: BehaviorEvent) {
+  const evidence = event.evidence ?? [];
+  if (!Array.isArray(evidence)) return [];
+  return evidence.map((item) => String(item)).filter(Boolean).slice(0, 3);
+}
+
+function BehaviorEventPanel({
+  videoEvents,
+  chunkEvents,
+  recording,
+}: {
+  videoEvents: BehaviorEvent[];
+  chunkEvents: BehaviorEvent[];
+  recording: Recording;
+}) {
+  const summaryEvents = videoEvents.length > 0 ? videoEvents : chunkEvents;
+
   return (
     <div className="chunk-events">
       <div className="chunk-events-head">
-        <span>이 청크에서 발견한 행동</span>
-        <strong>{events.length}개</strong>
+        <span>이 영상에서 발견한 행동 요약</span>
+        <strong>{summaryEvents.length}개</strong>
       </div>
-      {events.length > 0 ? (
+      {summaryEvents.length > 0 ? (
         <div className="chunk-event-list">
-          {events.map((event) => (
+          {summaryEvents.slice(0, 5).map((event) => {
+            const details = behaviorDetailItems(event);
+            const evidenceItems = behaviorEvidenceItems(event);
+
+            return (
             <div className="chunk-event-row" key={`${event.id}-${recording.id}`}>
               <div>
+                <span className="chunk-event-time">{behaviorVideoTimeLabel(event)}</span>
                 <strong>{behaviorTitle(event)}</strong>
                 <p>{event.summary || "행동 변화가 감지됐어요."}</p>
+                {details.length > 0 && <small>{details.join(" · ")}</small>}
+                {evidenceItems.length > 0 && (
+                  <ul>
+                    {evidenceItems.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                )}
               </div>
-              <span>{formatSeconds(event.start_time ?? 0)}</span>
+              <span>{scoreBehavior(event)}%</span>
             </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
-        <p className="chunk-event-empty">이 청크에는 아직 주요 행동 메타데이터가 없습니다.</p>
+        <p className="chunk-event-empty">이 영상에는 아직 주요 행동 메타데이터가 없습니다.</p>
+      )}
+      {chunkEvents.length > 0 && videoEvents.length !== chunkEvents.length && (
+        <p className="chunk-event-empty">현재 청크와 직접 겹치는 행동 후보는 {chunkEvents.length}개입니다.</p>
       )}
     </div>
   );

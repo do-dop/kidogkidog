@@ -6,7 +6,8 @@ from db.search_history import (
     get_user_recent_queries,
     get_user_top_queries,
 )
-from pipeline.query_suggester import get_suggestion_behavior_events, suggest_queries
+from pipeline.query_suggester import get_suggestion_behavior_events, suggest_query_items
+from pipeline.vector_store import get_indexed_frames
 
 
 router = APIRouter(tags=["suggestions"])
@@ -21,15 +22,17 @@ def get_suggestions(
     safe_limit = max(1, min(limit, 10))
 
     try:
-        questions = suggest_queries(
+        question_items = suggest_query_items(
             user_id=user_id,
             video_id=video_id,
             limit=safe_limit,
         )
+        questions = [item["question"] for item in question_items]
         behavior_events = get_suggestion_behavior_events(
             video_id=video_id,
             limit=5,
         )
+        indexed_frame_count = len(get_indexed_frames(video_id=video_id))
         top_queries = get_user_top_queries(user_id=user_id, limit=5) if user_id else []
         recent_queries = get_user_recent_queries(user_id=user_id, limit=5) if user_id else []
     except Exception as exc:
@@ -42,7 +45,9 @@ def get_suggestions(
         "status": "ok",
         "video_id": video_id,
         "questions": questions,
+        "question_sources": question_items,
         "behavior_events": behavior_events,
+        "indexed_frame_count": indexed_frame_count,
         "top_queries": top_queries,
         "recent_queries": recent_queries,
     }
