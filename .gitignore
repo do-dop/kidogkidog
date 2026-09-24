@@ -43,3 +43,6 @@ docs/source_code.md
 node_modules/
 dist/
 *.tsbuildinfo
+
+# Cloud SQL Auth Proxy 바이너리
+cloud-sql-proxy
