@@ -204,6 +204,18 @@ function Icon({ children, filled = false }: { children: string; filled?: boolean
   );
 }
 
+function PawMark({ className = "" }: { className?: string }) {
+  return (
+    <svg className={`paw-mark ${className}`} viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <ellipse cx="24" cy="31.5" rx="12.5" ry="10.5" fill="currentColor" />
+      <ellipse cx="8.5" cy="21" rx="5.6" ry="6.6" fill="currentColor" />
+      <ellipse cx="19.5" cy="10.5" rx="6" ry="7" fill="currentColor" />
+      <ellipse cx="31.5" cy="10.5" rx="6" ry="7" fill="currentColor" />
+      <ellipse cx="40.5" cy="22.5" rx="5.4" ry="6.4" fill="currentColor" />
+    </svg>
+  );
+}
+
 function tagList(tags: Tag[]) {
   return tags.map((tag) => (
     <span className="tag" key={`${tag.icon}-${tag.label}`}>
@@ -536,6 +548,7 @@ function scoreBehavior(event: BehaviorEvent) {
 
 export default function App() {
   const [theme, setTheme] = useState<Theme>("light");
+  const [menuOpen, setMenuOpen] = useState(false);
   const [screen, setScreen] = useState<Screen>("search");
   const [userId] = useState(demoUserId);
   const [userName, setUserName] = useState(() => window.localStorage.getItem("kidogkidog_user_name") || defaultUserName);
@@ -584,11 +597,33 @@ export default function App() {
   const [activeResult, setActiveResult] = useState<SearchResult | null>(null);
   const [activeRecording, setActiveRecording] = useState<Recording>(recordings[0]);
   const didDefaultSearchVideoRef = useRef(false);
+  const recordingsRef = useRef<HTMLDivElement | null>(null);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    function handleScroll() {
+      setScrolled(window.scrollY > 20);
+    }
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(new Date()), 1000);
     return () => window.clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setMenuOpen(false);
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [menuOpen]);
 
   useEffect(() => {
     let ignore = false;
@@ -872,6 +907,7 @@ export default function App() {
     }
 
     setScreen(nextScreen);
+    setMenuOpen(false);
   }
 
   function openResult(result: SearchResult) {
@@ -1077,15 +1113,19 @@ export default function App() {
 
   return (
     <div className="app-shell" data-theme={theme}>
-      <aside className="sidebar">
+      {menuOpen && <div className="sidebar-backdrop" onClick={() => setMenuOpen(false)} />}
+      <aside className={menuOpen ? "sidebar open" : "sidebar"}>
         <div className="brand">
           <div className="brand-mark">
-            <Icon filled>pets</Icon>
+            <PawMark />
           </div>
           <div>
             <strong>kidog<span>kidog</span></strong>
             <p>AI 펫캠 검색</p>
           </div>
+          <button className="sidebar-close" type="button" onClick={() => setMenuOpen(false)} aria-label="메뉴 닫기">
+            <Icon>close</Icon>
+          </button>
         </div>
 
         <p className="nav-label">메뉴</p>
@@ -1166,11 +1206,35 @@ export default function App() {
       </aside>
 
       <main className="main">
-        <header className="topbar">
-          <div>
-            <h1>{topTitle[0]}</h1>
-            <p>{topTitle[1]}</p>
+        <header className={scrolled ? "topbar scrolled" : "topbar"}>
+          <div className="topbar-brand" onClick={() => go("search")}>
+            <div className="brand-mark">
+              <PawMark />
+            </div>
+            <strong className="topbar-logo-text">KIDOG<span>KIDOG</span></strong>
           </div>
+
+          <nav className="topbar-nav">
+            {[
+              { key: "search" as const, label: "AI 검색" },
+              { key: "recordings" as const, label: "녹화 영상" },
+              { key: "live" as const, label: "라이브" },
+            ].map((item) => {
+              const activeScreen = screen === "chunkPlayback" ? "recordings" : screen === "searchPlayback" ? "search" : screen;
+              const active = activeScreen === item.key;
+              return (
+                <button
+                  key={item.key}
+                  className={active ? "topbar-nav-item active" : "topbar-nav-item"}
+                  type="button"
+                  onClick={() => go(item.key)}
+                >
+                  {item.label}
+                </button>
+              );
+            })}
+          </nav>
+
           <div className="top-actions">
             <button className="icon-button" onClick={() => setTheme(theme === "dark" ? "light" : "dark")} aria-label="테마 전환">
               <Icon>{theme === "dark" ? "light_mode" : "dark_mode"}</Icon>
@@ -1287,56 +1351,29 @@ export default function App() {
 
           {screen === "search" && (
             <section className="search-page">
-              <aside className="search-filter-panel">
-                <div className="filter-panel-title">
-                  <Icon>tune</Icon>
-                  <strong>검색 조건</strong>
-                </div>
-                <div className="filter-group">
-                  <span>날짜</span>
-                  <DateFilter selectedYear={selectedYear} setSelectedYear={setSelectedYear} selectedMonth={selectedMonth} setSelectedMonth={setSelectedMonth} selectedDay={selectedDay} setSelectedDay={setSelectedDay} compact />
-                </div>
-                <div className="filter-group">
-                  <span>검색할 영상</span>
-                  <select className="video-select" value={selectedSearchVideoId} onChange={(event) => setSelectedSearchVideoId(event.target.value)}>
-                    <option value="">전체 영상</option>
-                    {searchVideoOptions.map((videoId) => (
-                      <option value={videoId} key={videoId}>{videoId}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="filter-group">
-                  <span>시간대</span>
-                  <TimeRangeBar
-                    startHour={searchStartHour}
-                    endHour={searchEndHour}
-                    onChange={(start, end) => {
-                      setSearchStartHour(start);
-                      setSearchEndHour(end);
-                    }}
-                  />
-                </div>
-                <div className="filter-summary">
-                  <span>선택 범위</span>
-                  <strong>{selectedSearchVideoId || "전체 영상"} · {selectedYear}년 {selectedMonth}월 {selectedDay}일 · {formatHourRange(searchStartHour, searchEndHour)}</strong>
-                </div>
-              </aside>
-
-              <div className="search-main">
-                <div className="search-hero">
+              <div className="search-hero">
+                <div className="search-hero-texture" aria-hidden="true" />
+                <div className="search-hero-glow glow-a" aria-hidden="true" />
+                <div className="search-hero-glow glow-b" aria-hidden="true" />
+                <div className="search-hero-glow glow-c" aria-hidden="true" />
+                <PawMark className="search-hero-mascot" />
+                <div className="search-hero-inner">
                   <div className="search-heading">
                     <Icon filled>auto_awesome</Icon>
                     <strong>AI 영상 검색</strong>
                   </div>
-                  <span>{petName}의 하루 중 무엇이 궁금하세요?</span>
-                  <form className="search-bar" onSubmit={submitSearch}>
-                    <Icon>search</Icon>
-                    <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="예: 강아지가 밥 먹는 장면 찾아줘" />
-                    <button className={loading ? "loading" : ""} type="submit" disabled={loading}>
-                      {loading && <span className="button-spinner" />}
-                      {loading ? "검색 중" : "검색"}
-                    </button>
-                  </form>
+                  <h2>{petName}의 하루 중 무엇이 궁금하세요?</h2>
+                  <div className="search-bar-wrap">
+                    <div className="search-bar-glow" aria-hidden="true" />
+                    <form className="search-bar" onSubmit={submitSearch}>
+                      <Icon>search</Icon>
+                      <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="예: 강아지가 밥 먹는 장면 찾아줘" />
+                      <button className={loading ? "loading" : ""} type="submit" disabled={loading}>
+                        {loading && <span className="button-spinner" />}
+                        {loading ? "검색 중" : "검색"}
+                      </button>
+                    </form>
+                  </div>
                   <div className="suggestions">
                     <span><Icon>auto_awesome</Icon>추천</span>
                     {selectedSearchVideoId && indexedFrameCount === 0 ? (
@@ -1379,52 +1416,115 @@ export default function App() {
                       ))}
                     </div>
                   )}
+                  <button
+                    type="button"
+                    className="search-hero-scroll-cue"
+                    onClick={() => recordingsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                    aria-label="녹화 영상 목록으로 스크롤"
+                  >
+                    <span>녹화 영상 보기</span>
+                    <Icon>keyboard_arrow_down</Icon>
+                  </button>
                 </div>
+              </div>
 
-                {loading ? (
-                  <div className="search-loading-card">
-                    <span className="search-spinner" />
-                    <strong>AI가 영상을 검색하고 있어요</strong>
-                    <p>선택한 영상과 시간대에서 비슷한 장면을 찾는 중입니다.</p>
-                  </div>
-                ) : submitted ? (
-                  <div className="search-results stack">
-                    {apiNotice && <p className="notice">{apiNotice}</p>}
-                    <div className="answer-card">
-                      <div className="brand-mark answer-mark"><Icon filled>pets</Icon></div>
-                      <div>
-                        <span>AI 답변</span>
-                        {loading ? (
-                          <p className="answer-loading">
-                            <span className="loading-mark"><Icon filled>auto_awesome</Icon></span>
-                            답변 생성중입니다
-                          </p>
-                        ) : (
-                          <p>{answer}</p>
-                        )}
-                      </div>
+              <div className="search-page-inner">
+              <div className="search-toolbar">
+                <div className="toolbar-field">
+                  <span><Icon>calendar_today</Icon>날짜</span>
+                  <DateFilter selectedYear={selectedYear} setSelectedYear={setSelectedYear} selectedMonth={selectedMonth} setSelectedMonth={setSelectedMonth} selectedDay={selectedDay} setSelectedDay={setSelectedDay} compact />
+                </div>
+                <div className="toolbar-field">
+                  <span><Icon>videocam</Icon>검색할 영상</span>
+                  <select className="video-select" value={selectedSearchVideoId} onChange={(event) => setSelectedSearchVideoId(event.target.value)}>
+                    <option value="">전체 영상</option>
+                    {searchVideoOptions.map((videoId) => (
+                      <option value={videoId} key={videoId}>{videoId}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="toolbar-field wide">
+                  <span><Icon>schedule</Icon>시간대</span>
+                  <TimeRangeBar
+                    startHour={searchStartHour}
+                    endHour={searchEndHour}
+                    onChange={(start, end) => {
+                      setSearchStartHour(start);
+                      setSearchEndHour(end);
+                    }}
+                  />
+                </div>
+              </div>
+              <p className="toolbar-summary">
+                <Icon>tune</Icon>
+                선택 범위 · {selectedSearchVideoId || "전체 영상"} · {selectedYear}년 {selectedMonth}월 {selectedDay}일 · {formatHourRange(searchStartHour, searchEndHour)}
+              </p>
+
+              {loading ? (
+                <div className="search-loading-card">
+                  <span className="search-spinner" />
+                  <strong>AI가 영상을 검색하고 있어요</strong>
+                  <p>선택한 영상과 시간대에서 비슷한 장면을 찾는 중입니다.</p>
+                </div>
+              ) : submitted ? (
+                <div className="search-results stack">
+                  {apiNotice && <p className="notice">{apiNotice}</p>}
+                  <div className="answer-card">
+                    <div className="brand-mark answer-mark"><PawMark /></div>
+                    <div>
+                      <span>AI 답변</span>
+                      {loading ? (
+                        <p className="answer-loading">
+                          <span className="loading-mark"><Icon filled>auto_awesome</Icon></span>
+                          답변 생성중입니다
+                        </p>
+                      ) : (
+                        <p>{answer}</p>
+                      )}
                     </div>
-                    {!loading && (
-                      <>
-                        <div className="result-header">
-                          <strong>관련 장면 {visibleResults.length}개</strong>
-                          <span>유사도 순</span>
-                        </div>
-                        <div className="result-grid">
-                          {visibleResults.map((result) => (
-                            <ResultCard key={result.id} result={result} onOpen={() => openResult(result)} />
-                          ))}
-                        </div>
-                      </>
-                    )}
                   </div>
-                ) : (
-                  <div className="empty-state">
-                    <Icon filled>auto_awesome</Icon>
-                    <strong>무엇이든 자연어로 물어보세요</strong>
-                    <p>"{petName}가 밥 먹는 장면"처럼 입력하면 AI가 하루 영상에서 관련 구간을 찾아드려요.</p>
+                  {!loading && (
+                    <>
+                      <div className="result-header">
+                        <strong>관련 장면 {visibleResults.length}개</strong>
+                        <span>유사도 순</span>
+                      </div>
+                      <div className="result-grid">
+                        {visibleResults.map((result) => (
+                          <ResultCard key={result.id} result={result} onOpen={() => openResult(result)} />
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+              ) : (
+                <div className="empty-state">
+                  <Icon filled>auto_awesome</Icon>
+                  <strong>무엇이든 자연어로 물어보세요</strong>
+                  <p>"{petName}가 밥 먹는 장면"처럼 입력하면 AI가 하루 영상에서 관련 구간을 찾아드려요.</p>
+                </div>
+              )}
+
+              <div className="home-recordings" ref={recordingsRef}>
+                <div className="home-recordings-head">
+                  <div>
+                    <span>녹화 영상</span>
+                    <strong>{selectedYear}년 {selectedMonth}월 {selectedDay}일 · {filteredRecordings.length}개</strong>
                   </div>
-                )}
+                  <TimeChips value={timeFilter} onChange={setTimeFilter} compact />
+                </div>
+                <BehaviorHighlights
+                  items={highlightedBehaviors}
+                  notice={behaviorNotice}
+                  petName={petName}
+                  onOpen={(recording) => openRecording(recording)}
+                />
+                <div className="clip-grid">
+                  {filteredRecordings.map((clip) => (
+                    <ClipCard key={clip.id} clip={clip} eventCount={eventsForRecording(clip, behaviorEvents).length} onOpen={() => openRecording(clip)} />
+                  ))}
+                </div>
+              </div>
               </div>
             </section>
           )}
@@ -1566,7 +1666,7 @@ export default function App() {
                 </div>
                 <aside className="side-panel">
                   <div className="answer-card compact">
-                    <div className="brand-mark answer-mark"><Icon filled>pets</Icon></div>
+                    <div className="brand-mark answer-mark"><PawMark /></div>
                     <div>
                       <span>AI 답변</span>
                       <p>{answer || `${activeResult.displayDateTime || activeResult.time} 시각에서 ${activeResult.note}이 확인됐어요.`}</p>
@@ -1988,7 +2088,7 @@ function ClipCard({ clip, eventCount = 0, onOpen }: { clip: Recording; eventCoun
   const motionClass = clip.motion === "높음" ? "high" : clip.motion === "보통" ? "medium" : "low";
 
   return (
-    <button className="clip-card" onClick={onOpen}>
+    <button className="clip-card" onClick={onOpen} type="button">
       <div className={clip.thumbnailUrl ? "thumb has-image" : "thumb"} style={clip.thumbnailUrl ? { backgroundImage: `url(${clip.thumbnailUrl})` } : { background: gradients[clip.thumb] }}>
         <span className="time-pill">{clip.time}</span>
         <span className="duration-pill">{clip.duration}</span>
@@ -1996,7 +2096,13 @@ function ClipCard({ clip, eventCount = 0, onOpen }: { clip: Recording; eventCoun
         {eventCount > 0 && <span className="event-badge"><Icon filled>auto_awesome</Icon>{eventCount}</span>}
         <div className="play-circle"><Icon filled>play_arrow</Icon></div>
       </div>
-      <div className="tag-row">{tagList(clip.tags)}</div>
+      <div className="clip-card-footer">
+        <div className="clip-info-pills">
+          <span className="clip-source-pill"><Icon>movie</Icon>{clip.videoId || "영상"}</span>
+          <span className="clip-type-pill"><Icon>cloud</Icon>S3 chunk</span>
+        </div>
+        <div className="tag-row">{tagList(clip.tags)}</div>
+      </div>
     </button>
   );
 }
