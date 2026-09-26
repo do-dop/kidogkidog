@@ -1,0 +1,13 @@
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - --file
+      - ui-react/Dockerfile
+      - --build-arg
+      - API_ORIGIN=${_API_ORIGIN}
+      - --tag
+      - ${_IMAGE}
+      - ui-react
+images:
+  - ${_IMAGE}
