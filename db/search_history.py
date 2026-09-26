@@ -209,7 +209,7 @@ def get_global_top_queries(limit=5):
 
     cursor.execute('''
         SELECT
-            query_raw,
+            MIN(query_raw) AS query_raw,
             query_norm,
             COUNT(*) AS query_count,
             MAX(created_at) AS last_searched_at
@@ -244,7 +244,7 @@ def get_video_top_queries(video_id, limit=5):
     if video_id:
         cursor.execute('''
             SELECT
-                query_raw,
+                MIN(query_raw) AS query_raw,
                 query_norm,
                 COUNT(*) AS query_count,
                 MAX(created_at) AS last_searched_at
@@ -258,7 +258,7 @@ def get_video_top_queries(video_id, limit=5):
     else:
         cursor.execute('''
             SELECT
-                query_raw,
+                MIN(query_raw) AS query_raw,
                 query_norm,
                 COUNT(*) AS query_count,
                 MAX(created_at) AS last_searched_at
