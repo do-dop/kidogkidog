@@ -14,7 +14,7 @@ def list_recording_chunks(video_id: str | None = None):
     except Exception as exc:
         raise HTTPException(
             status_code=500,
-            detail=f"S3 청크 목록을 불러오지 못했습니다: {exc}",
+            detail=f"GCS 청크 목록을 불러오지 못했습니다: {exc}",
         ) from exc
 
 

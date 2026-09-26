@@ -381,7 +381,7 @@ function mapApiResults(payload: ApiQueryResult, items: Recording[] = []): Search
       seekEndSeconds: playbackEnd,
       videoId: result.video_id,
       videoUrl: recording?.videoUrl,
-      thumbnailUrl: frameThumbnailUrl || recording?.thumbnailUrl,
+      thumbnailUrl: recording?.thumbnailUrl || frameThumbnailUrl,
       s3Key: result.s3_key,
       framePath: result.frame_path,
       eventStart,
@@ -464,7 +464,7 @@ function mapApiChunks(payload: ApiChunksResult): Recording[] {
     motion: "보통",
     tags: [
       { icon: "🎬", label: chunk.video_id },
-      { icon: "☁️", label: "S3 chunk" },
+      { icon: "☁️", label: "GCS chunk" },
     ],
     note: `${chunk.video_id} · ${chunk.filename}`,
     recordingDate: chunk.recording_date || undefined,
@@ -659,14 +659,14 @@ export default function App() {
 
           setRecordingsNotice(
             nextRecordings.length > 0
-              ? `S3 청크 ${nextRecordings.length}개를 불러왔습니다.`
-              : "S3 chunks/ 경로에 표시할 청크 영상이 없습니다.",
+              ? `GCS 청크 ${nextRecordings.length}개를 불러왔습니다.`
+              : "GCS chunks/ 경로에 표시할 청크 영상이 없습니다.",
           );
         }
       } catch {
         if (!ignore) {
           setS3Recordings([]);
-          setRecordingsNotice("S3 청크 목록 API에 연결하지 못해 데모 녹화 목록을 표시합니다.");
+          setRecordingsNotice("GCS 청크 목록 API에 연결하지 못해 데모 녹화 목록을 표시합니다.");
         }
       } finally {
         if (!ignore) setRecordingsLoading(false);
@@ -891,9 +891,9 @@ export default function App() {
 
   const topTitle = {
     live: ["실시간 라이브", `${petName}의 거실을 실시간으로 지켜보고 있어요`],
-    recordings: ["녹화 영상", "S3에 업로드된 1분 단위 청크를 둘러보세요"],
+    recordings: ["녹화 영상", "GCS에 업로드된 1분 단위 청크를 둘러보세요"],
     search: ["AI 검색", "자연어로 물어보면 관련 장면을 찾아드려요"],
-    chunkPlayback: ["녹화 영상 재생", "S3 청크를 원본 흐름대로 확인합니다"],
+    chunkPlayback: ["녹화 영상 재생", "GCS 청크를 원본 흐름대로 확인합니다"],
     searchPlayback: ["검색 결과 재생", "AI가 찾은 장면과 근거를 검토합니다"],
     profile: ["마이페이지", "사용자와 알림 설정을 관리합니다"],
   }[screen];
@@ -1428,7 +1428,7 @@ export default function App() {
                       <div className="feature-matrix-icon">⚡</div>
                       <div>
                         <strong>Smart Pipeline</strong>
-                        <p>S3 5분 단편 클립 분할 인덱싱</p>
+                        <p>GCS 5분 단편 클립 분할 인덱싱</p>
                       </div>
                     </div>
                     <div className="feature-matrix-card">
@@ -1663,7 +1663,7 @@ export default function App() {
               <div className="playback-grid">
                 <div className="stack">
                   <VideoPanel
-                    label={activeRecording.playbackStartSeconds !== undefined ? "행동 구간 자동 점프" : "S3 청크 재생"}
+                    label={activeRecording.playbackStartSeconds !== undefined ? "행동 구간 자동 점프" : "GCS 청크 재생"}
                     camera={activeRecording.note || `${activeRecording.videoId ?? "영상"} · ${activeRecording.time}`}
                     time={activeRecording.playbackStartSeconds !== undefined ? addSecondsToClockTime(activeRecording.time, activeRecording.playbackStartSeconds) : activeRecording.time}
                     videoUrl={activeRecording.videoUrl}
@@ -1683,7 +1683,7 @@ export default function App() {
                   <div className="chunk-detail-card">
                     <span>청크 정보</span>
                     <strong>{activeRecording.note || activeRecording.id}</strong>
-                    <p>S3에 저장된 1분 단위 원본 청크입니다. 이 화면은 녹화 파일 탐색과 연속 재생에 집중합니다.</p>
+                    <p>GCS에 저장된 1분 단위 원본 청크입니다. 이 화면은 녹화 파일 탐색과 연속 재생에 집중합니다.</p>
                   </div>
                   <BehaviorEventPanel videoEvents={activeVideoEvents} chunkEvents={activeRecordingEvents} recording={activeRecording} />
                   <button className="primary-button" onClick={() => {
@@ -2161,7 +2161,7 @@ function ClipCard({ clip, eventCount = 0, onOpen }: { clip: Recording; eventCoun
       <div className="clip-card-footer">
         <div className="clip-info-pills">
           <span className="clip-source-pill"><Icon>movie</Icon>{clip.videoId || "영상"}</span>
-          <span className="clip-type-pill"><Icon>cloud</Icon>S3 chunk</span>
+          <span className="clip-type-pill"><Icon>cloud</Icon>GCS chunk</span>
         </div>
         <div className="tag-row">{tagList(clip.tags)}</div>
       </div>

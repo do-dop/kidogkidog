@@ -1,6 +1,6 @@
 from celery import Celery
 from pipeline.frame_extractor import extract_frames
-from pipeline.s3_uploader import download_video, upload_frame
+from pipeline.gcs_uploader import download_video, upload_frame
 from pipeline.vector_store import index_frame
 from pipeline.yolo_detector import detect_objects
 from pipeline.behavior_event_extractor import extract_behavior_events
@@ -9,7 +9,9 @@ from db.scenes import insert_scene
 from db.schema import init_db
 import os
 import json
+from datetime import timedelta
 from pathlib import Path
+from pipeline.gcs_uploader import get_object_metadata
 
 FRAME_ROOT = Path("pipeline/frames")
 
@@ -19,12 +21,12 @@ celery_app = Celery(
 )
 
 
-def upload_frame_to_s3(local_frame_path, video_id):
-    """프레임을 S3에 업로드"""
+def upload_frame_to_object_storage(local_frame_path, video_id):
+    """프레임을 GCS에 업로드"""
     return upload_frame(local_frame_path, video_id)
 
 
-def index_frame_to_chromadb(local_frame_path, video_id, s3_key=None, object_labels=None):
+def index_frame_to_chromadb(local_frame_path, video_id, s3_key=None, object_labels=None, recorded_at=None):
     """프레임을 CLIP 임베딩 후 ChromaDB에 저장"""
     return index_frame(
         local_frame_path,
@@ -32,11 +34,12 @@ def index_frame_to_chromadb(local_frame_path, video_id, s3_key=None, object_labe
         video_id=video_id,
         s3_key=s3_key,
         object_labels=object_labels,
+        recorded_at=recorded_at,
     )
 
 
-def get_video_id_from_s3_key(s3_key):
-    key = Path(s3_key)
+def get_video_id_from_object_key(object_key):
+    key = Path(object_key)
     parts = key.parts
 
     if len(parts) >= 2 and parts[0] == "chunks":
@@ -91,14 +94,14 @@ def process_chunk(chunk_path):
     → YOLO 객체 감지
     → CLIP 임베딩
     → ChromaDB 저장
-    → SQLite scenes 메타데이터 저장
+    → MySQL scenes 메타데이터 저장
     → 행동 이벤트 분석
-    → SQLite behavior_events 저장
+    → MySQL behavior_events 저장
     → 로컬 프레임 삭제
     """
     print(f"[Task 시작] {chunk_path}")
 
-    video_id = get_video_id_from_s3_key(chunk_path)
+    video_id = get_video_id_from_object_key(chunk_path)
     frame_output_dir = FRAME_ROOT / video_id
 
     local_path = f"/tmp/{os.path.basename(chunk_path)}"
@@ -106,7 +109,10 @@ def process_chunk(chunk_path):
     behavior_events = []
 
     try:
-        # 1. S3에서 영상/청크 다운로드
+        chunk_metadata = get_object_metadata(chunk_path)
+        chunk_recorded_at = chunk_metadata.get("LastModified")
+
+        # 1. GCS에서 영상/청크 다운로드
         download_video(chunk_path, local_path)
         print(f"다운로드 완료: {local_path}")
 
@@ -118,11 +124,11 @@ def process_chunk(chunk_path):
         )
         print(f"프레임 {len(frames)}개 추출 완료")
 
-        # 3. 프레임을 먼저 S3에 모두 업로드
+        # 3. 프레임을 먼저 GCS에 모두 업로드
         uploaded_frames = []
 
         for frame in frames:
-            frame_s3_key = upload_frame_to_s3(
+            frame_s3_key = upload_frame_to_object_storage(
                 frame["frame_path"],
                 video_id,
             )
@@ -133,7 +139,7 @@ def process_chunk(chunk_path):
                 "s3_key": frame_s3_key,
             })
 
-        print(f"프레임 {len(uploaded_frames)}개 S3 업로드 완료")
+        print(f"프레임 {len(uploaded_frames)}개 GCS 업로드 완료")
 
         # 4. 업로드된 프레임에 YOLO 객체 감지 + CLIP/ChromaDB 저장
         #
@@ -164,6 +170,10 @@ def process_chunk(chunk_path):
                 video_id=video_id,
                 s3_key=frame["s3_key"],
                 object_labels=object_labels,
+                recorded_at=(
+                    chunk_recorded_at + timedelta(seconds=float(frame["timestamp"]))
+                    if chunk_recorded_at else None
+                ),
             )
 
             print(f"ChromaDB 저장 완료: {i}/{len(uploaded_frames)} - {frame_id}", flush=True)
@@ -176,7 +186,7 @@ def process_chunk(chunk_path):
 
         print(f"프레임 {len(indexed_frames)}개 ChromaDB 저장 완료")
 
-        # 5. SQLite에 scenes 메타데이터 저장
+        # 5. MySQL에 scenes 메타데이터 저장
         init_db()
 
         for frame in indexed_frames:

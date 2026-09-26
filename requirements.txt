@@ -7,10 +7,6 @@ attrs==26.1.0
 bcrypt==5.0.0
 billiard==4.2.4
 blinker==1.9.0
-boto3==1.42.83
-boto3-stubs==1.42.84
-botocore==1.42.83
-botocore-stubs==1.42.41
 build==1.4.2
 cachetools==7.0.5
 celery==5.6.3
@@ -38,6 +34,7 @@ future==1.0.0
 gitdb==4.0.12
 GitPython==3.1.46
 googleapis-common-protos==1.74.0
+google-cloud-storage==2.19.0
 grpcio==1.80.0
 h11==0.16.0
 hf-xet==1.4.3
@@ -122,7 +119,6 @@ requests-oauthlib==2.0.0
 requests-toolbelt==1.0.0
 rich==14.3.3
 rpds-py==0.30.0
-s3transfer==0.16.0
 scipy==1.17.1
 setuptools==81.0.0
 shellingham==1.5.4
