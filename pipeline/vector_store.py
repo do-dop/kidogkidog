@@ -17,6 +17,13 @@ _collection = None
 
 
 def _frame_recorded_at(metadata):
+    recorded_at = metadata.get("recorded_at")
+    if recorded_at:
+        try:
+            return datetime.fromisoformat(str(recorded_at).replace("Z", "+00:00"))
+        except ValueError:
+            pass
+
     s3_key = metadata.get("s3_key") or metadata.get("frame_path") or ""
     filename = Path(s3_key).name
     match = re.search(
@@ -142,6 +149,8 @@ def index_frame(
     video_id=None,
     s3_key=None,
     object_labels=None,
+    recorded_at=None,
+    timestamp=None,
 ):
     """
     단일 프레임을 CLIP 임베딩 후 ChromaDB에 저장
@@ -165,13 +174,18 @@ def index_frame(
 
     metadata = {
         "frame_path": str(frame_path),
-        "timestamp": _timestamp_from_frame_path(frame_path),
+        "timestamp": (
+            float(timestamp) if timestamp is not None
+            else _timestamp_from_frame_path(frame_path)
+        ),
         "video_id": frame_video_id,
         "object_labels": _normalize_object_labels(object_labels),
     }
 
     if s3_key:
         metadata["s3_key"] = s3_key
+    if recorded_at:
+        metadata["recorded_at"] = str(recorded_at)
 
     print(f"ChromaDB add 시작: {frame_id}", flush=True)
     collection.add(
