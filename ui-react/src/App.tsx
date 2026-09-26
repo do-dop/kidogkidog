@@ -204,6 +204,18 @@ function Icon({ children, filled = false }: { children: string; filled?: boolean
   );
 }
 
+function PawMark({ className = "" }: { className?: string }) {
+  return (
+    <svg className={`paw-mark ${className}`} viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <ellipse cx="24" cy="31.5" rx="12.5" ry="10.5" fill="currentColor" />
+      <ellipse cx="8.5" cy="21" rx="5.6" ry="6.6" fill="currentColor" />
+      <ellipse cx="19.5" cy="10.5" rx="6" ry="7" fill="currentColor" />
+      <ellipse cx="31.5" cy="10.5" rx="6" ry="7" fill="currentColor" />
+      <ellipse cx="40.5" cy="22.5" rx="5.4" ry="6.4" fill="currentColor" />
+    </svg>
+  );
+}
+
 function tagList(tags: Tag[]) {
   return tags.map((tag) => (
     <span className="tag" key={`${tag.icon}-${tag.label}`}>
@@ -369,7 +381,7 @@ function mapApiResults(payload: ApiQueryResult, items: Recording[] = []): Search
       seekEndSeconds: playbackEnd,
       videoId: result.video_id,
       videoUrl: recording?.videoUrl,
-      thumbnailUrl: frameThumbnailUrl || recording?.thumbnailUrl,
+      thumbnailUrl: recording?.thumbnailUrl || frameThumbnailUrl,
       s3Key: result.s3_key,
       framePath: result.frame_path,
       eventStart,
@@ -452,7 +464,7 @@ function mapApiChunks(payload: ApiChunksResult): Recording[] {
     motion: "보통",
     tags: [
       { icon: "🎬", label: chunk.video_id },
-      { icon: "☁️", label: "S3 chunk" },
+      { icon: "☁️", label: "GCS chunk" },
     ],
     note: `${chunk.video_id} · ${chunk.filename}`,
     recordingDate: chunk.recording_date || undefined,
@@ -536,6 +548,7 @@ function scoreBehavior(event: BehaviorEvent) {
 
 export default function App() {
   const [theme, setTheme] = useState<Theme>("light");
+  const [menuOpen, setMenuOpen] = useState(false);
   const [screen, setScreen] = useState<Screen>("search");
   const [userId] = useState(demoUserId);
   const [userName, setUserName] = useState(() => window.localStorage.getItem("kidogkidog_user_name") || defaultUserName);
@@ -584,11 +597,33 @@ export default function App() {
   const [activeResult, setActiveResult] = useState<SearchResult | null>(null);
   const [activeRecording, setActiveRecording] = useState<Recording>(recordings[0]);
   const didDefaultSearchVideoRef = useRef(false);
+  const recordingsRef = useRef<HTMLDivElement | null>(null);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    function handleScroll() {
+      setScrolled(window.scrollY > 20);
+    }
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(new Date()), 1000);
     return () => window.clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setMenuOpen(false);
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [menuOpen]);
 
   useEffect(() => {
     let ignore = false;
@@ -624,14 +659,14 @@ export default function App() {
 
           setRecordingsNotice(
             nextRecordings.length > 0
-              ? `S3 청크 ${nextRecordings.length}개를 불러왔습니다.`
-              : "S3 chunks/ 경로에 표시할 청크 영상이 없습니다.",
+              ? `GCS 청크 ${nextRecordings.length}개를 불러왔습니다.`
+              : "GCS chunks/ 경로에 표시할 청크 영상이 없습니다.",
           );
         }
       } catch {
         if (!ignore) {
           setS3Recordings([]);
-          setRecordingsNotice("S3 청크 목록 API에 연결하지 못해 데모 녹화 목록을 표시합니다.");
+          setRecordingsNotice("GCS 청크 목록 API에 연결하지 못해 데모 녹화 목록을 표시합니다.");
         }
       } finally {
         if (!ignore) setRecordingsLoading(false);
@@ -856,9 +891,9 @@ export default function App() {
 
   const topTitle = {
     live: ["실시간 라이브", `${petName}의 거실을 실시간으로 지켜보고 있어요`],
-    recordings: ["녹화 영상", "S3에 업로드된 1분 단위 청크를 둘러보세요"],
+    recordings: ["녹화 영상", "GCS에 업로드된 1분 단위 청크를 둘러보세요"],
     search: ["AI 검색", "자연어로 물어보면 관련 장면을 찾아드려요"],
-    chunkPlayback: ["녹화 영상 재생", "S3 청크를 원본 흐름대로 확인합니다"],
+    chunkPlayback: ["녹화 영상 재생", "GCS 청크를 원본 흐름대로 확인합니다"],
     searchPlayback: ["검색 결과 재생", "AI가 찾은 장면과 근거를 검토합니다"],
     profile: ["마이페이지", "사용자와 알림 설정을 관리합니다"],
   }[screen];
@@ -872,6 +907,7 @@ export default function App() {
     }
 
     setScreen(nextScreen);
+    setMenuOpen(false);
   }
 
   function openResult(result: SearchResult) {
@@ -1077,15 +1113,19 @@ export default function App() {
 
   return (
     <div className="app-shell" data-theme={theme}>
-      <aside className="sidebar">
+      {menuOpen && <div className="sidebar-backdrop" onClick={() => setMenuOpen(false)} />}
+      <aside className={menuOpen ? "sidebar open" : "sidebar"}>
         <div className="brand">
           <div className="brand-mark">
-            <Icon filled>pets</Icon>
+            <PawMark />
           </div>
           <div>
             <strong>kidog<span>kidog</span></strong>
             <p>AI 펫캠 검색</p>
           </div>
+          <button className="sidebar-close" type="button" onClick={() => setMenuOpen(false)} aria-label="메뉴 닫기">
+            <Icon>close</Icon>
+          </button>
         </div>
 
         <p className="nav-label">메뉴</p>
@@ -1166,11 +1206,35 @@ export default function App() {
       </aside>
 
       <main className="main">
-        <header className="topbar">
-          <div>
-            <h1>{topTitle[0]}</h1>
-            <p>{topTitle[1]}</p>
+        <header className={scrolled ? "topbar scrolled" : "topbar"}>
+          <div className="topbar-brand" onClick={() => go("search")}>
+            <div className="brand-mark">
+              <PawMark />
+            </div>
+            <strong className="topbar-logo-text">KIDOG<span>KIDOG</span></strong>
           </div>
+
+          <nav className="topbar-nav">
+            {[
+              { key: "search" as const, label: "AI 검색" },
+              { key: "recordings" as const, label: "녹화 영상" },
+              { key: "live" as const, label: "라이브" },
+            ].map((item) => {
+              const activeScreen = screen === "chunkPlayback" ? "recordings" : screen === "searchPlayback" ? "search" : screen;
+              const active = activeScreen === item.key;
+              return (
+                <button
+                  key={item.key}
+                  className={active ? "topbar-nav-item active" : "topbar-nav-item"}
+                  type="button"
+                  onClick={() => go(item.key)}
+                >
+                  {item.label}
+                </button>
+              );
+            })}
+          </nav>
+
           <div className="top-actions">
             <button className="icon-button" onClick={() => setTheme(theme === "dark" ? "light" : "dark")} aria-label="테마 전환">
               <Icon>{theme === "dark" ? "light_mode" : "dark_mode"}</Icon>
@@ -1287,56 +1351,29 @@ export default function App() {
 
           {screen === "search" && (
             <section className="search-page">
-              <aside className="search-filter-panel">
-                <div className="filter-panel-title">
-                  <Icon>tune</Icon>
-                  <strong>검색 조건</strong>
-                </div>
-                <div className="filter-group">
-                  <span>날짜</span>
-                  <DateFilter selectedYear={selectedYear} setSelectedYear={setSelectedYear} selectedMonth={selectedMonth} setSelectedMonth={setSelectedMonth} selectedDay={selectedDay} setSelectedDay={setSelectedDay} compact />
-                </div>
-                <div className="filter-group">
-                  <span>검색할 영상</span>
-                  <select className="video-select" value={selectedSearchVideoId} onChange={(event) => setSelectedSearchVideoId(event.target.value)}>
-                    <option value="">전체 영상</option>
-                    {searchVideoOptions.map((videoId) => (
-                      <option value={videoId} key={videoId}>{videoId}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="filter-group">
-                  <span>시간대</span>
-                  <TimeRangeBar
-                    startHour={searchStartHour}
-                    endHour={searchEndHour}
-                    onChange={(start, end) => {
-                      setSearchStartHour(start);
-                      setSearchEndHour(end);
-                    }}
-                  />
-                </div>
-                <div className="filter-summary">
-                  <span>선택 범위</span>
-                  <strong>{selectedSearchVideoId || "전체 영상"} · {selectedYear}년 {selectedMonth}월 {selectedDay}일 · {formatHourRange(searchStartHour, searchEndHour)}</strong>
-                </div>
-              </aside>
-
-              <div className="search-main">
-                <div className="search-hero">
+              <div className="search-hero">
+                <div className="search-hero-texture" aria-hidden="true" />
+                <div className="search-hero-glow glow-a" aria-hidden="true" />
+                <div className="search-hero-glow glow-b" aria-hidden="true" />
+                <div className="search-hero-glow glow-c" aria-hidden="true" />
+                <PawMark className="search-hero-mascot" />
+                <div className="search-hero-inner">
                   <div className="search-heading">
                     <Icon filled>auto_awesome</Icon>
                     <strong>AI 영상 검색</strong>
                   </div>
-                  <span>{petName}의 하루 중 무엇이 궁금하세요?</span>
-                  <form className="search-bar" onSubmit={submitSearch}>
-                    <Icon>search</Icon>
-                    <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="예: 강아지가 밥 먹는 장면 찾아줘" />
-                    <button className={loading ? "loading" : ""} type="submit" disabled={loading}>
-                      {loading && <span className="button-spinner" />}
-                      {loading ? "검색 중" : "검색"}
-                    </button>
-                  </form>
+                  <h2>{petName}의 하루 중 무엇이 궁금하세요?</h2>
+                  <div className="search-bar-wrap">
+                    <div className="search-bar-glow" aria-hidden="true" />
+                    <form className="search-bar" onSubmit={submitSearch}>
+                      <Icon>search</Icon>
+                      <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="예: 강아지가 밥 먹는 장면 찾아줘" />
+                      <button className={loading ? "loading" : ""} type="submit" disabled={loading}>
+                        {loading && <span className="button-spinner" />}
+                        {loading ? "검색 중" : "검색"}
+                      </button>
+                    </form>
+                  </div>
                   <div className="suggestions">
                     <span><Icon>auto_awesome</Icon>추천</span>
                     {selectedSearchVideoId && indexedFrameCount === 0 ? (
@@ -1379,7 +1416,89 @@ export default function App() {
                       ))}
                     </div>
                   )}
+                  <div className="feature-matrix-grid">
+                    <div className="feature-matrix-card">
+                      <div className="feature-matrix-icon">🤖</div>
+                      <div>
+                        <strong>AI 3D Vision</strong>
+                        <p>12가지 행동 패턴 자동 감지</p>
+                      </div>
+                    </div>
+                    <div className="feature-matrix-card">
+                      <div className="feature-matrix-icon">⚡</div>
+                      <div>
+                        <strong>Smart Pipeline</strong>
+                        <p>GCS 5분 단편 클립 분할 인덱싱</p>
+                      </div>
+                    </div>
+                    <div className="feature-matrix-card">
+                      <div className="feature-matrix-icon">🔍</div>
+                      <div>
+                        <strong>Natural LLM Query</strong>
+                        <p>자연어로 3초 만에 장면 탐색</p>
+                      </div>
+                    </div>
+                    <div className="feature-matrix-card">
+                      <div className="feature-matrix-icon">🔔</div>
+                      <div>
+                        <strong>Realtime Care</strong>
+                        <p>이상 행동 감지 및 맞춤 알림</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="search-hero-scroll-cue"
+                    onClick={() => recordingsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                    aria-label="녹화 영상 목록으로 스크롤"
+                  >
+                    <span>녹화 영상 보기</span>
+                    <Icon>keyboard_arrow_down</Icon>
+                  </button>
                 </div>
+              </div>
+
+              <div className="search-page-inner">
+                <div className="section-title-block">
+                  <div className="section-kicker-pill">
+                    <Icon filled>auto_awesome</Icon>
+                    <span>SMART FILTER & CONTROLS</span>
+                  </div>
+                  <h2>어떤 날짜와 시간의 영상을 찾으시나요?</h2>
+                  <p>필터를 선택하고 위 검색창에서 {petName}의 순간을 검색해보세요.</p>
+                </div>
+
+                <div className="search-toolbar">
+                  <div className="toolbar-field">
+                    <span><Icon>calendar_today</Icon>날짜</span>
+                    <DateFilter selectedYear={selectedYear} setSelectedYear={setSelectedYear} selectedMonth={selectedMonth} setSelectedMonth={setSelectedMonth} selectedDay={selectedDay} setSelectedDay={setSelectedDay} compact />
+                  </div>
+                  <div className="toolbar-field">
+                    <span><Icon>videocam</Icon>검색할 영상</span>
+                    <select className="video-select" value={selectedSearchVideoId} onChange={(event) => setSelectedSearchVideoId(event.target.value)}>
+                      <option value="">전체 영상</option>
+                      {searchVideoOptions.map((videoId) => (
+                        <option value={videoId} key={videoId}>{videoId}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="toolbar-field wide">
+                    <span><Icon>schedule</Icon>시간대</span>
+                    <TimeRangeBar
+                      startHour={searchStartHour}
+                      endHour={searchEndHour}
+                      onChange={(start, end) => {
+                        setSearchStartHour(start);
+                        setSearchEndHour(end);
+                      }}
+                    />
+                  </div>
+                </div>
+                <p className="toolbar-summary">
+                  <Icon>tune</Icon>
+                  선택 범위 · {selectedSearchVideoId || "전체 영상"} · {selectedYear}년 {selectedMonth}월 {selectedDay}일 · {formatHourRange(searchStartHour, searchEndHour)}
+                </p>
 
                 {loading ? (
                   <div className="search-loading-card">
@@ -1391,7 +1510,7 @@ export default function App() {
                   <div className="search-results stack">
                     {apiNotice && <p className="notice">{apiNotice}</p>}
                     <div className="answer-card">
-                      <div><Icon filled>pets</Icon></div>
+                      <div className="brand-mark answer-mark"><PawMark /></div>
                       <div>
                         <span>AI 답변</span>
                         {loading ? (
@@ -1425,6 +1544,49 @@ export default function App() {
                     <p>"{petName}가 밥 먹는 장면"처럼 입력하면 AI가 하루 영상에서 관련 구간을 찾아드려요.</p>
                   </div>
                 )}
+
+                <div className="home-recordings" ref={recordingsRef}>
+                  <div className="section-title-block left">
+                    <div className="section-kicker-pill">
+                      <Icon filled>smart_display</Icon>
+                      <span>SMART CLIPS & BEHAVIORS</span>
+                    </div>
+                    <h2>오늘 포착된 녹화 청크 & 주요 행동</h2>
+                    <p>{selectedYear}년 {selectedMonth}월 {selectedDay}일 · 총 {filteredRecordings.length}개 5분 클립 기록</p>
+                  </div>
+
+                  <div className="home-recordings-head">
+                    <div>
+                      <span>시간대 필터</span>
+                      <strong>{timeFilter === "all" ? "전체 시간대" : `${timeFilter} 영상`}</strong>
+                    </div>
+                    <TimeChips value={timeFilter} onChange={setTimeFilter} compact />
+                  </div>
+                  <BehaviorHighlights
+                    items={highlightedBehaviors}
+                    notice={behaviorNotice}
+                    petName={petName}
+                    onOpen={(recording) => openRecording(recording)}
+                  />
+                  <div className="clip-grid">
+                    {filteredRecordings.map((clip) => (
+                      <ClipCard key={clip.id} clip={clip} eventCount={eventsForRecording(clip, behaviorEvents).length} onOpen={() => openRecording(clip)} />
+                    ))}
+                  </div>
+                </div>
+
+                <div className="brand-callout-banner">
+                  <div className="brand-callout-content">
+                    <span className="brand-callout-kicker">KIDOGKIDOG PET AI PLATFORM</span>
+                    <h2>A Small Moment Makes a Big Memory</h2>
+                    <p>소중한 반려견의 하루를 24시간 스마트하게 트래킹하고 감동적인 모먼트로 간직하세요.</p>
+                  </div>
+                  <div className="brand-callout-badge">
+                    <PawMark />
+                    <strong>KIDOGKIDOG</strong>
+                    <span>Smart Pet Cam AI</span>
+                  </div>
+                </div>
               </div>
             </section>
           )}
@@ -1501,7 +1663,7 @@ export default function App() {
               <div className="playback-grid">
                 <div className="stack">
                   <VideoPanel
-                    label={activeRecording.playbackStartSeconds !== undefined ? "행동 구간 자동 점프" : "S3 청크 재생"}
+                    label={activeRecording.playbackStartSeconds !== undefined ? "행동 구간 자동 점프" : "GCS 청크 재생"}
                     camera={activeRecording.note || `${activeRecording.videoId ?? "영상"} · ${activeRecording.time}`}
                     time={activeRecording.playbackStartSeconds !== undefined ? addSecondsToClockTime(activeRecording.time, activeRecording.playbackStartSeconds) : activeRecording.time}
                     videoUrl={activeRecording.videoUrl}
@@ -1521,7 +1683,7 @@ export default function App() {
                   <div className="chunk-detail-card">
                     <span>청크 정보</span>
                     <strong>{activeRecording.note || activeRecording.id}</strong>
-                    <p>S3에 저장된 1분 단위 원본 청크입니다. 이 화면은 녹화 파일 탐색과 연속 재생에 집중합니다.</p>
+                    <p>GCS에 저장된 1분 단위 원본 청크입니다. 이 화면은 녹화 파일 탐색과 연속 재생에 집중합니다.</p>
                   </div>
                   <BehaviorEventPanel videoEvents={activeVideoEvents} chunkEvents={activeRecordingEvents} recording={activeRecording} />
                   <button className="primary-button" onClick={() => {
@@ -1566,7 +1728,7 @@ export default function App() {
                 </div>
                 <aside className="side-panel">
                   <div className="answer-card compact">
-                    <div><Icon filled>pets</Icon></div>
+                    <div className="brand-mark answer-mark"><PawMark /></div>
                     <div>
                       <span>AI 답변</span>
                       <p>{answer || `${activeResult.displayDateTime || activeResult.time} 시각에서 ${activeResult.note}이 확인됐어요.`}</p>
@@ -1988,7 +2150,7 @@ function ClipCard({ clip, eventCount = 0, onOpen }: { clip: Recording; eventCoun
   const motionClass = clip.motion === "높음" ? "high" : clip.motion === "보통" ? "medium" : "low";
 
   return (
-    <button className="clip-card" onClick={onOpen}>
+    <button className="clip-card" onClick={onOpen} type="button">
       <div className={clip.thumbnailUrl ? "thumb has-image" : "thumb"} style={clip.thumbnailUrl ? { backgroundImage: `url(${clip.thumbnailUrl})` } : { background: gradients[clip.thumb] }}>
         <span className="time-pill">{clip.time}</span>
         <span className="duration-pill">{clip.duration}</span>
@@ -1996,7 +2158,13 @@ function ClipCard({ clip, eventCount = 0, onOpen }: { clip: Recording; eventCoun
         {eventCount > 0 && <span className="event-badge"><Icon filled>auto_awesome</Icon>{eventCount}</span>}
         <div className="play-circle"><Icon filled>play_arrow</Icon></div>
       </div>
-      <div className="tag-row">{tagList(clip.tags)}</div>
+      <div className="clip-card-footer">
+        <div className="clip-info-pills">
+          <span className="clip-source-pill"><Icon>movie</Icon>{clip.videoId || "영상"}</span>
+          <span className="clip-type-pill"><Icon>cloud</Icon>GCS chunk</span>
+        </div>
+        <div className="tag-row">{tagList(clip.tags)}</div>
+      </div>
     </button>
   );
 }

@@ -1,7 +1,38 @@
 import cv2
 import os
+import subprocess
 from pathlib import Path
 from pipeline.motion_detector import detect_motion
+
+
+def _extract_frames_with_ffmpeg(video_path, output_dir, frame_prefix, fps):
+    """OpenCV가 코덱을 읽지 못하거나 motion 구간이 없을 때의 안전한 fallback."""
+    output_pattern = str(Path(output_dir) / f"{frame_prefix}_frame_%06d.jpg")
+    command = [
+        "ffmpeg",
+        "-y",
+        "-i",
+        str(video_path),
+        "-vf",
+        f"fps={fps}",
+        "-q:v",
+        "2",
+        output_pattern,
+    ]
+    subprocess.run(command, check=True, capture_output=True, text=True)
+
+    extracted_paths = sorted(Path(output_dir).glob(f"{frame_prefix}_frame_*.jpg"))
+    interval = 1.0 / fps
+    return [
+        {
+            "frame_path": str(frame_path),
+            "timestamp": round(index * interval, 2),
+            "motion_start": 0.0,
+            "motion_end": round(max(0, (len(extracted_paths) - 1) * interval), 2),
+            "segment_id": 0,
+        }
+        for index, frame_path in enumerate(extracted_paths)
+    ]
 
 
 def extract_frames(video_path, output_dir="pipeline/frames", fps=0.5, frame_prefix=None):
@@ -32,6 +63,17 @@ def extract_frames(video_path, output_dir="pipeline/frames", fps=0.5, frame_pref
     print("motion 감지 중...")
     motion_segments = detect_motion(video_path)
     print(f"motion 구간 {len(motion_segments)}개 감지됨")
+
+    if not motion_segments:
+        print("motion 구간이 없거나 OpenCV가 영상을 읽지 못해 FFmpeg 전체 프레임 추출로 전환합니다.")
+        frame_list = _extract_frames_with_ffmpeg(
+            video_path=video_path,
+            output_dir=output_dir,
+            frame_prefix=frame_prefix,
+            fps=fps,
+        )
+        print(f"FFmpeg fallback으로 총 {len(frame_list)}개 프레임 추출 완료!")
+        return frame_list
 
     # 2. 프레임 추출
     cap = cv2.VideoCapture(video_path)

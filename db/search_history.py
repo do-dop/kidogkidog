@@ -1,6 +1,6 @@
 import re
 
-from db.connection import connect, using_mysql
+from db.connection import connect
 
 
 def normalize_query(query: str) -> str:
@@ -72,49 +72,26 @@ def upsert_user_frequent_query(user_id, query_raw):
     conn = connect()
     cursor = conn.cursor()
 
-    if using_mysql():
-        cursor.execute('''
-            INSERT INTO user_frequent_queries (
-                user_id,
-                query_norm,
-                query_display,
-                count,
-                last_searched_at,
-                updated_at
-            )
-            VALUES (?, ?, ?, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-            ON DUPLICATE KEY UPDATE
-                count = count + 1,
-                query_display = VALUES(query_display),
-                last_searched_at = CURRENT_TIMESTAMP,
-                updated_at = CURRENT_TIMESTAMP
-        ''', (
+    cursor.execute('''
+        INSERT INTO user_frequent_queries (
             user_id,
             query_norm,
-            query_display
-        ))
-    else:
-        cursor.execute('''
-            INSERT INTO user_frequent_queries (
-                user_id,
-                query_norm,
-                query_display,
-                count,
-                last_searched_at,
-                updated_at
-            )
-            VALUES (?, ?, ?, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-            ON CONFLICT(user_id, query_norm)
-            DO UPDATE SET
-                count = count + 1,
-                query_display = excluded.query_display,
-                last_searched_at = CURRENT_TIMESTAMP,
-                updated_at = CURRENT_TIMESTAMP
-        ''', (
-            user_id,
-            query_norm,
-            query_display
-        ))
+            query_display,
+            count,
+            last_searched_at,
+            updated_at
+        )
+        VALUES (?, ?, ?, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+        ON DUPLICATE KEY UPDATE
+            count = count + 1,
+            query_display = VALUES(query_display),
+            last_searched_at = CURRENT_TIMESTAMP,
+            updated_at = CURRENT_TIMESTAMP
+    ''', (
+        user_id,
+        query_norm,
+        query_display
+    ))
 
     conn.commit()
     conn.close()
@@ -209,7 +186,7 @@ def get_global_top_queries(limit=5):
 
     cursor.execute('''
         SELECT
-            query_raw,
+            MIN(query_raw) AS query_raw,
             query_norm,
             COUNT(*) AS query_count,
             MAX(created_at) AS last_searched_at
@@ -244,7 +221,7 @@ def get_video_top_queries(video_id, limit=5):
     if video_id:
         cursor.execute('''
             SELECT
-                query_raw,
+                MIN(query_raw) AS query_raw,
                 query_norm,
                 COUNT(*) AS query_count,
                 MAX(created_at) AS last_searched_at
@@ -258,7 +235,7 @@ def get_video_top_queries(video_id, limit=5):
     else:
         cursor.execute('''
             SELECT
-                query_raw,
+                MIN(query_raw) AS query_raw,
                 query_norm,
                 COUNT(*) AS query_count,
                 MAX(created_at) AS last_searched_at

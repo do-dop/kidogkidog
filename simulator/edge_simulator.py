@@ -10,7 +10,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from simulator.chunk_splitter import split_video_into_chunks
-from pipeline.s3_uploader import upload_video
+from pipeline.gcs_uploader import upload_video
 
 VIDEO_EXTENSIONS = {".mp4", ".mov", ".avi", ".mkv", ".m4v"}
 
@@ -32,7 +32,7 @@ def run_edge_simulator(video_path, server_url="http://localhost:8000", interval=
     펫캠 역할 시뮬레이터
     - 영상을 5분 청크로 분할
     - 주기적으로 FastAPI 서버에 전송
-    - S3에 업로드
+    - GCS에 업로드
 
     Args:
         video_path: 원본 영상 경로
@@ -55,7 +55,7 @@ def run_edge_simulator(video_path, server_url="http://localhost:8000", interval=
     for i, chunk_path in enumerate(chunks):
         print(f"\n[{i + 1}/{len(chunks)}] {chunk_path} 전송 중...")
 
-        # S3 업로드
+        # GCS 업로드
         s3_key = f"chunks/{video_id}/{os.path.basename(chunk_path)}"
         upload_video(chunk_path, s3_key)
 
