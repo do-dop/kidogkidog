@@ -28,10 +28,44 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  changes:
     if: >-
       github.event_name == 'workflow_dispatch' ||
       github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    outputs:
+      api: ${{ steps.paths.outputs.api }}
+      web: ${{ steps.paths.outputs.web }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          fetch-depth: 2
+      - id: paths
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]] || ! git rev-parse HEAD^ >/dev/null 2>&1; then
+            echo "api=true" >> "$GITHUB_OUTPUT"
+            echo "web=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          changed_files="$(git diff --name-only HEAD^ HEAD)"
+          if grep -Eq '^(api/|db/|pipeline/|requirements\.txt$|api/Dockerfile$)' <<< "$changed_files"; then
+            echo "api=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "api=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          if grep -Eq '^ui-react/' <<< "$changed_files"; then
+            echo "web=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "web=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  deploy-api:
+    needs: changes
+    if: needs.changes.outputs.api == 'true'
     runs-on: ubuntu-latest
     environment: staging
     steps:
@@ -46,10 +80,16 @@ jobs:
       - uses: google-github-actions/setup-gcloud@v2
       - name: Authenticate Docker to Artifact Registry
         run: gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
+      - uses: docker/setup-buildx-action@v3
       - name: Build and push API image
-        run: |
-          docker build --file api/Dockerfile --tag "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/kidog-api:${IMAGE_TAG}" .
-          docker push "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/kidog-api:${IMAGE_TAG}"
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: api/Dockerfile
+          push: true
+          tags: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/kidog-api:${{ env.IMAGE_TAG }}
+          cache-from: type=gha,scope=kidog-api
+          cache-to: type=gha,mode=max,scope=kidog-api
       - name: Deploy API to Cloud Run
         run: |
           gcloud run deploy "${API_SERVICE}" \
@@ -68,16 +108,42 @@ jobs:
             --subnet "${{ vars.VPC_SUBNET }}" \
             --network-tags "cloud-run-api" \
             --vpc-egress private-ranges-only \
-            --set-env-vars "KIDOGKIDOG_DB_BACKEND=mysql,MYSQL_UNIX_SOCKET=/cloudsql/${{ vars.CLOUD_SQL_INSTANCE }},MYSQL_USER=${{ vars.MYSQL_USER }},MYSQL_DATABASE=${{ vars.MYSQL_DATABASE }},CHROMA_HOST=${{ vars.CHROMA_INTERNAL_IP }},CHROMA_PORT=8000" \
-            --set-secrets "MYSQL_PASSWORD=${{ vars.MYSQL_PASSWORD_SECRET }}:latest"
+            --set-env-vars "MYSQL_UNIX_SOCKET=/cloudsql/${{ vars.CLOUD_SQL_INSTANCE }},MYSQL_USER=${{ vars.MYSQL_USER }},MYSQL_DATABASE=${{ vars.MYSQL_DATABASE }},CHROMA_HOST=${{ vars.CHROMA_INTERNAL_IP }},CHROMA_PORT=8000,GCS_BUCKET_NAME=${{ vars.GCS_BUCKET_NAME }}" \
+            --set-secrets "MYSQL_PASSWORD=${{ vars.MYSQL_PASSWORD_SECRET }}:latest,OPENAI_API_KEY=${{ vars.OPENAI_API_KEY_SECRET }}:latest"
+
+  deploy-web:
+    needs: changes
+    if: needs.changes.outputs.web == 'true'
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v2
+      - name: Authenticate Docker to Artifact Registry
+        run: gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
       - name: Resolve API URL
         id: api
-        run: echo "url=$(gcloud run services describe \"${API_SERVICE}\" --region \"${REGION}\" --format='value(status.url)')" >> "$GITHUB_OUTPUT"
-      - name: Build and push web image
-        working-directory: ui-react
         run: |
-          docker build --build-arg "API_ORIGIN=${{ steps.api.outputs.url }}" --tag "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/kidog-web:${IMAGE_TAG}" .
-          docker push "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/kidog-web:${IMAGE_TAG}"
+          url="$(gcloud run services describe "${API_SERVICE}" --region "${REGION}" --format='value(status.url)')"
+          test -n "${url}"
+          echo "url=${url}" >> "$GITHUB_OUTPUT"
+      - uses: docker/setup-buildx-action@v3
+      - name: Build and push web image
+        uses: docker/build-push-action@v6
+        with:
+          context: ui-react
+          push: true
+          build-args: API_ORIGIN=${{ steps.api.outputs.url }}
+          tags: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/kidog-web:${{ env.IMAGE_TAG }}
+          cache-from: type=gha,scope=kidog-web
+          cache-to: type=gha,mode=max,scope=kidog-web
       - name: Deploy web to Cloud Run
         run: |
           gcloud run deploy "${WEB_SERVICE}" \

@@ -26,9 +26,11 @@ Create the `staging` GitHub Environment, then set the following repository varia
 | `VPC_NETWORK` | `default` |
 | `VPC_SUBNET` | `default` |
 | `CHROMA_INTERNAL_IP` | `10.178.0.2` |
+| `GCS_BUCKET_NAME` | `kidogkidog-media-700543886823` |
 | `MYSQL_USER` | application DB user |
 | `MYSQL_DATABASE` | application database name |
 | `MYSQL_PASSWORD_SECRET` | Secret Manager secret name |
+| `OPENAI_API_KEY_SECRET` | Secret Manager secret name for the OpenAI API key |
 
 Set these GitHub Environment secrets:
 
@@ -36,7 +38,7 @@ Set these GitHub Environment secrets:
 | --- | --- |
 | `GCP_WIF_PROVIDER` | Workload Identity Provider resource name |
 | `GCP_DEPLOY_SERVICE_ACCOUNT` | deploy service-account email |
-`MYSQL_UNIX_SOCKET` is injected by the workflow, so the API reaches Cloud SQL through Cloud Run's Cloud SQL connector rather than a public IP allowlist.
+`MYSQL_UNIX_SOCKET` is injected by the workflow, so the API reaches Cloud SQL through Cloud Run's Cloud SQL connector rather than a public IP allowlist. The Cloud Run runtime service account needs Storage Object Viewer on `GCS_BUCKET_NAME`; no media-storage access key is used.
 
 ## Initial search-quality testing scope
 
