@@ -1,5 +1,4 @@
 import json
-import sqlite3
 from collections import Counter
 
 from db.connection import connect
@@ -23,8 +22,7 @@ def get_scene_records(video_id=None):
     """
     scenes 테이블을 dict 형태로 조회한다.
     """
-    conn = connect()
-    conn.row_factory = sqlite3.Row
+    conn = connect(dict_rows=True)
     cursor = conn.cursor()
 
     if video_id:

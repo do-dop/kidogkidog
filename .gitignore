@@ -6,6 +6,9 @@ ui-react/.env*
 !ui-react/.env.sample
 !ui-react/.env.example
 
+*.pem
+ui-react/.vite/
+
 # 파이썬
 __pycache__/
 *.pyc
@@ -21,6 +24,7 @@ venv/
 *.m4v
 *.webm
 *.jpg
+!ui-react/public/*.jpg
 
 
 # 추출프레임
@@ -43,3 +47,6 @@ docs/source_code.md
 node_modules/
 dist/
 *.tsbuildinfo
+
+# Cloud SQL Auth Proxy 바이너리
+cloud-sql-proxy

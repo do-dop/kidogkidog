@@ -7,20 +7,20 @@ from pipeline.behavior_event_extractor import format_behavior_events_for_prompt
 
 
 DEFAULT_GENERATED_QUESTIONS = [
-    "특정 위치 근처에 머무른 장면이 있나요?",
+    "반려동물이 특정 위치 근처에 머무른 장면이 있나요?",
     "영상 중간에 새롭게 등장한 객체나 사람이 있나요?",
-    "움직이거나 위치를 바꾼 장면이 있나요?",
-    "주변 물체 근처에 머무른 장면이 있나요?",
+    "반려동물이 움직이거나 위치를 바꾼 장면이 있나요?",
+    "반려동물이 주변 물체에 관심을 보인 장면이 있나요?",
     "처음과 달라진 장면이 있었나요?",
 ]
 
 
 DEFAULT_BEHAVIOR_QUESTIONS = [
-    "가장 오래 이어진 행동은 무엇인가요?",
-    "같은 행동이 반복된 구간이 있나요?",
-    "특정 물체 근처에 오래 머문 장면이 있나요?",
+    "반려동물이 가장 오래 집중한 행동은 무엇인가요?",
+    "반려동물이 같은 행동을 반복한 구간이 있나요?",
+    "반려동물이 특정 물체에 관심을 보인 장면이 있나요?",
     "움직임이 많았던 장면은 언제였나요?",
-    "확인해볼 만한 행동이 있었나요?",
+    "보호자가 확인해볼 만한 장면이 있나요?",
 ]
 
 def generate_questions_from_behavior_events(
@@ -126,15 +126,16 @@ def _build_behavior_question_generation_prompt(events: list[dict], limit: int) -
 
 핵심 원칙:
 - 영상에서 눈으로 직접 확인 가능한 장면만 질문으로 만들어라.
-- 감정, 의도, 이유, 상태를 추측하는 질문은 만들지 마라.
-- "왜", "이유", "목적", "불안", "안정", "편안", "관심", "호기심", "반응", "스트레스", "평소와 달라" 같은 표현은 쓰지 마라.
+- 감정 진단, 원인 추정, 건강 상태 단정 질문은 만들지 마라.
+- "왜", "이유", "목적", "불안", "안정", "편안", "호기심", "스트레스" 같은 표현은 쓰지 마라.
+- 다만 영상으로 확인 가능한 범위의 "관심을 보인 장면", "반응을 확인할 수 있는 장면", "확인해볼 만한 장면" 표현은 사용할 수 있다.
 - 질문은 짧고 명확하게 작성한다.
 - 질문은 예/아니오로 답할 수 있거나, 특정 시점을 찾을 수 있는 형태로 만든다.
 - 행동 이벤트에 나온 행동, 장소, 대상만 사용한다.
 - 행동 이벤트에 없는 상황을 상상해서 질문하지 마라.
 - 한 질문에는 하나의 행동만 담는다.
 - 객체 이름만 묻는 질문은 만들지 마라.
-- 동물 종류를 말하지 말고, '반려동물'같은 주어를 붙이지도 말아라.
+- 동물 종류가 명확하지 않으면 "반려동물"이라고 표현한다.
 - "탐색"이라는 단어를 사용한 질문은 최대 1개만 만들어라.
 - 모든 행동 이벤트가 탐색처럼 보이더라도 질문을 전부 탐색 중심으로 만들지 마라.
 - 서로 비슷한 질문을 반복하지 마라.
@@ -144,6 +145,9 @@ def _build_behavior_question_generation_prompt(events: list[dict], limit: int) -
 
 좋은 질문의 형태:
 - "~한 장면이 있어?"
+- "~에 관심을 보인 장면이 있어?"
+- "~의 반응을 확인할 수 있어?"
+- "~에 오래 머문 구간은 언제야?"
 - "~에 들어간 장면이 있어?"
 - "~에서 나온 장면이 있어?"
 - "~을 먹은 장면이 있어?"
@@ -158,12 +162,12 @@ def _build_behavior_question_generation_prompt(events: list[dict], limit: int) -
 
 좋은 출력 예시:
 [
-  "물을 마신 장면이 있어?",
-  "밥을 먹은 장면이 있어?",
+  "물병에 관심을 보인 장면이 있어?",
+  "밥그릇 근처에 오래 머문 구간은 언제야?",
   "차 안에 들어간 장면이 있어?",
   "소파 아래에 들어간 장면이 있어?",
-  "침대 위에 올라간 장면이 있어?",
-  "사람이 화면에 등장한 장면이 있어?"
+  "침대 위에서 움직인 장면이 있어?",
+  "사람이 등장한 뒤 반려동물의 반응을 확인할 수 있어?"
 ]
 
 나쁜 출력 예시:
@@ -171,9 +175,8 @@ def _build_behavior_question_generation_prompt(events: list[dict], limit: int) -
   "불안해 보이는 장면이 있어?",
   "안정된 모습이었어?",
   "왜 그곳에 들어갔어?",
-  "무엇에 관심을 보였어?",
-  "사람에게 어떻게 반응했어?",
-  "평소와 달라 보이는 행동이 있었어?",
+  "무엇 때문에 관심을 보였어?",
+  "사람에게 왜 반응했어?",
   "탐색하는 동안 편안해 보였어?",
   "반려동물이 보이나요?",
   "그릇이 있나요?"
@@ -242,12 +245,14 @@ def _fallback_questions_from_behavior_events(events: list[dict], limit: int = 5)
     """
     LLM 호출이 불가능할 때 사용하는 행동 이벤트 기반 fallback 질문 생성.
 
-    question generation prompt와 같은 방향으로 주어를 붙이지 않고,
-    behavior_event의 action/target/duration/repeat_count만 질문으로 바꾼다.
+    모델 없이도 예전 추천질문처럼 사용자가 눌러보고 싶은 문장으로 만든다.
+    단, 감정/원인을 단정하지 않고 영상에서 확인 가능한 관심, 반응, 반복, 체류 구간만 묻는다.
     """
     questions = []
 
     for event in events:
+        subject = _subject_text_for_fallback(event.get("subject"))
+        subject_with_particle = _subject_with_particle(subject)
         action = event.get("action") or ""
         target = event.get("target_object") or event.get("target")
         summary = event.get("summary") or ""
@@ -258,25 +263,26 @@ def _fallback_questions_from_behavior_events(events: list[dict], limit: int = 5)
         action_text = _action_to_question_text(action)
 
         if target_text:
-            questions.append(f"{target_text} 근처에 머문 장면이 있나요?")
+            questions.append(f"{subject_with_particle} {target_text}에 관심을 보인 장면이 있나요?")
+            questions.append(f"{target_text} 근처에 오래 머문 구간은 언제인가요?")
 
         if repeat_count >= 3:
             if target_text:
-                questions.append(f"{target_text} 주변에서 비슷한 행동이 반복된 장면이 있나요?")
+                questions.append(f"{subject_with_particle} {target_text} 주변에서 비슷한 행동을 반복한 장면이 있나요?")
             else:
-                questions.append("같은 행동이 반복된 구간이 있나요?")
+                questions.append(f"{subject_with_particle} 같은 행동을 반복한 구간이 있나요?")
 
         if duration >= 10:
             if target_text:
-                questions.append(f"{target_text} 근처에 오래 머문 구간은 언제인가요?")
+                questions.append(f"{subject_with_particle} {target_text} 주변에 오래 머문 장면이 있나요?")
             else:
-                questions.append("오래 이어진 행동이 있는 구간은 언제인가요?")
+                questions.append(f"{subject_with_particle} 한 행동을 오래 지속한 구간이 있나요?")
 
         if "사람" in action or "person" in str(target).lower() or "사람" in summary:
-            questions.append("사람이 화면에 등장한 장면이 있나요?")
+            questions.append(f"사람이 등장한 뒤 {subject}의 반응을 확인할 수 있나요?")
 
         if action_text:
-            questions.append(f"{action_text} 장면이 있나요?")
+            questions.append(f"{subject_with_particle} {action_text} 장면을 확인할 수 있나요?")
 
     questions.extend(DEFAULT_BEHAVIOR_QUESTIONS)
 
@@ -301,20 +307,20 @@ def _fallback_questions_from_events(events: list[dict], limit: int = 5) -> list[
             questions.append(f"영상 중간에 새롭게 등장한 객체({label_text})가 있나요?")
 
         elif event_type in {"person_detected", "person_repeatedly_detected"}:
-            questions.append("사람이 화면에 등장한 장면이 있나요?")
+            questions.append("사람이 등장한 뒤 반려동물의 반응을 확인할 수 있나요?")
 
         elif event_type in {
             "pet_object_co_occurrence",
             "pet_object_pair_repeated",
             "repeated_pet_object_pair",
         }:
-            questions.append(f"주변 객체({label_text}) 근처에 머무른 장면이 있나요?")
+            questions.append(f"반려동물이 주변 객체({label_text})에 관심을 보인 장면이 있나요?")
 
         elif event_type == "person_pet_pair_repeated":
-            questions.append("사람과 함께 보이는 구간이 있나요?")
+            questions.append("사람과 반려동물이 함께 보이는 구간에서 반려동물의 반응을 확인할 수 있나요?")
 
         elif event_type == "pet_repeatedly_detected":
-            questions.append("반복적으로 움직임이 감지된 구간이 있나요?")
+            questions.append("반려동물이 반복적으로 감지된 구간에서 어떤 움직임이 있었나요?")
 
         elif event_type == "scene_label_changed":
             if timestamp is not None:
@@ -350,6 +356,18 @@ def _subject_text_for_fallback(subject: str | None) -> str:
         return "반려동물"
 
     return subject_text
+
+
+def _subject_with_particle(subject: str) -> str:
+    if not subject:
+        return "반려동물이"
+
+    last_char = subject[-1]
+    if not ("가" <= last_char <= "힣"):
+        return f"{subject}이"
+
+    has_final_consonant = (ord(last_char) - ord("가")) % 28 != 0
+    return f"{subject}{'이' if has_final_consonant else '가'}"
 
 
 def _action_to_question_text(action: str | None) -> str | None:

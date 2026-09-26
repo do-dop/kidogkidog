@@ -1,12 +1,13 @@
 import hashlib
 import mimetypes
 from pathlib import Path
+import subprocess
 import tempfile
 from urllib.parse import quote
 
 from fastapi import HTTPException, Request, Response
 
-from pipeline.s3_uploader import (
+from pipeline.gcs_uploader import (
     download_bytes,
     download_range,
     download_video,
@@ -66,7 +67,7 @@ def build_s3_media_response(key: str, request: Request):
     except Exception as exc:
         raise HTTPException(
             status_code=404,
-            detail=f"S3 객체를 불러오지 못했습니다: {exc}",
+            detail=f"GCS 객체를 불러오지 못했습니다: {exc}",
         ) from exc
 
     return Response(
@@ -96,16 +97,27 @@ def build_s3_thumbnail_response(key: str):
         try:
             download_video(key, str(video_path))
 
-            import cv2
+            subprocess.run(
+                [
+                    "ffmpeg",
+                    "-y",
+                    "-ss",
+                    "0",
+                    "-i",
+                    str(video_path),
+                    "-frames:v",
+                    "1",
+                    "-q:v",
+                    "2",
+                    str(thumbnail_path),
+                ],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
 
-            cap = cv2.VideoCapture(str(video_path))
-            ok, frame = cap.read()
-            cap.release()
-
-            if not ok:
-                raise ValueError("영상 첫 프레임을 읽을 수 없습니다.")
-
-            cv2.imwrite(str(thumbnail_path), frame)
+            if not thumbnail_path.exists():
+                raise ValueError("영상 첫 프레임을 생성하지 못했습니다.")
         except Exception as exc:
             raise HTTPException(
                 status_code=404,

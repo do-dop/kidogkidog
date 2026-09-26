@@ -40,12 +40,20 @@ def suggest_query_items(
     )
 
     if behavior_events:
+        video_specific_questions = _generate_video_specific_questions(
+            events=behavior_events,
+            video_id=video_id,
+            limit=limit,
+        )
         generated_questions = generate_questions_from_behavior_events(
             events=behavior_events,
             limit=limit,
         )
 
-        generated_questions = _deduplicate_keep_order(generated_questions)[:limit]
+        generated_questions = _deduplicate_keep_order([
+            *video_specific_questions,
+            *generated_questions,
+        ])[:limit]
 
         if generated_questions:
             return [
@@ -110,6 +118,99 @@ def get_suggestion_behavior_events(
             break
 
     return filtered_events[:limit]
+
+
+def _generate_video_specific_questions(
+    events: list[dict],
+    video_id: str | None,
+    limit: int = 3,
+) -> list[str]:
+    labels = _labels_from_behavior_events(events)
+
+    if len(labels) < 2:
+        labels.extend(_labels_from_indexed_frames(video_id=video_id))
+
+    questions = []
+
+    for label in labels:
+        label_text = _label_to_question_text(label)
+        if not label_text:
+            continue
+
+        if label in {"cat", "dog"}:
+            questions.append(f"{label_text}가 보이는 장면 보여줘")
+            questions.append(f"{label_text}가 움직인 장면 찾아줘")
+        elif label == "person":
+            questions.append("사람이 함께 보이는 장면 있어?")
+        else:
+            questions.append(f"{label_text} 근처에서 움직인 장면 찾아줘")
+            questions.append(f"{label_text}을 살펴보는 장면 있어?")
+
+        if len(questions) >= limit:
+            break
+
+    return _deduplicate_keep_order(questions)[:limit]
+
+
+def _labels_from_behavior_events(events: list[dict]) -> list[str]:
+    label_counts: dict[str, int] = {}
+
+    for event in events:
+        target = str(event.get("target_object") or event.get("target") or "").strip().lower()
+        if target:
+            label_counts[target] = label_counts.get(target, 0) + 2
+
+        for frame in event.get("source_frames") or []:
+            if not isinstance(frame, dict):
+                continue
+
+            for label in _parse_object_labels(frame.get("object_labels")):
+                label_counts[label] = label_counts.get(label, 0) + 1
+
+    return _sort_labels(label_counts)
+
+
+def _labels_from_indexed_frames(video_id: str | None) -> list[str]:
+    try:
+        frames = get_indexed_frames(video_id=video_id)
+    except Exception as exc:
+        print(f"영상별 추천 질문용 프레임 라벨 조회 실패: {exc}", flush=True)
+        return []
+
+    label_counts: dict[str, int] = {}
+
+    for frame in frames:
+        for label in _parse_object_labels(frame.get("object_labels")):
+            label_counts[label] = label_counts.get(label, 0) + 1
+
+    return _sort_labels(label_counts)
+
+
+def _sort_labels(label_counts: dict[str, int]) -> list[str]:
+    priority = {
+        "cat": 0,
+        "dog": 1,
+        "person": 2,
+        "bowl": 3,
+        "cup": 4,
+        "bottle": 5,
+        "sports ball": 6,
+        "ball": 7,
+        "couch": 8,
+        "bed": 9,
+    }
+
+    return [
+        label
+        for label, _count in sorted(
+            label_counts.items(),
+            key=lambda item: (
+                priority.get(item[0], 50),
+                -item[1],
+                item[0],
+            ),
+        )
+    ]
 
 
 def _behavior_event_signature(event: dict) -> str:
