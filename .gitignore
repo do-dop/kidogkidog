@@ -6,6 +6,9 @@ ui-react/.env*
 !ui-react/.env.sample
 !ui-react/.env.example
 
+*.pem
+ui-react/.vite/
+
 # 파이썬
 __pycache__/
 *.pyc
