@@ -26,7 +26,7 @@ def upload_frame_to_object_storage(local_frame_path, video_id):
     return upload_frame(local_frame_path, video_id)
 
 
-def index_frame_to_chromadb(local_frame_path, video_id, s3_key=None, object_labels=None, recorded_at=None):
+def index_frame_to_chromadb(local_frame_path, video_id, s3_key=None, object_labels=None, recorded_at=None, timestamp=None):
     """프레임을 CLIP 임베딩 후 ChromaDB에 저장"""
     return index_frame(
         local_frame_path,
@@ -35,6 +35,7 @@ def index_frame_to_chromadb(local_frame_path, video_id, s3_key=None, object_labe
         s3_key=s3_key,
         object_labels=object_labels,
         recorded_at=recorded_at,
+        timestamp=timestamp,
     )
 
 
@@ -170,6 +171,7 @@ def process_chunk(chunk_path):
                 video_id=video_id,
                 s3_key=frame["s3_key"],
                 object_labels=object_labels,
+                timestamp=frame["timestamp"],
                 recorded_at=(
                     chunk_recorded_at + timedelta(seconds=float(frame["timestamp"]))
                     if chunk_recorded_at else None

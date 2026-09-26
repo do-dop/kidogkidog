@@ -1,0 +1,8 @@
+# Do not upload local credentials, developer settings, or generated media to Cloud Build.
+#!include:.gitignore
+
+.git
+.github
+.claude
+gcp-cloudsql-ca.pem
+ui-react/.vite
