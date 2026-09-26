@@ -24,6 +24,7 @@ venv/
 *.m4v
 *.webm
 *.jpg
+!ui-react/public/*.jpg
 
 
 # 추출프레임
