@@ -1,0 +1,87 @@
+name: Deploy staging
+
+on:
+  workflow_run:
+    workflows:
+      - CI
+    branches:
+      - main
+    types:
+      - completed
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+  REGION: ${{ vars.GCP_REGION }}
+  REPOSITORY: ${{ vars.GAR_REPOSITORY }}
+  API_SERVICE: ${{ vars.CLOUD_RUN_API_SERVICE }}
+  WEB_SERVICE: ${{ vars.CLOUD_RUN_WEB_SERVICE }}
+  RUNTIME_SERVICE_ACCOUNT: ${{ vars.CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT }}
+  IMAGE_TAG: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+concurrency:
+  group: staging-deployment
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v2
+      - name: Authenticate Docker to Artifact Registry
+        run: gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
+      - name: Build and push API image
+        run: |
+          docker build --file api/Dockerfile --tag "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/kidog-api:${IMAGE_TAG}" .
+          docker push "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/kidog-api:${IMAGE_TAG}"
+      - name: Deploy API to Cloud Run
+        run: |
+          gcloud run deploy "${API_SERVICE}" \
+            --image "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/kidog-api:${IMAGE_TAG}" \
+            --region "${REGION}" \
+            --allow-unauthenticated \
+            --port 8000 \
+            --memory 8Gi \
+            --cpu 2 \
+            --min-instances 0 \
+            --max-instances 1 \
+            --timeout 300 \
+            --service-account "${RUNTIME_SERVICE_ACCOUNT}" \
+            --add-cloudsql-instances "${{ vars.CLOUD_SQL_INSTANCE }}" \
+            --network "${{ vars.VPC_NETWORK }}" \
+            --subnet "${{ vars.VPC_SUBNET }}" \
+            --network-tags "cloud-run-api" \
+            --vpc-egress private-ranges-only \
+            --set-env-vars "KIDOGKIDOG_DB_BACKEND=mysql,MYSQL_UNIX_SOCKET=/cloudsql/${{ vars.CLOUD_SQL_INSTANCE }},MYSQL_USER=${{ vars.MYSQL_USER }},MYSQL_DATABASE=${{ vars.MYSQL_DATABASE }},CHROMA_HOST=${{ vars.CHROMA_INTERNAL_IP }},CHROMA_PORT=8000" \
+            --set-secrets "MYSQL_PASSWORD=${{ vars.MYSQL_PASSWORD_SECRET }}:latest"
+      - name: Resolve API URL
+        id: api
+        run: echo "url=$(gcloud run services describe \"${API_SERVICE}\" --region \"${REGION}\" --format='value(status.url)')" >> "$GITHUB_OUTPUT"
+      - name: Build and push web image
+        working-directory: ui-react
+        run: |
+          docker build --build-arg "API_ORIGIN=${{ steps.api.outputs.url }}" --tag "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/kidog-web:${IMAGE_TAG}" .
+          docker push "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/kidog-web:${IMAGE_TAG}"
+      - name: Deploy web to Cloud Run
+        run: |
+          gcloud run deploy "${WEB_SERVICE}" \
+            --image "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/kidog-web:${IMAGE_TAG}" \
+            --region "${REGION}" \
+            --allow-unauthenticated \
+            --port 8080
