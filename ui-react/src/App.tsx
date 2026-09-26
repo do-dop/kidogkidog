@@ -1416,6 +1416,37 @@ export default function App() {
                       ))}
                     </div>
                   )}
+                  <div className="feature-matrix-grid">
+                    <div className="feature-matrix-card">
+                      <div className="feature-matrix-icon">🤖</div>
+                      <div>
+                        <strong>AI 3D Vision</strong>
+                        <p>12가지 행동 패턴 자동 감지</p>
+                      </div>
+                    </div>
+                    <div className="feature-matrix-card">
+                      <div className="feature-matrix-icon">⚡</div>
+                      <div>
+                        <strong>Smart Pipeline</strong>
+                        <p>S3 5분 단편 클립 분할 인덱싱</p>
+                      </div>
+                    </div>
+                    <div className="feature-matrix-card">
+                      <div className="feature-matrix-icon">🔍</div>
+                      <div>
+                        <strong>Natural LLM Query</strong>
+                        <p>자연어로 3초 만에 장면 탐색</p>
+                      </div>
+                    </div>
+                    <div className="feature-matrix-card">
+                      <div className="feature-matrix-icon">🔔</div>
+                      <div>
+                        <strong>Realtime Care</strong>
+                        <p>이상 행동 감지 및 맞춤 알림</p>
+                      </div>
+                    </div>
+                  </div>
+
                   <button
                     type="button"
                     className="search-hero-scroll-cue"
@@ -1429,102 +1460,133 @@ export default function App() {
               </div>
 
               <div className="search-page-inner">
-              <div className="search-toolbar">
-                <div className="toolbar-field">
-                  <span><Icon>calendar_today</Icon>날짜</span>
-                  <DateFilter selectedYear={selectedYear} setSelectedYear={setSelectedYear} selectedMonth={selectedMonth} setSelectedMonth={setSelectedMonth} selectedDay={selectedDay} setSelectedDay={setSelectedDay} compact />
+                <div className="section-title-block">
+                  <div className="section-kicker-pill">
+                    <Icon filled>auto_awesome</Icon>
+                    <span>SMART FILTER & CONTROLS</span>
+                  </div>
+                  <h2>어떤 날짜와 시간의 영상을 찾으시나요?</h2>
+                  <p>필터를 선택하고 위 검색창에서 {petName}의 순간을 검색해보세요.</p>
                 </div>
-                <div className="toolbar-field">
-                  <span><Icon>videocam</Icon>검색할 영상</span>
-                  <select className="video-select" value={selectedSearchVideoId} onChange={(event) => setSelectedSearchVideoId(event.target.value)}>
-                    <option value="">전체 영상</option>
-                    {searchVideoOptions.map((videoId) => (
-                      <option value={videoId} key={videoId}>{videoId}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="toolbar-field wide">
-                  <span><Icon>schedule</Icon>시간대</span>
-                  <TimeRangeBar
-                    startHour={searchStartHour}
-                    endHour={searchEndHour}
-                    onChange={(start, end) => {
-                      setSearchStartHour(start);
-                      setSearchEndHour(end);
-                    }}
-                  />
-                </div>
-              </div>
-              <p className="toolbar-summary">
-                <Icon>tune</Icon>
-                선택 범위 · {selectedSearchVideoId || "전체 영상"} · {selectedYear}년 {selectedMonth}월 {selectedDay}일 · {formatHourRange(searchStartHour, searchEndHour)}
-              </p>
 
-              {loading ? (
-                <div className="search-loading-card">
-                  <span className="search-spinner" />
-                  <strong>AI가 영상을 검색하고 있어요</strong>
-                  <p>선택한 영상과 시간대에서 비슷한 장면을 찾는 중입니다.</p>
+                <div className="search-toolbar">
+                  <div className="toolbar-field">
+                    <span><Icon>calendar_today</Icon>날짜</span>
+                    <DateFilter selectedYear={selectedYear} setSelectedYear={setSelectedYear} selectedMonth={selectedMonth} setSelectedMonth={setSelectedMonth} selectedDay={selectedDay} setSelectedDay={setSelectedDay} compact />
+                  </div>
+                  <div className="toolbar-field">
+                    <span><Icon>videocam</Icon>검색할 영상</span>
+                    <select className="video-select" value={selectedSearchVideoId} onChange={(event) => setSelectedSearchVideoId(event.target.value)}>
+                      <option value="">전체 영상</option>
+                      {searchVideoOptions.map((videoId) => (
+                        <option value={videoId} key={videoId}>{videoId}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="toolbar-field wide">
+                    <span><Icon>schedule</Icon>시간대</span>
+                    <TimeRangeBar
+                      startHour={searchStartHour}
+                      endHour={searchEndHour}
+                      onChange={(start, end) => {
+                        setSearchStartHour(start);
+                        setSearchEndHour(end);
+                      }}
+                    />
+                  </div>
                 </div>
-              ) : submitted ? (
-                <div className="search-results stack">
-                  {apiNotice && <p className="notice">{apiNotice}</p>}
-                  <div className="answer-card">
-                    <div className="brand-mark answer-mark"><PawMark /></div>
-                    <div>
-                      <span>AI 답변</span>
-                      {loading ? (
-                        <p className="answer-loading">
-                          <span className="loading-mark"><Icon filled>auto_awesome</Icon></span>
-                          답변 생성중입니다
-                        </p>
-                      ) : (
-                        <p>{answer}</p>
-                      )}
+                <p className="toolbar-summary">
+                  <Icon>tune</Icon>
+                  선택 범위 · {selectedSearchVideoId || "전체 영상"} · {selectedYear}년 {selectedMonth}월 {selectedDay}일 · {formatHourRange(searchStartHour, searchEndHour)}
+                </p>
+
+                {loading ? (
+                  <div className="search-loading-card">
+                    <span className="search-spinner" />
+                    <strong>AI가 영상을 검색하고 있어요</strong>
+                    <p>선택한 영상과 시간대에서 비슷한 장면을 찾는 중입니다.</p>
+                  </div>
+                ) : submitted ? (
+                  <div className="search-results stack">
+                    {apiNotice && <p className="notice">{apiNotice}</p>}
+                    <div className="answer-card">
+                      <div className="brand-mark answer-mark"><PawMark /></div>
+                      <div>
+                        <span>AI 답변</span>
+                        {loading ? (
+                          <p className="answer-loading">
+                            <span className="loading-mark"><Icon filled>auto_awesome</Icon></span>
+                            답변 생성중입니다
+                          </p>
+                        ) : (
+                          <p>{answer}</p>
+                        )}
+                      </div>
                     </div>
+                    {!loading && (
+                      <>
+                        <div className="result-header">
+                          <strong>관련 장면 {visibleResults.length}개</strong>
+                          <span>유사도 순</span>
+                        </div>
+                        <div className="result-grid">
+                          {visibleResults.map((result) => (
+                            <ResultCard key={result.id} result={result} onOpen={() => openResult(result)} />
+                          ))}
+                        </div>
+                      </>
+                    )}
                   </div>
-                  {!loading && (
-                    <>
-                      <div className="result-header">
-                        <strong>관련 장면 {visibleResults.length}개</strong>
-                        <span>유사도 순</span>
-                      </div>
-                      <div className="result-grid">
-                        {visibleResults.map((result) => (
-                          <ResultCard key={result.id} result={result} onOpen={() => openResult(result)} />
-                        ))}
-                      </div>
-                    </>
-                  )}
-                </div>
-              ) : (
-                <div className="empty-state">
-                  <Icon filled>auto_awesome</Icon>
-                  <strong>무엇이든 자연어로 물어보세요</strong>
-                  <p>"{petName}가 밥 먹는 장면"처럼 입력하면 AI가 하루 영상에서 관련 구간을 찾아드려요.</p>
-                </div>
-              )}
+                ) : (
+                  <div className="empty-state">
+                    <Icon filled>auto_awesome</Icon>
+                    <strong>무엇이든 자연어로 물어보세요</strong>
+                    <p>"{petName}가 밥 먹는 장면"처럼 입력하면 AI가 하루 영상에서 관련 구간을 찾아드려요.</p>
+                  </div>
+                )}
 
-              <div className="home-recordings" ref={recordingsRef}>
-                <div className="home-recordings-head">
-                  <div>
-                    <span>녹화 영상</span>
-                    <strong>{selectedYear}년 {selectedMonth}월 {selectedDay}일 · {filteredRecordings.length}개</strong>
+                <div className="home-recordings" ref={recordingsRef}>
+                  <div className="section-title-block left">
+                    <div className="section-kicker-pill">
+                      <Icon filled>smart_display</Icon>
+                      <span>SMART CLIPS & BEHAVIORS</span>
+                    </div>
+                    <h2>오늘 포착된 녹화 청크 & 주요 행동</h2>
+                    <p>{selectedYear}년 {selectedMonth}월 {selectedDay}일 · 총 {filteredRecordings.length}개 5분 클립 기록</p>
                   </div>
-                  <TimeChips value={timeFilter} onChange={setTimeFilter} compact />
+
+                  <div className="home-recordings-head">
+                    <div>
+                      <span>시간대 필터</span>
+                      <strong>{timeFilter === "all" ? "전체 시간대" : `${timeFilter} 영상`}</strong>
+                    </div>
+                    <TimeChips value={timeFilter} onChange={setTimeFilter} compact />
+                  </div>
+                  <BehaviorHighlights
+                    items={highlightedBehaviors}
+                    notice={behaviorNotice}
+                    petName={petName}
+                    onOpen={(recording) => openRecording(recording)}
+                  />
+                  <div className="clip-grid">
+                    {filteredRecordings.map((clip) => (
+                      <ClipCard key={clip.id} clip={clip} eventCount={eventsForRecording(clip, behaviorEvents).length} onOpen={() => openRecording(clip)} />
+                    ))}
+                  </div>
                 </div>
-                <BehaviorHighlights
-                  items={highlightedBehaviors}
-                  notice={behaviorNotice}
-                  petName={petName}
-                  onOpen={(recording) => openRecording(recording)}
-                />
-                <div className="clip-grid">
-                  {filteredRecordings.map((clip) => (
-                    <ClipCard key={clip.id} clip={clip} eventCount={eventsForRecording(clip, behaviorEvents).length} onOpen={() => openRecording(clip)} />
-                  ))}
+
+                <div className="brand-callout-banner">
+                  <div className="brand-callout-content">
+                    <span className="brand-callout-kicker">KIDOGKIDOG PET AI PLATFORM</span>
+                    <h2>A Small Moment Makes a Big Memory</h2>
+                    <p>소중한 반려견의 하루를 24시간 스마트하게 트래킹하고 감동적인 모먼트로 간직하세요.</p>
+                  </div>
+                  <div className="brand-callout-badge">
+                    <PawMark />
+                    <strong>KIDOGKIDOG</strong>
+                    <span>Smart Pet Cam AI</span>
+                  </div>
                 </div>
-              </div>
               </div>
             </section>
           )}

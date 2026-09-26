@@ -144,7 +144,7 @@ button {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 24px 18px;
+  padding: 20px 16px;
   background: var(--sidebar);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
@@ -269,12 +269,12 @@ button {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px 16px;
-  border-radius: 14px;
+  padding: 8px 12px;
+  border-radius: 12px;
   color: var(--text-2);
   background: transparent;
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 600;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -401,9 +401,9 @@ button {
   z-index: 50;
   display: flex;
   align-items: center;
-  gap: 32px;
-  height: 76px;
-  padding: 0 60px;
+  gap: 24px;
+  height: 68px;
+  padding: 0 48px;
   background: transparent;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
@@ -432,14 +432,15 @@ button {
 .topbar-brand {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   cursor: pointer;
   user-select: none;
+  flex-shrink: 0;
 }
 
 .topbar-logo-text {
   font-family: "Plus Jakarta Sans", sans-serif;
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 900;
   letter-spacing: 0.04em;
   color: #ffffff;
@@ -454,34 +455,58 @@ button {
 .topbar-nav {
   display: flex;
   align-items: center;
-  gap: 24px;
-  margin-left: 48px;
+  gap: 6px;
+  margin-left: 32px;
 }
 
 .topbar-nav-item {
-  padding: 10px 22px;
-  border-radius: 999px;
-  color: rgba(255, 255, 255, 0.88);
+  position: relative;
+  padding: 6px 14px;
+  border-radius: 0;
+  color: rgba(255, 255, 255, 0.6);
   background: transparent;
-  font-size: 15px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 600;
   letter-spacing: -0.01em;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  text-shadow: none;
   transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.topbar-nav-item::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%) scaleX(0);
+  width: 80%;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--accent);
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 .topbar-nav-item:hover {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.16);
-  backdrop-filter: blur(8px);
+  color: rgba(255, 255, 255, 0.9);
+  background: transparent;
+  backdrop-filter: none;
+}
+
+.topbar-nav-item:hover::after {
+  transform: translateX(-50%) scaleX(0.6);
 }
 
 .topbar-nav-item.active {
-  color: var(--accent-ink);
-  background: var(--accent-gradient);
-  font-weight: 800;
-  box-shadow: 0 4px 18px var(--accent-glow);
+  color: #ffffff;
+  background: transparent;
+  font-weight: 700;
+  box-shadow: none;
   text-shadow: none;
+}
+
+.topbar-nav-item.active::after {
+  transform: translateX(-50%) scaleX(1);
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent-glow);
 }
 
 .app-shell[data-theme="light"] .topbar-logo-text {
@@ -490,19 +515,27 @@ button {
 }
 
 .app-shell[data-theme="light"] .topbar-nav-item {
-  color: #4a3b2b;
+  color: rgba(42, 31, 20, 0.6);
   text-shadow: none;
 }
 
 .app-shell[data-theme="light"] .topbar-nav-item:hover {
+  color: rgba(42, 31, 20, 0.9);
+  background: transparent;
+}
+
+.app-shell[data-theme="light"] .topbar-nav-item.active {
   color: #1f160c;
-  background: rgba(0, 0, 0, 0.06);
+}
+
+.app-shell[data-theme="light"] .topbar-nav-item::after {
+  background: var(--accent);
 }
 
 .top-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   margin-left: auto;
 }
 
@@ -557,7 +590,7 @@ button {
 
 .content {
   flex: 1;
-  padding: 0 60px 60px;
+  padding: 0 40px 40px;
 }
 
 /* Layout stacks & helpers */
@@ -574,10 +607,10 @@ button {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 36px;
-  margin: -76px -60px -60px;
-  padding-top: 76px;
-  /* Smooth natural vignette over hero-bg.jpg */
+  gap: 28px;
+  margin: -60px -40px -40px;
+  padding-top: 60px;
+  /* Smooth natural vignette over coco.jpg */
   background-image: 
     linear-gradient(180deg, rgba(16, 12, 8, 0.45) 0%, rgba(16, 12, 8, 0.6) 40%, rgba(16, 12, 8, 0.92) 100%),
     url('/hero-bg.jpg');
@@ -626,9 +659,9 @@ button {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 28px;
+  gap: 20px;
   width: 100%;
-  max-width: 980px;
+  max-width: 960px;
   margin: 0 auto;
   text-align: center;
 }
@@ -676,10 +709,10 @@ button {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 12px 12px 12px 28px;
+  padding: 10px 12px 10px 24px;
   border-radius: 999px;
   background: rgba(16, 12, 9, 0.82);
-  border: 1.5px solid rgba(255, 175, 95, 0.42);
+  border: 1.2px solid rgba(255, 175, 95, 0.38);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
@@ -2225,6 +2258,10 @@ button {
   .behavior-row {
     grid-template-columns: repeat(2, 1fr);
   }
+
+  .feature-matrix-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (max-width: 1024px) {
@@ -2269,7 +2306,206 @@ button {
 
   .result-grid,
   .clip-grid,
-  .behavior-row {
+  .behavior-row,
+  .feature-matrix-grid {
     grid-template-columns: 1fr;
   }
 }
+
+/* ==========================================================================
+   FEATURE MATRIX & BRAND CALLOUT STYLING (MATCHING 3D MASCOT AESTHETIC)
+   ========================================================================== */
+.feature-matrix-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  width: 100%;
+  max-width: 960px;
+  margin: 12px auto 0;
+}
+
+.feature-matrix-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: rgba(20, 15, 11, 0.75);
+  border: 1px solid rgba(255, 175, 95, 0.22);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  text-align: left;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.app-shell[data-theme="light"] .feature-matrix-card {
+  background: rgba(255, 255, 255, 0.88);
+  border-color: rgba(230, 140, 40, 0.25);
+  box-shadow: 0 8px 24px rgba(120, 80, 30, 0.12);
+}
+
+.feature-matrix-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent);
+  box-shadow: 0 12px 30px var(--accent-glow);
+}
+
+.feature-matrix-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  font-size: 22px;
+  background: rgba(255, 149, 0, 0.16);
+  border: 1px solid rgba(255, 175, 95, 0.32);
+}
+
+.feature-matrix-card strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+
+.feature-matrix-card p {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-2);
+}
+
+.section-title-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.section-title-block.left {
+  align-items: flex-start;
+  text-align: left;
+  margin-bottom: 16px;
+}
+
+.section-kicker-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(255, 149, 0, 0.14);
+  border: 1px solid rgba(255, 175, 95, 0.3);
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.section-title-block h2 {
+  margin: 0;
+  font-family: "Plus Jakarta Sans", "Pretendard", sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.section-title-block p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-2);
+}
+
+.brand-callout-banner {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 42px 48px;
+  margin-top: 48px;
+  border-radius: 28px;
+  background: linear-gradient(135deg, rgba(35, 24, 16, 0.92) 0%, rgba(20, 14, 9, 0.96) 100%);
+  border: 1.5px solid rgba(255, 175, 95, 0.35);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+.app-shell[data-theme="light"] .brand-callout-banner {
+  background: linear-gradient(135deg, #fffcf7 0%, #f7efe4 100%);
+  border-color: rgba(230, 140, 40, 0.3);
+  box-shadow: 0 16px 40px rgba(120, 80, 30, 0.15);
+}
+
+.brand-callout-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 680px;
+}
+
+.brand-callout-kicker {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.brand-callout-content h2 {
+  margin: 0;
+  font-family: "Plus Jakarta Sans", "Pretendard", sans-serif;
+  font-size: 32px;
+  font-weight: 900;
+  letter-spacing: -0.025em;
+  color: var(--text);
+}
+
+.brand-callout-content p {
+  margin: 0;
+  font-size: 15px;
+  color: var(--text-2);
+  line-height: 1.6;
+}
+
+.brand-callout-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 24px 32px;
+  border-radius: 20px;
+  background: var(--accent-gradient);
+  color: var(--accent-ink);
+  box-shadow: 0 10px 30px var(--accent-glow);
+  flex-shrink: 0;
+}
+
+.brand-callout-badge .paw-mark {
+  width: 38px;
+  height: 38px;
+  color: var(--accent-ink);
+}
+
+.brand-callout-badge strong {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.brand-callout-badge span {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  opacity: 0.9;
+}
+
