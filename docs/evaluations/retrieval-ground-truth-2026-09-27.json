@@ -1,0 +1,515 @@
+{
+  "schema_version": "1.0",
+  "status": "pending_human_review",
+  "description": "Retrieval quality evaluation set. Query wording is collected from existing tests/evaluation artifacts; relevance judgments are intentionally blank.",
+  "scope": {
+    "eligible_manifest": "docs/evaluations/yolo-backfill-eligible-2026-09-27.json",
+    "expected_total": 240,
+    "video_counts": {
+      "IMG_8450_2": 33,
+      "dog_drinking_water": 89,
+      "dog_escape": 28,
+      "two_dogs": 90
+    },
+    "stale_frames_included": false,
+    "result_scope_policy": "Only frame IDs in eligible_manifest are scored. Any other returned frame IDs are recorded as out-of-scope and excluded from metrics."
+  },
+  "judgment_instructions": {
+    "frame_id": "Add a frame_id only after a person has reviewed that frame as relevant to the query.",
+    "time_ranges": "Alternatively add one or more relevant_time_ranges. Times are chunk-local seconds; set video_id and preferably chunk_stem to disambiguate chunks.",
+    "tolerance": "No time tolerance is applied. Enter only the visually confirmed interval boundaries.",
+    "unknown": "Leave ground_truth_status as needs_human_ground_truth until review. Empty relevant_frames/ranges do not mean the query has no relevant results.",
+    "expected_video_ids": "Optional judged set of videos that can contain relevant results; used only for wrong_video_result_rate.",
+    "expected_object_labels": "Query intent labels for wrong-species diagnostics; these are not relevance judgments.",
+    "range_chunk_rule": "Every relevant time range must include video_id and chunk_stem. No time tolerance is applied."
+  },
+  "queries": [
+    {
+      "query_id": "object_cat_visible",
+      "query": "고양이가 보이는 장면 보여줘",
+      "query_type": "object",
+      "source_artifacts": [
+        "tests/test_explicit_object_search.py",
+        "docs/evaluations/explicit-object-search-2026-09-27.json",
+        "docs/evaluations/question-quality-2026-09-27.md"
+      ],
+      "video_id": null,
+      "expected_video_ids": null,
+      "expected_object_labels": [
+        "cat"
+      ],
+      "ground_truth_status": "pending_human_review",
+      "type": "object",
+      "scope": {
+        "kind": "global",
+        "video_ids": [
+          "IMG_8450_2",
+          "dog_drinking_water",
+          "dog_escape",
+          "two_dogs"
+        ]
+      },
+      "relevant_time_ranges": [],
+      "relevant_frame_ids": [],
+      "frame_judgments": {},
+      "notes": "",
+      "scope_basis": "Current evaluation JSON has video_id=null, so the planned general-search call is corpus-wide over the four eligible videos.",
+      "historical_scope_note": "The prior explicit-object-search artifact also contains separate per-video general/event runs for this wording; this 15-query scaffold intentionally preserves its current corpus-wide video_id=null scope and does not add duplicate query rows.",
+      "labeling_mode": "frame_visual",
+      "human_review_complete": false,
+      "reviewed_video_ids": [],
+      "no_relevant_results": null
+    },
+    {
+      "query_id": "object_dog_visible",
+      "query": "강아지가 보이는 장면 보여줘",
+      "query_type": "object",
+      "source_artifacts": [
+        "tests/test_explicit_object_search.py",
+        "docs/evaluations/two-dogs-stale-cleanup-result-2026-09-27.json"
+      ],
+      "video_id": null,
+      "expected_video_ids": null,
+      "expected_object_labels": [
+        "dog"
+      ],
+      "ground_truth_status": "pending_human_review",
+      "type": "object",
+      "scope": {
+        "kind": "global",
+        "video_ids": [
+          "IMG_8450_2",
+          "dog_drinking_water",
+          "dog_escape",
+          "two_dogs"
+        ]
+      },
+      "relevant_time_ranges": [],
+      "relevant_frame_ids": [],
+      "frame_judgments": {},
+      "notes": "",
+      "scope_basis": "Current evaluation JSON has video_id=null, so the planned general-search call is corpus-wide over the four eligible videos.",
+      "labeling_mode": "frame_visual",
+      "human_review_complete": false,
+      "reviewed_video_ids": [],
+      "no_relevant_results": null
+    },
+    {
+      "query_id": "object_person_visible",
+      "query": "사람이 함께 보이는 장면 있어?",
+      "query_type": "object",
+      "source_artifacts": [
+        "tests/test_explicit_object_search.py",
+        "docs/evaluations/explicit-object-search-2026-09-27.json"
+      ],
+      "video_id": null,
+      "expected_video_ids": null,
+      "expected_object_labels": [
+        "person"
+      ],
+      "ground_truth_status": "pending_human_review",
+      "type": "object",
+      "scope": {
+        "kind": "global",
+        "video_ids": [
+          "IMG_8450_2",
+          "dog_drinking_water",
+          "dog_escape",
+          "two_dogs"
+        ]
+      },
+      "relevant_time_ranges": [],
+      "relevant_frame_ids": [],
+      "frame_judgments": {},
+      "notes": "",
+      "scope_basis": "Current evaluation JSON has video_id=null, so the planned general-search call is corpus-wide over the four eligible videos.",
+      "historical_scope_note": "The prior explicit-object-search artifact also contains separate per-video general/event runs for this wording; this 15-query scaffold intentionally preserves its current corpus-wide video_id=null scope and does not add duplicate query rows.",
+      "labeling_mode": "frame_visual",
+      "human_review_complete": false,
+      "reviewed_video_ids": [],
+      "no_relevant_results": null
+    },
+    {
+      "query_id": "object_bowl_nearby",
+      "query": "반려동물이 그릇 근처에 있는 장면",
+      "query_type": "location_target",
+      "source_artifacts": [
+        "tests/test_explicit_object_search.py"
+      ],
+      "video_id": null,
+      "expected_video_ids": null,
+      "expected_object_labels": [
+        "bowl"
+      ],
+      "ground_truth_status": "pending_human_review",
+      "type": "location_target",
+      "scope": {
+        "kind": "global",
+        "video_ids": [
+          "IMG_8450_2",
+          "dog_drinking_water",
+          "dog_escape",
+          "two_dogs"
+        ]
+      },
+      "relevant_time_ranges": [],
+      "relevant_frame_ids": [],
+      "frame_judgments": {},
+      "notes": "",
+      "scope_basis": "Current evaluation JSON has video_id=null, so the planned general-search call is corpus-wide over the four eligible videos.",
+      "labeling_mode": "frame_visual",
+      "human_review_complete": false,
+      "reviewed_video_ids": [],
+      "no_relevant_results": null
+    },
+    {
+      "query_id": "behavior_drinking_water",
+      "query": "물을 마신 장면이 있어?",
+      "query_type": "behavior",
+      "source_artifacts": [
+        "tests/test_question_generator.py",
+        "docs/evaluations/question-quality-2026-09-27.md",
+        "docs/evaluations/question-event-linking-2026-09-27.json"
+      ],
+      "video_id": null,
+      "expected_video_ids": null,
+      "expected_object_labels": [],
+      "ground_truth_status": "pending_human_review",
+      "type": "behavior",
+      "scope": {
+        "kind": "global",
+        "video_ids": [
+          "IMG_8450_2",
+          "dog_drinking_water",
+          "dog_escape",
+          "two_dogs"
+        ]
+      },
+      "relevant_time_ranges": [],
+      "relevant_frame_ids": [],
+      "frame_judgments": {},
+      "notes": "",
+      "scope_basis": "Current evaluation JSON has video_id=null, so the planned general-search call is corpus-wide over the four eligible videos.",
+      "labeling_mode": "video_temporal",
+      "human_review_complete": false,
+      "reviewed_video_ids": [],
+      "no_relevant_results": null
+    },
+    {
+      "query_id": "behavior_approach_food_bowl",
+      "query": "사료 그릇에 접근한 장면이 있어?",
+      "query_type": "behavior",
+      "source_artifacts": [
+        "tests/test_question_generator.py",
+        "docs/evaluations/question-quality-2026-09-27.md",
+        "docs/evaluations/question-event-linking-2026-09-27.json"
+      ],
+      "video_id": null,
+      "expected_video_ids": null,
+      "expected_object_labels": [],
+      "ground_truth_status": "pending_human_review",
+      "type": "behavior",
+      "scope": {
+        "kind": "global",
+        "video_ids": [
+          "IMG_8450_2",
+          "dog_drinking_water",
+          "dog_escape",
+          "two_dogs"
+        ]
+      },
+      "relevant_time_ranges": [],
+      "relevant_frame_ids": [],
+      "frame_judgments": {},
+      "notes": "",
+      "scope_basis": "Current evaluation JSON has video_id=null, so the planned general-search call is corpus-wide over the four eligible videos.",
+      "labeling_mode": "video_temporal",
+      "human_review_complete": false,
+      "reviewed_video_ids": [],
+      "no_relevant_results": null
+    },
+    {
+      "query_id": "behavior_dog_running",
+      "query": "개가 뛰는 장면",
+      "query_type": "behavior",
+      "source_artifacts": [
+        "tests/test_explicit_object_search.py"
+      ],
+      "video_id": null,
+      "expected_video_ids": null,
+      "expected_object_labels": [
+        "dog"
+      ],
+      "ground_truth_status": "pending_human_review",
+      "type": "behavior",
+      "scope": {
+        "kind": "global",
+        "video_ids": [
+          "IMG_8450_2",
+          "dog_drinking_water",
+          "dog_escape",
+          "two_dogs"
+        ]
+      },
+      "relevant_time_ranges": [],
+      "relevant_frame_ids": [],
+      "frame_judgments": {},
+      "notes": "",
+      "scope_basis": "Current evaluation JSON has video_id=null, so the planned general-search call is corpus-wide over the four eligible videos.",
+      "labeling_mode": "video_temporal",
+      "human_review_complete": false,
+      "reviewed_video_ids": [],
+      "no_relevant_results": null
+    },
+    {
+      "query_id": "behavior_moving",
+      "query": "반려동물이 움직인 장면은 언제였어?",
+      "query_type": "behavior",
+      "source_artifacts": [
+        "docs/evaluations/question-quality-2026-09-27.md"
+      ],
+      "video_id": null,
+      "expected_video_ids": null,
+      "expected_object_labels": [],
+      "ground_truth_status": "pending_human_review",
+      "type": "behavior",
+      "scope": {
+        "kind": "global",
+        "video_ids": [
+          "IMG_8450_2",
+          "dog_drinking_water",
+          "dog_escape",
+          "two_dogs"
+        ]
+      },
+      "relevant_time_ranges": [],
+      "relevant_frame_ids": [],
+      "frame_judgments": {},
+      "notes": "",
+      "scope_basis": "Current evaluation JSON has video_id=null, so the planned general-search call is corpus-wide over the four eligible videos.",
+      "labeling_mode": "video_temporal",
+      "human_review_complete": false,
+      "reviewed_video_ids": [],
+      "no_relevant_results": null
+    },
+    {
+      "query_id": "location_feeder_nearby",
+      "query": "자동 급식기 근처에 있는 장면이 있어?",
+      "query_type": "location_target",
+      "source_artifacts": [
+        "tests/test_explicit_object_search.py",
+        "docs/evaluations/question-quality-2026-09-27.md"
+      ],
+      "video_id": null,
+      "expected_video_ids": null,
+      "expected_object_labels": [],
+      "ground_truth_status": "pending_human_review",
+      "type": "location_target",
+      "scope": {
+        "kind": "global",
+        "video_ids": [
+          "IMG_8450_2",
+          "dog_drinking_water",
+          "dog_escape",
+          "two_dogs"
+        ]
+      },
+      "relevant_time_ranges": [],
+      "relevant_frame_ids": [],
+      "frame_judgments": {},
+      "notes": "",
+      "scope_basis": "Current evaluation JSON has video_id=null, so the planned general-search call is corpus-wide over the four eligible videos.",
+      "labeling_mode": "frame_visual",
+      "human_review_complete": false,
+      "reviewed_video_ids": [],
+      "no_relevant_results": null
+    },
+    {
+      "query_id": "location_couch_movement",
+      "query": "소파 근처에서 움직인 장면 찾아줘",
+      "query_type": "location_target",
+      "source_artifacts": [
+        "docs/evaluations/yolo-clip-full-backfill-result-2026-09-27.json",
+        "docs/evaluations/two-dogs-stale-cleanup-result-2026-09-27.json"
+      ],
+      "video_id": null,
+      "expected_video_ids": null,
+      "expected_object_labels": [],
+      "ground_truth_status": "pending_human_review",
+      "type": "location_target",
+      "scope": {
+        "kind": "global",
+        "video_ids": [
+          "IMG_8450_2",
+          "dog_drinking_water",
+          "dog_escape",
+          "two_dogs"
+        ]
+      },
+      "relevant_time_ranges": [],
+      "relevant_frame_ids": [],
+      "frame_judgments": {},
+      "notes": "",
+      "scope_basis": "Current evaluation JSON has video_id=null, so the planned general-search call is corpus-wide over the four eligible videos.",
+      "labeling_mode": "video_temporal",
+      "human_review_complete": false,
+      "reviewed_video_ids": [],
+      "no_relevant_results": null
+    },
+    {
+      "query_id": "location_door_front",
+      "query": "문 앞에 있는 장면 보여줘",
+      "query_type": "location_target",
+      "source_artifacts": [
+        "tests/test_query_expansion.py"
+      ],
+      "video_id": null,
+      "expected_video_ids": null,
+      "expected_object_labels": [],
+      "ground_truth_status": "pending_human_review",
+      "type": "location_target",
+      "scope": {
+        "kind": "global",
+        "video_ids": [
+          "IMG_8450_2",
+          "dog_drinking_water",
+          "dog_escape",
+          "two_dogs"
+        ]
+      },
+      "relevant_time_ranges": [],
+      "relevant_frame_ids": [],
+      "frame_judgments": {},
+      "notes": "",
+      "scope_basis": "Current evaluation JSON has video_id=null, so the planned general-search call is corpus-wide over the four eligible videos.",
+      "labeling_mode": "frame_visual",
+      "human_review_complete": false,
+      "reviewed_video_ids": [],
+      "no_relevant_results": null
+    },
+    {
+      "query_id": "location_under_couch",
+      "query": "소파 아래에 들어간 적이 있어?",
+      "query_type": "location_target",
+      "source_artifacts": [
+        "tests/test_question_generator.py"
+      ],
+      "video_id": null,
+      "expected_video_ids": null,
+      "expected_object_labels": [],
+      "ground_truth_status": "pending_human_review",
+      "type": "location_target",
+      "scope": {
+        "kind": "global",
+        "video_ids": [
+          "IMG_8450_2",
+          "dog_drinking_water",
+          "dog_escape",
+          "two_dogs"
+        ]
+      },
+      "relevant_time_ranges": [],
+      "relevant_frame_ids": [],
+      "frame_judgments": {},
+      "notes": "",
+      "scope_basis": "Current evaluation JSON has video_id=null, so the planned general-search call is corpus-wide over the four eligible videos.",
+      "labeling_mode": "video_temporal",
+      "human_review_complete": false,
+      "reviewed_video_ids": [],
+      "no_relevant_results": null
+    },
+    {
+      "query_id": "event_feeder_grounded_img8450",
+      "query": "자동 급식기 근처에 있는 장면이 있어?",
+      "query_type": "event_grounded",
+      "source_artifacts": [
+        "docs/evaluations/question-event-linking-2026-09-27.json"
+      ],
+      "video_id": "IMG_8450_2",
+      "source_event_id": 3,
+      "event_start": 4.5,
+      "event_end": 9.0,
+      "expected_video_ids": null,
+      "expected_object_labels": [],
+      "ground_truth_status": "pending_human_review",
+      "type": "event_grounded",
+      "scope": {
+        "kind": "video",
+        "video_ids": [
+          "IMG_8450_2"
+        ]
+      },
+      "relevant_time_ranges": [],
+      "relevant_frame_ids": [],
+      "frame_judgments": {},
+      "notes": "",
+      "scope_basis": "Current evaluation JSON explicitly supplies video_id and source_event_id/event window for this event-grounded call.",
+      "labeling_mode": "frame_visual",
+      "human_review_complete": false,
+      "reviewed_video_ids": [],
+      "no_relevant_results": null
+    },
+    {
+      "query_id": "event_food_bowl_grounded_img8450",
+      "query": "사료 그릇에 접근한 장면이 있어?",
+      "query_type": "event_grounded",
+      "source_artifacts": [
+        "docs/evaluations/question-event-linking-2026-09-27.json"
+      ],
+      "video_id": "IMG_8450_2",
+      "source_event_id": 2,
+      "event_start": 12.0,
+      "event_end": 66.5,
+      "expected_video_ids": null,
+      "expected_object_labels": [],
+      "ground_truth_status": "pending_human_review",
+      "type": "event_grounded",
+      "scope": {
+        "kind": "video",
+        "video_ids": [
+          "IMG_8450_2"
+        ]
+      },
+      "relevant_time_ranges": [],
+      "relevant_frame_ids": [],
+      "frame_judgments": {},
+      "notes": "",
+      "scope_basis": "Current evaluation JSON explicitly supplies video_id and source_event_id/event window for this event-grounded call.",
+      "labeling_mode": "video_temporal",
+      "human_review_complete": false,
+      "reviewed_video_ids": [],
+      "no_relevant_results": null
+    },
+    {
+      "query_id": "event_water_grounded_dog_water",
+      "query": "물을 마신 장면이 있어?",
+      "query_type": "event_grounded",
+      "source_artifacts": [
+        "docs/evaluations/question-event-linking-2026-09-27.json"
+      ],
+      "video_id": "dog_drinking_water",
+      "source_event_id": 17,
+      "event_start": 18.0,
+      "event_end": 18.0,
+      "expected_video_ids": null,
+      "expected_object_labels": [],
+      "ground_truth_status": "pending_human_review",
+      "type": "event_grounded",
+      "scope": {
+        "kind": "video",
+        "video_ids": [
+          "dog_drinking_water"
+        ]
+      },
+      "relevant_time_ranges": [],
+      "relevant_frame_ids": [],
+      "frame_judgments": {},
+      "notes": "",
+      "scope_basis": "Current evaluation JSON explicitly supplies video_id and source_event_id/event window for this event-grounded call.",
+      "labeling_mode": "video_temporal",
+      "human_review_complete": false,
+      "reviewed_video_ids": [],
+      "no_relevant_results": null
+    }
+  ]
+}

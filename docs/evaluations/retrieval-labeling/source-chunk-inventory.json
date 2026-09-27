@@ -1,0 +1,115 @@
+{
+  "read_only": true,
+  "matched_by": "exact video_id + exact chunk_stem derived from eligible frame s3_key",
+  "unique_frame_chunk_pairs": 8,
+  "local_exact_count": 0,
+  "gcs_exact_count": 8,
+  "unavailable_count": 0,
+  "ambiguous_count": 0,
+  "chunks": [
+    {
+      "video_id": "IMG_8450_2",
+      "chunk_stem": "petcam_20260926_173123_000",
+      "local_exact_matches": [],
+      "gcs_exact_matches": [
+        {
+          "gcs_path": "chunks/IMG_8450_2/petcam_20260926_173123_000.mp4",
+          "size_bytes": 20350671
+        }
+      ],
+      "status": "gcs_exact",
+      "playable_local_path": "/private/var/folders/g5/83j4lqks1w1gyzq149ljv2xc0000gn/T/retrieval-labeling-videos-2026-09-27/IMG_8450_2/petcam_20260926_173123_000.mp4"
+    },
+    {
+      "video_id": "IMG_8450_2",
+      "chunk_stem": "petcam_20260926_173123_001",
+      "local_exact_matches": [],
+      "gcs_exact_matches": [
+        {
+          "gcs_path": "chunks/IMG_8450_2/petcam_20260926_173123_001.mp4",
+          "size_bytes": 774524
+        }
+      ],
+      "status": "gcs_exact",
+      "playable_local_path": "/private/var/folders/g5/83j4lqks1w1gyzq149ljv2xc0000gn/T/retrieval-labeling-videos-2026-09-27/IMG_8450_2/petcam_20260926_173123_001.mp4"
+    },
+    {
+      "video_id": "dog_drinking_water",
+      "chunk_stem": "petcam_20260926_173602_000",
+      "local_exact_matches": [],
+      "gcs_exact_matches": [
+        {
+          "gcs_path": "chunks/dog_drinking_water/petcam_20260926_173602_000.mp4",
+          "size_bytes": 11564890
+        }
+      ],
+      "status": "gcs_exact",
+      "playable_local_path": "/private/var/folders/g5/83j4lqks1w1gyzq149ljv2xc0000gn/T/retrieval-labeling-videos-2026-09-27/dog_drinking_water/petcam_20260926_173602_000.mp4"
+    },
+    {
+      "video_id": "dog_drinking_water",
+      "chunk_stem": "petcam_20260926_173602_001",
+      "local_exact_matches": [],
+      "gcs_exact_matches": [
+        {
+          "gcs_path": "chunks/dog_drinking_water/petcam_20260926_173602_001.mp4",
+          "size_bytes": 10173852
+        }
+      ],
+      "status": "gcs_exact",
+      "playable_local_path": "/private/var/folders/g5/83j4lqks1w1gyzq149ljv2xc0000gn/T/retrieval-labeling-videos-2026-09-27/dog_drinking_water/petcam_20260926_173602_001.mp4"
+    },
+    {
+      "video_id": "dog_drinking_water",
+      "chunk_stem": "petcam_20260926_173602_002",
+      "local_exact_matches": [],
+      "gcs_exact_matches": [
+        {
+          "gcs_path": "chunks/dog_drinking_water/petcam_20260926_173602_002.mp4",
+          "size_bytes": 8530206
+        }
+      ],
+      "status": "gcs_exact",
+      "playable_local_path": "/private/var/folders/g5/83j4lqks1w1gyzq149ljv2xc0000gn/T/retrieval-labeling-videos-2026-09-27/dog_drinking_water/petcam_20260926_173602_002.mp4"
+    },
+    {
+      "video_id": "dog_drinking_water",
+      "chunk_stem": "petcam_20260926_173602_003",
+      "local_exact_matches": [],
+      "gcs_exact_matches": [
+        {
+          "gcs_path": "chunks/dog_drinking_water/petcam_20260926_173602_003.mp4",
+          "size_bytes": 4462057
+        }
+      ],
+      "status": "gcs_exact",
+      "playable_local_path": "/private/var/folders/g5/83j4lqks1w1gyzq149ljv2xc0000gn/T/retrieval-labeling-videos-2026-09-27/dog_drinking_water/petcam_20260926_173602_003.mp4"
+    },
+    {
+      "video_id": "dog_escape",
+      "chunk_stem": "petcam_20260926_173415_000",
+      "local_exact_matches": [],
+      "gcs_exact_matches": [
+        {
+          "gcs_path": "chunks/dog_escape/petcam_20260926_173415_000.mp4",
+          "size_bytes": 13526130
+        }
+      ],
+      "status": "gcs_exact",
+      "playable_local_path": "/private/var/folders/g5/83j4lqks1w1gyzq149ljv2xc0000gn/T/retrieval-labeling-videos-2026-09-27/dog_escape/petcam_20260926_173415_000.mp4"
+    },
+    {
+      "video_id": "two_dogs",
+      "chunk_stem": "two_dogs_000",
+      "local_exact_matches": [],
+      "gcs_exact_matches": [
+        {
+          "gcs_path": "chunks/two_dogs/two_dogs_000.mp4",
+          "size_bytes": 45577514
+        }
+      ],
+      "status": "gcs_exact",
+      "playable_local_path": "/private/var/folders/g5/83j4lqks1w1gyzq149ljv2xc0000gn/T/retrieval-labeling-videos-2026-09-27/two_dogs/two_dogs_000.mp4"
+    }
+  ]
+}

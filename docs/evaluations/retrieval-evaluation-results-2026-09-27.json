@@ -1,0 +1,17 @@
+{
+  "status": "not_run_ground_truth_pending",
+  "scope": {
+    "eligible_manifest": "docs/evaluations/yolo-backfill-eligible-2026-09-27.json",
+    "expected_total": 240,
+    "video_counts": {
+      "IMG_8450_2": 33,
+      "dog_drinking_water": 89,
+      "dog_escape": 28,
+      "two_dogs": 90
+    },
+    "stale_frames_included": false
+  },
+  "responses": {},
+  "metrics": null,
+  "note": "No retrieval run or metric calculation has been performed. Run only after human ground-truth labeling."
+}
