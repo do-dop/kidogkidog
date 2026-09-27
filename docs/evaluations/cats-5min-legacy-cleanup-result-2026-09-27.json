@@ -1,0 +1,2576 @@
+{
+  "created_at": "2026-09-27T22:12:04.806232+09:00",
+  "video_id": "cats_5min",
+  "referential_audit": {
+    "mysql_tables": [
+      "behavior_events",
+      "scenes",
+      "search_logs",
+      "user_frequent_queries"
+    ],
+    "mysql_version": "8.4.11-google",
+    "chroma_count": 292,
+    "scenes_count": 643,
+    "behavior_events_for_video": 0,
+    "behavior_event_references": [],
+    "scene_foreign_keys": [],
+    "other_table_references": [],
+    "search_logs_preserved_count": 8,
+    "user_frequent_queries_preserved_count": 33,
+    "gcs_frames": 0,
+    "gcs_chunks": 0,
+    "local_frames": 0
+  },
+  "backup": {
+    "path": "docs/evaluations/backups/cats-5min-legacy-cleanup-before-2026-09-27.json",
+    "sha256": "62a94794195928553f31b7ba17efdcf24fc8b5d7a4324766c97853843d4b754e",
+    "checksum_path": "docs/evaluations/backups/cats-5min-legacy-cleanup-before-2026-09-27.json.sha256",
+    "chroma_rows": 292,
+    "scene_rows": 643,
+    "preexisting_one_ulp_embedding_roundtrip_rows": 14,
+    "preexisting_one_ulp_embedding_roundtrip_details": [
+      {
+        "frame_id": "cats_5min__petcam_20260528_164836_000_frame_10.51",
+        "max_abs_delta": 7.450580596923828e-09,
+        "changed_dimensions": 305,
+        "within_one_float32_ulp": true
+      },
+      {
+        "frame_id": "cats_5min__petcam_20260528_164836_000_frame_26.51",
+        "max_abs_delta": 2.9802322387695312e-08,
+        "changed_dimensions": 305,
+        "within_one_float32_ulp": true
+      },
+      {
+        "frame_id": "cats_5min__petcam_20260528_164836_001_frame_46.00",
+        "max_abs_delta": 2.9802322387695312e-08,
+        "changed_dimensions": 322,
+        "within_one_float32_ulp": true
+      },
+      {
+        "frame_id": "cats_5min__petcam_20260528_164836_001_frame_50.00",
+        "max_abs_delta": 2.9802322387695312e-08,
+        "changed_dimensions": 327,
+        "within_one_float32_ulp": true
+      },
+      {
+        "frame_id": "cats_5min__petcam_20260528_164836_004_frame_4.00",
+        "max_abs_delta": 2.9802322387695312e-08,
+        "changed_dimensions": 346,
+        "within_one_float32_ulp": true
+      },
+      {
+        "frame_id": "cats_5min__petcam_20260528_164836_004_frame_34.00",
+        "max_abs_delta": 2.9802322387695312e-08,
+        "changed_dimensions": 316,
+        "within_one_float32_ulp": true
+      },
+      {
+        "frame_id": "cats_5min__petcam_20260528_164836_004_frame_40.00",
+        "max_abs_delta": 2.9802322387695312e-08,
+        "changed_dimensions": 309,
+        "within_one_float32_ulp": true
+      },
+      {
+        "frame_id": "cats_5min__petcam_20260528_170746_000_frame_10.51",
+        "max_abs_delta": 7.450580596923828e-09,
+        "changed_dimensions": 305,
+        "within_one_float32_ulp": true
+      },
+      {
+        "frame_id": "cats_5min__petcam_20260528_170746_000_frame_26.51",
+        "max_abs_delta": 2.9802322387695312e-08,
+        "changed_dimensions": 305,
+        "within_one_float32_ulp": true
+      },
+      {
+        "frame_id": "cats_5min__petcam_20260528_170746_001_frame_46.00",
+        "max_abs_delta": 2.9802322387695312e-08,
+        "changed_dimensions": 322,
+        "within_one_float32_ulp": true
+      },
+      {
+        "frame_id": "cats_5min__petcam_20260528_170746_001_frame_50.00",
+        "max_abs_delta": 2.9802322387695312e-08,
+        "changed_dimensions": 327,
+        "within_one_float32_ulp": true
+      },
+      {
+        "frame_id": "cats_5min__petcam_20260528_170746_004_frame_4.00",
+        "max_abs_delta": 2.9802322387695312e-08,
+        "changed_dimensions": 346,
+        "within_one_float32_ulp": true
+      },
+      {
+        "frame_id": "cats_5min__petcam_20260528_170746_004_frame_34.00",
+        "max_abs_delta": 2.9802322387695312e-08,
+        "changed_dimensions": 316,
+        "within_one_float32_ulp": true
+      },
+      {
+        "frame_id": "cats_5min__petcam_20260528_170746_004_frame_40.00",
+        "max_abs_delta": 2.9802322387695312e-08,
+        "changed_dimensions": 309,
+        "within_one_float32_ulp": true
+      }
+    ]
+  },
+  "before": {
+    "searches": {
+      "cats_5min": {
+        "cat": {
+          "count": 286,
+          "frame_ids": [
+            "cats_5min__petcam_20260528_164836_000_frame_10.51",
+            "cats_5min__petcam_20260528_164836_000_frame_12.51",
+            "cats_5min__petcam_20260528_164836_000_frame_14.51",
+            "cats_5min__petcam_20260528_164836_000_frame_16.51",
+            "cats_5min__petcam_20260528_164836_000_frame_18.51",
+            "cats_5min__petcam_20260528_164836_000_frame_20.51",
+            "cats_5min__petcam_20260528_164836_000_frame_22.51",
+            "cats_5min__petcam_20260528_164836_000_frame_24.51",
+            "cats_5min__petcam_20260528_164836_000_frame_26.51",
+            "cats_5min__petcam_20260528_164836_000_frame_28.51",
+            "cats_5min__petcam_20260528_164836_000_frame_30.51",
+            "cats_5min__petcam_20260528_164836_000_frame_32.51",
+            "cats_5min__petcam_20260528_164836_000_frame_34.51",
+            "cats_5min__petcam_20260528_164836_000_frame_36.51",
+            "cats_5min__petcam_20260528_164836_000_frame_38.51",
+            "cats_5min__petcam_20260528_164836_000_frame_40.51",
+            "cats_5min__petcam_20260528_164836_000_frame_42.51",
+            "cats_5min__petcam_20260528_164836_000_frame_44.51",
+            "cats_5min__petcam_20260528_164836_000_frame_46.51",
+            "cats_5min__petcam_20260528_164836_000_frame_48.51",
+            "cats_5min__petcam_20260528_164836_000_frame_50.51",
+            "cats_5min__petcam_20260528_164836_000_frame_52.51",
+            "cats_5min__petcam_20260528_164836_000_frame_54.51",
+            "cats_5min__petcam_20260528_164836_000_frame_56.51",
+            "cats_5min__petcam_20260528_164836_000_frame_58.51",
+            "cats_5min__petcam_20260528_164836_000_frame_60.51",
+            "cats_5min__petcam_20260528_164836_000_frame_62.51",
+            "cats_5min__petcam_20260528_164836_000_frame_64.51",
+            "cats_5min__petcam_20260528_164836_000_frame_66.51",
+            "cats_5min__petcam_20260528_164836_000_frame_8.51",
+            "cats_5min__petcam_20260528_164836_001_frame_10.00",
+            "cats_5min__petcam_20260528_164836_001_frame_12.00",
+            "cats_5min__petcam_20260528_164836_001_frame_14.00",
+            "cats_5min__petcam_20260528_164836_001_frame_16.00",
+            "cats_5min__petcam_20260528_164836_001_frame_18.00",
+            "cats_5min__petcam_20260528_164836_001_frame_2.00",
+            "cats_5min__petcam_20260528_164836_001_frame_20.00",
+            "cats_5min__petcam_20260528_164836_001_frame_22.00",
+            "cats_5min__petcam_20260528_164836_001_frame_26.00",
+            "cats_5min__petcam_20260528_164836_001_frame_28.00",
+            "cats_5min__petcam_20260528_164836_001_frame_30.00",
+            "cats_5min__petcam_20260528_164836_001_frame_32.00",
+            "cats_5min__petcam_20260528_164836_001_frame_34.00",
+            "cats_5min__petcam_20260528_164836_001_frame_36.00",
+            "cats_5min__petcam_20260528_164836_001_frame_38.00",
+            "cats_5min__petcam_20260528_164836_001_frame_4.00",
+            "cats_5min__petcam_20260528_164836_001_frame_40.00",
+            "cats_5min__petcam_20260528_164836_001_frame_42.00",
+            "cats_5min__petcam_20260528_164836_001_frame_44.00",
+            "cats_5min__petcam_20260528_164836_001_frame_46.00",
+            "cats_5min__petcam_20260528_164836_001_frame_48.00",
+            "cats_5min__petcam_20260528_164836_001_frame_50.00",
+            "cats_5min__petcam_20260528_164836_001_frame_52.00",
+            "cats_5min__petcam_20260528_164836_001_frame_54.00",
+            "cats_5min__petcam_20260528_164836_001_frame_56.00",
+            "cats_5min__petcam_20260528_164836_001_frame_58.00",
+            "cats_5min__petcam_20260528_164836_001_frame_6.00",
+            "cats_5min__petcam_20260528_164836_001_frame_8.00",
+            "cats_5min__petcam_20260528_164836_002_frame_10.00",
+            "cats_5min__petcam_20260528_164836_002_frame_12.00",
+            "cats_5min__petcam_20260528_164836_002_frame_14.00",
+            "cats_5min__petcam_20260528_164836_002_frame_16.00",
+            "cats_5min__petcam_20260528_164836_002_frame_18.00",
+            "cats_5min__petcam_20260528_164836_002_frame_2.00",
+            "cats_5min__petcam_20260528_164836_002_frame_20.00",
+            "cats_5min__petcam_20260528_164836_002_frame_22.00",
+            "cats_5min__petcam_20260528_164836_002_frame_24.00",
+            "cats_5min__petcam_20260528_164836_002_frame_26.00",
+            "cats_5min__petcam_20260528_164836_002_frame_28.00",
+            "cats_5min__petcam_20260528_164836_002_frame_30.00",
+            "cats_5min__petcam_20260528_164836_002_frame_32.00",
+            "cats_5min__petcam_20260528_164836_002_frame_34.00",
+            "cats_5min__petcam_20260528_164836_002_frame_36.00",
+            "cats_5min__petcam_20260528_164836_002_frame_38.00",
+            "cats_5min__petcam_20260528_164836_002_frame_4.00",
+            "cats_5min__petcam_20260528_164836_002_frame_40.00",
+            "cats_5min__petcam_20260528_164836_002_frame_42.00",
+            "cats_5min__petcam_20260528_164836_002_frame_44.00",
+            "cats_5min__petcam_20260528_164836_002_frame_46.00",
+            "cats_5min__petcam_20260528_164836_002_frame_48.00",
+            "cats_5min__petcam_20260528_164836_002_frame_50.00",
+            "cats_5min__petcam_20260528_164836_002_frame_52.00",
+            "cats_5min__petcam_20260528_164836_002_frame_54.00",
+            "cats_5min__petcam_20260528_164836_002_frame_56.00",
+            "cats_5min__petcam_20260528_164836_002_frame_58.00",
+            "cats_5min__petcam_20260528_164836_002_frame_6.00",
+            "cats_5min__petcam_20260528_164836_002_frame_8.00",
+            "cats_5min__petcam_20260528_164836_003_frame_10.00",
+            "cats_5min__petcam_20260528_164836_003_frame_12.00",
+            "cats_5min__petcam_20260528_164836_003_frame_14.00",
+            "cats_5min__petcam_20260528_164836_003_frame_16.00",
+            "cats_5min__petcam_20260528_164836_003_frame_18.00",
+            "cats_5min__petcam_20260528_164836_003_frame_2.00",
+            "cats_5min__petcam_20260528_164836_003_frame_20.00",
+            "cats_5min__petcam_20260528_164836_003_frame_22.00",
+            "cats_5min__petcam_20260528_164836_003_frame_24.00",
+            "cats_5min__petcam_20260528_164836_003_frame_26.00",
+            "cats_5min__petcam_20260528_164836_003_frame_28.00",
+            "cats_5min__petcam_20260528_164836_003_frame_32.00",
+            "cats_5min__petcam_20260528_164836_003_frame_34.00",
+            "cats_5min__petcam_20260528_164836_003_frame_36.00",
+            "cats_5min__petcam_20260528_164836_003_frame_38.00",
+            "cats_5min__petcam_20260528_164836_003_frame_4.00",
+            "cats_5min__petcam_20260528_164836_003_frame_40.00",
+            "cats_5min__petcam_20260528_164836_003_frame_42.00",
+            "cats_5min__petcam_20260528_164836_003_frame_44.00",
+            "cats_5min__petcam_20260528_164836_003_frame_46.00",
+            "cats_5min__petcam_20260528_164836_003_frame_48.00",
+            "cats_5min__petcam_20260528_164836_003_frame_50.00",
+            "cats_5min__petcam_20260528_164836_003_frame_52.00",
+            "cats_5min__petcam_20260528_164836_003_frame_54.00",
+            "cats_5min__petcam_20260528_164836_003_frame_56.00",
+            "cats_5min__petcam_20260528_164836_003_frame_58.00",
+            "cats_5min__petcam_20260528_164836_003_frame_6.00",
+            "cats_5min__petcam_20260528_164836_003_frame_8.00",
+            "cats_5min__petcam_20260528_164836_004_frame_10.00",
+            "cats_5min__petcam_20260528_164836_004_frame_12.00",
+            "cats_5min__petcam_20260528_164836_004_frame_14.00",
+            "cats_5min__petcam_20260528_164836_004_frame_16.00",
+            "cats_5min__petcam_20260528_164836_004_frame_18.00",
+            "cats_5min__petcam_20260528_164836_004_frame_2.00",
+            "cats_5min__petcam_20260528_164836_004_frame_20.00",
+            "cats_5min__petcam_20260528_164836_004_frame_22.00",
+            "cats_5min__petcam_20260528_164836_004_frame_24.00",
+            "cats_5min__petcam_20260528_164836_004_frame_26.00",
+            "cats_5min__petcam_20260528_164836_004_frame_28.00",
+            "cats_5min__petcam_20260528_164836_004_frame_30.00",
+            "cats_5min__petcam_20260528_164836_004_frame_32.00",
+            "cats_5min__petcam_20260528_164836_004_frame_34.00",
+            "cats_5min__petcam_20260528_164836_004_frame_36.00",
+            "cats_5min__petcam_20260528_164836_004_frame_38.00",
+            "cats_5min__petcam_20260528_164836_004_frame_4.00",
+            "cats_5min__petcam_20260528_164836_004_frame_40.00",
+            "cats_5min__petcam_20260528_164836_004_frame_44.00",
+            "cats_5min__petcam_20260528_164836_004_frame_46.00",
+            "cats_5min__petcam_20260528_164836_004_frame_48.00",
+            "cats_5min__petcam_20260528_164836_004_frame_50.00",
+            "cats_5min__petcam_20260528_164836_004_frame_52.00",
+            "cats_5min__petcam_20260528_164836_004_frame_54.00",
+            "cats_5min__petcam_20260528_164836_004_frame_56.00",
+            "cats_5min__petcam_20260528_164836_004_frame_58.00",
+            "cats_5min__petcam_20260528_164836_004_frame_6.00",
+            "cats_5min__petcam_20260528_164836_004_frame_8.00",
+            "cats_5min__petcam_20260528_170746_000_frame_10.51",
+            "cats_5min__petcam_20260528_170746_000_frame_12.51",
+            "cats_5min__petcam_20260528_170746_000_frame_14.51",
+            "cats_5min__petcam_20260528_170746_000_frame_16.51",
+            "cats_5min__petcam_20260528_170746_000_frame_18.51",
+            "cats_5min__petcam_20260528_170746_000_frame_20.51",
+            "cats_5min__petcam_20260528_170746_000_frame_22.51",
+            "cats_5min__petcam_20260528_170746_000_frame_24.51",
+            "cats_5min__petcam_20260528_170746_000_frame_26.51",
+            "cats_5min__petcam_20260528_170746_000_frame_28.51",
+            "cats_5min__petcam_20260528_170746_000_frame_30.51",
+            "cats_5min__petcam_20260528_170746_000_frame_32.51",
+            "cats_5min__petcam_20260528_170746_000_frame_34.51",
+            "cats_5min__petcam_20260528_170746_000_frame_36.51",
+            "cats_5min__petcam_20260528_170746_000_frame_38.51",
+            "cats_5min__petcam_20260528_170746_000_frame_40.51",
+            "cats_5min__petcam_20260528_170746_000_frame_42.51",
+            "cats_5min__petcam_20260528_170746_000_frame_44.51",
+            "cats_5min__petcam_20260528_170746_000_frame_46.51",
+            "cats_5min__petcam_20260528_170746_000_frame_48.51",
+            "cats_5min__petcam_20260528_170746_000_frame_50.51",
+            "cats_5min__petcam_20260528_170746_000_frame_52.51",
+            "cats_5min__petcam_20260528_170746_000_frame_54.51",
+            "cats_5min__petcam_20260528_170746_000_frame_56.51",
+            "cats_5min__petcam_20260528_170746_000_frame_58.51",
+            "cats_5min__petcam_20260528_170746_000_frame_60.51",
+            "cats_5min__petcam_20260528_170746_000_frame_62.51",
+            "cats_5min__petcam_20260528_170746_000_frame_64.51",
+            "cats_5min__petcam_20260528_170746_000_frame_66.51",
+            "cats_5min__petcam_20260528_170746_000_frame_8.51",
+            "cats_5min__petcam_20260528_170746_001_frame_10.00",
+            "cats_5min__petcam_20260528_170746_001_frame_12.00",
+            "cats_5min__petcam_20260528_170746_001_frame_14.00",
+            "cats_5min__petcam_20260528_170746_001_frame_16.00",
+            "cats_5min__petcam_20260528_170746_001_frame_18.00",
+            "cats_5min__petcam_20260528_170746_001_frame_2.00",
+            "cats_5min__petcam_20260528_170746_001_frame_20.00",
+            "cats_5min__petcam_20260528_170746_001_frame_22.00",
+            "cats_5min__petcam_20260528_170746_001_frame_26.00",
+            "cats_5min__petcam_20260528_170746_001_frame_28.00",
+            "cats_5min__petcam_20260528_170746_001_frame_30.00",
+            "cats_5min__petcam_20260528_170746_001_frame_32.00",
+            "cats_5min__petcam_20260528_170746_001_frame_34.00",
+            "cats_5min__petcam_20260528_170746_001_frame_36.00",
+            "cats_5min__petcam_20260528_170746_001_frame_38.00",
+            "cats_5min__petcam_20260528_170746_001_frame_4.00",
+            "cats_5min__petcam_20260528_170746_001_frame_40.00",
+            "cats_5min__petcam_20260528_170746_001_frame_42.00",
+            "cats_5min__petcam_20260528_170746_001_frame_44.00",
+            "cats_5min__petcam_20260528_170746_001_frame_46.00",
+            "cats_5min__petcam_20260528_170746_001_frame_48.00",
+            "cats_5min__petcam_20260528_170746_001_frame_50.00",
+            "cats_5min__petcam_20260528_170746_001_frame_52.00",
+            "cats_5min__petcam_20260528_170746_001_frame_54.00",
+            "cats_5min__petcam_20260528_170746_001_frame_56.00",
+            "cats_5min__petcam_20260528_170746_001_frame_58.00",
+            "cats_5min__petcam_20260528_170746_001_frame_6.00",
+            "cats_5min__petcam_20260528_170746_001_frame_8.00",
+            "cats_5min__petcam_20260528_170746_002_frame_10.00",
+            "cats_5min__petcam_20260528_170746_002_frame_12.00",
+            "cats_5min__petcam_20260528_170746_002_frame_14.00",
+            "cats_5min__petcam_20260528_170746_002_frame_16.00",
+            "cats_5min__petcam_20260528_170746_002_frame_18.00",
+            "cats_5min__petcam_20260528_170746_002_frame_2.00",
+            "cats_5min__petcam_20260528_170746_002_frame_20.00",
+            "cats_5min__petcam_20260528_170746_002_frame_22.00",
+            "cats_5min__petcam_20260528_170746_002_frame_24.00",
+            "cats_5min__petcam_20260528_170746_002_frame_26.00",
+            "cats_5min__petcam_20260528_170746_002_frame_28.00",
+            "cats_5min__petcam_20260528_170746_002_frame_30.00",
+            "cats_5min__petcam_20260528_170746_002_frame_32.00",
+            "cats_5min__petcam_20260528_170746_002_frame_34.00",
+            "cats_5min__petcam_20260528_170746_002_frame_36.00",
+            "cats_5min__petcam_20260528_170746_002_frame_38.00",
+            "cats_5min__petcam_20260528_170746_002_frame_4.00",
+            "cats_5min__petcam_20260528_170746_002_frame_40.00",
+            "cats_5min__petcam_20260528_170746_002_frame_42.00",
+            "cats_5min__petcam_20260528_170746_002_frame_44.00",
+            "cats_5min__petcam_20260528_170746_002_frame_46.00",
+            "cats_5min__petcam_20260528_170746_002_frame_48.00",
+            "cats_5min__petcam_20260528_170746_002_frame_50.00",
+            "cats_5min__petcam_20260528_170746_002_frame_52.00",
+            "cats_5min__petcam_20260528_170746_002_frame_54.00",
+            "cats_5min__petcam_20260528_170746_002_frame_56.00",
+            "cats_5min__petcam_20260528_170746_002_frame_58.00",
+            "cats_5min__petcam_20260528_170746_002_frame_6.00",
+            "cats_5min__petcam_20260528_170746_002_frame_8.00",
+            "cats_5min__petcam_20260528_170746_003_frame_10.00",
+            "cats_5min__petcam_20260528_170746_003_frame_12.00",
+            "cats_5min__petcam_20260528_170746_003_frame_14.00",
+            "cats_5min__petcam_20260528_170746_003_frame_16.00",
+            "cats_5min__petcam_20260528_170746_003_frame_18.00",
+            "cats_5min__petcam_20260528_170746_003_frame_2.00",
+            "cats_5min__petcam_20260528_170746_003_frame_20.00",
+            "cats_5min__petcam_20260528_170746_003_frame_22.00",
+            "cats_5min__petcam_20260528_170746_003_frame_24.00",
+            "cats_5min__petcam_20260528_170746_003_frame_26.00",
+            "cats_5min__petcam_20260528_170746_003_frame_28.00",
+            "cats_5min__petcam_20260528_170746_003_frame_32.00",
+            "cats_5min__petcam_20260528_170746_003_frame_34.00",
+            "cats_5min__petcam_20260528_170746_003_frame_36.00",
+            "cats_5min__petcam_20260528_170746_003_frame_38.00",
+            "cats_5min__petcam_20260528_170746_003_frame_4.00",
+            "cats_5min__petcam_20260528_170746_003_frame_40.00",
+            "cats_5min__petcam_20260528_170746_003_frame_42.00",
+            "cats_5min__petcam_20260528_170746_003_frame_44.00",
+            "cats_5min__petcam_20260528_170746_003_frame_46.00",
+            "cats_5min__petcam_20260528_170746_003_frame_48.00",
+            "cats_5min__petcam_20260528_170746_003_frame_50.00",
+            "cats_5min__petcam_20260528_170746_003_frame_52.00",
+            "cats_5min__petcam_20260528_170746_003_frame_54.00",
+            "cats_5min__petcam_20260528_170746_003_frame_56.00",
+            "cats_5min__petcam_20260528_170746_003_frame_58.00",
+            "cats_5min__petcam_20260528_170746_003_frame_6.00",
+            "cats_5min__petcam_20260528_170746_003_frame_8.00",
+            "cats_5min__petcam_20260528_170746_004_frame_10.00",
+            "cats_5min__petcam_20260528_170746_004_frame_12.00",
+            "cats_5min__petcam_20260528_170746_004_frame_14.00",
+            "cats_5min__petcam_20260528_170746_004_frame_16.00",
+            "cats_5min__petcam_20260528_170746_004_frame_18.00",
+            "cats_5min__petcam_20260528_170746_004_frame_2.00",
+            "cats_5min__petcam_20260528_170746_004_frame_20.00",
+            "cats_5min__petcam_20260528_170746_004_frame_22.00",
+            "cats_5min__petcam_20260528_170746_004_frame_24.00",
+            "cats_5min__petcam_20260528_170746_004_frame_26.00",
+            "cats_5min__petcam_20260528_170746_004_frame_28.00",
+            "cats_5min__petcam_20260528_170746_004_frame_30.00",
+            "cats_5min__petcam_20260528_170746_004_frame_32.00",
+            "cats_5min__petcam_20260528_170746_004_frame_34.00",
+            "cats_5min__petcam_20260528_170746_004_frame_36.00",
+            "cats_5min__petcam_20260528_170746_004_frame_38.00",
+            "cats_5min__petcam_20260528_170746_004_frame_4.00",
+            "cats_5min__petcam_20260528_170746_004_frame_40.00",
+            "cats_5min__petcam_20260528_170746_004_frame_44.00",
+            "cats_5min__petcam_20260528_170746_004_frame_46.00",
+            "cats_5min__petcam_20260528_170746_004_frame_48.00",
+            "cats_5min__petcam_20260528_170746_004_frame_50.00",
+            "cats_5min__petcam_20260528_170746_004_frame_52.00",
+            "cats_5min__petcam_20260528_170746_004_frame_54.00",
+            "cats_5min__petcam_20260528_170746_004_frame_56.00",
+            "cats_5min__petcam_20260528_170746_004_frame_58.00",
+            "cats_5min__petcam_20260528_170746_004_frame_6.00",
+            "cats_5min__petcam_20260528_170746_004_frame_8.00"
+          ]
+        },
+        "dog": {
+          "count": 4,
+          "frame_ids": [
+            "cats_5min__petcam_20260528_164836_002_frame_56.00",
+            "cats_5min__petcam_20260528_164836_004_frame_22.00",
+            "cats_5min__petcam_20260528_170746_002_frame_56.00",
+            "cats_5min__petcam_20260528_170746_004_frame_22.00"
+          ]
+        },
+        "person": {
+          "count": 0,
+          "frame_ids": []
+        }
+      },
+      "IMG_8450_2": {
+        "cat": {
+          "count": 33,
+          "frame_ids": [
+            "IMG_8450_2__petcam_20260926_173123_000_frame_12.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_14.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_16.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_18.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_2.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_20.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_22.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_24.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_26.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_28.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_30.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_32.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_34.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_36.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_38.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_4.50",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_40.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_42.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_44.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_46.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_48.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_50.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_52.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_54.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_56.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_58.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_6.50",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_60.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_62.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_64.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_8.50",
+            "IMG_8450_2__petcam_20260926_173123_001_frame_2.00"
+          ]
+        },
+        "dog": {
+          "count": 0,
+          "frame_ids": []
+        },
+        "person": {
+          "count": 0,
+          "frame_ids": []
+        }
+      },
+      "dog_drinking_water": {
+        "cat": {
+          "count": 2,
+          "frame_ids": [
+            "dog_drinking_water__petcam_20260926_173602_000_frame_46.00",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_48.00"
+          ]
+        },
+        "dog": {
+          "count": 84,
+          "frame_ids": [
+            "dog_drinking_water__petcam_20260926_173602_000_frame_12.50",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_14.50",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_16.50",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_18.50",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_20.50",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_22.50",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_24.50",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_26.50",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_3.50",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_30.00",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_34.00",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_38.00",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_40.00",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_42.00",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_44.00",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_5.50",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_50.00",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_52.00",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_54.00",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_56.00",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_58.00",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_60.00",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_62.00",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_64.00",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_7.50",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_9.50",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_10.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_14.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_16.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_18.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_2.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_20.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_22.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_24.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_26.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_28.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_30.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_32.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_34.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_36.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_38.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_4.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_40.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_42.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_44.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_46.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_48.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_50.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_52.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_54.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_56.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_6.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_8.00",
+            "dog_drinking_water__petcam_20260926_173602_002_frame_16.50",
+            "dog_drinking_water__petcam_20260926_173602_002_frame_18.50",
+            "dog_drinking_water__petcam_20260926_173602_002_frame_2.00",
+            "dog_drinking_water__petcam_20260926_173602_002_frame_20.50",
+            "dog_drinking_water__petcam_20260926_173602_002_frame_28.00",
+            "dog_drinking_water__petcam_20260926_173602_002_frame_30.00",
+            "dog_drinking_water__petcam_20260926_173602_002_frame_32.00",
+            "dog_drinking_water__petcam_20260926_173602_002_frame_34.00",
+            "dog_drinking_water__petcam_20260926_173602_002_frame_36.00",
+            "dog_drinking_water__petcam_20260926_173602_002_frame_38.00",
+            "dog_drinking_water__petcam_20260926_173602_002_frame_4.00",
+            "dog_drinking_water__petcam_20260926_173602_002_frame_40.00",
+            "dog_drinking_water__petcam_20260926_173602_002_frame_42.00",
+            "dog_drinking_water__petcam_20260926_173602_002_frame_44.00",
+            "dog_drinking_water__petcam_20260926_173602_002_frame_46.00",
+            "dog_drinking_water__petcam_20260926_173602_002_frame_48.00",
+            "dog_drinking_water__petcam_20260926_173602_002_frame_50.00",
+            "dog_drinking_water__petcam_20260926_173602_002_frame_52.00",
+            "dog_drinking_water__petcam_20260926_173602_002_frame_54.00",
+            "dog_drinking_water__petcam_20260926_173602_002_frame_56.00",
+            "dog_drinking_water__petcam_20260926_173602_002_frame_58.00",
+            "dog_drinking_water__petcam_20260926_173602_003_frame_11.50",
+            "dog_drinking_water__petcam_20260926_173602_003_frame_18.00",
+            "dog_drinking_water__petcam_20260926_173602_003_frame_2.00",
+            "dog_drinking_water__petcam_20260926_173602_003_frame_23.00",
+            "dog_drinking_water__petcam_20260926_173602_003_frame_25.00",
+            "dog_drinking_water__petcam_20260926_173602_003_frame_27.00",
+            "dog_drinking_water__petcam_20260926_173602_003_frame_29.00",
+            "dog_drinking_water__petcam_20260926_173602_003_frame_31.00",
+            "dog_drinking_water__petcam_20260926_173602_003_frame_6.00",
+            "dog_drinking_water__petcam_20260926_173602_003_frame_9.50"
+          ]
+        },
+        "person": {
+          "count": 1,
+          "frame_ids": [
+            "dog_drinking_water__petcam_20260926_173602_001_frame_26.00"
+          ]
+        }
+      },
+      "dog_escape": {
+        "cat": {
+          "count": 0,
+          "frame_ids": []
+        },
+        "dog": {
+          "count": 7,
+          "frame_ids": [
+            "dog_escape__petcam_20260926_173415_000_frame_12.00",
+            "dog_escape__petcam_20260926_173415_000_frame_16.00",
+            "dog_escape__petcam_20260926_173415_000_frame_18.00",
+            "dog_escape__petcam_20260926_173415_000_frame_2.00",
+            "dog_escape__petcam_20260926_173415_000_frame_20.00",
+            "dog_escape__petcam_20260926_173415_000_frame_30.00",
+            "dog_escape__petcam_20260926_173415_000_frame_4.00"
+          ]
+        },
+        "person": {
+          "count": 6,
+          "frame_ids": [
+            "dog_escape__petcam_20260926_173415_000_frame_38.00",
+            "dog_escape__petcam_20260926_173415_000_frame_40.00",
+            "dog_escape__petcam_20260926_173415_000_frame_42.00",
+            "dog_escape__petcam_20260926_173415_000_frame_46.00",
+            "dog_escape__petcam_20260926_173415_000_frame_48.00",
+            "dog_escape__petcam_20260926_173415_000_frame_56.00"
+          ]
+        }
+      },
+      "two_dogs": {
+        "cat": {
+          "count": 0,
+          "frame_ids": []
+        },
+        "dog": {
+          "count": 74,
+          "frame_ids": [
+            "two_dogs__two_dogs_000_frame_000001",
+            "two_dogs__two_dogs_000_frame_000002",
+            "two_dogs__two_dogs_000_frame_000004",
+            "two_dogs__two_dogs_000_frame_000005",
+            "two_dogs__two_dogs_000_frame_000006",
+            "two_dogs__two_dogs_000_frame_000007",
+            "two_dogs__two_dogs_000_frame_000008",
+            "two_dogs__two_dogs_000_frame_000009",
+            "two_dogs__two_dogs_000_frame_000010",
+            "two_dogs__two_dogs_000_frame_000012",
+            "two_dogs__two_dogs_000_frame_000013",
+            "two_dogs__two_dogs_000_frame_000014",
+            "two_dogs__two_dogs_000_frame_000015",
+            "two_dogs__two_dogs_000_frame_000016",
+            "two_dogs__two_dogs_000_frame_000017",
+            "two_dogs__two_dogs_000_frame_000018",
+            "two_dogs__two_dogs_000_frame_000019",
+            "two_dogs__two_dogs_000_frame_000020",
+            "two_dogs__two_dogs_000_frame_000021",
+            "two_dogs__two_dogs_000_frame_000022",
+            "two_dogs__two_dogs_000_frame_000023",
+            "two_dogs__two_dogs_000_frame_000024",
+            "two_dogs__two_dogs_000_frame_000025",
+            "two_dogs__two_dogs_000_frame_000026",
+            "two_dogs__two_dogs_000_frame_000027",
+            "two_dogs__two_dogs_000_frame_000028",
+            "two_dogs__two_dogs_000_frame_000029",
+            "two_dogs__two_dogs_000_frame_000030",
+            "two_dogs__two_dogs_000_frame_000031",
+            "two_dogs__two_dogs_000_frame_000032",
+            "two_dogs__two_dogs_000_frame_000033",
+            "two_dogs__two_dogs_000_frame_000034",
+            "two_dogs__two_dogs_000_frame_000035",
+            "two_dogs__two_dogs_000_frame_000036",
+            "two_dogs__two_dogs_000_frame_000037",
+            "two_dogs__two_dogs_000_frame_000038",
+            "two_dogs__two_dogs_000_frame_000039",
+            "two_dogs__two_dogs_000_frame_000041",
+            "two_dogs__two_dogs_000_frame_000043",
+            "two_dogs__two_dogs_000_frame_000044",
+            "two_dogs__two_dogs_000_frame_000045",
+            "two_dogs__two_dogs_000_frame_000046",
+            "two_dogs__two_dogs_000_frame_000047",
+            "two_dogs__two_dogs_000_frame_000048",
+            "two_dogs__two_dogs_000_frame_000049",
+            "two_dogs__two_dogs_000_frame_000050",
+            "two_dogs__two_dogs_000_frame_000053",
+            "two_dogs__two_dogs_000_frame_000054",
+            "two_dogs__two_dogs_000_frame_000055",
+            "two_dogs__two_dogs_000_frame_000056",
+            "two_dogs__two_dogs_000_frame_000058",
+            "two_dogs__two_dogs_000_frame_000061",
+            "two_dogs__two_dogs_000_frame_000062",
+            "two_dogs__two_dogs_000_frame_000063",
+            "two_dogs__two_dogs_000_frame_000067",
+            "two_dogs__two_dogs_000_frame_000069",
+            "two_dogs__two_dogs_000_frame_000070",
+            "two_dogs__two_dogs_000_frame_000071",
+            "two_dogs__two_dogs_000_frame_000072",
+            "two_dogs__two_dogs_000_frame_000073",
+            "two_dogs__two_dogs_000_frame_000074",
+            "two_dogs__two_dogs_000_frame_000075",
+            "two_dogs__two_dogs_000_frame_000076",
+            "two_dogs__two_dogs_000_frame_000077",
+            "two_dogs__two_dogs_000_frame_000078",
+            "two_dogs__two_dogs_000_frame_000079",
+            "two_dogs__two_dogs_000_frame_000080",
+            "two_dogs__two_dogs_000_frame_000082",
+            "two_dogs__two_dogs_000_frame_000084",
+            "two_dogs__two_dogs_000_frame_000085",
+            "two_dogs__two_dogs_000_frame_000086",
+            "two_dogs__two_dogs_000_frame_000087",
+            "two_dogs__two_dogs_000_frame_000089",
+            "two_dogs__two_dogs_000_frame_000090"
+          ]
+        },
+        "person": {
+          "count": 9,
+          "frame_ids": [
+            "two_dogs__two_dogs_000_frame_000040",
+            "two_dogs__two_dogs_000_frame_000078",
+            "two_dogs__two_dogs_000_frame_000079",
+            "two_dogs__two_dogs_000_frame_000080",
+            "two_dogs__two_dogs_000_frame_000081",
+            "two_dogs__two_dogs_000_frame_000082",
+            "two_dogs__two_dogs_000_frame_000083",
+            "two_dogs__two_dogs_000_frame_000084",
+            "two_dogs__two_dogs_000_frame_000085"
+          ]
+        }
+      }
+    },
+    "query_context": {
+      "cats_5min": {
+        "user_id": null,
+        "video_id": "cats_5min",
+        "user_frequent_queries": [],
+        "global_frequent_queries": [
+          {
+            "query": "고양이",
+            "query_norm": "고양이",
+            "count": 20,
+            "last_searched_at": "2026-06-17T12:09:25"
+          },
+          {
+            "query": "쇼파에 올라가는 장면 찾아줘",
+            "query_norm": "쇼파에 올라가는 장면 찾아줘",
+            "count": 7,
+            "last_searched_at": "2026-09-26T06:49:53"
+          },
+          {
+            "query": "two dogs",
+            "query_norm": "two dogs",
+            "count": 4,
+            "last_searched_at": "2026-05-27T20:08:29"
+          },
+          {
+            "query": "tv 근처에 머문 장면 보여줘",
+            "query_norm": "tv 근처에 머문 장면 보여줘",
+            "count": 3,
+            "last_searched_at": "2026-09-26T01:18:45"
+          },
+          {
+            "query": "강아지가 물 마시는 장면",
+            "query_norm": "강아지가 물 마시는 장면",
+            "count": 3,
+            "last_searched_at": "2026-09-24T16:09:13"
+          }
+        ],
+        "dominant_objects": [
+          {
+            "label": "cat",
+            "count": 630
+          },
+          {
+            "label": "bowl",
+            "count": 23
+          },
+          {
+            "label": "dog",
+            "count": 7
+          }
+        ],
+        "scene_events": [
+          {
+            "event_type": "pet_repeatedly_detected",
+            "timestamp": 2.0,
+            "labels": [
+              "cat"
+            ],
+            "score": 0.98,
+            "description": "2.0초 이후 'cat' 객체가 630회 반복 감지됨"
+          },
+          {
+            "event_type": "pet_object_pair_repeated",
+            "timestamp": 18.0,
+            "labels": [
+              "bowl",
+              "cat"
+            ],
+            "score": 0.98,
+            "description": "18.0초 이후 반려동물과 주변 객체 ['bowl', 'cat'] 조합이 23회 반복 감지됨"
+          },
+          {
+            "event_type": "pet_repeatedly_detected",
+            "timestamp": 22.0,
+            "labels": [
+              "dog"
+            ],
+            "score": 0.98,
+            "description": "22.0초 이후 'dog' 객체가 7회 반복 감지됨"
+          },
+          {
+            "event_type": "repeated_object_detected",
+            "timestamp": 18.0,
+            "labels": [
+              "bowl"
+            ],
+            "score": 0.9,
+            "description": "18.0초 이후 'bowl' 객체가 23회 반복 감지됨"
+          }
+        ],
+        "scene_event_summary": "2.0초 이후 'cat' 객체가 630회 반복 감지됨 / 18.0초 이후 반려동물과 주변 객체 ['bowl', 'cat'] 조합이 23회 반복 감지됨 / 22.0초 이후 'dog' 객체가 7회 반복 감지됨 / 18.0초 이후 'bowl' 객체가 23회 반복 감지됨"
+      },
+      "IMG_8450_2": {
+        "user_id": null,
+        "video_id": "IMG_8450_2",
+        "user_frequent_queries": [],
+        "global_frequent_queries": [
+          {
+            "query": "고양이",
+            "query_norm": "고양이",
+            "count": 20,
+            "last_searched_at": "2026-06-17T12:09:25"
+          },
+          {
+            "query": "쇼파에 올라가는 장면 찾아줘",
+            "query_norm": "쇼파에 올라가는 장면 찾아줘",
+            "count": 7,
+            "last_searched_at": "2026-09-26T06:49:53"
+          },
+          {
+            "query": "two dogs",
+            "query_norm": "two dogs",
+            "count": 4,
+            "last_searched_at": "2026-05-27T20:08:29"
+          },
+          {
+            "query": "tv 근처에 머문 장면 보여줘",
+            "query_norm": "tv 근처에 머문 장면 보여줘",
+            "count": 3,
+            "last_searched_at": "2026-09-26T01:18:45"
+          },
+          {
+            "query": "강아지가 물 마시는 장면",
+            "query_norm": "강아지가 물 마시는 장면",
+            "count": 3,
+            "last_searched_at": "2026-09-24T16:09:13"
+          }
+        ],
+        "dominant_objects": [
+          {
+            "label": "cat",
+            "count": 33
+          },
+          {
+            "label": "bowl",
+            "count": 24
+          },
+          {
+            "label": "bed",
+            "count": 3
+          }
+        ],
+        "scene_events": [
+          {
+            "event_type": "pet_repeatedly_detected",
+            "timestamp": 2.0,
+            "labels": [
+              "cat"
+            ],
+            "score": 0.98,
+            "description": "2.0초 이후 'cat' 객체가 33회 반복 감지됨"
+          },
+          {
+            "event_type": "pet_object_pair_repeated",
+            "timestamp": 2.0,
+            "labels": [
+              "bowl",
+              "cat"
+            ],
+            "score": 0.98,
+            "description": "2.0초 이후 반려동물과 주변 객체 ['bowl', 'cat'] 조합이 24회 반복 감지됨"
+          },
+          {
+            "event_type": "repeated_object_detected",
+            "timestamp": 2.0,
+            "labels": [
+              "bowl"
+            ],
+            "score": 0.9,
+            "description": "2.0초 이후 'bowl' 객체가 24회 반복 감지됨"
+          },
+          {
+            "event_type": "pet_object_pair_repeated",
+            "timestamp": 6.5,
+            "labels": [
+              "bed",
+              "cat"
+            ],
+            "score": 0.89,
+            "description": "6.5초 이후 반려동물과 주변 객체 ['bed', 'cat'] 조합이 3회 반복 감지됨"
+          },
+          {
+            "event_type": "scene_label_changed",
+            "timestamp": 22.0,
+            "labels": [
+              "cat"
+            ],
+            "score": 0.7170000000000001,
+            "description": "22.0초에 감지 객체 구성이 크게 바뀜 이전=['bed', 'bowl', 'cat'], 현재=['cat']"
+          },
+          {
+            "event_type": "background_object_repeatedly_detected",
+            "timestamp": 6.5,
+            "labels": [
+              "bed"
+            ],
+            "score": 0.5,
+            "description": "6.5초 이후 'bed' 객체가 3회 반복 감지됨"
+          }
+        ],
+        "scene_event_summary": "2.0초 이후 'cat' 객체가 33회 반복 감지됨 / 2.0초 이후 반려동물과 주변 객체 ['bowl', 'cat'] 조합이 24회 반복 감지됨 / 2.0초 이후 'bowl' 객체가 24회 반복 감지됨 / 6.5초 이후 반려동물과 주변 객체 ['bed', 'cat'] 조합이 3회 반복 감지됨 / 22.0초에 감지 객체 구성이 크게 바뀜 이전=['bed', 'bowl', 'cat'], 현재=['cat']"
+      },
+      "dog_drinking_water": {
+        "user_id": null,
+        "video_id": "dog_drinking_water",
+        "user_frequent_queries": [],
+        "global_frequent_queries": [
+          {
+            "query": "고양이",
+            "query_norm": "고양이",
+            "count": 20,
+            "last_searched_at": "2026-06-17T12:09:25"
+          },
+          {
+            "query": "쇼파에 올라가는 장면 찾아줘",
+            "query_norm": "쇼파에 올라가는 장면 찾아줘",
+            "count": 7,
+            "last_searched_at": "2026-09-26T06:49:53"
+          },
+          {
+            "query": "two dogs",
+            "query_norm": "two dogs",
+            "count": 4,
+            "last_searched_at": "2026-05-27T20:08:29"
+          },
+          {
+            "query": "tv 근처에 머문 장면 보여줘",
+            "query_norm": "tv 근처에 머문 장면 보여줘",
+            "count": 3,
+            "last_searched_at": "2026-09-26T01:18:45"
+          },
+          {
+            "query": "강아지가 물 마시는 장면",
+            "query_norm": "강아지가 물 마시는 장면",
+            "count": 3,
+            "last_searched_at": "2026-09-24T16:09:13"
+          }
+        ],
+        "dominant_objects": [
+          {
+            "label": "dog",
+            "count": 190
+          },
+          {
+            "label": "bowl",
+            "count": 56
+          },
+          {
+            "label": "cat",
+            "count": 40
+          },
+          {
+            "label": "chair",
+            "count": 21
+          },
+          {
+            "label": "person",
+            "count": 1
+          }
+        ],
+        "scene_events": [
+          {
+            "event_type": "pet_repeatedly_detected",
+            "timestamp": 2.0,
+            "labels": [
+              "dog"
+            ],
+            "score": 0.98,
+            "description": "2.0초 이후 'dog' 객체가 190회 반복 감지됨"
+          },
+          {
+            "event_type": "pet_object_pair_repeated",
+            "timestamp": 2.0,
+            "labels": [
+              "bowl",
+              "dog"
+            ],
+            "score": 0.98,
+            "description": "2.0초 이후 반려동물과 주변 객체 ['bowl', 'dog'] 조합이 52회 반복 감지됨"
+          },
+          {
+            "event_type": "pet_repeatedly_detected",
+            "timestamp": 3.5,
+            "labels": [
+              "cat"
+            ],
+            "score": 0.98,
+            "description": "3.5초 이후 'cat' 객체가 40회 반복 감지됨"
+          },
+          {
+            "event_type": "scene_label_changed",
+            "timestamp": 3.5,
+            "labels": [
+              "cat"
+            ],
+            "score": 0.98,
+            "description": "3.5초에 감지 객체 구성이 크게 바뀜 이전=['bowl', 'dog'], 현재=['cat']"
+          },
+          {
+            "event_type": "scene_label_changed",
+            "timestamp": 3.5,
+            "labels": [
+              "bowl",
+              "dog"
+            ],
+            "score": 0.98,
+            "description": "3.5초에 감지 객체 구성이 크게 바뀜 이전=['cat'], 현재=['bowl', 'dog']"
+          },
+          {
+            "event_type": "pet_object_pair_repeated",
+            "timestamp": 4.0,
+            "labels": [
+              "chair",
+              "dog"
+            ],
+            "score": 0.98,
+            "description": "4.0초 이후 반려동물과 주변 객체 ['chair', 'dog'] 조합이 8회 반복 감지됨"
+          },
+          {
+            "event_type": "scene_label_changed",
+            "timestamp": 7.5,
+            "labels": [
+              "cat"
+            ],
+            "score": 0.98,
+            "description": "7.5초에 감지 객체 구성이 크게 바뀜 이전=['bowl', 'dog'], 현재=['cat']"
+          },
+          {
+            "event_type": "pet_object_pair_repeated",
+            "timestamp": 38.0,
+            "labels": [
+              "cat",
+              "chair"
+            ],
+            "score": 0.9500000000000001,
+            "description": "38.0초 이후 반려동물과 주변 객체 ['cat', 'chair'] 조합이 5회 반복 감지됨"
+          }
+        ],
+        "scene_event_summary": "2.0초 이후 'dog' 객체가 190회 반복 감지됨 / 2.0초 이후 반려동물과 주변 객체 ['bowl', 'dog'] 조합이 52회 반복 감지됨 / 3.5초 이후 'cat' 객체가 40회 반복 감지됨 / 3.5초에 감지 객체 구성이 크게 바뀜 이전=['bowl', 'dog'], 현재=['cat'] / 3.5초에 감지 객체 구성이 크게 바뀜 이전=['cat'], 현재=['bowl', 'dog']"
+      },
+      "dog_escape": {
+        "user_id": null,
+        "video_id": "dog_escape",
+        "user_frequent_queries": [],
+        "global_frequent_queries": [
+          {
+            "query": "고양이",
+            "query_norm": "고양이",
+            "count": 20,
+            "last_searched_at": "2026-06-17T12:09:25"
+          },
+          {
+            "query": "쇼파에 올라가는 장면 찾아줘",
+            "query_norm": "쇼파에 올라가는 장면 찾아줘",
+            "count": 7,
+            "last_searched_at": "2026-09-26T06:49:53"
+          },
+          {
+            "query": "two dogs",
+            "query_norm": "two dogs",
+            "count": 4,
+            "last_searched_at": "2026-05-27T20:08:29"
+          },
+          {
+            "query": "tv 근처에 머문 장면 보여줘",
+            "query_norm": "tv 근처에 머문 장면 보여줘",
+            "count": 3,
+            "last_searched_at": "2026-09-26T01:18:45"
+          },
+          {
+            "query": "강아지가 물 마시는 장면",
+            "query_norm": "강아지가 물 마시는 장면",
+            "count": 3,
+            "last_searched_at": "2026-09-24T16:09:13"
+          }
+        ],
+        "dominant_objects": [
+          {
+            "label": "bed",
+            "count": 17
+          },
+          {
+            "label": "person",
+            "count": 11
+          },
+          {
+            "label": "dog",
+            "count": 8
+          },
+          {
+            "label": "couch",
+            "count": 8
+          },
+          {
+            "label": "chair",
+            "count": 2
+          }
+        ],
+        "scene_events": [
+          {
+            "event_type": "pet_repeatedly_detected",
+            "timestamp": 2.0,
+            "labels": [
+              "dog"
+            ],
+            "score": 0.98,
+            "description": "2.0초 이후 'dog' 객체가 8회 반복 감지됨"
+          },
+          {
+            "event_type": "pet_object_pair_repeated",
+            "timestamp": 2.0,
+            "labels": [
+              "couch",
+              "dog"
+            ],
+            "score": 0.98,
+            "description": "2.0초 이후 반려동물과 주변 객체 ['couch', 'dog'] 조합이 6회 반복 감지됨"
+          },
+          {
+            "event_type": "scene_label_changed",
+            "timestamp": 4.0,
+            "labels": [
+              "couch",
+              "dog"
+            ],
+            "score": 0.98,
+            "description": "4.0초에 감지 객체 구성이 크게 바뀜 이전=['bed'], 현재=['couch', 'dog']"
+          },
+          {
+            "event_type": "scene_label_changed",
+            "timestamp": 12.0,
+            "labels": [
+              "couch",
+              "dog"
+            ],
+            "score": 0.98,
+            "description": "12.0초에 감지 객체 구성이 크게 바뀜 이전=['bed'], 현재=['couch', 'dog']"
+          },
+          {
+            "event_type": "person_repeatedly_detected",
+            "timestamp": 38.0,
+            "labels": [
+              "person"
+            ],
+            "score": 0.9,
+            "description": "38.0초 이후 'person' 객체가 11회 반복 감지됨"
+          },
+          {
+            "event_type": "background_object_repeatedly_detected",
+            "timestamp": 2.0,
+            "labels": [
+              "bed"
+            ],
+            "score": 0.5,
+            "description": "2.0초 이후 'bed' 객체가 17회 반복 감지됨"
+          },
+          {
+            "event_type": "background_object_repeatedly_detected",
+            "timestamp": 2.0,
+            "labels": [
+              "couch"
+            ],
+            "score": 0.5,
+            "description": "2.0초 이후 'couch' 객체가 8회 반복 감지됨"
+          },
+          {
+            "event_type": "scene_label_changed",
+            "timestamp": 4.0,
+            "labels": [
+              "bed"
+            ],
+            "score": 0.5,
+            "description": "4.0초에 감지 객체 구성이 크게 바뀜 이전=['couch', 'dog'], 현재=['bed']"
+          }
+        ],
+        "scene_event_summary": "2.0초 이후 'dog' 객체가 8회 반복 감지됨 / 2.0초 이후 반려동물과 주변 객체 ['couch', 'dog'] 조합이 6회 반복 감지됨 / 4.0초에 감지 객체 구성이 크게 바뀜 이전=['bed'], 현재=['couch', 'dog'] / 12.0초에 감지 객체 구성이 크게 바뀜 이전=['bed'], 현재=['couch', 'dog'] / 38.0초 이후 'person' 객체가 11회 반복 감지됨"
+      },
+      "two_dogs": {
+        "user_id": null,
+        "video_id": "two_dogs",
+        "user_frequent_queries": [],
+        "global_frequent_queries": [
+          {
+            "query": "고양이",
+            "query_norm": "고양이",
+            "count": 20,
+            "last_searched_at": "2026-06-17T12:09:25"
+          },
+          {
+            "query": "쇼파에 올라가는 장면 찾아줘",
+            "query_norm": "쇼파에 올라가는 장면 찾아줘",
+            "count": 7,
+            "last_searched_at": "2026-09-26T06:49:53"
+          },
+          {
+            "query": "two dogs",
+            "query_norm": "two dogs",
+            "count": 4,
+            "last_searched_at": "2026-05-27T20:08:29"
+          },
+          {
+            "query": "tv 근처에 머문 장면 보여줘",
+            "query_norm": "tv 근처에 머문 장면 보여줘",
+            "count": 3,
+            "last_searched_at": "2026-09-26T01:18:45"
+          },
+          {
+            "query": "강아지가 물 마시는 장면",
+            "query_norm": "강아지가 물 마시는 장면",
+            "count": 3,
+            "last_searched_at": "2026-09-24T16:09:13"
+          }
+        ],
+        "dominant_objects": [
+          {
+            "label": "dog",
+            "count": 74
+          },
+          {
+            "label": "chair",
+            "count": 69
+          },
+          {
+            "label": "tv",
+            "count": 67
+          },
+          {
+            "label": "couch",
+            "count": 26
+          },
+          {
+            "label": "dining table",
+            "count": 13
+          },
+          {
+            "label": "person",
+            "count": 9
+          },
+          {
+            "label": "cow",
+            "count": 5
+          },
+          {
+            "label": "horse",
+            "count": 3
+          },
+          {
+            "label": "bottle",
+            "count": 3
+          },
+          {
+            "label": "bed",
+            "count": 1
+          }
+        ],
+        "scene_events": [
+          {
+            "event_type": "scene_label_changed",
+            "timestamp": 102.0,
+            "labels": [
+              "cow"
+            ],
+            "score": 1.0,
+            "description": "102.0초에 감지 객체 구성이 크게 바뀜 이전=['chair'], 현재=['cow']"
+          },
+          {
+            "event_type": "pet_repeatedly_detected",
+            "timestamp": 0.0,
+            "labels": [
+              "dog"
+            ],
+            "score": 0.98,
+            "description": "0.0초 이후 'dog' 객체가 74회 반복 감지됨"
+          },
+          {
+            "event_type": "pet_object_pair_repeated",
+            "timestamp": 0.0,
+            "labels": [
+              "chair",
+              "dog"
+            ],
+            "score": 0.98,
+            "description": "0.0초 이후 반려동물과 주변 객체 ['chair', 'dog'] 조합이 59회 반복 감지됨"
+          },
+          {
+            "event_type": "pet_object_pair_repeated",
+            "timestamp": 0.0,
+            "labels": [
+              "dog",
+              "tv"
+            ],
+            "score": 0.98,
+            "description": "0.0초 이후 반려동물과 주변 객체 ['dog', 'tv'] 조합이 58회 반복 감지됨"
+          },
+          {
+            "event_type": "pet_object_pair_repeated",
+            "timestamp": 0.0,
+            "labels": [
+              "couch",
+              "dog"
+            ],
+            "score": 0.98,
+            "description": "0.0초 이후 반려동물과 주변 객체 ['couch', 'dog'] 조합이 22회 반복 감지됨"
+          },
+          {
+            "event_type": "scene_label_changed",
+            "timestamp": 6.0,
+            "labels": [
+              "chair",
+              "couch",
+              "dog"
+            ],
+            "score": 0.98,
+            "description": "6.0초에 감지 객체 구성이 크게 바뀜 이전=['tv'], 현재=['chair', 'couch', 'dog']"
+          },
+          {
+            "event_type": "pet_object_pair_repeated",
+            "timestamp": 26.0,
+            "labels": [
+              "dining table",
+              "dog"
+            ],
+            "score": 0.98,
+            "description": "26.0초 이후 반려동물과 주변 객체 ['dining table', 'dog'] 조합이 12회 반복 감지됨"
+          },
+          {
+            "event_type": "scene_label_changed",
+            "timestamp": 104.0,
+            "labels": [
+              "chair",
+              "dog",
+              "tv"
+            ],
+            "score": 0.98,
+            "description": "104.0초에 감지 객체 구성이 크게 바뀜 이전=['cow'], 현재=['chair', 'dog', 'tv']"
+          }
+        ],
+        "scene_event_summary": "102.0초에 감지 객체 구성이 크게 바뀜 이전=['chair'], 현재=['cow'] / 0.0초 이후 'dog' 객체가 74회 반복 감지됨 / 0.0초 이후 반려동물과 주변 객체 ['chair', 'dog'] 조합이 59회 반복 감지됨 / 0.0초 이후 반려동물과 주변 객체 ['dog', 'tv'] 조합이 58회 반복 감지됨 / 0.0초 이후 반려동물과 주변 객체 ['couch', 'dog'] 조합이 22회 반복 감지됨"
+      }
+    },
+    "suggestions": {
+      "cats_5min": [
+        {
+          "question": "고양이 근처에 머문 장면 보여줘",
+          "question_source": "frame fallback",
+          "source_event_id": null,
+          "original_event_id": null,
+          "event_start": null,
+          "event_end": null
+        },
+        {
+          "question": "고양이을 만지거나 살펴보는 장면 있어?",
+          "question_source": "frame fallback",
+          "source_event_id": null,
+          "original_event_id": null,
+          "event_start": null,
+          "event_end": null
+        },
+        {
+          "question": "고양이 주변에서 움직인 장면 찾아줘",
+          "question_source": "frame fallback",
+          "source_event_id": null,
+          "original_event_id": null,
+          "event_start": null,
+          "event_end": null
+        }
+      ],
+      "IMG_8450_2": [
+        {
+          "question": "자동 급식기 근처에 있는 장면이 있어?",
+          "question_source": "LLM",
+          "source_event_id": 3,
+          "original_event_id": 3,
+          "event_start": 4.5,
+          "event_end": 9.0
+        },
+        {
+          "question": "사료 그릇에 접근한 장면이 있어?",
+          "question_source": "LLM",
+          "source_event_id": 2,
+          "original_event_id": 2,
+          "event_start": 12.0,
+          "event_end": 66.5
+        },
+        {
+          "question": "고양이가 보이는 장면 보여줘",
+          "question_source": "label fallback",
+          "source_event_id": 3,
+          "original_event_id": null,
+          "event_start": 4.5,
+          "event_end": 9.0
+        }
+      ],
+      "dog_drinking_water": [
+        {
+          "question": "물을 마신 장면이 있어?",
+          "question_source": "LLM",
+          "source_event_id": 9,
+          "original_event_id": 9,
+          "event_start": 2.0,
+          "event_end": 57.5
+        },
+        {
+          "question": "강아지가 보이는 장면 보여줘",
+          "question_source": "label fallback",
+          "source_event_id": 6,
+          "original_event_id": null,
+          "event_start": 30.0,
+          "event_end": 64.5
+        },
+        {
+          "question": "강아지가 움직인 장면 찾아줘",
+          "question_source": "label fallback",
+          "source_event_id": 8,
+          "original_event_id": null,
+          "event_start": 3.5,
+          "event_end": 9.5
+        }
+      ],
+      "dog_escape": [
+        {
+          "question": "강아지가 보이는 장면 보여줘",
+          "question_source": "label fallback",
+          "source_event_id": null,
+          "original_event_id": null,
+          "event_start": null,
+          "event_end": null
+        },
+        {
+          "question": "강아지가 움직인 장면 찾아줘",
+          "question_source": "label fallback",
+          "source_event_id": 5,
+          "original_event_id": null,
+          "event_start": 2.0,
+          "event_end": 56.06
+        },
+        {
+          "question": "사람이 함께 보이는 장면 있어?",
+          "question_source": "label fallback",
+          "source_event_id": null,
+          "original_event_id": null,
+          "event_start": null,
+          "event_end": null
+        }
+      ],
+      "two_dogs": [
+        {
+          "question": "강아지가 보이는 장면 보여줘",
+          "question_source": "label fallback",
+          "source_event_id": null,
+          "original_event_id": null,
+          "event_start": null,
+          "event_end": null
+        },
+        {
+          "question": "강아지가 움직인 장면 찾아줘",
+          "question_source": "label fallback",
+          "source_event_id": 1,
+          "original_event_id": null,
+          "event_start": 0.0,
+          "event_end": 178.0
+        },
+        {
+          "question": "소파 근처에서 움직인 장면 찾아줘",
+          "question_source": "label fallback",
+          "source_event_id": 1,
+          "original_event_id": null,
+          "event_start": 0.0,
+          "event_end": 178.0
+        }
+      ]
+    },
+    "recordings_api": {
+      "count": 0,
+      "chunk_keys": [],
+      "status": "ok"
+    }
+  },
+  "simulation": {
+    "search_counts_after": {
+      "cat": 0,
+      "dog": 0,
+      "person": 0
+    },
+    "query_context_after": {
+      "user_id": null,
+      "video_id": "cats_5min",
+      "user_frequent_queries": [],
+      "global_frequent_queries": [
+        {
+          "query": "고양이",
+          "query_norm": "고양이",
+          "count": 20,
+          "last_searched_at": "2026-06-17T12:09:25"
+        },
+        {
+          "query": "쇼파에 올라가는 장면 찾아줘",
+          "query_norm": "쇼파에 올라가는 장면 찾아줘",
+          "count": 7,
+          "last_searched_at": "2026-09-26T06:49:53"
+        },
+        {
+          "query": "two dogs",
+          "query_norm": "two dogs",
+          "count": 4,
+          "last_searched_at": "2026-05-27T20:08:29"
+        },
+        {
+          "query": "tv 근처에 머문 장면 보여줘",
+          "query_norm": "tv 근처에 머문 장면 보여줘",
+          "count": 3,
+          "last_searched_at": "2026-09-26T01:18:45"
+        },
+        {
+          "query": "강아지가 물 마시는 장면",
+          "query_norm": "강아지가 물 마시는 장면",
+          "count": 3,
+          "last_searched_at": "2026-09-24T16:09:13"
+        }
+      ],
+      "dominant_objects": [],
+      "scene_events": [],
+      "scene_event_summary": "",
+      "note": "Historical/global frequent-query context is retained; only cats_5min scene context is removed."
+    },
+    "suggestions_after": [],
+    "behavior_event_impact": "none; there are no events",
+    "other_video_state": "unchanged by simulation"
+  },
+  "cleanup": {
+    "chroma_deleted": 292,
+    "scenes_deleted": 643,
+    "chroma_count_after": 240,
+    "cats_chroma_after": 0
+  },
+  "after": {
+    "cats_chroma_remaining": 0,
+    "cats_scene_remaining": 0,
+    "other_chroma_count_before_after": [
+      240,
+      240
+    ],
+    "other_chroma_all_metadata_document_embedding_unchanged": true,
+    "unexpected_target_ids_after": [],
+    "other_scene_counts": {
+      "dog_drinking_water": 267,
+      "dog_escape": 56,
+      "IMG_8450_2": 33,
+      "two_dogs": 90
+    },
+    "other_scene_counts_unchanged": true,
+    "searches": {
+      "cats_5min": {
+        "cat": {
+          "count": 0,
+          "frame_ids": []
+        },
+        "dog": {
+          "count": 0,
+          "frame_ids": []
+        },
+        "person": {
+          "count": 0,
+          "frame_ids": []
+        }
+      },
+      "IMG_8450_2": {
+        "cat": {
+          "count": 33,
+          "frame_ids": [
+            "IMG_8450_2__petcam_20260926_173123_000_frame_12.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_14.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_16.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_18.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_2.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_20.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_22.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_24.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_26.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_28.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_30.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_32.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_34.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_36.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_38.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_4.50",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_40.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_42.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_44.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_46.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_48.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_50.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_52.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_54.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_56.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_58.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_6.50",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_60.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_62.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_64.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+            "IMG_8450_2__petcam_20260926_173123_000_frame_8.50",
+            "IMG_8450_2__petcam_20260926_173123_001_frame_2.00"
+          ]
+        },
+        "dog": {
+          "count": 0,
+          "frame_ids": []
+        },
+        "person": {
+          "count": 0,
+          "frame_ids": []
+        }
+      },
+      "dog_drinking_water": {
+        "cat": {
+          "count": 2,
+          "frame_ids": [
+            "dog_drinking_water__petcam_20260926_173602_000_frame_46.00",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_48.00"
+          ]
+        },
+        "dog": {
+          "count": 84,
+          "frame_ids": [
+            "dog_drinking_water__petcam_20260926_173602_000_frame_12.50",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_14.50",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_16.50",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_18.50",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_20.50",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_22.50",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_24.50",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_26.50",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_3.50",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_30.00",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_34.00",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_38.00",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_40.00",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_42.00",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_44.00",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_5.50",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_50.00",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_52.00",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_54.00",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_56.00",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_58.00",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_60.00",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_62.00",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_64.00",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_7.50",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_9.50",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_10.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_14.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_16.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_18.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_2.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_20.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_22.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_24.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_26.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_28.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_30.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_32.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_34.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_36.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_38.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_4.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_40.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_42.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_44.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_46.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_48.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_50.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_52.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_54.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_56.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_6.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_8.00",
+            "dog_drinking_water__petcam_20260926_173602_002_frame_16.50",
+            "dog_drinking_water__petcam_20260926_173602_002_frame_18.50",
+            "dog_drinking_water__petcam_20260926_173602_002_frame_2.00",
+            "dog_drinking_water__petcam_20260926_173602_002_frame_20.50",
+            "dog_drinking_water__petcam_20260926_173602_002_frame_28.00",
+            "dog_drinking_water__petcam_20260926_173602_002_frame_30.00",
+            "dog_drinking_water__petcam_20260926_173602_002_frame_32.00",
+            "dog_drinking_water__petcam_20260926_173602_002_frame_34.00",
+            "dog_drinking_water__petcam_20260926_173602_002_frame_36.00",
+            "dog_drinking_water__petcam_20260926_173602_002_frame_38.00",
+            "dog_drinking_water__petcam_20260926_173602_002_frame_4.00",
+            "dog_drinking_water__petcam_20260926_173602_002_frame_40.00",
+            "dog_drinking_water__petcam_20260926_173602_002_frame_42.00",
+            "dog_drinking_water__petcam_20260926_173602_002_frame_44.00",
+            "dog_drinking_water__petcam_20260926_173602_002_frame_46.00",
+            "dog_drinking_water__petcam_20260926_173602_002_frame_48.00",
+            "dog_drinking_water__petcam_20260926_173602_002_frame_50.00",
+            "dog_drinking_water__petcam_20260926_173602_002_frame_52.00",
+            "dog_drinking_water__petcam_20260926_173602_002_frame_54.00",
+            "dog_drinking_water__petcam_20260926_173602_002_frame_56.00",
+            "dog_drinking_water__petcam_20260926_173602_002_frame_58.00",
+            "dog_drinking_water__petcam_20260926_173602_003_frame_11.50",
+            "dog_drinking_water__petcam_20260926_173602_003_frame_18.00",
+            "dog_drinking_water__petcam_20260926_173602_003_frame_2.00",
+            "dog_drinking_water__petcam_20260926_173602_003_frame_23.00",
+            "dog_drinking_water__petcam_20260926_173602_003_frame_25.00",
+            "dog_drinking_water__petcam_20260926_173602_003_frame_27.00",
+            "dog_drinking_water__petcam_20260926_173602_003_frame_29.00",
+            "dog_drinking_water__petcam_20260926_173602_003_frame_31.00",
+            "dog_drinking_water__petcam_20260926_173602_003_frame_6.00",
+            "dog_drinking_water__petcam_20260926_173602_003_frame_9.50"
+          ]
+        },
+        "person": {
+          "count": 1,
+          "frame_ids": [
+            "dog_drinking_water__petcam_20260926_173602_001_frame_26.00"
+          ]
+        }
+      },
+      "dog_escape": {
+        "cat": {
+          "count": 0,
+          "frame_ids": []
+        },
+        "dog": {
+          "count": 7,
+          "frame_ids": [
+            "dog_escape__petcam_20260926_173415_000_frame_12.00",
+            "dog_escape__petcam_20260926_173415_000_frame_16.00",
+            "dog_escape__petcam_20260926_173415_000_frame_18.00",
+            "dog_escape__petcam_20260926_173415_000_frame_2.00",
+            "dog_escape__petcam_20260926_173415_000_frame_20.00",
+            "dog_escape__petcam_20260926_173415_000_frame_30.00",
+            "dog_escape__petcam_20260926_173415_000_frame_4.00"
+          ]
+        },
+        "person": {
+          "count": 6,
+          "frame_ids": [
+            "dog_escape__petcam_20260926_173415_000_frame_38.00",
+            "dog_escape__petcam_20260926_173415_000_frame_40.00",
+            "dog_escape__petcam_20260926_173415_000_frame_42.00",
+            "dog_escape__petcam_20260926_173415_000_frame_46.00",
+            "dog_escape__petcam_20260926_173415_000_frame_48.00",
+            "dog_escape__petcam_20260926_173415_000_frame_56.00"
+          ]
+        }
+      },
+      "two_dogs": {
+        "cat": {
+          "count": 0,
+          "frame_ids": []
+        },
+        "dog": {
+          "count": 74,
+          "frame_ids": [
+            "two_dogs__two_dogs_000_frame_000001",
+            "two_dogs__two_dogs_000_frame_000002",
+            "two_dogs__two_dogs_000_frame_000004",
+            "two_dogs__two_dogs_000_frame_000005",
+            "two_dogs__two_dogs_000_frame_000006",
+            "two_dogs__two_dogs_000_frame_000007",
+            "two_dogs__two_dogs_000_frame_000008",
+            "two_dogs__two_dogs_000_frame_000009",
+            "two_dogs__two_dogs_000_frame_000010",
+            "two_dogs__two_dogs_000_frame_000012",
+            "two_dogs__two_dogs_000_frame_000013",
+            "two_dogs__two_dogs_000_frame_000014",
+            "two_dogs__two_dogs_000_frame_000015",
+            "two_dogs__two_dogs_000_frame_000016",
+            "two_dogs__two_dogs_000_frame_000017",
+            "two_dogs__two_dogs_000_frame_000018",
+            "two_dogs__two_dogs_000_frame_000019",
+            "two_dogs__two_dogs_000_frame_000020",
+            "two_dogs__two_dogs_000_frame_000021",
+            "two_dogs__two_dogs_000_frame_000022",
+            "two_dogs__two_dogs_000_frame_000023",
+            "two_dogs__two_dogs_000_frame_000024",
+            "two_dogs__two_dogs_000_frame_000025",
+            "two_dogs__two_dogs_000_frame_000026",
+            "two_dogs__two_dogs_000_frame_000027",
+            "two_dogs__two_dogs_000_frame_000028",
+            "two_dogs__two_dogs_000_frame_000029",
+            "two_dogs__two_dogs_000_frame_000030",
+            "two_dogs__two_dogs_000_frame_000031",
+            "two_dogs__two_dogs_000_frame_000032",
+            "two_dogs__two_dogs_000_frame_000033",
+            "two_dogs__two_dogs_000_frame_000034",
+            "two_dogs__two_dogs_000_frame_000035",
+            "two_dogs__two_dogs_000_frame_000036",
+            "two_dogs__two_dogs_000_frame_000037",
+            "two_dogs__two_dogs_000_frame_000038",
+            "two_dogs__two_dogs_000_frame_000039",
+            "two_dogs__two_dogs_000_frame_000041",
+            "two_dogs__two_dogs_000_frame_000043",
+            "two_dogs__two_dogs_000_frame_000044",
+            "two_dogs__two_dogs_000_frame_000045",
+            "two_dogs__two_dogs_000_frame_000046",
+            "two_dogs__two_dogs_000_frame_000047",
+            "two_dogs__two_dogs_000_frame_000048",
+            "two_dogs__two_dogs_000_frame_000049",
+            "two_dogs__two_dogs_000_frame_000050",
+            "two_dogs__two_dogs_000_frame_000053",
+            "two_dogs__two_dogs_000_frame_000054",
+            "two_dogs__two_dogs_000_frame_000055",
+            "two_dogs__two_dogs_000_frame_000056",
+            "two_dogs__two_dogs_000_frame_000058",
+            "two_dogs__two_dogs_000_frame_000061",
+            "two_dogs__two_dogs_000_frame_000062",
+            "two_dogs__two_dogs_000_frame_000063",
+            "two_dogs__two_dogs_000_frame_000067",
+            "two_dogs__two_dogs_000_frame_000069",
+            "two_dogs__two_dogs_000_frame_000070",
+            "two_dogs__two_dogs_000_frame_000071",
+            "two_dogs__two_dogs_000_frame_000072",
+            "two_dogs__two_dogs_000_frame_000073",
+            "two_dogs__two_dogs_000_frame_000074",
+            "two_dogs__two_dogs_000_frame_000075",
+            "two_dogs__two_dogs_000_frame_000076",
+            "two_dogs__two_dogs_000_frame_000077",
+            "two_dogs__two_dogs_000_frame_000078",
+            "two_dogs__two_dogs_000_frame_000079",
+            "two_dogs__two_dogs_000_frame_000080",
+            "two_dogs__two_dogs_000_frame_000082",
+            "two_dogs__two_dogs_000_frame_000084",
+            "two_dogs__two_dogs_000_frame_000085",
+            "two_dogs__two_dogs_000_frame_000086",
+            "two_dogs__two_dogs_000_frame_000087",
+            "two_dogs__two_dogs_000_frame_000089",
+            "two_dogs__two_dogs_000_frame_000090"
+          ]
+        },
+        "person": {
+          "count": 9,
+          "frame_ids": [
+            "two_dogs__two_dogs_000_frame_000040",
+            "two_dogs__two_dogs_000_frame_000078",
+            "two_dogs__two_dogs_000_frame_000079",
+            "two_dogs__two_dogs_000_frame_000080",
+            "two_dogs__two_dogs_000_frame_000081",
+            "two_dogs__two_dogs_000_frame_000082",
+            "two_dogs__two_dogs_000_frame_000083",
+            "two_dogs__two_dogs_000_frame_000084",
+            "two_dogs__two_dogs_000_frame_000085"
+          ]
+        }
+      }
+    },
+    "query_context": {
+      "cats_5min": {
+        "user_id": null,
+        "video_id": "cats_5min",
+        "user_frequent_queries": [],
+        "global_frequent_queries": [
+          {
+            "query": "고양이",
+            "query_norm": "고양이",
+            "count": 20,
+            "last_searched_at": "2026-06-17T12:09:25"
+          },
+          {
+            "query": "쇼파에 올라가는 장면 찾아줘",
+            "query_norm": "쇼파에 올라가는 장면 찾아줘",
+            "count": 7,
+            "last_searched_at": "2026-09-26T06:49:53"
+          },
+          {
+            "query": "two dogs",
+            "query_norm": "two dogs",
+            "count": 4,
+            "last_searched_at": "2026-05-27T20:08:29"
+          },
+          {
+            "query": "tv 근처에 머문 장면 보여줘",
+            "query_norm": "tv 근처에 머문 장면 보여줘",
+            "count": 3,
+            "last_searched_at": "2026-09-26T01:18:45"
+          },
+          {
+            "query": "강아지가 물 마시는 장면",
+            "query_norm": "강아지가 물 마시는 장면",
+            "count": 3,
+            "last_searched_at": "2026-09-24T16:09:13"
+          }
+        ],
+        "dominant_objects": [],
+        "scene_events": [],
+        "scene_event_summary": "눈에 띄는 장면 후보가 아직 없습니다."
+      },
+      "IMG_8450_2": {
+        "user_id": null,
+        "video_id": "IMG_8450_2",
+        "user_frequent_queries": [],
+        "global_frequent_queries": [
+          {
+            "query": "고양이",
+            "query_norm": "고양이",
+            "count": 20,
+            "last_searched_at": "2026-06-17T12:09:25"
+          },
+          {
+            "query": "쇼파에 올라가는 장면 찾아줘",
+            "query_norm": "쇼파에 올라가는 장면 찾아줘",
+            "count": 7,
+            "last_searched_at": "2026-09-26T06:49:53"
+          },
+          {
+            "query": "two dogs",
+            "query_norm": "two dogs",
+            "count": 4,
+            "last_searched_at": "2026-05-27T20:08:29"
+          },
+          {
+            "query": "tv 근처에 머문 장면 보여줘",
+            "query_norm": "tv 근처에 머문 장면 보여줘",
+            "count": 3,
+            "last_searched_at": "2026-09-26T01:18:45"
+          },
+          {
+            "query": "강아지가 물 마시는 장면",
+            "query_norm": "강아지가 물 마시는 장면",
+            "count": 3,
+            "last_searched_at": "2026-09-24T16:09:13"
+          }
+        ],
+        "dominant_objects": [
+          {
+            "label": "cat",
+            "count": 33
+          },
+          {
+            "label": "bowl",
+            "count": 24
+          },
+          {
+            "label": "bed",
+            "count": 3
+          }
+        ],
+        "scene_events": [
+          {
+            "event_type": "pet_repeatedly_detected",
+            "timestamp": 2.0,
+            "labels": [
+              "cat"
+            ],
+            "score": 0.98,
+            "description": "2.0초 이후 'cat' 객체가 33회 반복 감지됨"
+          },
+          {
+            "event_type": "pet_object_pair_repeated",
+            "timestamp": 2.0,
+            "labels": [
+              "bowl",
+              "cat"
+            ],
+            "score": 0.98,
+            "description": "2.0초 이후 반려동물과 주변 객체 ['bowl', 'cat'] 조합이 24회 반복 감지됨"
+          },
+          {
+            "event_type": "repeated_object_detected",
+            "timestamp": 2.0,
+            "labels": [
+              "bowl"
+            ],
+            "score": 0.9,
+            "description": "2.0초 이후 'bowl' 객체가 24회 반복 감지됨"
+          },
+          {
+            "event_type": "pet_object_pair_repeated",
+            "timestamp": 6.5,
+            "labels": [
+              "bed",
+              "cat"
+            ],
+            "score": 0.89,
+            "description": "6.5초 이후 반려동물과 주변 객체 ['bed', 'cat'] 조합이 3회 반복 감지됨"
+          },
+          {
+            "event_type": "scene_label_changed",
+            "timestamp": 22.0,
+            "labels": [
+              "cat"
+            ],
+            "score": 0.7170000000000001,
+            "description": "22.0초에 감지 객체 구성이 크게 바뀜 이전=['bed', 'bowl', 'cat'], 현재=['cat']"
+          },
+          {
+            "event_type": "background_object_repeatedly_detected",
+            "timestamp": 6.5,
+            "labels": [
+              "bed"
+            ],
+            "score": 0.5,
+            "description": "6.5초 이후 'bed' 객체가 3회 반복 감지됨"
+          }
+        ],
+        "scene_event_summary": "2.0초 이후 'cat' 객체가 33회 반복 감지됨 / 2.0초 이후 반려동물과 주변 객체 ['bowl', 'cat'] 조합이 24회 반복 감지됨 / 2.0초 이후 'bowl' 객체가 24회 반복 감지됨 / 6.5초 이후 반려동물과 주변 객체 ['bed', 'cat'] 조합이 3회 반복 감지됨 / 22.0초에 감지 객체 구성이 크게 바뀜 이전=['bed', 'bowl', 'cat'], 현재=['cat']"
+      },
+      "dog_drinking_water": {
+        "user_id": null,
+        "video_id": "dog_drinking_water",
+        "user_frequent_queries": [],
+        "global_frequent_queries": [
+          {
+            "query": "고양이",
+            "query_norm": "고양이",
+            "count": 20,
+            "last_searched_at": "2026-06-17T12:09:25"
+          },
+          {
+            "query": "쇼파에 올라가는 장면 찾아줘",
+            "query_norm": "쇼파에 올라가는 장면 찾아줘",
+            "count": 7,
+            "last_searched_at": "2026-09-26T06:49:53"
+          },
+          {
+            "query": "two dogs",
+            "query_norm": "two dogs",
+            "count": 4,
+            "last_searched_at": "2026-05-27T20:08:29"
+          },
+          {
+            "query": "tv 근처에 머문 장면 보여줘",
+            "query_norm": "tv 근처에 머문 장면 보여줘",
+            "count": 3,
+            "last_searched_at": "2026-09-26T01:18:45"
+          },
+          {
+            "query": "강아지가 물 마시는 장면",
+            "query_norm": "강아지가 물 마시는 장면",
+            "count": 3,
+            "last_searched_at": "2026-09-24T16:09:13"
+          }
+        ],
+        "dominant_objects": [
+          {
+            "label": "dog",
+            "count": 190
+          },
+          {
+            "label": "bowl",
+            "count": 56
+          },
+          {
+            "label": "cat",
+            "count": 40
+          },
+          {
+            "label": "chair",
+            "count": 21
+          },
+          {
+            "label": "person",
+            "count": 1
+          }
+        ],
+        "scene_events": [
+          {
+            "event_type": "pet_repeatedly_detected",
+            "timestamp": 2.0,
+            "labels": [
+              "dog"
+            ],
+            "score": 0.98,
+            "description": "2.0초 이후 'dog' 객체가 190회 반복 감지됨"
+          },
+          {
+            "event_type": "pet_object_pair_repeated",
+            "timestamp": 2.0,
+            "labels": [
+              "bowl",
+              "dog"
+            ],
+            "score": 0.98,
+            "description": "2.0초 이후 반려동물과 주변 객체 ['bowl', 'dog'] 조합이 52회 반복 감지됨"
+          },
+          {
+            "event_type": "pet_repeatedly_detected",
+            "timestamp": 3.5,
+            "labels": [
+              "cat"
+            ],
+            "score": 0.98,
+            "description": "3.5초 이후 'cat' 객체가 40회 반복 감지됨"
+          },
+          {
+            "event_type": "scene_label_changed",
+            "timestamp": 3.5,
+            "labels": [
+              "cat"
+            ],
+            "score": 0.98,
+            "description": "3.5초에 감지 객체 구성이 크게 바뀜 이전=['bowl', 'dog'], 현재=['cat']"
+          },
+          {
+            "event_type": "scene_label_changed",
+            "timestamp": 3.5,
+            "labels": [
+              "bowl",
+              "dog"
+            ],
+            "score": 0.98,
+            "description": "3.5초에 감지 객체 구성이 크게 바뀜 이전=['cat'], 현재=['bowl', 'dog']"
+          },
+          {
+            "event_type": "pet_object_pair_repeated",
+            "timestamp": 4.0,
+            "labels": [
+              "chair",
+              "dog"
+            ],
+            "score": 0.98,
+            "description": "4.0초 이후 반려동물과 주변 객체 ['chair', 'dog'] 조합이 8회 반복 감지됨"
+          },
+          {
+            "event_type": "scene_label_changed",
+            "timestamp": 7.5,
+            "labels": [
+              "cat"
+            ],
+            "score": 0.98,
+            "description": "7.5초에 감지 객체 구성이 크게 바뀜 이전=['bowl', 'dog'], 현재=['cat']"
+          },
+          {
+            "event_type": "pet_object_pair_repeated",
+            "timestamp": 38.0,
+            "labels": [
+              "cat",
+              "chair"
+            ],
+            "score": 0.9500000000000001,
+            "description": "38.0초 이후 반려동물과 주변 객체 ['cat', 'chair'] 조합이 5회 반복 감지됨"
+          }
+        ],
+        "scene_event_summary": "2.0초 이후 'dog' 객체가 190회 반복 감지됨 / 2.0초 이후 반려동물과 주변 객체 ['bowl', 'dog'] 조합이 52회 반복 감지됨 / 3.5초 이후 'cat' 객체가 40회 반복 감지됨 / 3.5초에 감지 객체 구성이 크게 바뀜 이전=['bowl', 'dog'], 현재=['cat'] / 3.5초에 감지 객체 구성이 크게 바뀜 이전=['cat'], 현재=['bowl', 'dog']"
+      },
+      "dog_escape": {
+        "user_id": null,
+        "video_id": "dog_escape",
+        "user_frequent_queries": [],
+        "global_frequent_queries": [
+          {
+            "query": "고양이",
+            "query_norm": "고양이",
+            "count": 20,
+            "last_searched_at": "2026-06-17T12:09:25"
+          },
+          {
+            "query": "쇼파에 올라가는 장면 찾아줘",
+            "query_norm": "쇼파에 올라가는 장면 찾아줘",
+            "count": 7,
+            "last_searched_at": "2026-09-26T06:49:53"
+          },
+          {
+            "query": "two dogs",
+            "query_norm": "two dogs",
+            "count": 4,
+            "last_searched_at": "2026-05-27T20:08:29"
+          },
+          {
+            "query": "tv 근처에 머문 장면 보여줘",
+            "query_norm": "tv 근처에 머문 장면 보여줘",
+            "count": 3,
+            "last_searched_at": "2026-09-26T01:18:45"
+          },
+          {
+            "query": "강아지가 물 마시는 장면",
+            "query_norm": "강아지가 물 마시는 장면",
+            "count": 3,
+            "last_searched_at": "2026-09-24T16:09:13"
+          }
+        ],
+        "dominant_objects": [
+          {
+            "label": "bed",
+            "count": 17
+          },
+          {
+            "label": "person",
+            "count": 11
+          },
+          {
+            "label": "dog",
+            "count": 8
+          },
+          {
+            "label": "couch",
+            "count": 8
+          },
+          {
+            "label": "chair",
+            "count": 2
+          }
+        ],
+        "scene_events": [
+          {
+            "event_type": "pet_repeatedly_detected",
+            "timestamp": 2.0,
+            "labels": [
+              "dog"
+            ],
+            "score": 0.98,
+            "description": "2.0초 이후 'dog' 객체가 8회 반복 감지됨"
+          },
+          {
+            "event_type": "pet_object_pair_repeated",
+            "timestamp": 2.0,
+            "labels": [
+              "couch",
+              "dog"
+            ],
+            "score": 0.98,
+            "description": "2.0초 이후 반려동물과 주변 객체 ['couch', 'dog'] 조합이 6회 반복 감지됨"
+          },
+          {
+            "event_type": "scene_label_changed",
+            "timestamp": 4.0,
+            "labels": [
+              "couch",
+              "dog"
+            ],
+            "score": 0.98,
+            "description": "4.0초에 감지 객체 구성이 크게 바뀜 이전=['bed'], 현재=['couch', 'dog']"
+          },
+          {
+            "event_type": "scene_label_changed",
+            "timestamp": 12.0,
+            "labels": [
+              "couch",
+              "dog"
+            ],
+            "score": 0.98,
+            "description": "12.0초에 감지 객체 구성이 크게 바뀜 이전=['bed'], 현재=['couch', 'dog']"
+          },
+          {
+            "event_type": "person_repeatedly_detected",
+            "timestamp": 38.0,
+            "labels": [
+              "person"
+            ],
+            "score": 0.9,
+            "description": "38.0초 이후 'person' 객체가 11회 반복 감지됨"
+          },
+          {
+            "event_type": "background_object_repeatedly_detected",
+            "timestamp": 2.0,
+            "labels": [
+              "bed"
+            ],
+            "score": 0.5,
+            "description": "2.0초 이후 'bed' 객체가 17회 반복 감지됨"
+          },
+          {
+            "event_type": "background_object_repeatedly_detected",
+            "timestamp": 2.0,
+            "labels": [
+              "couch"
+            ],
+            "score": 0.5,
+            "description": "2.0초 이후 'couch' 객체가 8회 반복 감지됨"
+          },
+          {
+            "event_type": "scene_label_changed",
+            "timestamp": 4.0,
+            "labels": [
+              "bed"
+            ],
+            "score": 0.5,
+            "description": "4.0초에 감지 객체 구성이 크게 바뀜 이전=['couch', 'dog'], 현재=['bed']"
+          }
+        ],
+        "scene_event_summary": "2.0초 이후 'dog' 객체가 8회 반복 감지됨 / 2.0초 이후 반려동물과 주변 객체 ['couch', 'dog'] 조합이 6회 반복 감지됨 / 4.0초에 감지 객체 구성이 크게 바뀜 이전=['bed'], 현재=['couch', 'dog'] / 12.0초에 감지 객체 구성이 크게 바뀜 이전=['bed'], 현재=['couch', 'dog'] / 38.0초 이후 'person' 객체가 11회 반복 감지됨"
+      },
+      "two_dogs": {
+        "user_id": null,
+        "video_id": "two_dogs",
+        "user_frequent_queries": [],
+        "global_frequent_queries": [
+          {
+            "query": "고양이",
+            "query_norm": "고양이",
+            "count": 20,
+            "last_searched_at": "2026-06-17T12:09:25"
+          },
+          {
+            "query": "쇼파에 올라가는 장면 찾아줘",
+            "query_norm": "쇼파에 올라가는 장면 찾아줘",
+            "count": 7,
+            "last_searched_at": "2026-09-26T06:49:53"
+          },
+          {
+            "query": "two dogs",
+            "query_norm": "two dogs",
+            "count": 4,
+            "last_searched_at": "2026-05-27T20:08:29"
+          },
+          {
+            "query": "tv 근처에 머문 장면 보여줘",
+            "query_norm": "tv 근처에 머문 장면 보여줘",
+            "count": 3,
+            "last_searched_at": "2026-09-26T01:18:45"
+          },
+          {
+            "query": "강아지가 물 마시는 장면",
+            "query_norm": "강아지가 물 마시는 장면",
+            "count": 3,
+            "last_searched_at": "2026-09-24T16:09:13"
+          }
+        ],
+        "dominant_objects": [
+          {
+            "label": "dog",
+            "count": 74
+          },
+          {
+            "label": "chair",
+            "count": 69
+          },
+          {
+            "label": "tv",
+            "count": 67
+          },
+          {
+            "label": "couch",
+            "count": 26
+          },
+          {
+            "label": "dining table",
+            "count": 13
+          },
+          {
+            "label": "person",
+            "count": 9
+          },
+          {
+            "label": "cow",
+            "count": 5
+          },
+          {
+            "label": "horse",
+            "count": 3
+          },
+          {
+            "label": "bottle",
+            "count": 3
+          },
+          {
+            "label": "bed",
+            "count": 1
+          }
+        ],
+        "scene_events": [
+          {
+            "event_type": "scene_label_changed",
+            "timestamp": 102.0,
+            "labels": [
+              "cow"
+            ],
+            "score": 1.0,
+            "description": "102.0초에 감지 객체 구성이 크게 바뀜 이전=['chair'], 현재=['cow']"
+          },
+          {
+            "event_type": "pet_repeatedly_detected",
+            "timestamp": 0.0,
+            "labels": [
+              "dog"
+            ],
+            "score": 0.98,
+            "description": "0.0초 이후 'dog' 객체가 74회 반복 감지됨"
+          },
+          {
+            "event_type": "pet_object_pair_repeated",
+            "timestamp": 0.0,
+            "labels": [
+              "chair",
+              "dog"
+            ],
+            "score": 0.98,
+            "description": "0.0초 이후 반려동물과 주변 객체 ['chair', 'dog'] 조합이 59회 반복 감지됨"
+          },
+          {
+            "event_type": "pet_object_pair_repeated",
+            "timestamp": 0.0,
+            "labels": [
+              "dog",
+              "tv"
+            ],
+            "score": 0.98,
+            "description": "0.0초 이후 반려동물과 주변 객체 ['dog', 'tv'] 조합이 58회 반복 감지됨"
+          },
+          {
+            "event_type": "pet_object_pair_repeated",
+            "timestamp": 0.0,
+            "labels": [
+              "couch",
+              "dog"
+            ],
+            "score": 0.98,
+            "description": "0.0초 이후 반려동물과 주변 객체 ['couch', 'dog'] 조합이 22회 반복 감지됨"
+          },
+          {
+            "event_type": "scene_label_changed",
+            "timestamp": 6.0,
+            "labels": [
+              "chair",
+              "couch",
+              "dog"
+            ],
+            "score": 0.98,
+            "description": "6.0초에 감지 객체 구성이 크게 바뀜 이전=['tv'], 현재=['chair', 'couch', 'dog']"
+          },
+          {
+            "event_type": "pet_object_pair_repeated",
+            "timestamp": 26.0,
+            "labels": [
+              "dining table",
+              "dog"
+            ],
+            "score": 0.98,
+            "description": "26.0초 이후 반려동물과 주변 객체 ['dining table', 'dog'] 조합이 12회 반복 감지됨"
+          },
+          {
+            "event_type": "scene_label_changed",
+            "timestamp": 104.0,
+            "labels": [
+              "chair",
+              "dog",
+              "tv"
+            ],
+            "score": 0.98,
+            "description": "104.0초에 감지 객체 구성이 크게 바뀜 이전=['cow'], 현재=['chair', 'dog', 'tv']"
+          }
+        ],
+        "scene_event_summary": "102.0초에 감지 객체 구성이 크게 바뀜 이전=['chair'], 현재=['cow'] / 0.0초 이후 'dog' 객체가 74회 반복 감지됨 / 0.0초 이후 반려동물과 주변 객체 ['chair', 'dog'] 조합이 59회 반복 감지됨 / 0.0초 이후 반려동물과 주변 객체 ['dog', 'tv'] 조합이 58회 반복 감지됨 / 0.0초 이후 반려동물과 주변 객체 ['couch', 'dog'] 조합이 22회 반복 감지됨"
+      }
+    },
+    "suggestions": {
+      "cats_5min": [],
+      "IMG_8450_2": [
+        {
+          "question": "자동 급식기 근처에 있는 장면이 있어?",
+          "question_source": "LLM",
+          "source_event_id": 3,
+          "original_event_id": 3,
+          "event_start": 4.5,
+          "event_end": 9.0
+        },
+        {
+          "question": "사료 그릇에 접근한 장면이 있어?",
+          "question_source": "LLM",
+          "source_event_id": 2,
+          "original_event_id": 2,
+          "event_start": 12.0,
+          "event_end": 66.5
+        },
+        {
+          "question": "고양이가 보이는 장면 보여줘",
+          "question_source": "label fallback",
+          "source_event_id": 3,
+          "original_event_id": null,
+          "event_start": 4.5,
+          "event_end": 9.0
+        }
+      ],
+      "dog_drinking_water": [
+        {
+          "question": "물을 마신 장면이 있어?",
+          "question_source": "LLM",
+          "source_event_id": 9,
+          "original_event_id": 9,
+          "event_start": 2.0,
+          "event_end": 57.5
+        },
+        {
+          "question": "여름의 물 그릇에 다가간 장면이 있어?",
+          "question_source": "LLM",
+          "source_event_id": 6,
+          "original_event_id": 6,
+          "event_start": 30.0,
+          "event_end": 64.5
+        },
+        {
+          "question": "강아지가 보이는 장면 보여줘",
+          "question_source": "label fallback",
+          "source_event_id": 6,
+          "original_event_id": null,
+          "event_start": 30.0,
+          "event_end": 64.5
+        }
+      ],
+      "dog_escape": [
+        {
+          "question": "장애물을 넘어서는 장면이 있어?",
+          "question_source": "LLM",
+          "source_event_id": 5,
+          "original_event_id": 5,
+          "event_start": 2.0,
+          "event_end": 56.06
+        },
+        {
+          "question": "강아지가 보이는 장면 보여줘",
+          "question_source": "label fallback",
+          "source_event_id": null,
+          "original_event_id": null,
+          "event_start": null,
+          "event_end": null
+        },
+        {
+          "question": "강아지가 움직인 장면 찾아줘",
+          "question_source": "label fallback",
+          "source_event_id": 5,
+          "original_event_id": null,
+          "event_start": 2.0,
+          "event_end": 56.06
+        }
+      ],
+      "two_dogs": [
+        {
+          "question": "강아지가 보이는 장면 보여줘",
+          "question_source": "label fallback",
+          "source_event_id": null,
+          "original_event_id": null,
+          "event_start": null,
+          "event_end": null
+        },
+        {
+          "question": "강아지가 움직인 장면 찾아줘",
+          "question_source": "label fallback",
+          "source_event_id": 1,
+          "original_event_id": null,
+          "event_start": 0.0,
+          "event_end": 178.0
+        },
+        {
+          "question": "소파 근처에서 움직인 장면 찾아줘",
+          "question_source": "label fallback",
+          "source_event_id": 1,
+          "original_event_id": null,
+          "event_start": 0.0,
+          "event_end": 178.0
+        }
+      ]
+    },
+    "other_video_search_ids_unchanged": {
+      "IMG_8450_2": true,
+      "dog_drinking_water": true,
+      "dog_escape": true,
+      "two_dogs": true
+    },
+    "other_video_scene_context_unchanged": {
+      "IMG_8450_2": true,
+      "dog_drinking_water": true,
+      "dog_escape": true,
+      "two_dogs": true
+    },
+    "recordings_api": {
+      "count": 0,
+      "chunk_keys": [],
+      "status": "ok"
+    }
+  },
+  "post_verification": "passed",
+  "rollback_dry_run": {
+    "chroma_records_restorable": 292,
+    "scene_rows_restorable": 643,
+    "id_collisions": 0,
+    "writes_performed": false,
+    "embedding_restore_precision_note": "The pre-cleanup backup retains the original float32 vectors. During an earlier aborted delete attempt, 14 stale Chroma embeddings were re-added through the Chroma API and now differ from the pre-delete backup by at most one adjacent float32 representable value (max absolute delta 2.98e-8). Rollback can restore all IDs/documents/metadata and vectors to float32-roundtrip precision, but byte-identical embedding restoration is not guaranteed for those 14 rows."
+  }
+}
