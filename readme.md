@@ -164,8 +164,7 @@ worker가 배포 API와 같은 GCS 버킷과 Cloud SQL 데이터베이스를 사
 kidogkidog/
 ├── api/
 │   ├── Dockerfile
-│   ├── main.py                    # FastAPI 엔드포인트, 검색 API, 미디어 프록시
-│   └── requirements.txt
+│   └── main.py                    # FastAPI 엔드포인트, 검색 API, 미디어 프록시
 ├── data/
 │   └── videos/                    # 로컬 테스트 영상 입력 경로
 ├── db/
@@ -189,8 +188,7 @@ kidogkidog/
 │   └── yolo_detector.py
 ├── simulator/
 │   ├── chunk_splitter.py          # FFmpeg 청크 분할
-│   ├── edge_simulator.py          # 청크 업로드 및 API 전송 시뮬레이터
-│   └── preprocessor.py
+│   └── edge_simulator.py          # 청크 업로드 및 API 전송 시뮬레이터
 ├── ui-react/
 │   ├── src/
 │   │   ├── App.css
