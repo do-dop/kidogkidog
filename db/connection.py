@@ -19,7 +19,8 @@ class _Cursor:
         self._cursor = cursor
 
     def execute(self, sql, params=None):
-        return self._cursor.execute(sql.replace("?", "%s"), params or ())
+        # params가 없으면 None으로 넘겨 LIKE '%...%' 같은 리터럴 %를 포맷 문자로 해석하지 않게 한다.
+        return self._cursor.execute(sql.replace("?", "%s"), params or None)
 
     def fetchall(self):
         return self._cursor.fetchall()
