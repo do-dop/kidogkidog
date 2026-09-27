@@ -221,10 +221,10 @@ def get_behavior_event_by_id(event_id):
         LIMIT 1
     ''', (event_id,))
 
-    row = cursor.fetchone()
+    rows = cursor.fetchall()
     conn.close()
 
-    return _row_to_behavior_event(row) if row else None
+    return _row_to_behavior_event(rows[0]) if rows else None
 
 
 def get_behavior_events_overlapping(video_id, start_time, end_time, limit=5):

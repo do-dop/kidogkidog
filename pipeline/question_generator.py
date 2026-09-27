@@ -10,38 +10,119 @@ DEFAULT_GENERATED_QUESTIONS = [
     "반려동물이 특정 위치 근처에 머무른 장면이 있나요?",
     "영상 중간에 새롭게 등장한 객체나 사람이 있나요?",
     "반려동물이 움직이거나 위치를 바꾼 장면이 있나요?",
-    "반려동물이 주변 물체에 관심을 보인 장면이 있나요?",
+    "사람이 함께 나온 장면이 있나요?",
     "처음과 달라진 장면이 있었나요?",
 ]
 
 
-DEFAULT_BEHAVIOR_QUESTIONS = [
-    "반려동물이 가장 오래 집중한 행동은 무엇인가요?",
-    "반려동물이 같은 행동을 반복한 구간이 있나요?",
-    "반려동물이 특정 물체에 관심을 보인 장면이 있나요?",
-    "움직임이 많았던 장면은 언제였나요?",
-    "보호자가 확인해볼 만한 장면이 있나요?",
-]
+# 근거 이벤트가 없으면 query_suggester의 기존 라벨 보충에 맡긴다.
+DEFAULT_BEHAVIOR_QUESTIONS = []
+
+_DURATION_PATTERN = re.compile(r"오래|오랜|한동안|계속|지속|줄곧|내내|장시간|끊임|꾸준|종일")
+_REPEAT_PATTERN = re.compile(r"반복|여러\s*번|자주|거듭|되풀이|빈번|수차례|몇\s*번|두\s*번|[2-9]\s*(?:번|회)")
+_INTERPRETATION_PATTERN = re.compile(
+    r"기다|기대|관심|호기심|불안|편안|행복|슬퍼|슬프|기쁨|즐거|좋아|싫어|집중|"
+    r"원하|원한|원하는|하려|[가-힣]+려는|[가-힣]+려고|같아|같은가|같나요|같은지|"
+    r"감정|기분|의도|목적|이유|왜|스트레스|안정|흥분|긴장|지루|심심|외로|무서|두려"
+)
+
+
+def _question_rejection_reason(question: str, event: dict) -> str | None:
+    """문장은 고치지 않고 부적절한 후보 전체를 제외한다."""
+    if _DURATION_PATTERN.search(question):
+        return "지속시간 강조 표현 금지"
+    if _INTERPRETATION_PATTERN.search(question):
+        return "감정/의도 해석"
+    count = _safe_float(event.get("repeat_count"))
+    if _REPEAT_PATTERN.search(question) and not (2 <= count < float("inf")):
+        return "repeat_count >= 2 근거 없음"
+    return None
+
+
+def _validate_behavior_questions(
+    items: list, events: list[dict], limit: int, *, with_sources: bool = False,
+) -> list:
+    # 기존 최종 연결 규칙도 확인한다. 생성 근거와 최종 연결 이벤트 양쪽에서
+    # 반복 근거가 있어야 하고, 최종 연결 이벤트당 하나만 남긴다.
+    if not events or limit <= 0:
+        return []
+
+    from pipeline.query_suggester import _best_event_for_question
+
+    result, seen_events, seen_questions = [], set(), set()
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        index, question = item.get("event_index"), item.get("question")
+        if type(index) is not int or not 1 <= index <= len(events):
+            continue
+        if not isinstance(question, str) or not question.strip():
+            continue
+        question = " ".join(question.split())
+        if not question.endswith("?"):
+            question += "?"
+        source = events[index - 1]
+        linked = _best_event_for_question(question, events) or source
+        if _question_rejection_reason(question, source) or _question_rejection_reason(question, linked):
+            continue
+        source_key = source.get("id") if source.get("id") is not None else id(source)
+        linked_key = linked.get("id") if linked.get("id") is not None else id(linked)
+        normalized = re.sub(r"\s|[?!.,]", "", question)
+        if source_key in seen_events or linked_key in seen_events or normalized in seen_questions:
+            continue
+        # 문장 검증/중복 규칙은 유지하고, 통과한 후보의 원본 근거만 함께 전달한다.
+        result.append({
+            "question": question,
+            "source_event_id": source.get("id"),
+            "original_event_id": source.get("id"),
+            "event_start": source.get("start_time"),
+            "event_end": source.get("end_time"),
+        } if with_sources else question)
+        seen_events.update((source_key, linked_key))
+        seen_questions.add(normalized)
+        if len(result) >= limit:
+            break
+    return result
+
+
+def _parse_behavior_questions(output_text: str) -> list:
+    text = output_text.strip().removeprefix("```json").removeprefix("```").strip()
+    text = text.removesuffix("```").strip()
+    try:
+        items = json.loads(text)
+    except (ValueError, TypeError):
+        return []
+    return items if isinstance(items, list) else []
+
 
 def generate_questions_from_behavior_events(
+    events: list[dict], limit: int = 5, model: str = "gpt-4o-mini",
+) -> list[str]:
+    """기존 문자열 API는 유지한다. 추천 연결에는 구조화된 item API를 사용한다."""
+    return [item["question"] for item in generate_question_items_from_behavior_events(
+        events, limit=limit, model=model,
+    )]
+
+
+def generate_question_items_from_behavior_events(
     events: list[dict],
     limit: int = 5,
     model: str = "gpt-4o-mini",
-) -> list[str]:
+) -> list[dict]:
     """
     행동 이벤트를 LLM에게 전달하여 행동 중심 추천 질문을 생성한다.
 
     동물 종류는 코드에서 dog/cat처럼 고정하지 않는다.
     behavior_events에 기록된 subject/summary/action을 보고 LLM이 자연스럽게 판단한다.
-    OPENAI_API_KEY가 없거나 호출 실패 시에는 동물명을 특정하지 않고 "반려동물" 기반 fallback 질문을 반환한다.
+    OPENAI_API_KEY가 없거나 호출 실패 시에는 관찰 가능한 절에 기반한 fallback 질문을 반환한다.
     """
-    if not events:
-        return DEFAULT_BEHAVIOR_QUESTIONS[:limit]
+    if not events or limit <= 0:
+        return []
 
     api_key = os.getenv("OPENAI_API_KEY")
 
     if not api_key:
-        return _fallback_questions_from_behavior_events(events, limit=limit)
+        return _behavior_fallback_items(events, limit)
 
     try:
         from openai import OpenAI
@@ -59,15 +140,21 @@ def generate_questions_from_behavior_events(
         )
 
         output_text = response.output_text.strip()
-        questions = _parse_questions(output_text)
-
-        if questions:
-            return questions[:limit]
+        # 정상 응답에서 탈락한 후보를 억지로 채우지 않는다.
+        items = _validate_behavior_questions(
+            _parse_behavior_questions(output_text), events, limit, with_sources=True,
+        )
+        return [dict(item, question_source="LLM") for item in items]
 
     except Exception as exc:
         print(f"행동 기반 추천 질문 LLM 생성 실패: {exc}", flush=True)
 
-    return _fallback_questions_from_behavior_events(events, limit=limit)
+    return _behavior_fallback_items(events, limit)
+
+
+def _behavior_fallback_items(events: list[dict], limit: int) -> list[dict]:
+    items = _fallback_questions_from_behavior_events(events, limit, with_sources=True)
+    return [dict(item, question_source="behavior fallback") for item in items]
 
 
 def generate_questions_from_events(
@@ -117,70 +204,35 @@ def generate_questions_from_events(
 
 def _build_behavior_question_generation_prompt(events: list[dict], limit: int) -> str:
     event_text = format_behavior_events_for_prompt(events)
-
     return f"""
 너는 반려동물 영상 검색 서비스의 추천 질문 생성 도우미다.
-
-아래는 영상에서 분석된 반려동물 행동 이벤트이다.
-사용자가 실제로 눌러서 영상에서 확인해볼 만한 추천 질문을 만들어라.
-
-핵심 원칙:
-- 영상에서 눈으로 직접 확인 가능한 장면만 질문으로 만들어라.
-- 감정 진단, 원인 추정, 건강 상태 단정 질문은 만들지 마라.
-- "왜", "이유", "목적", "불안", "안정", "편안", "호기심", "스트레스" 같은 표현은 쓰지 마라.
-- 다만 영상으로 확인 가능한 범위의 "관심을 보인 장면", "반응을 확인할 수 있는 장면", "확인해볼 만한 장면" 표현은 사용할 수 있다.
-- 질문은 짧고 명확하게 작성한다.
-- 질문은 예/아니오로 답할 수 있거나, 특정 시점을 찾을 수 있는 형태로 만든다.
-- 행동 이벤트에 나온 행동, 장소, 대상만 사용한다.
-- 행동 이벤트에 없는 상황을 상상해서 질문하지 마라.
-- 한 질문에는 하나의 행동만 담는다.
-- 객체 이름만 묻는 질문은 만들지 마라.
-- 동물 종류가 명확하지 않으면 "반려동물"이라고 표현한다.
-- "탐색"이라는 단어를 사용한 질문은 최대 1개만 만들어라.
-- 모든 행동 이벤트가 탐색처럼 보이더라도 질문을 전부 탐색 중심으로 만들지 마라.
-- 서로 비슷한 질문을 반복하지 마라.
-- 질문은 최대 {limit}개만 생성한다.
-- JSON 배열만 출력한다.
-- markdown 코드블록은 쓰지 마라.
-
-좋은 질문의 형태:
-- "~한 장면이 있어?"
-- "~에 관심을 보인 장면이 있어?"
-- "~의 반응을 확인할 수 있어?"
-- "~에 오래 머문 구간은 언제야?"
-- "~에 들어간 장면이 있어?"
-- "~에서 나온 장면이 있어?"
-- "~을 먹은 장면이 있어?"
-- "~을 마신 장면이 있어?"
-- "~위에 올라간 장면이 있어?"
-- "~아래에 들어간 장면이 있어?"
-- "~한 장면은 언제였어?"
-- "~한 행동이 반복된 장면이 있어?"
-
+영상에서 직접 보고 맞다/아니다를 확인 가능한 사실만 짧게 질문한다.
+우선순위: 1. 먹기, 마시기, 접근, 이동, 들어가기, 나오기, 뛰기, 눕기, 앉기
+2. 그릇 근처, 소파 아래, 문 앞, 사람 옆, 급식기 근처 등 명시된 위치
+3. 사람이나 특정 물체의 등장 여부.
+이벤트에 없는 행동, 대상, 위치를 만들지 않는다. 한 질문에는 하나의 사실만 담는다.
+기다림, 관심, 호기심, 불안, 편안, 좋아함, 싫어함, 집중, 행복,
+원하는 것 같다, ~하려는 것 같다 등 감정/의도/원인 해석은 질문하지 않는다.
+summary/action에 해석이 있어도 명시된 관찰 사실만 사용하고, 없으면 제외한다.
+예: '자동 급식기 앞에서 배식을 기다리는 것으로 보임'
+→ '자동 급식기 근처에 있는 장면이 있어?'
+예: '주변을 돌아다니며 호기심을 보임' → '주변을 돌아다닌 장면이 있어?'
+시선 방향이 명시적으로 관찰된 경우에만 '급식기 쪽을 바라본 장면이 있어?'를 쓴다.
+'집중함'만으로 시선 방향을 추론하지 않는다.
+'오래', '오랜 시간', '한동안', '계속', '지속', '내내' 등 지속시간 강조는
+이번에는 duration 값에 관계없이 사용하지 않는다. 이벤트 길이는 행동 지속시간 보장이 아니다.
+'반복', '여러 번', '자주'는 해당 이벤트 repeat_count >= 2일 때만 허용한다.
+프레임 감지 횟수만 있거나 실제 행동 반복이 불명확하면 반복 표현을 쓰지 않는다.
+각 이벤트당 질문은 최대 1개. 서로 다른 이벤트의 행동/대상을 우선한다.
+서로 다른 이벤트라도 같은 물 마시기 등 의미가 같은 질문은 하나만 만든다.
+최대 {limit}개이며 근거가 부족하면 더 적게 또는 빈 배열을 반환한다.
+좋은 문장: '사료 그릇에 접근한 장면이 있어?', '물을 마신 장면이 있어?',
+'소파 아래에 들어간 적이 있어?', '사람이 함께 나온 장면이 있어?',
+'다른 공간으로 이동한 장면이 있어?' (각 사실이 이벤트에 있을 때만).
+반드시 아래 JSON 배열 형식으로만 출력한다. event_index는 아래 목록의 1부터 시작하는 번호다.
+[{{"event_index": 1, "question": "관찰 가능한 사실을 묻는 질문?"}}]
 행동 이벤트:
 {event_text}
-
-좋은 출력 예시:
-[
-  "물병에 관심을 보인 장면이 있어?",
-  "밥그릇 근처에 오래 머문 구간은 언제야?",
-  "차 안에 들어간 장면이 있어?",
-  "소파 아래에 들어간 장면이 있어?",
-  "침대 위에서 움직인 장면이 있어?",
-  "사람이 등장한 뒤 반려동물의 반응을 확인할 수 있어?"
-]
-
-나쁜 출력 예시:
-[
-  "불안해 보이는 장면이 있어?",
-  "안정된 모습이었어?",
-  "왜 그곳에 들어갔어?",
-  "무엇 때문에 관심을 보였어?",
-  "사람에게 왜 반응했어?",
-  "탐색하는 동안 편안해 보였어?",
-  "반려동물이 보이나요?",
-  "그릇이 있나요?"
-]
 """.strip()
 
 
@@ -241,52 +293,37 @@ def _clean_questions(items: list[Any]) -> list[str]:
     return result
 
 
-def _fallback_questions_from_behavior_events(events: list[dict], limit: int = 5) -> list[str]:
-    """
-    LLM 호출이 불가능할 때 사용하는 행동 이벤트 기반 fallback 질문 생성.
-
-    모델 없이도 예전 추천질문처럼 사용자가 눌러보고 싶은 문장으로 만든다.
-    단, 감정/원인을 단정하지 않고 영상에서 확인 가능한 관심, 반응, 반복, 체류 구간만 묻는다.
-    """
-    questions = []
-
-    for event in events:
-        subject = _subject_text_for_fallback(event.get("subject"))
-        subject_with_particle = _subject_with_particle(subject)
-        action = event.get("action") or ""
-        target = event.get("target_object") or event.get("target")
-        summary = event.get("summary") or ""
-        duration = _safe_float(event.get("duration"))
-        repeat_count = int(event.get("repeat_count") or 0)
-
-        target_text = _target_to_korean(target)
-        action_text = _action_to_question_text(action)
-
-        if target_text:
-            questions.append(f"{subject_with_particle} {target_text}에 관심을 보인 장면이 있나요?")
-            questions.append(f"{target_text} 근처에 오래 머문 구간은 언제인가요?")
-
-        if repeat_count >= 3:
-            if target_text:
-                questions.append(f"{subject_with_particle} {target_text} 주변에서 비슷한 행동을 반복한 장면이 있나요?")
-            else:
-                questions.append(f"{subject_with_particle} 같은 행동을 반복한 구간이 있나요?")
-
-        if duration >= 10:
-            if target_text:
-                questions.append(f"{subject_with_particle} {target_text} 주변에 오래 머문 장면이 있나요?")
-            else:
-                questions.append(f"{subject_with_particle} 한 행동을 오래 지속한 구간이 있나요?")
-
-        if "사람" in action or "person" in str(target).lower() or "사람" in summary:
-            questions.append(f"사람이 등장한 뒤 {subject}의 반응을 확인할 수 있나요?")
-
-        if action_text:
-            questions.append(f"{subject_with_particle} {action_text} 장면을 확인할 수 있나요?")
-
-    questions.extend(DEFAULT_BEHAVIOR_QUESTIONS)
-
-    return _deduplicate_keep_order(questions)[:limit]
+def _fallback_questions_from_behavior_events(
+    events: list[dict], limit: int = 5, *, with_sources: bool = False,
+) -> list:
+    """관찰 가능한 절만 선택한다. 자유 형식 action을 그대로 문장에 붙이지 않는다."""
+    candidates = []
+    for index, event in enumerate(events, 1):
+        text = " ".join(str(event.get(key) or "") for key in ("action", "summary"))
+        # 부정/희망/추정이 붙은 서술을 확정 행동으로 바꾸지 않는다.
+        if re.search(r"않|못|없|싶|추정", text):
+            continue
+        question = None
+        # 완성된 관찰 절만 매칭한다. '마시려는', '들어가고 싶은' 등은 제외한다.
+        patterns = [
+            (r"(?:물을?\s*마시(?:는|고|며|다)|물을?\s*마심)", "물을 마신 장면이 있어?"),
+            (r"사료\s*그릇에\s*(?:접근(?:하여|한|함)|다가(?:가|간))", "사료 그릇에 접근한 장면이 있어?"),
+            (r"(?:먹이를?\s*먹(?:는|고|음)|사료를?\s*먹(?:는|고|음))", "먹이를 먹은 장면이 있어?"),
+            (r"소파\s*아래에?\s*들어(?:간|감|가는)", "소파 아래에 들어간 장면이 있어?"),
+            (r"장애물을?\s*넘(?:어서는|는|은|었)", "장애물을 넘은 장면이 있어?"),
+            (r"돌아다니(?:며|는|고)|돌아다닌", "주변을 돌아다닌 장면이 있어?"),
+            (r"이동(?:하는|한|함)", "이동한 장면이 있어?"),
+            (r"움직임을 보인|움직이는", "움직인 장면이 있어?"),
+            (r"사람이\s*(?:함께\s*)?(?:나온|등장|보이)", "사람이 함께 나온 장면이 있어?"),
+            (r"자동\s*급식기\s*(?:앞|주변|근처)", "자동 급식기 근처에 있는 장면이 있어?"),
+        ]
+        for pattern, candidate in patterns:
+            if re.search(pattern, text):
+                question = candidate
+                break
+        if question:
+            candidates.append({"event_index": index, "question": question})
+    return _validate_behavior_questions(candidates, events, limit, with_sources=with_sources)
 
 
 def _fallback_questions_from_events(events: list[dict], limit: int = 5) -> list[str]:

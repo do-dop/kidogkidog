@@ -3,7 +3,14 @@ import re
 from datetime import datetime, timedelta
 from typing import Any
 
-from pipeline.vector_store import get_indexed_frames, search_with_query_expansion
+from pipeline.vector_store import (
+    get_indexed_frames,
+    get_indexed_frames_in_time_window,
+    search_with_query_expansion,
+    search_within_frames,
+    explicit_object_labels,
+    filter_frames_by_objects,
+)
 from pipeline.query_analyzer import build_prompt_hint
 from db.behavior_events import (
     get_behavior_event_by_id,
@@ -72,6 +79,12 @@ def run_rag_query(
         print(f"ChromaDB 검색 실패: {exc}", flush=True)
         retrieved_frames = []
 
+    required_objects = explicit_object_labels(query)
+    if required_objects:
+        retrieved_frames = filter_frames_by_objects(retrieved_frames, required_objects)
+        if not retrieved_frames:
+            return _object_condition_unconfirmed(query, video_id, required_objects)
+
     behavior_events = _get_relevant_behavior_events(
         query=query,
         video_id=video_id,
@@ -139,6 +152,23 @@ def run_rag_query(
     }
 
 
+def _object_condition_unconfirmed(query: str, video_id: str | None, required: set[str]) -> dict:
+    names = {"cat": "고양이", "dog": "강아지", "person": "사람"}
+    objects = ", ".join(names[label] for label in sorted(required))
+    return {
+        "query": query,
+        "video_id": video_id,
+        "answer": (
+            f"현재 검색 범위의 객체 검출 결과에서 {objects} 조건에 맞는 장면을 확인하지 못했어요. "
+            "검출 누락 가능성이 있어 영상에 없다고 단정할 수는 없어요."
+        ),
+        "results": [],
+        "evidence_items": [],
+        "behavior_events": [],
+        "used_llm": False,
+    }
+
+
 def _resolve_source_event(
     source_event_id: int | None,
     event_start: float | None,
@@ -177,26 +207,52 @@ def _run_event_grounded_query(
     retrieved_frames = []
 
     try:
-        candidate_frames = search_with_query_expansion(
-            query=query,
-            top_k=max(top_k * 5, 20),
+        start_time = _safe_float(source_event.get("start_time"))
+        end_time = _safe_float(source_event.get("end_time"))
+        margin_seconds = 3.0
+        indexed_frames = get_indexed_frames_in_time_window(
             video_id=event_video_id,
+            start_time=max(start_time - margin_seconds, 0.0) if start_time is not None else None,
+            end_time=end_time + margin_seconds if end_time is not None else None,
         )
-        retrieved_frames = _filter_frames_to_event_window(
-            frames=candidate_frames,
+        candidate_frames = _filter_frames_to_event_window(
+            frames=indexed_frames,
             event=source_event,
-            margin_seconds=3.0,
-        )[:top_k]
+            margin_seconds=margin_seconds,
+        )
+        retrieved_frames = search_within_frames(query, candidate_frames, top_k=top_k)
     except Exception as exc:
         print(f"event 기반 CLIP 검색 실패: {exc}", flush=True)
         retrieved_frames = []
 
-    if not retrieved_frames:
-        retrieved_frames = _frames_from_behavior_events(
-            behavior_events=behavior_events,
-            video_id=event_video_id,
-            limit=top_k,
-        )
+    required_objects = explicit_object_labels(query)
+    retrieved_frames = filter_frames_by_objects(retrieved_frames, required_objects)
+    used_source_frames_fallback = not retrieved_frames
+    if used_source_frames_fallback:
+        if required_objects:
+            # Top K로 자르기 전에 전체 대표 프레임을 확인한다. 기존 event 범위를 넓히지 않는다.
+            source_frames = _frames_from_behavior_events(
+                behavior_events=behavior_events,
+                video_id=event_video_id,
+                limit=len(source_event.get("source_frames") or []),
+            )
+            scoped_frames = _filter_frames_to_event_window(source_frames, source_event)
+            retrieved_frames = filter_frames_by_objects(scoped_frames, required_objects)[:top_k]
+        else:
+            retrieved_frames = _frames_from_behavior_events(
+                behavior_events=behavior_events,
+                video_id=event_video_id,
+                limit=top_k,
+            )
+
+    if required_objects and not retrieved_frames:
+        return _object_condition_unconfirmed(query, event_video_id, required_objects)
+
+    for frame in retrieved_frames:
+        # 기존 score는 호환성을 위해 유지하되, fallback 점수를 CLIP 유사도로 표시하지 않는다.
+        frame["retrieval_source"] = "source_frames_fallback" if used_source_frames_fallback else "clip"
+        frame["clip_similarity"] = None if used_source_frames_fallback else frame["score"]
+        frame["event_confidence"] = source_event.get("confidence")
 
     retrieved_frames = _attach_event_window_to_frames(retrieved_frames, source_event)
     retrieved_context = _build_retrieved_context(retrieved_frames)
@@ -408,6 +464,7 @@ def _frames_from_behavior_events(
                 "timestamp": timestamp,
                 "video_id": event_video_id,
                 "object_labels": _normalize_labels(frame.get("object_labels")),
+                "object_detections": frame.get("object_detections") or [],
                 "score": float(event.get("confidence") or event.get("interestingness") or 0.5),
             })
 
@@ -417,11 +474,57 @@ def _frames_from_behavior_events(
     return frames[:limit]
 
 
+def _frame_chunk_stem(frame: dict[str, Any]) -> str | None:
+    """저장된 <원본 청크명>_frame_<번호/초>에서 전체 청크명을 복원한다.
+
+    현재 source_frames와 검색 결과에는 chunk_id가 없다. GCS 키를 우선하고,
+    로컬 경로 또는 Chroma frame_id를 보조로 사용한다. 청크 번호뿐 아니라
+    녹화 실행 시각까지 포함해야 서로 다른 실행의 같은 번호도 구분된다.
+    """
+    for key in ("s3_key", "frame_path", "frame_id"):
+        value = frame.get(key)
+        if not value:
+            continue
+        filename = str(value).replace("\\", "/").rsplit("/", 1)[-1]
+        if key == "frame_id":
+            filename = filename.rsplit("__", 1)[-1]
+        match = re.fullmatch(
+            r"(.+)_frame_\d+(?:\.\d+)?(?:\.(?:jpg|jpeg|png|webp))?",
+            filename,
+            flags=re.IGNORECASE,
+        )
+        if match:
+            return match.group(1)
+    return None
+
+
 def _filter_frames_to_event_window(
     frames: list[dict[str, Any]],
     event: dict[str, Any],
     margin_seconds: float = 3.0,
 ) -> list[dict[str, Any]]:
+    # 시간은 청크 내부 기준이다. 단일 청크를 확인할 수 없는 이벤트에는
+    # 숫자만으로 시간 필터를 적용하지 않고 호출자의 대표 프레임 fallback을 쓴다.
+    event_chunks = {
+        _frame_chunk_stem(frame)
+        for frame in event.get("source_frames") or []
+        if isinstance(frame, dict)
+    }
+    if len(event_chunks) != 1 or None in event_chunks:
+        return []
+
+    event_chunk = next(iter(event_chunks))
+    frames = [
+        frame
+        for frame in frames
+        if _frame_chunk_stem(frame) == event_chunk
+        and (
+            not event.get("video_id")
+            or not frame.get("video_id")
+            or frame["video_id"] == event["video_id"]
+        )
+    ]
+
     start_time = _safe_float(event.get("start_time"))
     end_time = _safe_float(event.get("end_time"))
 
@@ -486,6 +589,7 @@ def _fallback_indexed_frames(video_id: str | None, limit: int = 5) -> list[dict[
             "timestamp": frame.get("timestamp"),
             "video_id": frame.get("video_id") or video_id or "default",
             "object_labels": frame.get("object_labels", ""),
+            "object_detections": frame.get("object_detections") or [],
             "score": 0.0,
         })
 
@@ -497,6 +601,7 @@ def _fallback_indexed_frames(video_id: str | None, limit: int = 5) -> list[dict[
             "timestamp": 0.0,
             "video_id": video_id,
             "object_labels": "",
+            "object_detections": [],
             "score": 0.0,
         })
 

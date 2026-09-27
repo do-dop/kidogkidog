@@ -1,0 +1,1143 @@
+{
+  "before": [
+    {
+      "video": "IMG_8450_2",
+      "items": [
+        {
+          "question": "자동 급식기 근처에 있는 장면이 있어?",
+          "source_event_id": 3,
+          "event_start": 4.5,
+          "event_end": 9.0
+        },
+        {
+          "question": "사료 그릇에 접근한 장면이 있어?",
+          "source_event_id": 2,
+          "event_start": 12.0,
+          "event_end": 66.5
+        },
+        {
+          "question": "고양이가 보이는 장면 보여줘",
+          "source_event_id": 3,
+          "event_start": 4.5,
+          "event_end": 9.0
+        }
+      ],
+      "raw_llm": [
+        {
+          "event_index": 1,
+          "question": "자동 급식기 근처에 있는 장면이 있어?"
+        },
+        {
+          "event_index": 2,
+          "question": "사료 그릇에 접근한 장면이 있어?"
+        }
+      ],
+      "events": [
+        {
+          "id": 3,
+          "video_id": "IMG_8450_2",
+          "start_time": 4.5,
+          "end_time": 9.0,
+          "subject": "반려동물",
+          "action": "반려동물이 배식을 기다리는 것으로 보임",
+          "target_object": "자동 급식기",
+          "summary": "반려동물이 자동 급식기 주변에서 음식을 기다리는 행동을 보임.",
+          "duration": 4.5,
+          "repeat_count": 1,
+          "confidence": 0.8,
+          "interestingness": 0.9,
+          "evidence": [
+            "여러 프레임에서 반려동물이 자동 급식기 근처에서 머무르고 있음.",
+            "반려동물이 급식기 방향으로 시선을 집중하며 관심을 보이는 것이 관찰됨."
+          ]
+        },
+        {
+          "id": 2,
+          "video_id": "IMG_8450_2",
+          "start_time": 12.0,
+          "end_time": 66.5,
+          "subject": "반려동물",
+          "action": "반려동물이 사료 그릇에 접근하여 먹이를 먹는 것으로 보임",
+          "target_object": "사료 그릇",
+          "summary": "반려동물이 사료 그릇에서 먹이를 섭취하고 있는 모습입니다.",
+          "duration": 54.5,
+          "repeat_count": 1,
+          "confidence": 0.8,
+          "interestingness": 0.9,
+          "evidence": [
+            "반려동물이 사료 그릇에 다가가고 있으며, 몇 차례 입을 가져다 대는 행동이 관찰됨.",
+            "반려동물의 건강과 관련된 중요한 행동으로, 규칙적인 식사가 이루어지고 있는 것으로 보임."
+          ]
+        },
+        {
+          "id": 4,
+          "video_id": "IMG_8450_2",
+          "start_time": 2.0,
+          "end_time": 2.0,
+          "subject": "반려동물",
+          "action": "반려동물이 주변을 탐색하는 것으로 보임",
+          "target_object": null,
+          "summary": "반려동물이 주변을 돌아다니며 호기심을 보이는 모습이 관찰됨.",
+          "duration": 0.0,
+          "repeat_count": 1,
+          "confidence": 0.7,
+          "interestingness": 0.6,
+          "evidence": [
+            "반려동물이 다른 공간으로 이동하는 모습이 보임.",
+            "주변 환경에 대해 관심을 가지며 움직이는 행동이 나타남."
+          ]
+        }
+      ]
+    },
+    {
+      "video": "dog_drinking_water",
+      "items": [
+        {
+          "question": "물을 마신 장면이 있어?",
+          "source_event_id": 17,
+          "event_start": 18.0,
+          "event_end": 18.0
+        },
+        {
+          "question": "고양이가 보이는 장면 보여줘",
+          "source_event_id": 6,
+          "event_start": 30.0,
+          "event_end": 64.5
+        },
+        {
+          "question": "고양이가 움직인 장면 찾아줘",
+          "source_event_id": 8,
+          "event_start": 3.5,
+          "event_end": 9.5
+        }
+      ],
+      "raw_llm": [
+        {
+          "event_index": 1,
+          "question": "물을 마신 장면이 있어?"
+        },
+        {
+          "event_index": 3,
+          "question": "물을 마시는 모습이 보인 장면이 있어?"
+        },
+        {
+          "event_index": 4,
+          "question": "물이 있는 그릇에 다가간 장면이 있어?"
+        },
+        {
+          "event_index": 5,
+          "question": "반려동물이 물을 마신 장면이 있어?"
+        },
+        {
+          "event_index": 6,
+          "question": "물 그릇에 머리를 대고 있는 장면이 있어?"
+        },
+        {
+          "event_index": 8,
+          "question": "물 그릇에서 물을 마시는 장면이 있어?"
+        },
+        {
+          "event_index": 9,
+          "question": "물을 마신 장면이 있어?"
+        }
+      ],
+      "events": [
+        {
+          "id": 9,
+          "video_id": "dog_drinking_water",
+          "start_time": 2.0,
+          "end_time": 57.5,
+          "subject": "반려동물",
+          "action": "반려동물이 물을 마시는 것으로 보임",
+          "target_object": "물 그릇",
+          "summary": "반려동물이 물 그릇에 다가가 물을 마시는 행동을 하고 있음.",
+          "duration": 55.5,
+          "repeat_count": 1,
+          "confidence": 0.8,
+          "interestingness": 0.9,
+          "evidence": [
+            "반려동물이 구조물에 다가가며 물을 찾는 모습이 여러 프레임에 나타남.",
+            "확인된 물 그릇에 반려동물이 끊임없이 관심을 두고 있음."
+          ]
+        },
+        {
+          "id": 15,
+          "video_id": "dog_drinking_water",
+          "start_time": 6.0,
+          "end_time": 6.0,
+          "subject": "반려동물",
+          "action": "반려동물이 물을 마시는 것으로 보임",
+          "target_object": "물 그릇",
+          "summary": "반려동물이 물 그릇에서 물을 마시는 행동을 보임.",
+          "duration": 0.0,
+          "repeat_count": 1,
+          "confidence": 0.8,
+          "interestingness": 0.9,
+          "evidence": [
+            "반려동물이 그릇 쪽으로 얼굴을 기울이고 있음.",
+            "주변에 물 그릇이 위치해 있는 것으로 보임."
+          ]
+        },
+        {
+          "id": 14,
+          "video_id": "dog_drinking_water",
+          "start_time": 9.5,
+          "end_time": 12.5,
+          "subject": "반려동물",
+          "action": "반려동물이 물을 마시는 것으로 보임",
+          "target_object": "물 그릇",
+          "summary": "반려동물이 물 그릇에 다가가 물을 마시는 행동을 하고 있음.",
+          "duration": 3.0,
+          "repeat_count": 1,
+          "confidence": 0.8,
+          "interestingness": 0.9,
+          "evidence": [
+            "반려동물이 물 그릇에 가까이 접근해 있는 모습이 관찰됨.",
+            "반려동물이 그릇에 입을 대고 있음을 통해 물을 마시는 것으로 판단됨."
+          ]
+        },
+        {
+          "id": 7,
+          "video_id": "dog_drinking_water",
+          "start_time": 12.5,
+          "end_time": 27.5,
+          "subject": "반려동물",
+          "action": "반려동물이 물을 마시는 것으로 보임",
+          "target_object": "물 그릇",
+          "summary": "반려동물이 물 그릇에서 물을 마시는 모습을 보임.",
+          "duration": 15.0,
+          "repeat_count": 1,
+          "confidence": 0.8,
+          "interestingness": 0.9,
+          "evidence": [
+            "여러 프레임에서 반려동물이 물 그릇에 가까이 가는 모습이 보임.",
+            "물방울이 튀는 모습으로 인해 물을 마시는 행동으로 추정됨."
+          ]
+        },
+        {
+          "id": 11,
+          "video_id": "dog_drinking_water",
+          "start_time": 16.5,
+          "end_time": 22.0,
+          "subject": "반려동물",
+          "action": "반려동물이 물을 마시는 것으로 보임",
+          "target_object": "물 그릇",
+          "summary": "반려동물이 물을 마시고 있는 모습이 관찰됨.",
+          "duration": 5.5,
+          "repeat_count": 1,
+          "confidence": 0.8,
+          "interestingness": 0.9,
+          "evidence": [
+            "반려동물이 물 그릇에 가까이 다가가 물을 마시는 행동이 연속적으로 나타남.",
+            "물 마시는 행동은 건강과 직결되어 보호자에게 중요한 정보가 될 수 있음."
+          ]
+        },
+        {
+          "id": 13,
+          "video_id": "dog_drinking_water",
+          "start_time": 23.0,
+          "end_time": 31.5,
+          "subject": "반려동물",
+          "action": "반려동물이 물을 마시는 것으로 보임",
+          "target_object": "물 그릇",
+          "summary": "반려동물이 물 그릇에 다가가서 물을 마시는 행동을 하고 있음.",
+          "duration": 8.5,
+          "repeat_count": 1,
+          "confidence": 0.8,
+          "interestingness": 0.9,
+          "evidence": [
+            "반려동물이 물 그릇에 머리를 가까이 대고 있는 모습이 보임.",
+            "군데군데 물이 잔뜩 고인 그릇에 낯선 물체가 있지 않음."
+          ]
+        },
+        {
+          "id": 10,
+          "video_id": "dog_drinking_water",
+          "start_time": 28.0,
+          "end_time": 58.0,
+          "subject": "반려동물",
+          "action": "반려동물이 물을 마시는 것으로 보임",
+          "target_object": null,
+          "summary": "반려동물이 물그릇에 다가가 수분을 섭취하는 행동을 보임.",
+          "duration": 30.0,
+          "repeat_count": 1,
+          "confidence": 0.8,
+          "interestingness": 0.9,
+          "evidence": [
+            "여러 프레임에서 반려동물이 아란 물그릇에 머리를 기울이고 있는 모습이 관찰됨.",
+            "음료를 마시기 위해 반복적으로 물그릇에 접近하는 행동이 지속적으로 보임."
+          ]
+        },
+        {
+          "id": 6,
+          "video_id": "dog_drinking_water",
+          "start_time": 30.0,
+          "end_time": 64.5,
+          "subject": "반려동물",
+          "action": "반려동물이 물을 마시는 것으로 보임",
+          "target_object": "여름의 물 그릇",
+          "summary": "반려동물이 물을 마시며 갈증을 해소하는 모습을 보임.",
+          "duration": 34.5,
+          "repeat_count": 1,
+          "confidence": 0.8,
+          "interestingness": 0.9,
+          "evidence": [
+            "반려동물이 그릇에 가까이 다가가고 있는 모습이 보임.",
+            "물 그릇에서 혀를 내밀어 물을 마시는 것으로 보이는 행동이 확인됨."
+          ]
+        },
+        {
+          "id": 16,
+          "video_id": "dog_drinking_water",
+          "start_time": 2.0,
+          "end_time": 3.5,
+          "subject": "반려동물",
+          "action": "반려동물이 물을 마시는 것으로 보임",
+          "target_object": "물그릇",
+          "summary": "반려동물이 물그릇에서 물을 마시는 행동을 하고 있음",
+          "duration": 1.5,
+          "repeat_count": 1,
+          "confidence": 0.7,
+          "interestingness": 0.8,
+          "evidence": [
+            "반려동물이 물그릇에 머리를 가까이 대고 있음",
+            "물그릇이 색깔이 있는 것으로 보아 음식을 먹는 시간이 아닌 수분 섭취를 위한 것으로 추정됨"
+          ]
+        },
+        {
+          "id": 17,
+          "video_id": "dog_drinking_water",
+          "start_time": 18.0,
+          "end_time": 18.0,
+          "subject": "반려동물",
+          "action": "반려동물이 물을 마시는 것으로 보임",
+          "target_object": "물 그릇",
+          "summary": "반려동물이 물 그릇에서 물을 마시는 행동을 보임",
+          "duration": 0.0,
+          "repeat_count": 1,
+          "confidence": 0.7,
+          "interestingness": 0.8,
+          "evidence": [
+            "반려동물이 그릇에 머리를 가져다 대고 있는 모습이 나타남",
+            "물 그릇이 그 앞에 위치해 있어, 물을 마시는 행동으로 판단됨"
+          ]
+        },
+        {
+          "id": 8,
+          "video_id": "dog_drinking_water",
+          "start_time": 3.5,
+          "end_time": 9.5,
+          "subject": "반려동물",
+          "action": "반려동물이 있는 구간으로 감지됨",
+          "target_object": null,
+          "summary": "반려동물이 6.0초 동안 움직임을 보인 것으로 추정되는 구간입니다.",
+          "duration": 6.0,
+          "repeat_count": 4,
+          "confidence": 0.45,
+          "interestingness": 0.55,
+          "evidence": [
+            "motion 구간 3.5초~9.5초에서 프레임 4개 추출",
+            "함께 감지된 객체 라벨: ['cat', 'dog']",
+            "여러 프레임에서 움직임이 이어짐"
+          ]
+        },
+        {
+          "id": 12,
+          "video_id": "dog_drinking_water",
+          "start_time": 2.0,
+          "end_time": 5.5,
+          "subject": "반려동물",
+          "action": "반려동물이 있는 구간으로 감지됨",
+          "target_object": null,
+          "summary": "반려동물이 3.5초 동안 움직임을 보인 것으로 추정되는 구간입니다.",
+          "duration": 3.5,
+          "repeat_count": 2,
+          "confidence": 0.45,
+          "interestingness": 0.5,
+          "evidence": [
+            "motion 구간 2.0초~5.5초에서 프레임 2개 추출",
+            "함께 감지된 객체 라벨: ['dog']"
+          ]
+        }
+      ]
+    },
+    {
+      "video": "dog_escape",
+      "items": [
+        {
+          "question": "장애물을 넘어서는 장면이 있어?",
+          "source_event_id": 5,
+          "event_start": 2.0,
+          "event_end": 56.06
+        },
+        {
+          "question": "사람이 함께 보이는 장면 있어?",
+          "source_event_id": 5,
+          "event_start": 2.0,
+          "event_end": 56.06
+        },
+        {
+          "question": "침대 근처에서 움직인 장면 찾아줘",
+          "source_event_id": 5,
+          "event_start": 2.0,
+          "event_end": 56.06
+        }
+      ],
+      "raw_llm": [
+        {
+          "event_index": 1,
+          "question": "장애물을 넘어서는 장면이 있어?"
+        }
+      ],
+      "events": [
+        {
+          "id": 5,
+          "video_id": "dog_escape",
+          "start_time": 2.0,
+          "end_time": 56.06,
+          "subject": "반려동물",
+          "action": "반려동물이 장애물을 넘어서는 것으로 보임",
+          "target_object": "반려동물의 장난감이나 식기",
+          "summary": "반려동물이 장애물을 넘으려는 시도를 하며 활동적인 모습을 보임.",
+          "duration": 54.06,
+          "repeat_count": 1,
+          "confidence": 0.8,
+          "interestingness": 0.9,
+          "evidence": [
+            "반려동물이 펜스 위로 뛰어오르려고 하는 모습이 관찰됨.",
+            "장애물 주변에서의 활발한 움직임이 감지됨."
+          ]
+        }
+      ]
+    },
+    {
+      "video": "two_dogs",
+      "items": [
+        {
+          "question": "고양이가 보이는 장면 보여줘",
+          "source_event_id": 1,
+          "event_start": 0.0,
+          "event_end": 178.0
+        },
+        {
+          "question": "고양이가 움직인 장면 찾아줘",
+          "source_event_id": 1,
+          "event_start": 0.0,
+          "event_end": 178.0
+        },
+        {
+          "question": "강아지가 보이는 장면 보여줘",
+          "source_event_id": 1,
+          "event_start": 0.0,
+          "event_end": 178.0
+        }
+      ],
+      "raw_llm": [],
+      "events": [
+        {
+          "id": 1,
+          "video_id": "two_dogs",
+          "start_time": 0.0,
+          "end_time": 178.0,
+          "subject": "반려동물",
+          "action": "반려동물이 있는 구간으로 감지됨",
+          "target_object": null,
+          "summary": "반려동물이 178.0초 동안 움직임을 보인 것으로 추정되는 구간입니다.",
+          "duration": 178.0,
+          "repeat_count": 90,
+          "confidence": 0.45,
+          "interestingness": 0.6,
+          "evidence": [
+            "motion 구간 0.0초~178.0초에서 프레임 90개 추출",
+            "함께 감지된 객체 라벨: ['tv', 'dog', 'chair', 'couch', 'person']",
+            "178.0초 동안 지속된 구간",
+            "여러 프레임에서 움직임이 이어짐"
+          ]
+        }
+      ]
+    }
+  ],
+  "after": [
+    {
+      "video": "IMG_8450_2",
+      "items": [
+        {
+          "question": "자동 급식기 근처에 있는 장면이 있어?",
+          "source_event_id": 3,
+          "original_event_id": 3,
+          "event_start": 4.5,
+          "event_end": 9.0,
+          "question_source": "LLM"
+        },
+        {
+          "question": "사료 그릇에 접근한 장면이 있어?",
+          "source_event_id": 2,
+          "original_event_id": 2,
+          "event_start": 12.0,
+          "event_end": 66.5,
+          "question_source": "LLM"
+        },
+        {
+          "question": "고양이가 보이는 장면 보여줘",
+          "source_event_id": 3,
+          "event_start": 4.5,
+          "event_end": 9.0,
+          "question_source": "label fallback",
+          "original_event_id": null
+        }
+      ],
+      "raw_llm": [
+        {
+          "event_index": 1,
+          "question": "자동 급식기 근처에 있는 장면이 있어?"
+        },
+        {
+          "event_index": 2,
+          "question": "사료 그릇에 접근한 장면이 있어?"
+        }
+      ],
+      "events": [
+        {
+          "id": 3,
+          "video_id": "IMG_8450_2",
+          "start_time": 4.5,
+          "end_time": 9.0,
+          "subject": "반려동물",
+          "action": "반려동물이 배식을 기다리는 것으로 보임",
+          "target_object": "자동 급식기",
+          "summary": "반려동물이 자동 급식기 주변에서 음식을 기다리는 행동을 보임.",
+          "duration": 4.5,
+          "repeat_count": 1,
+          "confidence": 0.8,
+          "interestingness": 0.9,
+          "evidence": [
+            "여러 프레임에서 반려동물이 자동 급식기 근처에서 머무르고 있음.",
+            "반려동물이 급식기 방향으로 시선을 집중하며 관심을 보이는 것이 관찰됨."
+          ]
+        },
+        {
+          "id": 2,
+          "video_id": "IMG_8450_2",
+          "start_time": 12.0,
+          "end_time": 66.5,
+          "subject": "반려동물",
+          "action": "반려동물이 사료 그릇에 접근하여 먹이를 먹는 것으로 보임",
+          "target_object": "사료 그릇",
+          "summary": "반려동물이 사료 그릇에서 먹이를 섭취하고 있는 모습입니다.",
+          "duration": 54.5,
+          "repeat_count": 1,
+          "confidence": 0.8,
+          "interestingness": 0.9,
+          "evidence": [
+            "반려동물이 사료 그릇에 다가가고 있으며, 몇 차례 입을 가져다 대는 행동이 관찰됨.",
+            "반려동물의 건강과 관련된 중요한 행동으로, 규칙적인 식사가 이루어지고 있는 것으로 보임."
+          ]
+        },
+        {
+          "id": 4,
+          "video_id": "IMG_8450_2",
+          "start_time": 2.0,
+          "end_time": 2.0,
+          "subject": "반려동물",
+          "action": "반려동물이 주변을 탐색하는 것으로 보임",
+          "target_object": null,
+          "summary": "반려동물이 주변을 돌아다니며 호기심을 보이는 모습이 관찰됨.",
+          "duration": 0.0,
+          "repeat_count": 1,
+          "confidence": 0.7,
+          "interestingness": 0.6,
+          "evidence": [
+            "반려동물이 다른 공간으로 이동하는 모습이 보임.",
+            "주변 환경에 대해 관심을 가지며 움직이는 행동이 나타남."
+          ]
+        }
+      ]
+    },
+    {
+      "video": "dog_drinking_water",
+      "items": [
+        {
+          "question": "물 그릇에 가까이 다가간 장면이 있어?",
+          "source_event_id": 9,
+          "original_event_id": 9,
+          "event_start": 2.0,
+          "event_end": 57.5,
+          "question_source": "LLM"
+        },
+        {
+          "question": "물을 마시는 장면이 있어?",
+          "source_event_id": 13,
+          "original_event_id": 13,
+          "event_start": 23.0,
+          "event_end": 31.5,
+          "question_source": "LLM"
+        },
+        {
+          "question": "고양이가 보이는 장면 보여줘",
+          "source_event_id": 6,
+          "event_start": 30.0,
+          "event_end": 64.5,
+          "question_source": "label fallback",
+          "original_event_id": null
+        }
+      ],
+      "raw_llm": [
+        {
+          "event_index": 1,
+          "question": "물 그릇에 가까이 다가간 장면이 있어?"
+        },
+        {
+          "event_index": 6,
+          "question": "물을 마시는 장면이 있어?"
+        },
+        {
+          "event_index": 4,
+          "question": "물 그릇에서 물을 마시는 장면이 있어?"
+        },
+        {
+          "event_index": 5,
+          "question": "물 그릇에 입을 대고 있는 장면이 있어?"
+        },
+        {
+          "event_index": 8,
+          "question": "여름의 물 그릇에 접근한 장면이 있어?"
+        }
+      ],
+      "events": [
+        {
+          "id": 9,
+          "video_id": "dog_drinking_water",
+          "start_time": 2.0,
+          "end_time": 57.5,
+          "subject": "반려동물",
+          "action": "반려동물이 물을 마시는 것으로 보임",
+          "target_object": "물 그릇",
+          "summary": "반려동물이 물 그릇에 다가가 물을 마시는 행동을 하고 있음.",
+          "duration": 55.5,
+          "repeat_count": 1,
+          "confidence": 0.8,
+          "interestingness": 0.9,
+          "evidence": [
+            "반려동물이 구조물에 다가가며 물을 찾는 모습이 여러 프레임에 나타남.",
+            "확인된 물 그릇에 반려동물이 끊임없이 관심을 두고 있음."
+          ]
+        },
+        {
+          "id": 15,
+          "video_id": "dog_drinking_water",
+          "start_time": 6.0,
+          "end_time": 6.0,
+          "subject": "반려동물",
+          "action": "반려동물이 물을 마시는 것으로 보임",
+          "target_object": "물 그릇",
+          "summary": "반려동물이 물 그릇에서 물을 마시는 행동을 보임.",
+          "duration": 0.0,
+          "repeat_count": 1,
+          "confidence": 0.8,
+          "interestingness": 0.9,
+          "evidence": [
+            "반려동물이 그릇 쪽으로 얼굴을 기울이고 있음.",
+            "주변에 물 그릇이 위치해 있는 것으로 보임."
+          ]
+        },
+        {
+          "id": 14,
+          "video_id": "dog_drinking_water",
+          "start_time": 9.5,
+          "end_time": 12.5,
+          "subject": "반려동물",
+          "action": "반려동물이 물을 마시는 것으로 보임",
+          "target_object": "물 그릇",
+          "summary": "반려동물이 물 그릇에 다가가 물을 마시는 행동을 하고 있음.",
+          "duration": 3.0,
+          "repeat_count": 1,
+          "confidence": 0.8,
+          "interestingness": 0.9,
+          "evidence": [
+            "반려동물이 물 그릇에 가까이 접근해 있는 모습이 관찰됨.",
+            "반려동물이 그릇에 입을 대고 있음을 통해 물을 마시는 것으로 판단됨."
+          ]
+        },
+        {
+          "id": 7,
+          "video_id": "dog_drinking_water",
+          "start_time": 12.5,
+          "end_time": 27.5,
+          "subject": "반려동물",
+          "action": "반려동물이 물을 마시는 것으로 보임",
+          "target_object": "물 그릇",
+          "summary": "반려동물이 물 그릇에서 물을 마시는 모습을 보임.",
+          "duration": 15.0,
+          "repeat_count": 1,
+          "confidence": 0.8,
+          "interestingness": 0.9,
+          "evidence": [
+            "여러 프레임에서 반려동물이 물 그릇에 가까이 가는 모습이 보임.",
+            "물방울이 튀는 모습으로 인해 물을 마시는 행동으로 추정됨."
+          ]
+        },
+        {
+          "id": 11,
+          "video_id": "dog_drinking_water",
+          "start_time": 16.5,
+          "end_time": 22.0,
+          "subject": "반려동물",
+          "action": "반려동물이 물을 마시는 것으로 보임",
+          "target_object": "물 그릇",
+          "summary": "반려동물이 물을 마시고 있는 모습이 관찰됨.",
+          "duration": 5.5,
+          "repeat_count": 1,
+          "confidence": 0.8,
+          "interestingness": 0.9,
+          "evidence": [
+            "반려동물이 물 그릇에 가까이 다가가 물을 마시는 행동이 연속적으로 나타남.",
+            "물 마시는 행동은 건강과 직결되어 보호자에게 중요한 정보가 될 수 있음."
+          ]
+        },
+        {
+          "id": 13,
+          "video_id": "dog_drinking_water",
+          "start_time": 23.0,
+          "end_time": 31.5,
+          "subject": "반려동물",
+          "action": "반려동물이 물을 마시는 것으로 보임",
+          "target_object": "물 그릇",
+          "summary": "반려동물이 물 그릇에 다가가서 물을 마시는 행동을 하고 있음.",
+          "duration": 8.5,
+          "repeat_count": 1,
+          "confidence": 0.8,
+          "interestingness": 0.9,
+          "evidence": [
+            "반려동물이 물 그릇에 머리를 가까이 대고 있는 모습이 보임.",
+            "군데군데 물이 잔뜩 고인 그릇에 낯선 물체가 있지 않음."
+          ]
+        },
+        {
+          "id": 10,
+          "video_id": "dog_drinking_water",
+          "start_time": 28.0,
+          "end_time": 58.0,
+          "subject": "반려동물",
+          "action": "반려동물이 물을 마시는 것으로 보임",
+          "target_object": null,
+          "summary": "반려동물이 물그릇에 다가가 수분을 섭취하는 행동을 보임.",
+          "duration": 30.0,
+          "repeat_count": 1,
+          "confidence": 0.8,
+          "interestingness": 0.9,
+          "evidence": [
+            "여러 프레임에서 반려동물이 아란 물그릇에 머리를 기울이고 있는 모습이 관찰됨.",
+            "음료를 마시기 위해 반복적으로 물그릇에 접近하는 행동이 지속적으로 보임."
+          ]
+        },
+        {
+          "id": 6,
+          "video_id": "dog_drinking_water",
+          "start_time": 30.0,
+          "end_time": 64.5,
+          "subject": "반려동물",
+          "action": "반려동물이 물을 마시는 것으로 보임",
+          "target_object": "여름의 물 그릇",
+          "summary": "반려동물이 물을 마시며 갈증을 해소하는 모습을 보임.",
+          "duration": 34.5,
+          "repeat_count": 1,
+          "confidence": 0.8,
+          "interestingness": 0.9,
+          "evidence": [
+            "반려동물이 그릇에 가까이 다가가고 있는 모습이 보임.",
+            "물 그릇에서 혀를 내밀어 물을 마시는 것으로 보이는 행동이 확인됨."
+          ]
+        },
+        {
+          "id": 16,
+          "video_id": "dog_drinking_water",
+          "start_time": 2.0,
+          "end_time": 3.5,
+          "subject": "반려동물",
+          "action": "반려동물이 물을 마시는 것으로 보임",
+          "target_object": "물그릇",
+          "summary": "반려동물이 물그릇에서 물을 마시는 행동을 하고 있음",
+          "duration": 1.5,
+          "repeat_count": 1,
+          "confidence": 0.7,
+          "interestingness": 0.8,
+          "evidence": [
+            "반려동물이 물그릇에 머리를 가까이 대고 있음",
+            "물그릇이 색깔이 있는 것으로 보아 음식을 먹는 시간이 아닌 수분 섭취를 위한 것으로 추정됨"
+          ]
+        },
+        {
+          "id": 17,
+          "video_id": "dog_drinking_water",
+          "start_time": 18.0,
+          "end_time": 18.0,
+          "subject": "반려동물",
+          "action": "반려동물이 물을 마시는 것으로 보임",
+          "target_object": "물 그릇",
+          "summary": "반려동물이 물 그릇에서 물을 마시는 행동을 보임",
+          "duration": 0.0,
+          "repeat_count": 1,
+          "confidence": 0.7,
+          "interestingness": 0.8,
+          "evidence": [
+            "반려동물이 그릇에 머리를 가져다 대고 있는 모습이 나타남",
+            "물 그릇이 그 앞에 위치해 있어, 물을 마시는 행동으로 판단됨"
+          ]
+        },
+        {
+          "id": 8,
+          "video_id": "dog_drinking_water",
+          "start_time": 3.5,
+          "end_time": 9.5,
+          "subject": "반려동물",
+          "action": "반려동물이 있는 구간으로 감지됨",
+          "target_object": null,
+          "summary": "반려동물이 6.0초 동안 움직임을 보인 것으로 추정되는 구간입니다.",
+          "duration": 6.0,
+          "repeat_count": 4,
+          "confidence": 0.45,
+          "interestingness": 0.55,
+          "evidence": [
+            "motion 구간 3.5초~9.5초에서 프레임 4개 추출",
+            "함께 감지된 객체 라벨: ['cat', 'dog']",
+            "여러 프레임에서 움직임이 이어짐"
+          ]
+        },
+        {
+          "id": 12,
+          "video_id": "dog_drinking_water",
+          "start_time": 2.0,
+          "end_time": 5.5,
+          "subject": "반려동물",
+          "action": "반려동물이 있는 구간으로 감지됨",
+          "target_object": null,
+          "summary": "반려동물이 3.5초 동안 움직임을 보인 것으로 추정되는 구간입니다.",
+          "duration": 3.5,
+          "repeat_count": 2,
+          "confidence": 0.45,
+          "interestingness": 0.5,
+          "evidence": [
+            "motion 구간 2.0초~5.5초에서 프레임 2개 추출",
+            "함께 감지된 객체 라벨: ['dog']"
+          ]
+        }
+      ]
+    },
+    {
+      "video": "dog_escape",
+      "items": [
+        {
+          "question": "사람이 함께 보이는 장면 있어?",
+          "source_event_id": null,
+          "event_start": null,
+          "event_end": null,
+          "question_source": "label fallback",
+          "original_event_id": null
+        },
+        {
+          "question": "침대 근처에서 움직인 장면 찾아줘",
+          "source_event_id": 5,
+          "event_start": 2.0,
+          "event_end": 56.06,
+          "question_source": "label fallback",
+          "original_event_id": null
+        },
+        {
+          "question": "침대을 살펴보는 장면 있어?",
+          "source_event_id": null,
+          "event_start": null,
+          "event_end": null,
+          "question_source": "label fallback",
+          "original_event_id": null
+        }
+      ],
+      "raw_llm": [
+        {
+          "event_index": 1,
+          "question": "장애물을 넘으려는 장면이 있어?"
+        }
+      ],
+      "events": [
+        {
+          "id": 5,
+          "video_id": "dog_escape",
+          "start_time": 2.0,
+          "end_time": 56.06,
+          "subject": "반려동물",
+          "action": "반려동물이 장애물을 넘어서는 것으로 보임",
+          "target_object": "반려동물의 장난감이나 식기",
+          "summary": "반려동물이 장애물을 넘으려는 시도를 하며 활동적인 모습을 보임.",
+          "duration": 54.06,
+          "repeat_count": 1,
+          "confidence": 0.8,
+          "interestingness": 0.9,
+          "evidence": [
+            "반려동물이 펜스 위로 뛰어오르려고 하는 모습이 관찰됨.",
+            "장애물 주변에서의 활발한 움직임이 감지됨."
+          ]
+        }
+      ]
+    },
+    {
+      "video": "two_dogs",
+      "items": [
+        {
+          "question": "고양이가 보이는 장면 보여줘",
+          "source_event_id": null,
+          "event_start": null,
+          "event_end": null,
+          "question_source": "label fallback",
+          "original_event_id": null
+        },
+        {
+          "question": "고양이가 움직인 장면 찾아줘",
+          "source_event_id": 1,
+          "event_start": 0.0,
+          "event_end": 178.0,
+          "question_source": "label fallback",
+          "original_event_id": null
+        },
+        {
+          "question": "강아지가 보이는 장면 보여줘",
+          "source_event_id": null,
+          "event_start": null,
+          "event_end": null,
+          "question_source": "label fallback",
+          "original_event_id": null
+        }
+      ],
+      "raw_llm": [],
+      "events": [
+        {
+          "id": 1,
+          "video_id": "two_dogs",
+          "start_time": 0.0,
+          "end_time": 178.0,
+          "subject": "반려동물",
+          "action": "반려동물이 있는 구간으로 감지됨",
+          "target_object": null,
+          "summary": "반려동물이 178.0초 동안 움직임을 보인 것으로 추정되는 구간입니다.",
+          "duration": 178.0,
+          "repeat_count": 90,
+          "confidence": 0.45,
+          "interestingness": 0.6,
+          "evidence": [
+            "motion 구간 0.0초~178.0초에서 프레임 90개 추출",
+            "함께 감지된 객체 라벨: ['tv', 'dog', 'chair', 'couch', 'person']",
+            "178.0초 동안 지속된 구간",
+            "여러 프레임에서 움직임이 이어짐"
+          ]
+        }
+      ]
+    }
+  ],
+  "water_scores": [
+    {
+      "id": 9,
+      "action": "반려동물이 물을 마시는 것으로 보임",
+      "target_object": "물 그릇",
+      "start_time": 2.0,
+      "end_time": 57.5,
+      "duration": 55.5,
+      "interestingness": 0.9,
+      "confidence": 0.8,
+      "evidence": [
+        "반려동물이 구조물에 다가가며 물을 찾는 모습이 여러 프레임에 나타남.",
+        "확인된 물 그릇에 반려동물이 끊임없이 관심을 두고 있음."
+      ],
+      "score": 1.2
+    },
+    {
+      "id": 15,
+      "action": "반려동물이 물을 마시는 것으로 보임",
+      "target_object": "물 그릇",
+      "start_time": 6.0,
+      "end_time": 6.0,
+      "duration": 0.0,
+      "interestingness": 0.9,
+      "confidence": 0.8,
+      "evidence": [
+        "반려동물이 그릇 쪽으로 얼굴을 기울이고 있음.",
+        "주변에 물 그릇이 위치해 있는 것으로 보임."
+      ],
+      "score": 1.2
+    },
+    {
+      "id": 14,
+      "action": "반려동물이 물을 마시는 것으로 보임",
+      "target_object": "물 그릇",
+      "start_time": 9.5,
+      "end_time": 12.5,
+      "duration": 3.0,
+      "interestingness": 0.9,
+      "confidence": 0.8,
+      "evidence": [
+        "반려동물이 물 그릇에 가까이 접근해 있는 모습이 관찰됨.",
+        "반려동물이 그릇에 입을 대고 있음을 통해 물을 마시는 것으로 판단됨."
+      ],
+      "score": 1.2
+    },
+    {
+      "id": 7,
+      "action": "반려동물이 물을 마시는 것으로 보임",
+      "target_object": "물 그릇",
+      "start_time": 12.5,
+      "end_time": 27.5,
+      "duration": 15.0,
+      "interestingness": 0.9,
+      "confidence": 0.8,
+      "evidence": [
+        "여러 프레임에서 반려동물이 물 그릇에 가까이 가는 모습이 보임.",
+        "물방울이 튀는 모습으로 인해 물을 마시는 행동으로 추정됨."
+      ],
+      "score": 1.2
+    },
+    {
+      "id": 11,
+      "action": "반려동물이 물을 마시는 것으로 보임",
+      "target_object": "물 그릇",
+      "start_time": 16.5,
+      "end_time": 22.0,
+      "duration": 5.5,
+      "interestingness": 0.9,
+      "confidence": 0.8,
+      "evidence": [
+        "반려동물이 물 그릇에 가까이 다가가 물을 마시는 행동이 연속적으로 나타남.",
+        "물 마시는 행동은 건강과 직결되어 보호자에게 중요한 정보가 될 수 있음."
+      ],
+      "score": 1.2
+    },
+    {
+      "id": 13,
+      "action": "반려동물이 물을 마시는 것으로 보임",
+      "target_object": "물 그릇",
+      "start_time": 23.0,
+      "end_time": 31.5,
+      "duration": 8.5,
+      "interestingness": 0.9,
+      "confidence": 0.8,
+      "evidence": [
+        "반려동물이 물 그릇에 머리를 가까이 대고 있는 모습이 보임.",
+        "군데군데 물이 잔뜩 고인 그릇에 낯선 물체가 있지 않음."
+      ],
+      "score": 1.2
+    },
+    {
+      "id": 10,
+      "action": "반려동물이 물을 마시는 것으로 보임",
+      "target_object": null,
+      "start_time": 28.0,
+      "end_time": 58.0,
+      "duration": 30.0,
+      "interestingness": 0.9,
+      "confidence": 0.8,
+      "evidence": [
+        "여러 프레임에서 반려동물이 아란 물그릇에 머리를 기울이고 있는 모습이 관찰됨.",
+        "음료를 마시기 위해 반복적으로 물그릇에 접近하는 행동이 지속적으로 보임."
+      ],
+      "score": 1.2
+    },
+    {
+      "id": 6,
+      "action": "반려동물이 물을 마시는 것으로 보임",
+      "target_object": "여름의 물 그릇",
+      "start_time": 30.0,
+      "end_time": 64.5,
+      "duration": 34.5,
+      "interestingness": 0.9,
+      "confidence": 0.8,
+      "evidence": [
+        "반려동물이 그릇에 가까이 다가가고 있는 모습이 보임.",
+        "물 그릇에서 혀를 내밀어 물을 마시는 것으로 보이는 행동이 확인됨."
+      ],
+      "score": 1.2
+    },
+    {
+      "id": 16,
+      "action": "반려동물이 물을 마시는 것으로 보임",
+      "target_object": "물그릇",
+      "start_time": 2.0,
+      "end_time": 3.5,
+      "duration": 1.5,
+      "interestingness": 0.8,
+      "confidence": 0.7,
+      "evidence": [
+        "반려동물이 물그릇에 머리를 가까이 대고 있음",
+        "물그릇이 색깔이 있는 것으로 보아 음식을 먹는 시간이 아닌 수분 섭취를 위한 것으로 추정됨"
+      ],
+      "score": 1.2
+    },
+    {
+      "id": 17,
+      "action": "반려동물이 물을 마시는 것으로 보임",
+      "target_object": "물 그릇",
+      "start_time": 18.0,
+      "end_time": 18.0,
+      "duration": 0.0,
+      "interestingness": 0.8,
+      "confidence": 0.7,
+      "evidence": [
+        "반려동물이 그릇에 머리를 가져다 대고 있는 모습이 나타남",
+        "물 그릇이 그 앞에 위치해 있어, 물을 마시는 행동으로 판단됨"
+      ],
+      "score": 1.4
+    },
+    {
+      "id": 8,
+      "action": "반려동물이 있는 구간으로 감지됨",
+      "target_object": null,
+      "start_time": 3.5,
+      "end_time": 9.5,
+      "duration": 6.0,
+      "interestingness": 0.55,
+      "confidence": 0.45,
+      "evidence": [
+        "motion 구간 3.5초~9.5초에서 프레임 4개 추출",
+        "함께 감지된 객체 라벨: ['cat', 'dog']",
+        "여러 프레임에서 움직임이 이어짐"
+      ],
+      "score": 1.0
+    },
+    {
+      "id": 12,
+      "action": "반려동물이 있는 구간으로 감지됨",
+      "target_object": null,
+      "start_time": 2.0,
+      "end_time": 5.5,
+      "duration": 3.5,
+      "interestingness": 0.5,
+      "confidence": 0.45,
+      "evidence": [
+        "motion 구간 2.0초~5.5초에서 프레임 2개 추출",
+        "함께 감지된 객체 라벨: ['dog']"
+      ],
+      "score": 1.0
+    }
+  ],
+  "replayed_before_response": [
+    {
+      "question": "물을 마신 장면이 있어?",
+      "source_event_id": 9,
+      "original_event_id": 9,
+      "event_start": 2.0,
+      "event_end": 57.5,
+      "question_source": "LLM"
+    },
+    {
+      "question": "고양이가 보이는 장면 보여줘",
+      "source_event_id": 6,
+      "event_start": 30.0,
+      "event_end": 64.5,
+      "question_source": "label fallback",
+      "original_event_id": null
+    },
+    {
+      "question": "고양이가 움직인 장면 찾아줘",
+      "source_event_id": 8,
+      "event_start": 3.5,
+      "event_end": 9.5,
+      "question_source": "label fallback",
+      "original_event_id": null
+    }
+  ]
+}

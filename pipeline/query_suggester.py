@@ -1,5 +1,5 @@
 from db.behavior_events import get_top_behavior_events
-from pipeline.question_generator import generate_questions_from_behavior_events
+from pipeline.question_generator import generate_question_items_from_behavior_events
 from pipeline.vector_store import get_indexed_frames
 
 def _event_text(event: dict) -> str:
@@ -185,6 +185,9 @@ def suggest_query_items(
     """
     추천 질문과 해당 질문의 근거 behavior event metadata를 함께 반환한다.
     """
+    if limit <= 0:
+        return []
+
     behavior_events = get_top_behavior_events(
         video_id=video_id,
         limit=max(limit * 8, 30),
@@ -196,14 +199,19 @@ def suggest_query_items(
             video_id=video_id,
             limit=limit,
         )
-        generated_questions = generate_questions_from_behavior_events(
+        generated_items = generate_question_items_from_behavior_events(
             events=behavior_events,
             limit=max(limit * 3, 9),
         )
 
+        # 문장 선정 순서는 그대로 두고, 선택된 문장의 원본 metadata를 보존한다.
+        generated_by_question = {}
+        for item in generated_items:
+            generated_by_question.setdefault(item["question"], item)
+
         generated_questions = [
             question
-            for question in _deduplicate_keep_order(generated_questions)
+            for question in generated_by_question
             if not _is_low_value_question(question)
         ]
 
@@ -211,18 +219,32 @@ def suggest_query_items(
             generated_questions,
             limit=limit,
         )
-        generated_questions = _deduplicate_keep_order([
-            *video_specific_questions,
-            *generated_questions,
-        ])[:limit]
+        # 행동 기반 질문(생성 함수의 fallback 포함)을 먼저 선정한다.
+        selected_questions = generated_questions[:limit]
+        remaining_count = max(0, limit - len(selected_questions))
 
-        if generated_questions:
+        # 빈 자리만 라벨 질문으로 보충하며, 이미 선정된 문장은 제외한다.
+        if remaining_count:
+            supplemental_questions = [
+                question
+                for question in _deduplicate_keep_order(video_specific_questions)
+                if question not in selected_questions
+            ]
+            selected_questions.extend(supplemental_questions[:remaining_count])
+
+        if selected_questions:
             return [
-                _build_question_item(
-                    question=question,
-                    event=_best_event_for_question(question, behavior_events),
+                dict(generated_by_question[question])
+                if question in generated_by_question else
+                dict(
+                    _build_question_item(
+                        question=question,
+                        event=_best_event_for_question(question, behavior_events),
+                    ),
+                    question_source="label fallback",
+                    original_event_id=None,
                 )
-                for question in generated_questions
+                for question in selected_questions
             ]
 
     indexed_questions = _generate_questions_from_indexed_frames(
@@ -237,6 +259,8 @@ def suggest_query_items(
                 "source_event_id": None,
                 "event_start": None,
                 "event_end": None,
+                "question_source": "frame fallback",
+                "original_event_id": None,
             }
             for question in indexed_questions
         ]
@@ -471,8 +495,14 @@ def _best_event_for_question(question: str, events: list[dict]) -> dict | None:
     if not events:
         return None
 
+    # 점수는 공통 키워드(+1) / 문자열 토큰(+0.2)의 합이다.
+    # 0은 현재 계산에서 텍스트 일치가 전혀 없음을 뜻하므로 연결하지 않는다.
+    matched_events = [event for event in events if _question_event_score(question, event) > 0]
+    if not matched_events:
+        return None
+
     return max(
-        events,
+        matched_events,
         key=lambda event: (
             _question_event_score(question, event),
             float(event.get("interestingness") or 0.0),

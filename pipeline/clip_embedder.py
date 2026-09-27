@@ -39,6 +39,19 @@ def embed_image(image_path):
     return embedding.cpu().numpy().tolist()[0]  # list로 반환
 
 
+def embed_images(images):
+    """PIL 이미지들을 기존 CLIP 인스턴스와 전처리로 한 번에 임베딩한다."""
+    if not images:
+        return []
+    model, preprocess = load_clip_model()
+    batch = torch.stack([
+        preprocess(image.convert("RGB")) for image in images
+    ]).to(device)
+    with torch.no_grad():
+        embeddings = F.normalize(model.encode_image(batch), dim=-1)
+    return embeddings.cpu().numpy().tolist()
+
+
 def embed_text(text):
     """텍스트 → CLIP 벡터"""
     model, _ = load_clip_model()

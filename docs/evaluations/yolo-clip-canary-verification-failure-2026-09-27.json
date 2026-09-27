@@ -1,0 +1,2389 @@
+{
+  "chroma": {
+    "IMG_8450_2__petcam_20260926_173123_000_frame_66.00": {
+      "frame_id_same": true,
+      "embedding_bytes_same": true,
+      "document_same": true,
+      "other_metadata_same": true,
+      "object_labels_same_as_expected": true,
+      "object_detections_same_as_expected": true,
+      "species_resolution_same_as_expected": true
+    },
+    "dog_drinking_water__petcam_20260926_173602_000_frame_12.50": {
+      "frame_id_same": true,
+      "embedding_bytes_same": true,
+      "document_same": true,
+      "other_metadata_same": true,
+      "object_labels_same_as_expected": true,
+      "object_detections_same_as_expected": true,
+      "species_resolution_same_as_expected": true
+    },
+    "dog_drinking_water__petcam_20260926_173602_001_frame_24.00": {
+      "frame_id_same": true,
+      "embedding_bytes_same": true,
+      "document_same": true,
+      "other_metadata_same": true,
+      "object_labels_same_as_expected": true,
+      "object_detections_same_as_expected": true,
+      "species_resolution_same_as_expected": true
+    },
+    "dog_escape__petcam_20260926_173415_000_frame_48.00": {
+      "frame_id_same": true,
+      "embedding_bytes_same": true,
+      "document_same": true,
+      "other_metadata_same": true,
+      "object_labels_same_as_expected": true,
+      "object_detections_same_as_expected": true,
+      "species_resolution_same_as_expected": true
+    },
+    "two_dogs__two_dogs_000_frame_000005": {
+      "frame_id_same": true,
+      "embedding_bytes_same": true,
+      "document_same": true,
+      "other_metadata_same": true,
+      "object_labels_same_as_expected": true,
+      "object_detections_same_as_expected": true,
+      "species_resolution_same_as_expected": true
+    },
+    "dog_drinking_water__petcam_20260926_173602_000_frame_7.50": {
+      "frame_id_same": true,
+      "embedding_bytes_same": true,
+      "document_same": true,
+      "other_metadata_same": true,
+      "object_labels_same_as_expected": true,
+      "object_detections_same_as_expected": true,
+      "species_resolution_same_as_expected": true
+    },
+    "IMG_8450_2__petcam_20260926_173123_000_frame_2.00": {
+      "frame_id_same": true,
+      "embedding_bytes_same": true,
+      "document_same": true,
+      "other_metadata_same": true,
+      "object_labels_same_as_expected": true,
+      "object_detections_same_as_expected": true,
+      "species_resolution_same_as_expected": true
+    },
+    "dog_escape__petcam_20260926_173415_000_frame_10.00": {
+      "frame_id_same": true,
+      "embedding_bytes_same": true,
+      "document_same": true,
+      "other_metadata_same": true,
+      "object_labels_same_as_expected": true,
+      "object_detections_same_as_expected": true,
+      "species_resolution_same_as_expected": true
+    },
+    "two_dogs__two_dogs_000_frame_000006": {
+      "frame_id_same": true,
+      "embedding_bytes_same": true,
+      "document_same": true,
+      "other_metadata_same": true,
+      "object_labels_same_as_expected": true,
+      "object_detections_same_as_expected": true,
+      "species_resolution_same_as_expected": true
+    },
+    "IMG_8450_2__petcam_20260926_173123_000_frame_12.00": {
+      "frame_id_same": true,
+      "embedding_bytes_same": true,
+      "document_same": true,
+      "other_metadata_same": true,
+      "object_labels_same_as_expected": true,
+      "object_detections_same_as_expected": true,
+      "species_resolution_same_as_expected": true
+    },
+    "dog_escape__petcam_20260926_173415_000_frame_12.00": {
+      "frame_id_same": true,
+      "embedding_bytes_same": true,
+      "document_same": true,
+      "other_metadata_same": true,
+      "object_labels_same_as_expected": true,
+      "object_detections_same_as_expected": true,
+      "species_resolution_same_as_expected": true
+    },
+    "two_dogs__two_dogs_000_frame_000001": {
+      "frame_id_same": true,
+      "embedding_bytes_same": true,
+      "document_same": true,
+      "other_metadata_same": true,
+      "object_labels_same_as_expected": true,
+      "object_detections_same_as_expected": true,
+      "species_resolution_same_as_expected": true
+    },
+    "IMG_8450_2__petcam_20260926_173123_000_frame_14.00": {
+      "frame_id_same": true,
+      "embedding_bytes_same": true,
+      "document_same": true,
+      "other_metadata_same": true,
+      "object_labels_same_as_expected": true,
+      "object_detections_same_as_expected": true,
+      "species_resolution_same_as_expected": true
+    },
+    "dog_drinking_water__petcam_20260926_173602_000_frame_14.50": {
+      "frame_id_same": true,
+      "embedding_bytes_same": true,
+      "document_same": true,
+      "other_metadata_same": true,
+      "object_labels_same_as_expected": true,
+      "object_detections_same_as_expected": true,
+      "species_resolution_same_as_expected": true
+    },
+    "dog_escape__petcam_20260926_173415_000_frame_14.00": {
+      "frame_id_same": true,
+      "embedding_bytes_same": true,
+      "document_same": true,
+      "other_metadata_same": true,
+      "object_labels_same_as_expected": true,
+      "object_detections_same_as_expected": true,
+      "species_resolution_same_as_expected": true
+    }
+  },
+  "chroma_all_pass": true,
+  "scenes": {
+    "IMG_8450_2__petcam_20260926_173123_000_frame_66.00": {
+      "scene_id_same": true,
+      "labels_same_as_expected": true,
+      "detections_same_as_expected": false,
+      "species_same_as_expected": true,
+      "other_fields_same": true,
+      "actual_detections": [
+        {
+          "bbox": [
+            850.2628784179688,
+            650.2279052734375,
+            1162.366455078125,
+            1004.0178833007812
+          ],
+          "label": "dog",
+          "confidence": 0.8823254704475403
+        },
+        {
+          "bbox": [
+            579.7307739257812,
+            385.9215393066406,
+            742.5122680664062,
+            527.221923828125
+          ],
+          "label": "bowl",
+          "confidence": 0.7551591396331787
+        },
+        {
+          "bbox": [
+            726.741943359375,
+            290.9590759277344,
+            1007.9437866210938,
+            661.01220703125
+          ],
+          "label": "dog",
+          "confidence": 0.5290108323097229
+        },
+        {
+          "bbox": [
+            727.321044921875,
+            291.4517822265625,
+            1009.4716186523438,
+            663.325439453125
+          ],
+          "label": "cat",
+          "confidence": 0.4697346091270447
+        },
+        {
+          "bbox": [
+            247.71775817871097,
+            2.2322845458984375,
+            509.7654724121094,
+            675.6492919921875
+          ],
+          "label": "chair",
+          "confidence": 0.4228439033031464
+        }
+      ],
+      "expected_detections": [
+        {
+          "label": "dog",
+          "confidence": 0.8823254704475403,
+          "bbox": [
+            850.2628784179688,
+            650.2279052734375,
+            1162.366455078125,
+            1004.0178833007812
+          ]
+        },
+        {
+          "label": "bowl",
+          "confidence": 0.7551591396331787,
+          "bbox": [
+            579.7307739257812,
+            385.9215393066406,
+            742.5122680664062,
+            527.221923828125
+          ]
+        },
+        {
+          "label": "dog",
+          "confidence": 0.5290108323097229,
+          "bbox": [
+            726.741943359375,
+            290.9590759277344,
+            1007.9437866210938,
+            661.01220703125
+          ]
+        },
+        {
+          "label": "cat",
+          "confidence": 0.4697346091270447,
+          "bbox": [
+            727.321044921875,
+            291.4517822265625,
+            1009.4716186523438,
+            663.325439453125
+          ]
+        },
+        {
+          "label": "chair",
+          "confidence": 0.42284390330314636,
+          "bbox": [
+            247.71775817871094,
+            2.2322845458984375,
+            509.7654724121094,
+            675.6492919921875
+          ]
+        }
+      ]
+    },
+    "dog_drinking_water__petcam_20260926_173602_000_frame_12.50": {
+      "scene_id_same": true,
+      "labels_same_as_expected": true,
+      "detections_same_as_expected": true,
+      "species_same_as_expected": false,
+      "other_fields_same": true,
+      "actual_species_resolution": [
+        {
+          "bbox": [
+            1.386474609375,
+            3.18829345703125,
+            637.1336669921875,
+            626.9796752929688
+          ],
+          "clip_label": "dog",
+          "yolo_label": "cat",
+          "resolved_label": "dog",
+          "yolo_confidence": 0.7299715876579285,
+          "clip_cat_similarity": 0.13707479537228734,
+          "clip_dog_similarity": 0.18020038867524849
+        }
+      ],
+      "expected_species_resolution": [
+        {
+          "bbox": [
+            1.386474609375,
+            3.18829345703125,
+            637.1336669921875,
+            626.9796752929688
+          ],
+          "yolo_label": "cat",
+          "yolo_confidence": 0.7299715876579285,
+          "clip_label": "dog",
+          "clip_cat_similarity": 0.13707479537228734,
+          "clip_dog_similarity": 0.18020038867524846,
+          "resolved_label": "dog"
+        }
+      ]
+    },
+    "dog_drinking_water__petcam_20260926_173602_001_frame_24.00": {
+      "scene_id_same": true,
+      "labels_same_as_expected": true,
+      "detections_same_as_expected": true,
+      "species_same_as_expected": false,
+      "other_fields_same": true,
+      "actual_species_resolution": [
+        {
+          "bbox": [
+            3.396240234375,
+            2.7890625,
+            869.74072265625,
+            632.8072509765625
+          ],
+          "clip_label": "dog",
+          "yolo_label": "dog",
+          "resolved_label": "dog",
+          "yolo_confidence": 0.5444923639297485,
+          "clip_cat_similarity": 0.13611367356703105,
+          "clip_dog_similarity": 0.1828486480621399
+        }
+      ],
+      "expected_species_resolution": [
+        {
+          "bbox": [
+            3.396240234375,
+            2.7890625,
+            869.74072265625,
+            632.8072509765625
+          ],
+          "yolo_label": "dog",
+          "yolo_confidence": 0.5444923639297485,
+          "clip_label": "dog",
+          "clip_cat_similarity": 0.13611367356703105,
+          "clip_dog_similarity": 0.18284864806213993,
+          "resolved_label": "dog"
+        }
+      ]
+    },
+    "dog_escape__petcam_20260926_173415_000_frame_48.00": {
+      "scene_id_same": true,
+      "labels_same_as_expected": true,
+      "detections_same_as_expected": true,
+      "species_same_as_expected": true,
+      "other_fields_same": true
+    },
+    "two_dogs__two_dogs_000_frame_000005": {
+      "scene_id_same": true,
+      "labels_same_as_expected": true,
+      "detections_same_as_expected": false,
+      "species_same_as_expected": true,
+      "other_fields_same": true,
+      "actual_detections": [
+        {
+          "bbox": [
+            182.466064453125,
+            269.7972106933594,
+            1164.355712890625,
+            943.4221801757812
+          ],
+          "label": "dog",
+          "confidence": 0.5329406261444092
+        },
+        {
+          "bbox": [
+            0.0,
+            1.438751220703125,
+            1674.06005859375,
+            1079.2435302734375
+          ],
+          "label": "couch",
+          "confidence": 0.4942446053028106
+        }
+      ],
+      "expected_detections": [
+        {
+          "label": "dog",
+          "confidence": 0.5329406261444092,
+          "bbox": [
+            182.466064453125,
+            269.7972106933594,
+            1164.355712890625,
+            943.4221801757812
+          ]
+        },
+        {
+          "label": "couch",
+          "confidence": 0.49424460530281067,
+          "bbox": [
+            0.0,
+            1.438751220703125,
+            1674.06005859375,
+            1079.2435302734375
+          ]
+        }
+      ]
+    },
+    "dog_drinking_water__petcam_20260926_173602_000_frame_7.50": {
+      "scene_id_same": true,
+      "labels_same_as_expected": true,
+      "detections_same_as_expected": false,
+      "species_same_as_expected": false,
+      "other_fields_same": true,
+      "actual_detections": [
+        {
+          "bbox": [
+            502.9016418457031,
+            419.1217041015625,
+            930.080810546875,
+            692.654296875
+          ],
+          "label": "bowl",
+          "confidence": 0.6918655037879944
+        },
+        {
+          "bbox": [
+            3.4346923828125,
+            1.74365234375,
+            643.08984375,
+            630.6929321289062
+          ],
+          "label": "cat",
+          "confidence": 0.4168091714382171
+        }
+      ],
+      "expected_detections": [
+        {
+          "label": "bowl",
+          "confidence": 0.6918655037879944,
+          "bbox": [
+            502.9016418457031,
+            419.1217041015625,
+            930.080810546875,
+            692.654296875
+          ]
+        },
+        {
+          "label": "cat",
+          "confidence": 0.41680917143821716,
+          "bbox": [
+            3.4346923828125,
+            1.74365234375,
+            643.08984375,
+            630.6929321289062
+          ]
+        }
+      ],
+      "actual_species_resolution": [
+        {
+          "bbox": [
+            3.4346923828125,
+            1.74365234375,
+            643.08984375,
+            630.6929321289062
+          ],
+          "clip_label": "dog",
+          "yolo_label": "cat",
+          "resolved_label": "dog",
+          "yolo_confidence": 0.4168091714382171,
+          "clip_cat_similarity": 0.13384892185985348,
+          "clip_dog_similarity": 0.17338649082905833
+        }
+      ],
+      "expected_species_resolution": [
+        {
+          "bbox": [
+            3.4346923828125,
+            1.74365234375,
+            643.08984375,
+            630.6929321289062
+          ],
+          "yolo_label": "cat",
+          "yolo_confidence": 0.41680917143821716,
+          "clip_label": "dog",
+          "clip_cat_similarity": 0.13384892185985348,
+          "clip_dog_similarity": 0.17338649082905833,
+          "resolved_label": "dog"
+        }
+      ]
+    },
+    "IMG_8450_2__petcam_20260926_173123_000_frame_2.00": {
+      "scene_id_same": true,
+      "labels_same_as_expected": true,
+      "detections_same_as_expected": true,
+      "species_same_as_expected": true,
+      "other_fields_same": true
+    },
+    "dog_escape__petcam_20260926_173415_000_frame_10.00": {
+      "scene_id_same": true,
+      "labels_same_as_expected": true,
+      "detections_same_as_expected": true,
+      "species_same_as_expected": true,
+      "other_fields_same": true
+    },
+    "two_dogs__two_dogs_000_frame_000006": {
+      "scene_id_same": true,
+      "labels_same_as_expected": true,
+      "detections_same_as_expected": false,
+      "species_same_as_expected": false,
+      "other_fields_same": true,
+      "actual_detections": [
+        {
+          "bbox": [
+            219.40090942382812,
+            323.62957763671875,
+            1197.084228515625,
+            956.2291259765624
+          ],
+          "label": "dog",
+          "confidence": 0.9305586218833924
+        },
+        {
+          "bbox": [
+            0.0,
+            0.0966796875,
+            1671.7650146484375,
+            1080.0
+          ],
+          "label": "couch",
+          "confidence": 0.7997879385948181
+        }
+      ],
+      "expected_detections": [
+        {
+          "label": "dog",
+          "confidence": 0.9305586218833923,
+          "bbox": [
+            219.40090942382812,
+            323.62957763671875,
+            1197.084228515625,
+            956.2291259765625
+          ]
+        },
+        {
+          "label": "couch",
+          "confidence": 0.7997879385948181,
+          "bbox": [
+            0.0,
+            0.0966796875,
+            1671.7650146484375,
+            1080.0
+          ]
+        }
+      ],
+      "actual_species_resolution": [
+        {
+          "bbox": [
+            219.40090942382812,
+            323.62957763671875,
+            1197.084228515625,
+            956.2291259765624
+          ],
+          "clip_label": "dog",
+          "yolo_label": "dog",
+          "resolved_label": "dog",
+          "yolo_confidence": 0.9305586218833924,
+          "clip_cat_similarity": 0.15494139140508473,
+          "clip_dog_similarity": 0.2119062763323782
+        }
+      ],
+      "expected_species_resolution": [
+        {
+          "bbox": [
+            219.40090942382812,
+            323.62957763671875,
+            1197.084228515625,
+            956.2291259765625
+          ],
+          "yolo_label": "dog",
+          "yolo_confidence": 0.9305586218833923,
+          "clip_label": "dog",
+          "clip_cat_similarity": 0.15494139140508473,
+          "clip_dog_similarity": 0.2119062763323782,
+          "resolved_label": "dog"
+        }
+      ]
+    },
+    "IMG_8450_2__petcam_20260926_173123_000_frame_12.00": {
+      "scene_id_same": true,
+      "labels_same_as_expected": true,
+      "detections_same_as_expected": false,
+      "species_same_as_expected": false,
+      "other_fields_same": true,
+      "actual_detections": [
+        {
+          "bbox": [
+            721.8348999023438,
+            490.26654052734375,
+            1082.378662109375,
+            740.9039306640625
+          ],
+          "label": "cat",
+          "confidence": 0.9422411322593688
+        },
+        {
+          "bbox": [
+            621.8638916015625,
+            522.8526000976562,
+            955.7008666992188,
+            918.5953369140624
+          ],
+          "label": "cat",
+          "confidence": 0.8958077430725098
+        },
+        {
+          "bbox": [
+            292.8049621582031,
+            638.68505859375,
+            467.6076965332031,
+            785.4948120117188
+          ],
+          "label": "bowl",
+          "confidence": 0.6177772879600525
+        }
+      ],
+      "expected_detections": [
+        {
+          "label": "cat",
+          "confidence": 0.9422411322593689,
+          "bbox": [
+            721.8348999023438,
+            490.26654052734375,
+            1082.378662109375,
+            740.9039306640625
+          ]
+        },
+        {
+          "label": "cat",
+          "confidence": 0.8958077430725098,
+          "bbox": [
+            621.8638916015625,
+            522.8526000976562,
+            955.7008666992188,
+            918.5953369140625
+          ]
+        },
+        {
+          "label": "bowl",
+          "confidence": 0.6177772879600525,
+          "bbox": [
+            292.8049621582031,
+            638.68505859375,
+            467.6076965332031,
+            785.4948120117188
+          ]
+        }
+      ],
+      "actual_species_resolution": [
+        {
+          "bbox": [
+            721.8348999023438,
+            490.26654052734375,
+            1082.378662109375,
+            740.9039306640625
+          ],
+          "clip_label": "cat",
+          "yolo_label": "cat",
+          "resolved_label": "cat",
+          "yolo_confidence": 0.9422411322593688,
+          "clip_cat_similarity": 0.1782353987348902,
+          "clip_dog_similarity": 0.12702623423777348
+        },
+        {
+          "bbox": [
+            621.8638916015625,
+            522.8526000976562,
+            955.7008666992188,
+            918.5953369140624
+          ],
+          "clip_label": "cat",
+          "yolo_label": "cat",
+          "resolved_label": "cat",
+          "yolo_confidence": 0.8958077430725098,
+          "clip_cat_similarity": 0.21224709524612295,
+          "clip_dog_similarity": 0.16202078339773454
+        }
+      ],
+      "expected_species_resolution": [
+        {
+          "bbox": [
+            721.8348999023438,
+            490.26654052734375,
+            1082.378662109375,
+            740.9039306640625
+          ],
+          "yolo_label": "cat",
+          "yolo_confidence": 0.9422411322593689,
+          "clip_label": "cat",
+          "clip_cat_similarity": 0.1782353987348902,
+          "clip_dog_similarity": 0.12702623423777348,
+          "resolved_label": "cat"
+        },
+        {
+          "bbox": [
+            621.8638916015625,
+            522.8526000976562,
+            955.7008666992188,
+            918.5953369140625
+          ],
+          "yolo_label": "cat",
+          "yolo_confidence": 0.8958077430725098,
+          "clip_label": "cat",
+          "clip_cat_similarity": 0.21224709524612298,
+          "clip_dog_similarity": 0.16202078339773454,
+          "resolved_label": "cat"
+        }
+      ]
+    },
+    "dog_escape__petcam_20260926_173415_000_frame_12.00": {
+      "scene_id_same": true,
+      "labels_same_as_expected": true,
+      "detections_same_as_expected": true,
+      "species_same_as_expected": true,
+      "other_fields_same": true
+    },
+    "two_dogs__two_dogs_000_frame_000001": {
+      "scene_id_same": true,
+      "labels_same_as_expected": true,
+      "detections_same_as_expected": true,
+      "species_same_as_expected": false,
+      "other_fields_same": true,
+      "actual_species_resolution": [
+        {
+          "bbox": [
+            1519.0411376953125,
+            492.68609619140625,
+            1788.3189697265625,
+            951.162841796875
+          ],
+          "clip_label": "dog",
+          "yolo_label": "dog",
+          "resolved_label": "dog",
+          "yolo_confidence": 0.9077696800231934,
+          "clip_cat_similarity": 0.17678863829013758,
+          "clip_dog_similarity": 0.23443334769390609
+        },
+        {
+          "bbox": [
+            984.309814453125,
+            476.1907653808594,
+            1104.6650390625,
+            734.576904296875
+          ],
+          "clip_label": "dog",
+          "yolo_label": "dog",
+          "resolved_label": "dog",
+          "yolo_confidence": 0.8299235105514526,
+          "clip_cat_similarity": 0.18182119235140337,
+          "clip_dog_similarity": 0.23595475208600156
+        }
+      ],
+      "expected_species_resolution": [
+        {
+          "bbox": [
+            1519.0411376953125,
+            492.68609619140625,
+            1788.3189697265625,
+            951.162841796875
+          ],
+          "yolo_label": "dog",
+          "yolo_confidence": 0.9077696800231934,
+          "clip_label": "dog",
+          "clip_cat_similarity": 0.17678863829013758,
+          "clip_dog_similarity": 0.23443334769390609,
+          "resolved_label": "dog"
+        },
+        {
+          "bbox": [
+            984.309814453125,
+            476.1907653808594,
+            1104.6650390625,
+            734.576904296875
+          ],
+          "yolo_label": "dog",
+          "yolo_confidence": 0.8299235105514526,
+          "clip_label": "dog",
+          "clip_cat_similarity": 0.18182119235140334,
+          "clip_dog_similarity": 0.23595475208600156,
+          "resolved_label": "dog"
+        }
+      ]
+    },
+    "IMG_8450_2__petcam_20260926_173123_000_frame_14.00": {
+      "scene_id_same": true,
+      "labels_same_as_expected": true,
+      "detections_same_as_expected": false,
+      "species_same_as_expected": false,
+      "other_fields_same": true,
+      "actual_detections": [
+        {
+          "bbox": [
+            502.5103454589844,
+            516.5958251953125,
+            975.2345581054688,
+            899.35107421875
+          ],
+          "label": "cat",
+          "confidence": 0.9457350969314576
+        },
+        {
+          "bbox": [
+            718.8256225585938,
+            460.3310241699219,
+            1072.90380859375,
+            725.3113403320312
+          ],
+          "label": "cat",
+          "confidence": 0.8622266054153442
+        },
+        {
+          "bbox": [
+            287.110107421875,
+            617.965087890625,
+            461.6661987304687,
+            766.9610595703125
+          ],
+          "label": "bowl",
+          "confidence": 0.858572781085968
+        }
+      ],
+      "expected_detections": [
+        {
+          "label": "cat",
+          "confidence": 0.9457350969314575,
+          "bbox": [
+            502.5103454589844,
+            516.5958251953125,
+            975.2345581054688,
+            899.35107421875
+          ]
+        },
+        {
+          "label": "cat",
+          "confidence": 0.8622266054153442,
+          "bbox": [
+            718.8256225585938,
+            460.3310241699219,
+            1072.90380859375,
+            725.3113403320312
+          ]
+        },
+        {
+          "label": "bowl",
+          "confidence": 0.858572781085968,
+          "bbox": [
+            287.110107421875,
+            617.965087890625,
+            461.66619873046875,
+            766.9610595703125
+          ]
+        }
+      ],
+      "actual_species_resolution": [
+        {
+          "bbox": [
+            502.5103454589844,
+            516.5958251953125,
+            975.2345581054688,
+            899.35107421875
+          ],
+          "clip_label": "cat",
+          "yolo_label": "cat",
+          "resolved_label": "cat",
+          "yolo_confidence": 0.9457350969314576,
+          "clip_cat_similarity": 0.22786786975449683,
+          "clip_dog_similarity": 0.17732055505827313
+        },
+        {
+          "bbox": [
+            718.8256225585938,
+            460.3310241699219,
+            1072.90380859375,
+            725.3113403320312
+          ],
+          "clip_label": "cat",
+          "yolo_label": "cat",
+          "resolved_label": "cat",
+          "yolo_confidence": 0.8622266054153442,
+          "clip_cat_similarity": 0.18181652256546815,
+          "clip_dog_similarity": 0.12839575882311258
+        }
+      ],
+      "expected_species_resolution": [
+        {
+          "bbox": [
+            502.5103454589844,
+            516.5958251953125,
+            975.2345581054688,
+            899.35107421875
+          ],
+          "yolo_label": "cat",
+          "yolo_confidence": 0.9457350969314575,
+          "clip_label": "cat",
+          "clip_cat_similarity": 0.22786786975449683,
+          "clip_dog_similarity": 0.17732055505827313,
+          "resolved_label": "cat"
+        },
+        {
+          "bbox": [
+            718.8256225585938,
+            460.3310241699219,
+            1072.90380859375,
+            725.3113403320312
+          ],
+          "yolo_label": "cat",
+          "yolo_confidence": 0.8622266054153442,
+          "clip_label": "cat",
+          "clip_cat_similarity": 0.18181652256546815,
+          "clip_dog_similarity": 0.12839575882311258,
+          "resolved_label": "cat"
+        }
+      ]
+    },
+    "dog_drinking_water__petcam_20260926_173602_000_frame_14.50": {
+      "scene_id_same": true,
+      "labels_same_as_expected": true,
+      "detections_same_as_expected": false,
+      "species_same_as_expected": true,
+      "other_fields_same": true,
+      "actual_detections": [
+        {
+          "bbox": [
+            1.4462890625,
+            2.626708984375,
+            755.0816650390625,
+            607.1778564453125
+          ],
+          "label": "cat",
+          "confidence": 0.627281904220581
+        },
+        {
+          "bbox": [
+            506.1101989746094,
+            418.4224853515625,
+            932.8824462890624,
+            688.8323974609375
+          ],
+          "label": "bowl",
+          "confidence": 0.6143146753311157
+        }
+      ],
+      "expected_detections": [
+        {
+          "label": "cat",
+          "confidence": 0.627281904220581,
+          "bbox": [
+            1.4462890625,
+            2.626708984375,
+            755.0816650390625,
+            607.1778564453125
+          ]
+        },
+        {
+          "label": "bowl",
+          "confidence": 0.6143146753311157,
+          "bbox": [
+            506.1101989746094,
+            418.4224853515625,
+            932.8824462890625,
+            688.8323974609375
+          ]
+        }
+      ]
+    },
+    "dog_escape__petcam_20260926_173415_000_frame_14.00": {
+      "scene_id_same": true,
+      "labels_same_as_expected": true,
+      "detections_same_as_expected": true,
+      "species_same_as_expected": true,
+      "other_fields_same": true
+    }
+  },
+  "scenes_all_pass": false,
+  "behavior_events": {
+    "1": {
+      "event_fields_except_source_frames_same": true,
+      "source_frames_expected": false,
+      "matched_sources": [
+        [
+          0,
+          "two_dogs__two_dogs_000_frame_000001"
+        ]
+      ],
+      "ambiguous_skipped": false,
+      "actual_source_frames": [
+        {
+          "s3_key": "frames/two_dogs/two_dogs_000_frame_000001.jpg",
+          "frame_id": "two_dogs__two_dogs_000_frame_000001",
+          "timestamp": 0.0,
+          "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000001.jpg",
+          "object_labels": [
+            "chair",
+            "couch",
+            "dog",
+            "tv"
+          ],
+          "object_detections": [
+            {
+              "bbox": [
+                1519.0411376953125,
+                492.68609619140625,
+                1788.3189697265625,
+                951.162841796875
+              ],
+              "label": "dog",
+              "confidence": 0.9077696800231934
+            },
+            {
+              "bbox": [
+                984.309814453125,
+                476.1907653808594,
+                1104.6650390625,
+                734.576904296875
+              ],
+              "label": "dog",
+              "confidence": 0.8299235105514526
+            },
+            {
+              "bbox": [
+                373.4696044921875,
+                222.84100341796875,
+                607.6221923828125,
+                401.11761474609375
+              ],
+              "label": "tv",
+              "confidence": 0.775188684463501
+            },
+            {
+              "bbox": [
+                1082.5235595703125,
+                439.0066223144531,
+                1337.470458984375,
+                869.2960205078125
+              ],
+              "label": "chair",
+              "confidence": 0.7654667496681213
+            },
+            {
+              "bbox": [
+                0.9863204956054688,
+                436.3515930175781,
+                224.71633911132812,
+                656.3037109375
+              ],
+              "label": "couch",
+              "confidence": 0.7099083662033081
+            },
+            {
+              "bbox": [
+                1737.19384765625,
+                334.62744140625,
+                1918.7615966796875,
+                1068.976806640625
+              ],
+              "label": "couch",
+              "confidence": 0.5894817113876343
+            }
+          ],
+          "species_resolution": [
+            {
+              "bbox": [
+                1519.0411376953125,
+                492.68609619140625,
+                1788.3189697265625,
+                951.162841796875
+              ],
+              "clip_label": "dog",
+              "yolo_label": "dog",
+              "resolved_label": "dog",
+              "yolo_confidence": 0.9077696800231934,
+              "clip_cat_similarity": 0.17678863829013758,
+              "clip_dog_similarity": 0.23443334769390609
+            },
+            {
+              "bbox": [
+                984.309814453125,
+                476.1907653808594,
+                1104.6650390625,
+                734.576904296875
+              ],
+              "clip_label": "dog",
+              "yolo_label": "dog",
+              "resolved_label": "dog",
+              "yolo_confidence": 0.8299235105514526,
+              "clip_cat_similarity": 0.18182119235140337,
+              "clip_dog_similarity": 0.23595475208600156
+            }
+          ]
+        },
+        {
+          "s3_key": "frames/two_dogs/two_dogs_000_frame_000019.jpg",
+          "frame_id": "two_dogs__two_dogs_000_frame_000019",
+          "timestamp": 36.0,
+          "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000019.jpg",
+          "object_labels": [
+            "dog",
+            "tv"
+          ]
+        },
+        {
+          "s3_key": "frames/two_dogs/two_dogs_000_frame_000037.jpg",
+          "frame_id": "two_dogs__two_dogs_000_frame_000037",
+          "timestamp": 72.0,
+          "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000037.jpg",
+          "object_labels": [
+            "cat",
+            "dog",
+            "tv"
+          ]
+        },
+        {
+          "s3_key": "frames/two_dogs/two_dogs_000_frame_000054.jpg",
+          "frame_id": "two_dogs__two_dogs_000_frame_000054",
+          "timestamp": 106.0,
+          "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000054.jpg",
+          "object_labels": [
+            "cat",
+            "dog",
+            "tv"
+          ]
+        },
+        {
+          "s3_key": "frames/two_dogs/two_dogs_000_frame_000072.jpg",
+          "frame_id": "two_dogs__two_dogs_000_frame_000072",
+          "timestamp": 142.0,
+          "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000072.jpg",
+          "object_labels": [
+            "chair",
+            "couch",
+            "dog",
+            "tv"
+          ]
+        },
+        {
+          "s3_key": "frames/two_dogs/two_dogs_000_frame_000090.jpg",
+          "frame_id": "two_dogs__two_dogs_000_frame_000090",
+          "timestamp": 178.0,
+          "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000090.jpg",
+          "object_labels": []
+        }
+      ],
+      "expected_source_frames": [
+        {
+          "s3_key": "frames/two_dogs/two_dogs_000_frame_000001.jpg",
+          "frame_id": "two_dogs__two_dogs_000_frame_000001",
+          "timestamp": 0.0,
+          "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000001.jpg",
+          "object_labels": [
+            "chair",
+            "couch",
+            "dog",
+            "tv"
+          ],
+          "object_detections": [
+            {
+              "label": "dog",
+              "confidence": 0.9077696800231934,
+              "bbox": [
+                1519.0411376953125,
+                492.68609619140625,
+                1788.3189697265625,
+                951.162841796875
+              ]
+            },
+            {
+              "label": "dog",
+              "confidence": 0.8299235105514526,
+              "bbox": [
+                984.309814453125,
+                476.1907653808594,
+                1104.6650390625,
+                734.576904296875
+              ]
+            },
+            {
+              "label": "tv",
+              "confidence": 0.775188684463501,
+              "bbox": [
+                373.4696044921875,
+                222.84100341796875,
+                607.6221923828125,
+                401.11761474609375
+              ]
+            },
+            {
+              "label": "chair",
+              "confidence": 0.7654667496681213,
+              "bbox": [
+                1082.5235595703125,
+                439.0066223144531,
+                1337.470458984375,
+                869.2960205078125
+              ]
+            },
+            {
+              "label": "couch",
+              "confidence": 0.7099083662033081,
+              "bbox": [
+                0.9863204956054688,
+                436.3515930175781,
+                224.71633911132812,
+                656.3037109375
+              ]
+            },
+            {
+              "label": "couch",
+              "confidence": 0.5894817113876343,
+              "bbox": [
+                1737.19384765625,
+                334.62744140625,
+                1918.7615966796875,
+                1068.976806640625
+              ]
+            }
+          ],
+          "species_resolution": [
+            {
+              "bbox": [
+                1519.0411376953125,
+                492.68609619140625,
+                1788.3189697265625,
+                951.162841796875
+              ],
+              "yolo_label": "dog",
+              "yolo_confidence": 0.9077696800231934,
+              "clip_label": "dog",
+              "clip_cat_similarity": 0.17678863829013758,
+              "clip_dog_similarity": 0.23443334769390609,
+              "resolved_label": "dog"
+            },
+            {
+              "bbox": [
+                984.309814453125,
+                476.1907653808594,
+                1104.6650390625,
+                734.576904296875
+              ],
+              "yolo_label": "dog",
+              "yolo_confidence": 0.8299235105514526,
+              "clip_label": "dog",
+              "clip_cat_similarity": 0.18182119235140334,
+              "clip_dog_similarity": 0.23595475208600156,
+              "resolved_label": "dog"
+            }
+          ]
+        },
+        {
+          "s3_key": "frames/two_dogs/two_dogs_000_frame_000019.jpg",
+          "frame_id": "two_dogs__two_dogs_000_frame_000019",
+          "timestamp": 36.0,
+          "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000019.jpg",
+          "object_labels": [
+            "dog",
+            "tv"
+          ]
+        },
+        {
+          "s3_key": "frames/two_dogs/two_dogs_000_frame_000037.jpg",
+          "frame_id": "two_dogs__two_dogs_000_frame_000037",
+          "timestamp": 72.0,
+          "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000037.jpg",
+          "object_labels": [
+            "cat",
+            "dog",
+            "tv"
+          ]
+        },
+        {
+          "s3_key": "frames/two_dogs/two_dogs_000_frame_000054.jpg",
+          "frame_id": "two_dogs__two_dogs_000_frame_000054",
+          "timestamp": 106.0,
+          "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000054.jpg",
+          "object_labels": [
+            "cat",
+            "dog",
+            "tv"
+          ]
+        },
+        {
+          "s3_key": "frames/two_dogs/two_dogs_000_frame_000072.jpg",
+          "frame_id": "two_dogs__two_dogs_000_frame_000072",
+          "timestamp": 142.0,
+          "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000072.jpg",
+          "object_labels": [
+            "chair",
+            "couch",
+            "dog",
+            "tv"
+          ]
+        },
+        {
+          "s3_key": "frames/two_dogs/two_dogs_000_frame_000090.jpg",
+          "frame_id": "two_dogs__two_dogs_000_frame_000090",
+          "timestamp": 178.0,
+          "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000090.jpg",
+          "object_labels": []
+        }
+      ]
+    },
+    "2": {
+      "event_fields_except_source_frames_same": true,
+      "source_frames_expected": false,
+      "matched_sources": [
+        [
+          0,
+          "IMG_8450_2__petcam_20260926_173123_000_frame_12.00"
+        ],
+        [
+          5,
+          "IMG_8450_2__petcam_20260926_173123_000_frame_66.00"
+        ]
+      ],
+      "ambiguous_skipped": false,
+      "actual_source_frames": [
+        {
+          "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_12.00.jpg",
+          "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_12.00",
+          "timestamp": 12.0,
+          "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_12.00.jpg",
+          "object_labels": [
+            "bowl",
+            "cat"
+          ],
+          "object_detections": [
+            {
+              "bbox": [
+                721.8348999023438,
+                490.26654052734375,
+                1082.378662109375,
+                740.9039306640625
+              ],
+              "label": "cat",
+              "confidence": 0.9422411322593688
+            },
+            {
+              "bbox": [
+                621.8638916015625,
+                522.8526000976562,
+                955.7008666992188,
+                918.5953369140624
+              ],
+              "label": "cat",
+              "confidence": 0.8958077430725098
+            },
+            {
+              "bbox": [
+                292.8049621582031,
+                638.68505859375,
+                467.6076965332031,
+                785.4948120117188
+              ],
+              "label": "bowl",
+              "confidence": 0.6177772879600525
+            }
+          ],
+          "species_resolution": [
+            {
+              "bbox": [
+                721.8348999023438,
+                490.26654052734375,
+                1082.378662109375,
+                740.9039306640625
+              ],
+              "clip_label": "cat",
+              "yolo_label": "cat",
+              "resolved_label": "cat",
+              "yolo_confidence": 0.9422411322593688,
+              "clip_cat_similarity": 0.1782353987348902,
+              "clip_dog_similarity": 0.12702623423777348
+            },
+            {
+              "bbox": [
+                621.8638916015625,
+                522.8526000976562,
+                955.7008666992188,
+                918.5953369140624
+              ],
+              "clip_label": "cat",
+              "yolo_label": "cat",
+              "resolved_label": "cat",
+              "yolo_confidence": 0.8958077430725098,
+              "clip_cat_similarity": 0.21224709524612295,
+              "clip_dog_similarity": 0.16202078339773454
+            }
+          ]
+        },
+        {
+          "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_22.00.jpg",
+          "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_22.00",
+          "timestamp": 22.0,
+          "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_22.00.jpg",
+          "object_labels": [
+            "cat"
+          ]
+        },
+        {
+          "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_34.00.jpg",
+          "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_34.00",
+          "timestamp": 34.0,
+          "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_34.00.jpg",
+          "object_labels": [
+            "cat"
+          ]
+        },
+        {
+          "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_44.00.jpg",
+          "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_44.00",
+          "timestamp": 44.0,
+          "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_44.00.jpg",
+          "object_labels": [
+            "cat"
+          ]
+        },
+        {
+          "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_56.00.jpg",
+          "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_56.00",
+          "timestamp": 56.0,
+          "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_56.00.jpg",
+          "object_labels": [
+            "cat"
+          ]
+        },
+        {
+          "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_66.00.jpg",
+          "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+          "timestamp": 66.0,
+          "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_66.00.jpg",
+          "object_labels": [
+            "bowl",
+            "cat"
+          ],
+          "object_detections": [
+            {
+              "bbox": [
+                850.2628784179688,
+                650.2279052734375,
+                1162.366455078125,
+                1004.0178833007812
+              ],
+              "label": "dog",
+              "confidence": 0.8823254704475403
+            },
+            {
+              "bbox": [
+                579.7307739257812,
+                385.9215393066406,
+                742.5122680664062,
+                527.221923828125
+              ],
+              "label": "bowl",
+              "confidence": 0.7551591396331787
+            },
+            {
+              "bbox": [
+                726.741943359375,
+                290.9590759277344,
+                1007.9437866210938,
+                661.01220703125
+              ],
+              "label": "dog",
+              "confidence": 0.5290108323097229
+            },
+            {
+              "bbox": [
+                727.321044921875,
+                291.4517822265625,
+                1009.4716186523438,
+                663.325439453125
+              ],
+              "label": "cat",
+              "confidence": 0.4697346091270447
+            },
+            {
+              "bbox": [
+                247.71775817871097,
+                2.2322845458984375,
+                509.7654724121094,
+                675.6492919921875
+              ],
+              "label": "chair",
+              "confidence": 0.4228439033031464
+            }
+          ],
+          "species_resolution": [
+            {
+              "bbox": [
+                850.2628784179688,
+                650.2279052734375,
+                1162.366455078125,
+                1004.0178833007812
+              ],
+              "clip_label": "cat",
+              "yolo_label": "dog",
+              "resolved_label": "cat",
+              "yolo_confidence": 0.8823254704475403,
+              "clip_cat_similarity": 0.25479161145588086,
+              "clip_dog_similarity": 0.20462621011582888
+            },
+            {
+              "bbox": [
+                726.741943359375,
+                290.9590759277344,
+                1007.9437866210938,
+                661.01220703125
+              ],
+              "clip_label": "cat",
+              "yolo_label": "dog",
+              "resolved_label": "cat",
+              "yolo_confidence": 0.5290108323097229,
+              "clip_cat_similarity": 0.2206883945215119,
+              "clip_dog_similarity": 0.1775899702775595
+            },
+            {
+              "bbox": [
+                727.321044921875,
+                291.4517822265625,
+                1009.4716186523438,
+                663.325439453125
+              ],
+              "clip_label": "cat",
+              "yolo_label": "cat",
+              "resolved_label": "cat",
+              "yolo_confidence": 0.4697346091270447,
+              "clip_cat_similarity": 0.22592414666004992,
+              "clip_dog_similarity": 0.1818478481057974
+            }
+          ]
+        }
+      ],
+      "expected_source_frames": [
+        {
+          "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_12.00.jpg",
+          "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_12.00",
+          "timestamp": 12.0,
+          "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_12.00.jpg",
+          "object_labels": [
+            "bowl",
+            "cat"
+          ],
+          "object_detections": [
+            {
+              "label": "cat",
+              "confidence": 0.9422411322593689,
+              "bbox": [
+                721.8348999023438,
+                490.26654052734375,
+                1082.378662109375,
+                740.9039306640625
+              ]
+            },
+            {
+              "label": "cat",
+              "confidence": 0.8958077430725098,
+              "bbox": [
+                621.8638916015625,
+                522.8526000976562,
+                955.7008666992188,
+                918.5953369140625
+              ]
+            },
+            {
+              "label": "bowl",
+              "confidence": 0.6177772879600525,
+              "bbox": [
+                292.8049621582031,
+                638.68505859375,
+                467.6076965332031,
+                785.4948120117188
+              ]
+            }
+          ],
+          "species_resolution": [
+            {
+              "bbox": [
+                721.8348999023438,
+                490.26654052734375,
+                1082.378662109375,
+                740.9039306640625
+              ],
+              "yolo_label": "cat",
+              "yolo_confidence": 0.9422411322593689,
+              "clip_label": "cat",
+              "clip_cat_similarity": 0.1782353987348902,
+              "clip_dog_similarity": 0.12702623423777348,
+              "resolved_label": "cat"
+            },
+            {
+              "bbox": [
+                621.8638916015625,
+                522.8526000976562,
+                955.7008666992188,
+                918.5953369140625
+              ],
+              "yolo_label": "cat",
+              "yolo_confidence": 0.8958077430725098,
+              "clip_label": "cat",
+              "clip_cat_similarity": 0.21224709524612298,
+              "clip_dog_similarity": 0.16202078339773454,
+              "resolved_label": "cat"
+            }
+          ]
+        },
+        {
+          "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_22.00.jpg",
+          "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_22.00",
+          "timestamp": 22.0,
+          "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_22.00.jpg",
+          "object_labels": [
+            "cat"
+          ]
+        },
+        {
+          "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_34.00.jpg",
+          "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_34.00",
+          "timestamp": 34.0,
+          "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_34.00.jpg",
+          "object_labels": [
+            "cat"
+          ]
+        },
+        {
+          "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_44.00.jpg",
+          "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_44.00",
+          "timestamp": 44.0,
+          "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_44.00.jpg",
+          "object_labels": [
+            "cat"
+          ]
+        },
+        {
+          "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_56.00.jpg",
+          "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_56.00",
+          "timestamp": 56.0,
+          "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_56.00.jpg",
+          "object_labels": [
+            "cat"
+          ]
+        },
+        {
+          "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_66.00.jpg",
+          "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+          "timestamp": 66.0,
+          "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_66.00.jpg",
+          "object_labels": [
+            "bowl",
+            "cat"
+          ],
+          "object_detections": [
+            {
+              "label": "dog",
+              "confidence": 0.8823254704475403,
+              "bbox": [
+                850.2628784179688,
+                650.2279052734375,
+                1162.366455078125,
+                1004.0178833007812
+              ]
+            },
+            {
+              "label": "bowl",
+              "confidence": 0.7551591396331787,
+              "bbox": [
+                579.7307739257812,
+                385.9215393066406,
+                742.5122680664062,
+                527.221923828125
+              ]
+            },
+            {
+              "label": "dog",
+              "confidence": 0.5290108323097229,
+              "bbox": [
+                726.741943359375,
+                290.9590759277344,
+                1007.9437866210938,
+                661.01220703125
+              ]
+            },
+            {
+              "label": "cat",
+              "confidence": 0.4697346091270447,
+              "bbox": [
+                727.321044921875,
+                291.4517822265625,
+                1009.4716186523438,
+                663.325439453125
+              ]
+            },
+            {
+              "label": "chair",
+              "confidence": 0.42284390330314636,
+              "bbox": [
+                247.71775817871094,
+                2.2322845458984375,
+                509.7654724121094,
+                675.6492919921875
+              ]
+            }
+          ],
+          "species_resolution": [
+            {
+              "bbox": [
+                850.2628784179688,
+                650.2279052734375,
+                1162.366455078125,
+                1004.0178833007812
+              ],
+              "yolo_label": "dog",
+              "yolo_confidence": 0.8823254704475403,
+              "clip_label": "cat",
+              "clip_cat_similarity": 0.25479161145588086,
+              "clip_dog_similarity": 0.20462621011582888,
+              "resolved_label": "cat"
+            },
+            {
+              "bbox": [
+                726.741943359375,
+                290.9590759277344,
+                1007.9437866210938,
+                661.01220703125
+              ],
+              "yolo_label": "dog",
+              "yolo_confidence": 0.5290108323097229,
+              "clip_label": "cat",
+              "clip_cat_similarity": 0.2206883945215119,
+              "clip_dog_similarity": 0.1775899702775595,
+              "resolved_label": "cat"
+            },
+            {
+              "bbox": [
+                727.321044921875,
+                291.4517822265625,
+                1009.4716186523438,
+                663.325439453125
+              ],
+              "yolo_label": "cat",
+              "yolo_confidence": 0.4697346091270447,
+              "clip_label": "cat",
+              "clip_cat_similarity": 0.22592414666004992,
+              "clip_dog_similarity": 0.1818478481057974,
+              "resolved_label": "cat"
+            }
+          ]
+        }
+      ]
+    },
+    "5": {
+      "event_fields_except_source_frames_same": true,
+      "source_frames_expected": true,
+      "matched_sources": [
+        [
+          1,
+          "dog_escape__petcam_20260926_173415_000_frame_12.00"
+        ]
+      ],
+      "ambiguous_skipped": false
+    },
+    "7": {
+      "event_fields_except_source_frames_same": true,
+      "source_frames_expected": false,
+      "matched_sources": [
+        [
+          0,
+          "dog_drinking_water__petcam_20260926_173602_000_frame_12.50"
+        ],
+        [
+          1,
+          "dog_drinking_water__petcam_20260926_173602_000_frame_14.50"
+        ]
+      ],
+      "ambiguous_skipped": false,
+      "actual_source_frames": [
+        {
+          "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_12.50.jpg",
+          "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_12.50",
+          "timestamp": 12.5,
+          "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_12.50.jpg",
+          "object_labels": [
+            "bowl",
+            "dog"
+          ],
+          "object_detections": [
+            {
+              "bbox": [
+                505.0442199707031,
+                421.4561767578125,
+                931.658203125,
+                690.9556884765625
+              ],
+              "label": "bowl",
+              "confidence": 0.7417722940444946
+            },
+            {
+              "bbox": [
+                1.386474609375,
+                3.18829345703125,
+                637.1336669921875,
+                626.9796752929688
+              ],
+              "label": "cat",
+              "confidence": 0.7299715876579285
+            }
+          ],
+          "species_resolution": [
+            {
+              "bbox": [
+                1.386474609375,
+                3.18829345703125,
+                637.1336669921875,
+                626.9796752929688
+              ],
+              "clip_label": "dog",
+              "yolo_label": "cat",
+              "resolved_label": "dog",
+              "yolo_confidence": 0.7299715876579285,
+              "clip_cat_similarity": 0.13707479537228734,
+              "clip_dog_similarity": 0.18020038867524849
+            }
+          ]
+        },
+        {
+          "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_14.50.jpg",
+          "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_14.50",
+          "timestamp": 14.5,
+          "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_14.50.jpg",
+          "object_labels": [
+            "bowl",
+            "dog"
+          ],
+          "object_detections": [
+            {
+              "bbox": [
+                1.4462890625,
+                2.626708984375,
+                755.0816650390625,
+                607.1778564453125
+              ],
+              "label": "cat",
+              "confidence": 0.627281904220581
+            },
+            {
+              "bbox": [
+                506.1101989746094,
+                418.4224853515625,
+                932.8824462890624,
+                688.8323974609375
+              ],
+              "label": "bowl",
+              "confidence": 0.6143146753311157
+            }
+          ],
+          "species_resolution": [
+            {
+              "bbox": [
+                1.4462890625,
+                2.626708984375,
+                755.0816650390625,
+                607.1778564453125
+              ],
+              "clip_label": "dog",
+              "yolo_label": "cat",
+              "resolved_label": "dog",
+              "yolo_confidence": 0.627281904220581,
+              "clip_cat_similarity": 0.13064053817737772,
+              "clip_dog_similarity": 0.16998358616110132
+            }
+          ]
+        },
+        {
+          "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_18.50.jpg",
+          "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_18.50",
+          "timestamp": 18.5,
+          "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_18.50.jpg",
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_20.50.jpg",
+          "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_20.50",
+          "timestamp": 20.5,
+          "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_20.50.jpg",
+          "object_labels": [
+            "chair"
+          ]
+        },
+        {
+          "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_24.50.jpg",
+          "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_24.50",
+          "timestamp": 24.5,
+          "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_24.50.jpg",
+          "object_labels": [
+            "chair",
+            "dog"
+          ]
+        },
+        {
+          "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_26.50.jpg",
+          "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_26.50",
+          "timestamp": 26.5,
+          "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_26.50.jpg",
+          "object_labels": [
+            "dog"
+          ]
+        }
+      ],
+      "expected_source_frames": [
+        {
+          "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_12.50.jpg",
+          "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_12.50",
+          "timestamp": 12.5,
+          "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_12.50.jpg",
+          "object_labels": [
+            "bowl",
+            "dog"
+          ],
+          "object_detections": [
+            {
+              "label": "bowl",
+              "confidence": 0.7417722940444946,
+              "bbox": [
+                505.0442199707031,
+                421.4561767578125,
+                931.658203125,
+                690.9556884765625
+              ]
+            },
+            {
+              "label": "cat",
+              "confidence": 0.7299715876579285,
+              "bbox": [
+                1.386474609375,
+                3.18829345703125,
+                637.1336669921875,
+                626.9796752929688
+              ]
+            }
+          ],
+          "species_resolution": [
+            {
+              "bbox": [
+                1.386474609375,
+                3.18829345703125,
+                637.1336669921875,
+                626.9796752929688
+              ],
+              "yolo_label": "cat",
+              "yolo_confidence": 0.7299715876579285,
+              "clip_label": "dog",
+              "clip_cat_similarity": 0.13707479537228734,
+              "clip_dog_similarity": 0.18020038867524846,
+              "resolved_label": "dog"
+            }
+          ]
+        },
+        {
+          "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_14.50.jpg",
+          "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_14.50",
+          "timestamp": 14.5,
+          "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_14.50.jpg",
+          "object_labels": [
+            "bowl",
+            "dog"
+          ],
+          "object_detections": [
+            {
+              "label": "cat",
+              "confidence": 0.627281904220581,
+              "bbox": [
+                1.4462890625,
+                2.626708984375,
+                755.0816650390625,
+                607.1778564453125
+              ]
+            },
+            {
+              "label": "bowl",
+              "confidence": 0.6143146753311157,
+              "bbox": [
+                506.1101989746094,
+                418.4224853515625,
+                932.8824462890625,
+                688.8323974609375
+              ]
+            }
+          ],
+          "species_resolution": [
+            {
+              "bbox": [
+                1.4462890625,
+                2.626708984375,
+                755.0816650390625,
+                607.1778564453125
+              ],
+              "yolo_label": "cat",
+              "yolo_confidence": 0.627281904220581,
+              "clip_label": "dog",
+              "clip_cat_similarity": 0.13064053817737772,
+              "clip_dog_similarity": 0.16998358616110132,
+              "resolved_label": "dog"
+            }
+          ]
+        },
+        {
+          "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_18.50.jpg",
+          "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_18.50",
+          "timestamp": 18.5,
+          "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_18.50.jpg",
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_20.50.jpg",
+          "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_20.50",
+          "timestamp": 20.5,
+          "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_20.50.jpg",
+          "object_labels": [
+            "chair"
+          ]
+        },
+        {
+          "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_24.50.jpg",
+          "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_24.50",
+          "timestamp": 24.5,
+          "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_24.50.jpg",
+          "object_labels": [
+            "chair",
+            "dog"
+          ]
+        },
+        {
+          "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_26.50.jpg",
+          "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_26.50",
+          "timestamp": 26.5,
+          "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_26.50.jpg",
+          "object_labels": [
+            "dog"
+          ]
+        }
+      ]
+    },
+    "8": {
+      "event_fields_except_source_frames_same": true,
+      "source_frames_expected": false,
+      "matched_sources": [
+        [
+          2,
+          "dog_drinking_water__petcam_20260926_173602_000_frame_7.50"
+        ]
+      ],
+      "ambiguous_skipped": false,
+      "actual_source_frames": [
+        {
+          "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_3.50.jpg",
+          "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_3.50",
+          "timestamp": 3.5,
+          "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_3.50.jpg",
+          "object_labels": []
+        },
+        {
+          "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_5.50.jpg",
+          "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_5.50",
+          "timestamp": 5.5,
+          "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_5.50.jpg",
+          "object_labels": []
+        },
+        {
+          "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_7.50.jpg",
+          "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_7.50",
+          "timestamp": 7.5,
+          "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_7.50.jpg",
+          "object_labels": [
+            "bowl",
+            "dog"
+          ],
+          "object_detections": [
+            {
+              "bbox": [
+                502.9016418457031,
+                419.1217041015625,
+                930.080810546875,
+                692.654296875
+              ],
+              "label": "bowl",
+              "confidence": 0.6918655037879944
+            },
+            {
+              "bbox": [
+                3.4346923828125,
+                1.74365234375,
+                643.08984375,
+                630.6929321289062
+              ],
+              "label": "cat",
+              "confidence": 0.4168091714382171
+            }
+          ],
+          "species_resolution": [
+            {
+              "bbox": [
+                3.4346923828125,
+                1.74365234375,
+                643.08984375,
+                630.6929321289062
+              ],
+              "clip_label": "dog",
+              "yolo_label": "cat",
+              "resolved_label": "dog",
+              "yolo_confidence": 0.4168091714382171,
+              "clip_cat_similarity": 0.13384892185985348,
+              "clip_dog_similarity": 0.17338649082905833
+            }
+          ]
+        },
+        {
+          "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_9.50.jpg",
+          "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_9.50",
+          "timestamp": 9.5,
+          "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_9.50.jpg",
+          "object_labels": [
+            "dog"
+          ]
+        }
+      ],
+      "expected_source_frames": [
+        {
+          "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_3.50.jpg",
+          "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_3.50",
+          "timestamp": 3.5,
+          "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_3.50.jpg",
+          "object_labels": []
+        },
+        {
+          "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_5.50.jpg",
+          "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_5.50",
+          "timestamp": 5.5,
+          "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_5.50.jpg",
+          "object_labels": []
+        },
+        {
+          "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_7.50.jpg",
+          "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_7.50",
+          "timestamp": 7.5,
+          "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_7.50.jpg",
+          "object_labels": [
+            "bowl",
+            "dog"
+          ],
+          "object_detections": [
+            {
+              "label": "bowl",
+              "confidence": 0.6918655037879944,
+              "bbox": [
+                502.9016418457031,
+                419.1217041015625,
+                930.080810546875,
+                692.654296875
+              ]
+            },
+            {
+              "label": "cat",
+              "confidence": 0.41680917143821716,
+              "bbox": [
+                3.4346923828125,
+                1.74365234375,
+                643.08984375,
+                630.6929321289062
+              ]
+            }
+          ],
+          "species_resolution": [
+            {
+              "bbox": [
+                3.4346923828125,
+                1.74365234375,
+                643.08984375,
+                630.6929321289062
+              ],
+              "yolo_label": "cat",
+              "yolo_confidence": 0.41680917143821716,
+              "clip_label": "dog",
+              "clip_cat_similarity": 0.13384892185985348,
+              "clip_dog_similarity": 0.17338649082905833,
+              "resolved_label": "dog"
+            }
+          ]
+        },
+        {
+          "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_9.50.jpg",
+          "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_9.50",
+          "timestamp": 9.5,
+          "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_9.50.jpg",
+          "object_labels": [
+            "dog"
+          ]
+        }
+      ]
+    },
+    "9": {
+      "event_fields_except_source_frames_same": true,
+      "source_frames_expected": false,
+      "matched_sources": [
+        [
+          2,
+          "dog_drinking_water__petcam_20260926_173602_001_frame_24.00"
+        ]
+      ],
+      "ambiguous_skipped": false,
+      "actual_source_frames": [
+        {
+          "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_2.00.jpg",
+          "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_2.00",
+          "timestamp": 2.0,
+          "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_2.00.jpg",
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_12.00.jpg",
+          "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_12.00",
+          "timestamp": 12.0,
+          "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_12.00.jpg",
+          "object_labels": []
+        },
+        {
+          "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_24.00.jpg",
+          "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_24.00",
+          "timestamp": 24.0,
+          "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_24.00.jpg",
+          "object_labels": [
+            "bowl",
+            "dog"
+          ],
+          "object_detections": [
+            {
+              "bbox": [
+                514.887939453125,
+                419.008056640625,
+                945.8544921875,
+                674.2005615234375
+              ],
+              "label": "bowl",
+              "confidence": 0.8025985956192017
+            },
+            {
+              "bbox": [
+                3.396240234375,
+                2.7890625,
+                869.74072265625,
+                632.8072509765625
+              ],
+              "label": "dog",
+              "confidence": 0.5444923639297485
+            }
+          ],
+          "species_resolution": [
+            {
+              "bbox": [
+                3.396240234375,
+                2.7890625,
+                869.74072265625,
+                632.8072509765625
+              ],
+              "clip_label": "dog",
+              "yolo_label": "dog",
+              "resolved_label": "dog",
+              "yolo_confidence": 0.5444923639297485,
+              "clip_cat_similarity": 0.13611367356703105,
+              "clip_dog_similarity": 0.1828486480621399
+            }
+          ]
+        },
+        {
+          "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_34.00.jpg",
+          "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_34.00",
+          "timestamp": 34.0,
+          "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_34.00.jpg",
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_46.00.jpg",
+          "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_46.00",
+          "timestamp": 46.0,
+          "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_46.00.jpg",
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_56.00.jpg",
+          "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_56.00",
+          "timestamp": 56.0,
+          "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_56.00.jpg",
+          "object_labels": [
+            "cat"
+          ]
+        }
+      ],
+      "expected_source_frames": [
+        {
+          "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_2.00.jpg",
+          "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_2.00",
+          "timestamp": 2.0,
+          "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_2.00.jpg",
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_12.00.jpg",
+          "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_12.00",
+          "timestamp": 12.0,
+          "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_12.00.jpg",
+          "object_labels": []
+        },
+        {
+          "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_24.00.jpg",
+          "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_24.00",
+          "timestamp": 24.0,
+          "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_24.00.jpg",
+          "object_labels": [
+            "bowl",
+            "dog"
+          ],
+          "object_detections": [
+            {
+              "label": "bowl",
+              "confidence": 0.8025985956192017,
+              "bbox": [
+                514.887939453125,
+                419.008056640625,
+                945.8544921875,
+                674.2005615234375
+              ]
+            },
+            {
+              "label": "dog",
+              "confidence": 0.5444923639297485,
+              "bbox": [
+                3.396240234375,
+                2.7890625,
+                869.74072265625,
+                632.8072509765625
+              ]
+            }
+          ],
+          "species_resolution": [
+            {
+              "bbox": [
+                3.396240234375,
+                2.7890625,
+                869.74072265625,
+                632.8072509765625
+              ],
+              "yolo_label": "dog",
+              "yolo_confidence": 0.5444923639297485,
+              "clip_label": "dog",
+              "clip_cat_similarity": 0.13611367356703105,
+              "clip_dog_similarity": 0.18284864806213993,
+              "resolved_label": "dog"
+            }
+          ]
+        },
+        {
+          "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_34.00.jpg",
+          "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_34.00",
+          "timestamp": 34.0,
+          "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_34.00.jpg",
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_46.00.jpg",
+          "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_46.00",
+          "timestamp": 46.0,
+          "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_46.00.jpg",
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_56.00.jpg",
+          "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_56.00",
+          "timestamp": 56.0,
+          "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_56.00.jpg",
+          "object_labels": [
+            "cat"
+          ]
+        }
+      ]
+    }
+  },
+  "behavior_events_all_pass": false
+}

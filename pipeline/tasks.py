@@ -2,7 +2,16 @@ from celery import Celery
 from pipeline.frame_extractor import extract_frames
 from pipeline.gcs_uploader import download_video, upload_frame
 from pipeline.vector_store import index_frame
-from pipeline.yolo_detector import detect_objects
+from pipeline.yolo_detector import (
+    DETECTION_CONFIDENCE_THRESHOLD,
+    OBJECT_LABELS_CONFIDENCE_THRESHOLD,
+    detect_objects_with_details,
+    get_yolo_model_name,
+)
+from pipeline.species_resolver import (
+    clip_species_resolver_enabled,
+    resolve_detection_result,
+)
 from pipeline.behavior_event_extractor import extract_behavior_events
 from db.behavior_events import insert_behavior_events
 from db.scenes import insert_scene
@@ -26,7 +35,19 @@ def upload_frame_to_object_storage(local_frame_path, video_id):
     return upload_frame(local_frame_path, video_id)
 
 
-def index_frame_to_chromadb(local_frame_path, video_id, s3_key=None, object_labels=None, recorded_at=None, timestamp=None):
+def index_frame_to_chromadb(
+    local_frame_path,
+    video_id,
+    s3_key=None,
+    object_labels=None,
+    recorded_at=None,
+    timestamp=None,
+    object_detections=None,
+    species_resolution=None,
+    object_detection_model=None,
+    object_detection_confidence_threshold=None,
+    object_labels_confidence_threshold=None,
+):
     """프레임을 CLIP 임베딩 후 ChromaDB에 저장"""
     return index_frame(
         local_frame_path,
@@ -34,6 +55,11 @@ def index_frame_to_chromadb(local_frame_path, video_id, s3_key=None, object_labe
         video_id=video_id,
         s3_key=s3_key,
         object_labels=object_labels,
+        object_detections=object_detections,
+        species_resolution=species_resolution,
+        object_detection_model=object_detection_model,
+        object_detection_confidence_threshold=object_detection_confidence_threshold,
+        object_labels_confidence_threshold=object_labels_confidence_threshold,
         recorded_at=recorded_at,
         timestamp=timestamp,
     )
@@ -148,13 +174,22 @@ def process_chunk(chunk_path):
         # 기존에는 여기서 로컬 프레임을 바로 삭제했지만,
         # 이제는 행동 이벤트 분석에서 대표 프레임 이미지를 사용해야 하므로
         # 삭제하지 않고 indexed_frames에 모아둔다.
+        use_clip_species_resolver = clip_species_resolver_enabled()
         for i, frame in enumerate(uploaded_frames, start=1):
             print(
                 f"YOLO 객체 감지 시작: {i}/{len(uploaded_frames)} - {frame['frame_path']}",
                 flush=True,
             )
 
-            object_labels = detect_objects(frame["frame_path"])
+            detection_result = detect_objects_with_details(frame["frame_path"])
+            detection_result = resolve_detection_result(
+                frame["frame_path"],
+                detection_result,
+                enabled=use_clip_species_resolver,
+            )
+            object_labels = detection_result["object_labels"]
+            object_detections = detection_result["object_detections"]
+            species_resolution = detection_result["species_resolution"]
 
             print(
                 f"YOLO 객체 감지 완료: {i}/{len(uploaded_frames)} - {object_labels}",
@@ -171,6 +206,11 @@ def process_chunk(chunk_path):
                 video_id=video_id,
                 s3_key=frame["s3_key"],
                 object_labels=object_labels,
+                object_detections=object_detections,
+                species_resolution=species_resolution,
+                object_detection_model=get_yolo_model_name(),
+                object_detection_confidence_threshold=DETECTION_CONFIDENCE_THRESHOLD,
+                object_labels_confidence_threshold=OBJECT_LABELS_CONFIDENCE_THRESHOLD,
                 timestamp=frame["timestamp"],
                 recorded_at=(
                     chunk_recorded_at + timedelta(seconds=float(frame["timestamp"]))
@@ -184,6 +224,11 @@ def process_chunk(chunk_path):
                 **frame,
                 "frame_id": frame_id,
                 "object_labels": object_labels,
+                "object_detections": object_detections,
+                "species_resolution": species_resolution,
+                "object_detection_model": get_yolo_model_name(),
+                "object_detection_confidence_threshold": DETECTION_CONFIDENCE_THRESHOLD,
+                "object_labels_confidence_threshold": OBJECT_LABELS_CONFIDENCE_THRESHOLD,
             })
 
         print(f"프레임 {len(indexed_frames)}개 ChromaDB 저장 완료")
@@ -203,6 +248,11 @@ def process_chunk(chunk_path):
                 end_time=frame["timestamp"] + 1.0,
                 object_labels=object_labels_json,
                 s3_key=frame["s3_key"],
+                object_detections=frame.get("object_detections", []),
+                species_resolution=(
+                    frame.get("species_resolution")
+                    if use_clip_species_resolver else None
+                ),
             )
 
         print(f"scenes 메타데이터 {len(indexed_frames)}개 저장 완료!")

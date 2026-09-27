@@ -13,6 +13,8 @@ def init_db():
             start_time DOUBLE NOT NULL,
             end_time DOUBLE NOT NULL,
             object_labels TEXT,
+            object_detections_json JSON,
+            species_resolution_json JSON,
             s3_key TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             INDEX idx_scenes_video_time (video_id, start_time)

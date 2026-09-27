@@ -1,18 +1,55 @@
 import json
 from collections import Counter
 
+from db.json_utils import to_json_text
 from db.connection import connect
 
 
-def insert_scene(video_id, start_time, end_time, object_labels=None, s3_key=None):
+def insert_scene(
+    video_id,
+    start_time,
+    end_time,
+    object_labels=None,
+    s3_key=None,
+    object_detections=None,
+    species_resolution=None,
+):
     """프레임 메타데이터 저장"""
     conn = connect()
     cursor = conn.cursor()
 
-    cursor.execute('''
-        INSERT INTO scenes (video_id, start_time, end_time, object_labels, s3_key)
-        VALUES (?, ?, ?, ?, ?)
-    ''', (video_id, start_time, end_time, object_labels, s3_key))
+    if species_resolution is None:
+        # Resolver OFF는 기존 schema와 호환되며 추가 migration이 필요 없다.
+        cursor.execute('''
+            INSERT INTO scenes (
+                video_id, start_time, end_time, object_labels,
+                object_detections_json, s3_key
+            )
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (
+            video_id,
+            start_time,
+            end_time,
+            object_labels,
+            to_json_text(object_detections if object_detections is not None else []),
+            s3_key,
+        ))
+    else:
+        cursor.execute('''
+            INSERT INTO scenes (
+                video_id, start_time, end_time, object_labels,
+                object_detections_json, species_resolution_json, s3_key
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        ''', (
+            video_id,
+            start_time,
+            end_time,
+            object_labels,
+            to_json_text(object_detections if object_detections is not None else []),
+            to_json_text(species_resolution),
+            s3_key,
+        ))
 
     conn.commit()
     conn.close()
@@ -27,14 +64,16 @@ def get_scene_records(video_id=None):
 
     if video_id:
         cursor.execute('''
-            SELECT id, video_id, start_time, end_time, object_labels, s3_key, created_at
+            SELECT id, video_id, start_time, end_time, object_labels,
+                   object_detections_json, s3_key, created_at
             FROM scenes
             WHERE video_id = ?
             ORDER BY start_time ASC, id ASC
         ''', (video_id,))
     else:
         cursor.execute('''
-            SELECT id, video_id, start_time, end_time, object_labels, s3_key, created_at
+            SELECT id, video_id, start_time, end_time, object_labels,
+                   object_detections_json, s3_key, created_at
             FROM scenes
             ORDER BY video_id ASC, start_time ASC, id ASC
         ''')

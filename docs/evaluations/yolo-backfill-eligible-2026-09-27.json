@@ -1,0 +1,2743 @@
+{
+  "generated_at": "2026-09-27T08:21:52.611257+00:00",
+  "collection": "petcam_frames",
+  "expected_count": 617,
+  "gcs_bucket": "kidogkidog-media-700543886823",
+  "gcs_prefix_listed": "frames/",
+  "gcs_object_count": 240,
+  "summary": {
+    "total": 617,
+    "exact_frame_available": 240,
+    "exact_frame_unavailable": 377,
+    "local_frame_available": 0,
+    "gcs_frame_available": 240,
+    "both_available": 0
+  },
+  "video_summary": {
+    "IMG_8450_2": {
+      "total": 33,
+      "local_available": 0,
+      "gcs_available": 33,
+      "either_available": 33,
+      "unavailable": 0
+    },
+    "cats_5min": {
+      "total": 292,
+      "local_available": 0,
+      "gcs_available": 0,
+      "either_available": 0,
+      "unavailable": 292
+    },
+    "dog_drinking_water": {
+      "total": 89,
+      "local_available": 0,
+      "gcs_available": 89,
+      "either_available": 89,
+      "unavailable": 0
+    },
+    "dog_escape": {
+      "total": 28,
+      "local_available": 0,
+      "gcs_available": 28,
+      "either_available": 28,
+      "unavailable": 0
+    },
+    "two_dogs": {
+      "total": 175,
+      "local_available": 0,
+      "gcs_available": 90,
+      "either_available": 90,
+      "unavailable": 85
+    }
+  },
+  "previous_evaluation_samples": {
+    "sample_count": 107,
+    "cache_files_present": 107,
+    "sample_ids_in_eligible": 107,
+    "sample_keys_in_eligible": 107,
+    "sample_keys_in_gcs_listing": 107
+  },
+  "frames": [
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000001",
+      "video_id": "two_dogs",
+      "timestamp": 0.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000001.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000001.jpg",
+      "old_object_labels": [
+        "chair",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000002",
+      "video_id": "two_dogs",
+      "timestamp": 2.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000002.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000002.jpg",
+      "old_object_labels": [
+        "chair",
+        "dog",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000003",
+      "video_id": "two_dogs",
+      "timestamp": 4.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000003.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000003.jpg",
+      "old_object_labels": [],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000004",
+      "video_id": "two_dogs",
+      "timestamp": 6.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000004.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000004.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000005",
+      "video_id": "two_dogs",
+      "timestamp": 8.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000005.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000005.jpg",
+      "old_object_labels": [],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000006",
+      "video_id": "two_dogs",
+      "timestamp": 10.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000006.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000006.jpg",
+      "old_object_labels": [
+        "couch",
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000007",
+      "video_id": "two_dogs",
+      "timestamp": 12.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000007.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000007.jpg",
+      "old_object_labels": [],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000008",
+      "video_id": "two_dogs",
+      "timestamp": 14.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000008.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000008.jpg",
+      "old_object_labels": [
+        "couch"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000009",
+      "video_id": "two_dogs",
+      "timestamp": 16.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000009.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000009.jpg",
+      "old_object_labels": [
+        "couch"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000010",
+      "video_id": "two_dogs",
+      "timestamp": 18.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000010.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000010.jpg",
+      "old_object_labels": [
+        "chair",
+        "couch"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000011",
+      "video_id": "two_dogs",
+      "timestamp": 20.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000011.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000011.jpg",
+      "old_object_labels": [
+        "chair",
+        "couch"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000012",
+      "video_id": "two_dogs",
+      "timestamp": 22.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000012.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000012.jpg",
+      "old_object_labels": [
+        "cow",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000013",
+      "video_id": "two_dogs",
+      "timestamp": 24.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000013.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000013.jpg",
+      "old_object_labels": [
+        "chair",
+        "dog",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000014",
+      "video_id": "two_dogs",
+      "timestamp": 26.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000014.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000014.jpg",
+      "old_object_labels": [
+        "chair",
+        "couch",
+        "dog",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000015",
+      "video_id": "two_dogs",
+      "timestamp": 28.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000015.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000015.jpg",
+      "old_object_labels": [
+        "chair",
+        "couch",
+        "dog",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000016",
+      "video_id": "two_dogs",
+      "timestamp": 30.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000016.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000016.jpg",
+      "old_object_labels": [
+        "chair",
+        "couch",
+        "dog",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000017",
+      "video_id": "two_dogs",
+      "timestamp": 32.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000017.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000017.jpg",
+      "old_object_labels": [
+        "chair",
+        "couch",
+        "dog",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000018",
+      "video_id": "two_dogs",
+      "timestamp": 34.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000018.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000018.jpg",
+      "old_object_labels": [
+        "chair",
+        "couch",
+        "horse",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000019",
+      "video_id": "two_dogs",
+      "timestamp": 36.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000019.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000019.jpg",
+      "old_object_labels": [
+        "dog",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000020",
+      "video_id": "two_dogs",
+      "timestamp": 38.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000020.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000020.jpg",
+      "old_object_labels": [
+        "chair",
+        "couch",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000021",
+      "video_id": "two_dogs",
+      "timestamp": 40.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000021.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000021.jpg",
+      "old_object_labels": [
+        "chair",
+        "couch",
+        "dog",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000022",
+      "video_id": "two_dogs",
+      "timestamp": 42.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000022.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000022.jpg",
+      "old_object_labels": [
+        "chair",
+        "couch",
+        "dog",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000023",
+      "video_id": "two_dogs",
+      "timestamp": 44.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000023.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000023.jpg",
+      "old_object_labels": [
+        "chair",
+        "couch",
+        "dog",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000024",
+      "video_id": "two_dogs",
+      "timestamp": 46.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000024.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000024.jpg",
+      "old_object_labels": [
+        "chair",
+        "couch",
+        "dog",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000025",
+      "video_id": "two_dogs",
+      "timestamp": 48.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000025.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000025.jpg",
+      "old_object_labels": [
+        "chair",
+        "couch",
+        "dog",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000026",
+      "video_id": "two_dogs",
+      "timestamp": 50.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000026.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000026.jpg",
+      "old_object_labels": [
+        "dog",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000027",
+      "video_id": "two_dogs",
+      "timestamp": 52.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000027.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000027.jpg",
+      "old_object_labels": [
+        "dog",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000028",
+      "video_id": "two_dogs",
+      "timestamp": 54.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000028.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000028.jpg",
+      "old_object_labels": [
+        "dog",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000029",
+      "video_id": "two_dogs",
+      "timestamp": 56.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000029.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000029.jpg",
+      "old_object_labels": [
+        "dog",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000030",
+      "video_id": "two_dogs",
+      "timestamp": 58.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000030.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000030.jpg",
+      "old_object_labels": [
+        "horse",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000031",
+      "video_id": "two_dogs",
+      "timestamp": 60.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000031.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000031.jpg",
+      "old_object_labels": [
+        "dog",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000032",
+      "video_id": "two_dogs",
+      "timestamp": 62.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000032.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000032.jpg",
+      "old_object_labels": [
+        "chair",
+        "dog",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000033",
+      "video_id": "two_dogs",
+      "timestamp": 64.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000033.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000033.jpg",
+      "old_object_labels": [
+        "dog",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000034",
+      "video_id": "two_dogs",
+      "timestamp": 66.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000034.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000034.jpg",
+      "old_object_labels": [
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000035",
+      "video_id": "two_dogs",
+      "timestamp": 68.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000035.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000035.jpg",
+      "old_object_labels": [
+        "dog",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000036",
+      "video_id": "two_dogs",
+      "timestamp": 70.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000036.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000036.jpg",
+      "old_object_labels": [
+        "dog",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000037",
+      "video_id": "two_dogs",
+      "timestamp": 72.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000037.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000037.jpg",
+      "old_object_labels": [
+        "cat",
+        "dog",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000038",
+      "video_id": "two_dogs",
+      "timestamp": 74.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000038.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000038.jpg",
+      "old_object_labels": [
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000039",
+      "video_id": "two_dogs",
+      "timestamp": 76.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000039.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000039.jpg",
+      "old_object_labels": [
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000040",
+      "video_id": "two_dogs",
+      "timestamp": 78.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000040.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000040.jpg",
+      "old_object_labels": [
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000041",
+      "video_id": "two_dogs",
+      "timestamp": 80.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000041.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000041.jpg",
+      "old_object_labels": [
+        "dog",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000042",
+      "video_id": "two_dogs",
+      "timestamp": 82.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000042.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000042.jpg",
+      "old_object_labels": [
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000043",
+      "video_id": "two_dogs",
+      "timestamp": 84.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000043.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000043.jpg",
+      "old_object_labels": [
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000044",
+      "video_id": "two_dogs",
+      "timestamp": 86.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000044.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000044.jpg",
+      "old_object_labels": [
+        "dog",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000045",
+      "video_id": "two_dogs",
+      "timestamp": 88.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000045.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000045.jpg",
+      "old_object_labels": [
+        "chair",
+        "dog",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000046",
+      "video_id": "two_dogs",
+      "timestamp": 90.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000046.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000046.jpg",
+      "old_object_labels": [
+        "cat",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000047",
+      "video_id": "two_dogs",
+      "timestamp": 92.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000047.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000047.jpg",
+      "old_object_labels": [
+        "horse",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000048",
+      "video_id": "two_dogs",
+      "timestamp": 94.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000048.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000048.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000049",
+      "video_id": "two_dogs",
+      "timestamp": 96.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000049.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000049.jpg",
+      "old_object_labels": [],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000050",
+      "video_id": "two_dogs",
+      "timestamp": 98.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000050.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000050.jpg",
+      "old_object_labels": [
+        "chair",
+        "dog",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000051",
+      "video_id": "two_dogs",
+      "timestamp": 100.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000051.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000051.jpg",
+      "old_object_labels": [],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000052",
+      "video_id": "two_dogs",
+      "timestamp": 102.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000052.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000052.jpg",
+      "old_object_labels": [],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000053",
+      "video_id": "two_dogs",
+      "timestamp": 104.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000053.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000053.jpg",
+      "old_object_labels": [
+        "dog",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000054",
+      "video_id": "two_dogs",
+      "timestamp": 106.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000054.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000054.jpg",
+      "old_object_labels": [
+        "cat",
+        "dog",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000055",
+      "video_id": "two_dogs",
+      "timestamp": 108.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000055.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000055.jpg",
+      "old_object_labels": [
+        "dog",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000056",
+      "video_id": "two_dogs",
+      "timestamp": 110.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000056.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000056.jpg",
+      "old_object_labels": [
+        "dog",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000057",
+      "video_id": "two_dogs",
+      "timestamp": 112.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000057.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000057.jpg",
+      "old_object_labels": [
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000058",
+      "video_id": "two_dogs",
+      "timestamp": 114.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000058.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000058.jpg",
+      "old_object_labels": [
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000059",
+      "video_id": "two_dogs",
+      "timestamp": 116.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000059.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000059.jpg",
+      "old_object_labels": [
+        "chair",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000060",
+      "video_id": "two_dogs",
+      "timestamp": 118.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000060.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000060.jpg",
+      "old_object_labels": [
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000061",
+      "video_id": "two_dogs",
+      "timestamp": 120.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000061.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000061.jpg",
+      "old_object_labels": [
+        "dog",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000062",
+      "video_id": "two_dogs",
+      "timestamp": 122.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000062.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000062.jpg",
+      "old_object_labels": [
+        "dog",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000063",
+      "video_id": "two_dogs",
+      "timestamp": 124.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000063.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000063.jpg",
+      "old_object_labels": [
+        "chair",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000064",
+      "video_id": "two_dogs",
+      "timestamp": 126.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000064.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000064.jpg",
+      "old_object_labels": [
+        "chair",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000065",
+      "video_id": "two_dogs",
+      "timestamp": 128.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000065.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000065.jpg",
+      "old_object_labels": [],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000066",
+      "video_id": "two_dogs",
+      "timestamp": 130.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000066.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000066.jpg",
+      "old_object_labels": [],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000067",
+      "video_id": "two_dogs",
+      "timestamp": 132.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000067.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000067.jpg",
+      "old_object_labels": [],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000068",
+      "video_id": "two_dogs",
+      "timestamp": 134.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000068.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000068.jpg",
+      "old_object_labels": [],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000069",
+      "video_id": "two_dogs",
+      "timestamp": 136.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000069.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000069.jpg",
+      "old_object_labels": [
+        "chair",
+        "horse",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000070",
+      "video_id": "two_dogs",
+      "timestamp": 138.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000070.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000070.jpg",
+      "old_object_labels": [
+        "chair",
+        "dog",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000071",
+      "video_id": "two_dogs",
+      "timestamp": 140.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000071.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000071.jpg",
+      "old_object_labels": [
+        "chair",
+        "couch",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000072",
+      "video_id": "two_dogs",
+      "timestamp": 142.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000072.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000072.jpg",
+      "old_object_labels": [
+        "chair",
+        "couch",
+        "dog",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000073",
+      "video_id": "two_dogs",
+      "timestamp": 144.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000073.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000073.jpg",
+      "old_object_labels": [
+        "chair",
+        "couch",
+        "dog",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000074",
+      "video_id": "two_dogs",
+      "timestamp": 146.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000074.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000074.jpg",
+      "old_object_labels": [
+        "chair",
+        "couch",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000075",
+      "video_id": "two_dogs",
+      "timestamp": 148.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000075.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000075.jpg",
+      "old_object_labels": [
+        "chair",
+        "couch",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000076",
+      "video_id": "two_dogs",
+      "timestamp": 150.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000076.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000076.jpg",
+      "old_object_labels": [
+        "chair",
+        "couch",
+        "dog",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000077",
+      "video_id": "two_dogs",
+      "timestamp": 152.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000077.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000077.jpg",
+      "old_object_labels": [
+        "chair",
+        "couch",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000078",
+      "video_id": "two_dogs",
+      "timestamp": 154.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000078.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000078.jpg",
+      "old_object_labels": [
+        "chair",
+        "couch",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000079",
+      "video_id": "two_dogs",
+      "timestamp": 156.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000079.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000079.jpg",
+      "old_object_labels": [
+        "chair",
+        "couch",
+        "dog",
+        "person",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000080",
+      "video_id": "two_dogs",
+      "timestamp": 158.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000080.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000080.jpg",
+      "old_object_labels": [
+        "chair",
+        "couch",
+        "dog",
+        "person",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000081",
+      "video_id": "two_dogs",
+      "timestamp": 160.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000081.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000081.jpg",
+      "old_object_labels": [
+        "chair",
+        "person",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000082",
+      "video_id": "two_dogs",
+      "timestamp": 162.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000082.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000082.jpg",
+      "old_object_labels": [
+        "chair",
+        "person",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000083",
+      "video_id": "two_dogs",
+      "timestamp": 164.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000083.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000083.jpg",
+      "old_object_labels": [
+        "person",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000084",
+      "video_id": "two_dogs",
+      "timestamp": 166.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000084.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000084.jpg",
+      "old_object_labels": [
+        "chair",
+        "dog",
+        "person",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000085",
+      "video_id": "two_dogs",
+      "timestamp": 168.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000085.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000085.jpg",
+      "old_object_labels": [
+        "chair",
+        "dog",
+        "person",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000086",
+      "video_id": "two_dogs",
+      "timestamp": 170.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000086.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000086.jpg",
+      "old_object_labels": [
+        "chair",
+        "dog",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000087",
+      "video_id": "two_dogs",
+      "timestamp": 172.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000087.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000087.jpg",
+      "old_object_labels": [
+        "chair",
+        "cow",
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000088",
+      "video_id": "two_dogs",
+      "timestamp": 174.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000088.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000088.jpg",
+      "old_object_labels": [
+        "tv"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000089",
+      "video_id": "two_dogs",
+      "timestamp": 176.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000089.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000089.jpg",
+      "old_object_labels": [],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000090",
+      "video_id": "two_dogs",
+      "timestamp": 178.0,
+      "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000090.jpg",
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000090.jpg",
+      "old_object_labels": [],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_2.00",
+      "video_id": "IMG_8450_2",
+      "timestamp": 2.0,
+      "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_2.00.jpg",
+      "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_2.00.jpg",
+      "old_object_labels": [
+        "cat"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_4.50",
+      "video_id": "IMG_8450_2",
+      "timestamp": 4.5,
+      "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_4.50.jpg",
+      "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_4.50.jpg",
+      "old_object_labels": [
+        "cat"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_6.50",
+      "video_id": "IMG_8450_2",
+      "timestamp": 6.5,
+      "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_6.50.jpg",
+      "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_6.50.jpg",
+      "old_object_labels": [],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_8.50",
+      "video_id": "IMG_8450_2",
+      "timestamp": 8.5,
+      "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_8.50.jpg",
+      "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_8.50.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_12.00",
+      "video_id": "IMG_8450_2",
+      "timestamp": 12.0,
+      "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_12.00.jpg",
+      "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_12.00.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_14.00",
+      "video_id": "IMG_8450_2",
+      "timestamp": 14.0,
+      "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_14.00.jpg",
+      "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_14.00.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_16.00",
+      "video_id": "IMG_8450_2",
+      "timestamp": 16.0,
+      "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_16.00.jpg",
+      "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_16.00.jpg",
+      "old_object_labels": [
+        "cat",
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_18.00",
+      "video_id": "IMG_8450_2",
+      "timestamp": 18.0,
+      "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_18.00.jpg",
+      "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_18.00.jpg",
+      "old_object_labels": [
+        "cat"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_20.00",
+      "video_id": "IMG_8450_2",
+      "timestamp": 20.0,
+      "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_20.00.jpg",
+      "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_20.00.jpg",
+      "old_object_labels": [
+        "cat"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_22.00",
+      "video_id": "IMG_8450_2",
+      "timestamp": 22.0,
+      "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_22.00.jpg",
+      "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_22.00.jpg",
+      "old_object_labels": [
+        "cat"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_24.00",
+      "video_id": "IMG_8450_2",
+      "timestamp": 24.0,
+      "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_24.00.jpg",
+      "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_24.00.jpg",
+      "old_object_labels": [
+        "cat"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_26.00",
+      "video_id": "IMG_8450_2",
+      "timestamp": 26.0,
+      "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_26.00.jpg",
+      "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_26.00.jpg",
+      "old_object_labels": [
+        "cat",
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_28.00",
+      "video_id": "IMG_8450_2",
+      "timestamp": 28.0,
+      "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_28.00.jpg",
+      "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_28.00.jpg",
+      "old_object_labels": [
+        "cat"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_30.00",
+      "video_id": "IMG_8450_2",
+      "timestamp": 30.0,
+      "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_30.00.jpg",
+      "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_30.00.jpg",
+      "old_object_labels": [
+        "cat"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_32.00",
+      "video_id": "IMG_8450_2",
+      "timestamp": 32.0,
+      "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_32.00.jpg",
+      "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_32.00.jpg",
+      "old_object_labels": [
+        "cat"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_34.00",
+      "video_id": "IMG_8450_2",
+      "timestamp": 34.0,
+      "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_34.00.jpg",
+      "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_34.00.jpg",
+      "old_object_labels": [
+        "cat"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_36.00",
+      "video_id": "IMG_8450_2",
+      "timestamp": 36.0,
+      "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_36.00.jpg",
+      "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_36.00.jpg",
+      "old_object_labels": [
+        "cat"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_38.00",
+      "video_id": "IMG_8450_2",
+      "timestamp": 38.0,
+      "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_38.00.jpg",
+      "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_38.00.jpg",
+      "old_object_labels": [
+        "cat"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_40.00",
+      "video_id": "IMG_8450_2",
+      "timestamp": 40.0,
+      "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_40.00.jpg",
+      "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_40.00.jpg",
+      "old_object_labels": [
+        "cat"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_42.00",
+      "video_id": "IMG_8450_2",
+      "timestamp": 42.0,
+      "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_42.00.jpg",
+      "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_42.00.jpg",
+      "old_object_labels": [
+        "cat"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_44.00",
+      "video_id": "IMG_8450_2",
+      "timestamp": 44.0,
+      "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_44.00.jpg",
+      "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_44.00.jpg",
+      "old_object_labels": [
+        "cat"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_46.00",
+      "video_id": "IMG_8450_2",
+      "timestamp": 46.0,
+      "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_46.00.jpg",
+      "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_46.00.jpg",
+      "old_object_labels": [
+        "cat",
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_48.00",
+      "video_id": "IMG_8450_2",
+      "timestamp": 48.0,
+      "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_48.00.jpg",
+      "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_48.00.jpg",
+      "old_object_labels": [
+        "cat"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_50.00",
+      "video_id": "IMG_8450_2",
+      "timestamp": 50.0,
+      "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_50.00.jpg",
+      "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_50.00.jpg",
+      "old_object_labels": [
+        "cat"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_52.00",
+      "video_id": "IMG_8450_2",
+      "timestamp": 52.0,
+      "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_52.00.jpg",
+      "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_52.00.jpg",
+      "old_object_labels": [
+        "cat"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_54.00",
+      "video_id": "IMG_8450_2",
+      "timestamp": 54.0,
+      "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_54.00.jpg",
+      "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_54.00.jpg",
+      "old_object_labels": [
+        "cat"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_56.00",
+      "video_id": "IMG_8450_2",
+      "timestamp": 56.0,
+      "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_56.00.jpg",
+      "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_56.00.jpg",
+      "old_object_labels": [
+        "cat"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_58.00",
+      "video_id": "IMG_8450_2",
+      "timestamp": 58.0,
+      "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_58.00.jpg",
+      "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_58.00.jpg",
+      "old_object_labels": [
+        "cat"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_60.00",
+      "video_id": "IMG_8450_2",
+      "timestamp": 60.0,
+      "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_60.00.jpg",
+      "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_60.00.jpg",
+      "old_object_labels": [
+        "cat"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_62.00",
+      "video_id": "IMG_8450_2",
+      "timestamp": 62.0,
+      "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_62.00.jpg",
+      "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_62.00.jpg",
+      "old_object_labels": [
+        "cat"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_64.00",
+      "video_id": "IMG_8450_2",
+      "timestamp": 64.0,
+      "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_64.00.jpg",
+      "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_64.00.jpg",
+      "old_object_labels": [
+        "cat"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+      "video_id": "IMG_8450_2",
+      "timestamp": 66.0,
+      "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_66.00.jpg",
+      "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_66.00.jpg",
+      "old_object_labels": [
+        "cat"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "IMG_8450_2__petcam_20260926_173123_001_frame_2.00",
+      "video_id": "IMG_8450_2",
+      "timestamp": 2.0,
+      "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_001_frame_2.00.jpg",
+      "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_001_frame_2.00.jpg",
+      "old_object_labels": [
+        "cat"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_escape__petcam_20260926_173415_000_frame_2.00",
+      "video_id": "dog_escape",
+      "timestamp": 2.0,
+      "frame_path": "pipeline/frames/dog_escape/petcam_20260926_173415_000_frame_2.00.jpg",
+      "s3_key": "frames/dog_escape/petcam_20260926_173415_000_frame_2.00.jpg",
+      "old_object_labels": [
+        "bed"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_escape__petcam_20260926_173415_000_frame_4.00",
+      "video_id": "dog_escape",
+      "timestamp": 4.0,
+      "frame_path": "pipeline/frames/dog_escape/petcam_20260926_173415_000_frame_4.00.jpg",
+      "s3_key": "frames/dog_escape/petcam_20260926_173415_000_frame_4.00.jpg",
+      "old_object_labels": [
+        "bed"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_escape__petcam_20260926_173415_000_frame_6.00",
+      "video_id": "dog_escape",
+      "timestamp": 6.0,
+      "frame_path": "pipeline/frames/dog_escape/petcam_20260926_173415_000_frame_6.00.jpg",
+      "s3_key": "frames/dog_escape/petcam_20260926_173415_000_frame_6.00.jpg",
+      "old_object_labels": [],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_escape__petcam_20260926_173415_000_frame_8.00",
+      "video_id": "dog_escape",
+      "timestamp": 8.0,
+      "frame_path": "pipeline/frames/dog_escape/petcam_20260926_173415_000_frame_8.00.jpg",
+      "s3_key": "frames/dog_escape/petcam_20260926_173415_000_frame_8.00.jpg",
+      "old_object_labels": [],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_escape__petcam_20260926_173415_000_frame_10.00",
+      "video_id": "dog_escape",
+      "timestamp": 10.0,
+      "frame_path": "pipeline/frames/dog_escape/petcam_20260926_173415_000_frame_10.00.jpg",
+      "s3_key": "frames/dog_escape/petcam_20260926_173415_000_frame_10.00.jpg",
+      "old_object_labels": [
+        "bed"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_escape__petcam_20260926_173415_000_frame_12.00",
+      "video_id": "dog_escape",
+      "timestamp": 12.0,
+      "frame_path": "pipeline/frames/dog_escape/petcam_20260926_173415_000_frame_12.00.jpg",
+      "s3_key": "frames/dog_escape/petcam_20260926_173415_000_frame_12.00.jpg",
+      "old_object_labels": [
+        "bed"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_escape__petcam_20260926_173415_000_frame_14.00",
+      "video_id": "dog_escape",
+      "timestamp": 14.0,
+      "frame_path": "pipeline/frames/dog_escape/petcam_20260926_173415_000_frame_14.00.jpg",
+      "s3_key": "frames/dog_escape/petcam_20260926_173415_000_frame_14.00.jpg",
+      "old_object_labels": [
+        "bed"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_escape__petcam_20260926_173415_000_frame_16.00",
+      "video_id": "dog_escape",
+      "timestamp": 16.0,
+      "frame_path": "pipeline/frames/dog_escape/petcam_20260926_173415_000_frame_16.00.jpg",
+      "s3_key": "frames/dog_escape/petcam_20260926_173415_000_frame_16.00.jpg",
+      "old_object_labels": [
+        "bed"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_escape__petcam_20260926_173415_000_frame_18.00",
+      "video_id": "dog_escape",
+      "timestamp": 18.0,
+      "frame_path": "pipeline/frames/dog_escape/petcam_20260926_173415_000_frame_18.00.jpg",
+      "s3_key": "frames/dog_escape/petcam_20260926_173415_000_frame_18.00.jpg",
+      "old_object_labels": [
+        "bed"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_escape__petcam_20260926_173415_000_frame_20.00",
+      "video_id": "dog_escape",
+      "timestamp": 20.0,
+      "frame_path": "pipeline/frames/dog_escape/petcam_20260926_173415_000_frame_20.00.jpg",
+      "s3_key": "frames/dog_escape/petcam_20260926_173415_000_frame_20.00.jpg",
+      "old_object_labels": [
+        "bed"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_escape__petcam_20260926_173415_000_frame_22.00",
+      "video_id": "dog_escape",
+      "timestamp": 22.0,
+      "frame_path": "pipeline/frames/dog_escape/petcam_20260926_173415_000_frame_22.00.jpg",
+      "s3_key": "frames/dog_escape/petcam_20260926_173415_000_frame_22.00.jpg",
+      "old_object_labels": [],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_escape__petcam_20260926_173415_000_frame_24.00",
+      "video_id": "dog_escape",
+      "timestamp": 24.0,
+      "frame_path": "pipeline/frames/dog_escape/petcam_20260926_173415_000_frame_24.00.jpg",
+      "s3_key": "frames/dog_escape/petcam_20260926_173415_000_frame_24.00.jpg",
+      "old_object_labels": [],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_escape__petcam_20260926_173415_000_frame_26.00",
+      "video_id": "dog_escape",
+      "timestamp": 26.0,
+      "frame_path": "pipeline/frames/dog_escape/petcam_20260926_173415_000_frame_26.00.jpg",
+      "s3_key": "frames/dog_escape/petcam_20260926_173415_000_frame_26.00.jpg",
+      "old_object_labels": [],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_escape__petcam_20260926_173415_000_frame_28.00",
+      "video_id": "dog_escape",
+      "timestamp": 28.0,
+      "frame_path": "pipeline/frames/dog_escape/petcam_20260926_173415_000_frame_28.00.jpg",
+      "s3_key": "frames/dog_escape/petcam_20260926_173415_000_frame_28.00.jpg",
+      "old_object_labels": [],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_escape__petcam_20260926_173415_000_frame_30.00",
+      "video_id": "dog_escape",
+      "timestamp": 30.0,
+      "frame_path": "pipeline/frames/dog_escape/petcam_20260926_173415_000_frame_30.00.jpg",
+      "s3_key": "frames/dog_escape/petcam_20260926_173415_000_frame_30.00.jpg",
+      "old_object_labels": [],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_escape__petcam_20260926_173415_000_frame_32.00",
+      "video_id": "dog_escape",
+      "timestamp": 32.0,
+      "frame_path": "pipeline/frames/dog_escape/petcam_20260926_173415_000_frame_32.00.jpg",
+      "s3_key": "frames/dog_escape/petcam_20260926_173415_000_frame_32.00.jpg",
+      "old_object_labels": [
+        "bed"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_escape__petcam_20260926_173415_000_frame_34.00",
+      "video_id": "dog_escape",
+      "timestamp": 34.0,
+      "frame_path": "pipeline/frames/dog_escape/petcam_20260926_173415_000_frame_34.00.jpg",
+      "s3_key": "frames/dog_escape/petcam_20260926_173415_000_frame_34.00.jpg",
+      "old_object_labels": [
+        "bed"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_escape__petcam_20260926_173415_000_frame_36.00",
+      "video_id": "dog_escape",
+      "timestamp": 36.0,
+      "frame_path": "pipeline/frames/dog_escape/petcam_20260926_173415_000_frame_36.00.jpg",
+      "s3_key": "frames/dog_escape/petcam_20260926_173415_000_frame_36.00.jpg",
+      "old_object_labels": [
+        "bed"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_escape__petcam_20260926_173415_000_frame_38.00",
+      "video_id": "dog_escape",
+      "timestamp": 38.0,
+      "frame_path": "pipeline/frames/dog_escape/petcam_20260926_173415_000_frame_38.00.jpg",
+      "s3_key": "frames/dog_escape/petcam_20260926_173415_000_frame_38.00.jpg",
+      "old_object_labels": [
+        "person"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_escape__petcam_20260926_173415_000_frame_40.00",
+      "video_id": "dog_escape",
+      "timestamp": 40.0,
+      "frame_path": "pipeline/frames/dog_escape/petcam_20260926_173415_000_frame_40.00.jpg",
+      "s3_key": "frames/dog_escape/petcam_20260926_173415_000_frame_40.00.jpg",
+      "old_object_labels": [
+        "person"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_escape__petcam_20260926_173415_000_frame_42.00",
+      "video_id": "dog_escape",
+      "timestamp": 42.0,
+      "frame_path": "pipeline/frames/dog_escape/petcam_20260926_173415_000_frame_42.00.jpg",
+      "s3_key": "frames/dog_escape/petcam_20260926_173415_000_frame_42.00.jpg",
+      "old_object_labels": [
+        "person"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_escape__petcam_20260926_173415_000_frame_44.00",
+      "video_id": "dog_escape",
+      "timestamp": 44.0,
+      "frame_path": "pipeline/frames/dog_escape/petcam_20260926_173415_000_frame_44.00.jpg",
+      "s3_key": "frames/dog_escape/petcam_20260926_173415_000_frame_44.00.jpg",
+      "old_object_labels": [],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_escape__petcam_20260926_173415_000_frame_46.00",
+      "video_id": "dog_escape",
+      "timestamp": 46.0,
+      "frame_path": "pipeline/frames/dog_escape/petcam_20260926_173415_000_frame_46.00.jpg",
+      "s3_key": "frames/dog_escape/petcam_20260926_173415_000_frame_46.00.jpg",
+      "old_object_labels": [
+        "person"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_escape__petcam_20260926_173415_000_frame_48.00",
+      "video_id": "dog_escape",
+      "timestamp": 48.0,
+      "frame_path": "pipeline/frames/dog_escape/petcam_20260926_173415_000_frame_48.00.jpg",
+      "s3_key": "frames/dog_escape/petcam_20260926_173415_000_frame_48.00.jpg",
+      "old_object_labels": [],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_escape__petcam_20260926_173415_000_frame_50.00",
+      "video_id": "dog_escape",
+      "timestamp": 50.0,
+      "frame_path": "pipeline/frames/dog_escape/petcam_20260926_173415_000_frame_50.00.jpg",
+      "s3_key": "frames/dog_escape/petcam_20260926_173415_000_frame_50.00.jpg",
+      "old_object_labels": [],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_escape__petcam_20260926_173415_000_frame_52.00",
+      "video_id": "dog_escape",
+      "timestamp": 52.0,
+      "frame_path": "pipeline/frames/dog_escape/petcam_20260926_173415_000_frame_52.00.jpg",
+      "s3_key": "frames/dog_escape/petcam_20260926_173415_000_frame_52.00.jpg",
+      "old_object_labels": [],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_escape__petcam_20260926_173415_000_frame_54.00",
+      "video_id": "dog_escape",
+      "timestamp": 54.0,
+      "frame_path": "pipeline/frames/dog_escape/petcam_20260926_173415_000_frame_54.00.jpg",
+      "s3_key": "frames/dog_escape/petcam_20260926_173415_000_frame_54.00.jpg",
+      "old_object_labels": [
+        "bed",
+        "chair"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_escape__petcam_20260926_173415_000_frame_56.00",
+      "video_id": "dog_escape",
+      "timestamp": 56.0,
+      "frame_path": "pipeline/frames/dog_escape/petcam_20260926_173415_000_frame_56.00.jpg",
+      "s3_key": "frames/dog_escape/petcam_20260926_173415_000_frame_56.00.jpg",
+      "old_object_labels": [
+        "person"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_3.50",
+      "video_id": "dog_drinking_water",
+      "timestamp": 3.5,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_3.50.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_3.50.jpg",
+      "old_object_labels": [],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_5.50",
+      "video_id": "dog_drinking_water",
+      "timestamp": 5.5,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_5.50.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_5.50.jpg",
+      "old_object_labels": [],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_7.50",
+      "video_id": "dog_drinking_water",
+      "timestamp": 7.5,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_7.50.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_7.50.jpg",
+      "old_object_labels": [
+        "cat"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_9.50",
+      "video_id": "dog_drinking_water",
+      "timestamp": 9.5,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_9.50.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_9.50.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_12.50",
+      "video_id": "dog_drinking_water",
+      "timestamp": 12.5,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_12.50.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_12.50.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_14.50",
+      "video_id": "dog_drinking_water",
+      "timestamp": 14.5,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_14.50.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_14.50.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_16.50",
+      "video_id": "dog_drinking_water",
+      "timestamp": 16.5,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_16.50.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_16.50.jpg",
+      "old_object_labels": [
+        "chair"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_18.50",
+      "video_id": "dog_drinking_water",
+      "timestamp": 18.5,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_18.50.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_18.50.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_20.50",
+      "video_id": "dog_drinking_water",
+      "timestamp": 20.5,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_20.50.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_20.50.jpg",
+      "old_object_labels": [
+        "chair"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_22.50",
+      "video_id": "dog_drinking_water",
+      "timestamp": 22.5,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_22.50.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_22.50.jpg",
+      "old_object_labels": [
+        "chair"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_24.50",
+      "video_id": "dog_drinking_water",
+      "timestamp": 24.5,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_24.50.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_24.50.jpg",
+      "old_object_labels": [
+        "chair",
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_26.50",
+      "video_id": "dog_drinking_water",
+      "timestamp": 26.5,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_26.50.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_26.50.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_30.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 30.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_30.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_30.00.jpg",
+      "old_object_labels": [],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_32.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 32.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_32.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_32.00.jpg",
+      "old_object_labels": [],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_34.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 34.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_34.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_34.00.jpg",
+      "old_object_labels": [],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_36.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 36.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_36.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_36.00.jpg",
+      "old_object_labels": [],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_38.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 38.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_38.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_38.00.jpg",
+      "old_object_labels": [
+        "chair"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_40.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 40.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_40.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_40.00.jpg",
+      "old_object_labels": [
+        "chair"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_42.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 42.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_42.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_42.00.jpg",
+      "old_object_labels": [
+        "cat"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_44.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 44.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_44.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_44.00.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_46.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 46.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_46.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_46.00.jpg",
+      "old_object_labels": [
+        "chair"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_48.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 48.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_48.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_48.00.jpg",
+      "old_object_labels": [],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_50.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 50.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_50.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_50.00.jpg",
+      "old_object_labels": [],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_52.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 52.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_52.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_52.00.jpg",
+      "old_object_labels": [
+        "cat"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_54.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 54.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_54.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_54.00.jpg",
+      "old_object_labels": [
+        "bowl"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_56.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 56.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_56.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_56.00.jpg",
+      "old_object_labels": [
+        "bowl",
+        "cat"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_58.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 58.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_58.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_58.00.jpg",
+      "old_object_labels": [],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_60.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 60.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_60.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_60.00.jpg",
+      "old_object_labels": [],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_62.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 62.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_62.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_62.00.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_64.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 64.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_64.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_64.00.jpg",
+      "old_object_labels": [],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_2.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 2.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_2.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_2.00.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_4.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 4.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_4.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_4.00.jpg",
+      "old_object_labels": [
+        "chair",
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_6.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 6.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_6.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_6.00.jpg",
+      "old_object_labels": [
+        "chair"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_8.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 8.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_8.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_8.00.jpg",
+      "old_object_labels": [
+        "bowl",
+        "cat"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_10.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 10.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_10.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_10.00.jpg",
+      "old_object_labels": [
+        "bowl",
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_12.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 12.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_12.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_12.00.jpg",
+      "old_object_labels": [],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_14.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 14.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_14.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_14.00.jpg",
+      "old_object_labels": [
+        "bowl",
+        "cat"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_16.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 16.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_16.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_16.00.jpg",
+      "old_object_labels": [
+        "cat"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_18.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 18.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_18.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_18.00.jpg",
+      "old_object_labels": [
+        "cat"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_20.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 20.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_20.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_20.00.jpg",
+      "old_object_labels": [],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_22.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 22.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_22.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_22.00.jpg",
+      "old_object_labels": [],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_24.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 24.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_24.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_24.00.jpg",
+      "old_object_labels": [
+        "dog",
+        "person"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_26.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 26.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_26.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_26.00.jpg",
+      "old_object_labels": [
+        "cat"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_28.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 28.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_28.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_28.00.jpg",
+      "old_object_labels": [
+        "person"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_30.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 30.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_30.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_30.00.jpg",
+      "old_object_labels": [
+        "chair"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_32.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 32.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_32.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_32.00.jpg",
+      "old_object_labels": [
+        "chair"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_34.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 34.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_34.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_34.00.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_36.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 36.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_36.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_36.00.jpg",
+      "old_object_labels": [],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_38.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 38.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_38.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_38.00.jpg",
+      "old_object_labels": [],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_40.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 40.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_40.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_40.00.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_42.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 42.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_42.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_42.00.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_44.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 44.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_44.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_44.00.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_46.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 46.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_46.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_46.00.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_48.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 48.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_48.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_48.00.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_50.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 50.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_50.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_50.00.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_52.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 52.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_52.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_52.00.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_54.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 54.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_54.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_54.00.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_56.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 56.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_56.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_56.00.jpg",
+      "old_object_labels": [
+        "cat"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_002_frame_2.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 2.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_002_frame_2.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_002_frame_2.00.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_002_frame_4.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 4.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_002_frame_4.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_002_frame_4.00.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_002_frame_16.50",
+      "video_id": "dog_drinking_water",
+      "timestamp": 16.5,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_002_frame_16.50.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_002_frame_16.50.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_002_frame_18.50",
+      "video_id": "dog_drinking_water",
+      "timestamp": 18.5,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_002_frame_18.50.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_002_frame_18.50.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_002_frame_20.50",
+      "video_id": "dog_drinking_water",
+      "timestamp": 20.5,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_002_frame_20.50.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_002_frame_20.50.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_002_frame_28.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 28.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_002_frame_28.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_002_frame_28.00.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_002_frame_30.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 30.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_002_frame_30.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_002_frame_30.00.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_002_frame_32.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 32.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_002_frame_32.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_002_frame_32.00.jpg",
+      "old_object_labels": [],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_002_frame_34.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 34.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_002_frame_34.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_002_frame_34.00.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_002_frame_36.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 36.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_002_frame_36.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_002_frame_36.00.jpg",
+      "old_object_labels": [],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_002_frame_38.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 38.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_002_frame_38.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_002_frame_38.00.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_002_frame_40.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 40.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_002_frame_40.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_002_frame_40.00.jpg",
+      "old_object_labels": [],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_002_frame_42.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 42.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_002_frame_42.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_002_frame_42.00.jpg",
+      "old_object_labels": [],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_002_frame_44.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 44.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_002_frame_44.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_002_frame_44.00.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_002_frame_46.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 46.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_002_frame_46.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_002_frame_46.00.jpg",
+      "old_object_labels": [],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_002_frame_48.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 48.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_002_frame_48.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_002_frame_48.00.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_002_frame_50.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 50.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_002_frame_50.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_002_frame_50.00.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_002_frame_52.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 52.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_002_frame_52.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_002_frame_52.00.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_002_frame_54.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 54.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_002_frame_54.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_002_frame_54.00.jpg",
+      "old_object_labels": [
+        "cat"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_002_frame_56.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 56.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_002_frame_56.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_002_frame_56.00.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_002_frame_58.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 58.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_002_frame_58.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_002_frame_58.00.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_003_frame_2.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 2.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_003_frame_2.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_003_frame_2.00.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_003_frame_6.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 6.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_003_frame_6.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_003_frame_6.00.jpg",
+      "old_object_labels": [
+        "cat",
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_003_frame_9.50",
+      "video_id": "dog_drinking_water",
+      "timestamp": 9.5,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_003_frame_9.50.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_003_frame_9.50.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_003_frame_11.50",
+      "video_id": "dog_drinking_water",
+      "timestamp": 11.5,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_003_frame_11.50.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_003_frame_11.50.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_003_frame_18.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 18.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_003_frame_18.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_003_frame_18.00.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_003_frame_23.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 23.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_003_frame_23.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_003_frame_23.00.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_003_frame_25.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 25.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_003_frame_25.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_003_frame_25.00.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_003_frame_27.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 27.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_003_frame_27.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_003_frame_27.00.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_003_frame_29.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 29.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_003_frame_29.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_003_frame_29.00.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_003_frame_31.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 31.0,
+      "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_003_frame_31.00.jpg",
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_003_frame_31.00.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "image_source": "gcs_frame"
+    }
+  ]
+}
