@@ -1,0 +1,2655 @@
+{
+  "evaluation_date": "2026-09-27",
+  "read_only": true,
+  "eligible_frames_only": true,
+  "eligible_count": 240,
+  "failure_count": 0,
+  "excluded_ineligible_counts": {
+    "total": 377,
+    "cats_5min": 292,
+    "two_dogs_stale": 85
+  },
+  "chunk_grouping": "(video_id, exact s3 filename stem before _frame_)",
+  "ground_truth": {
+    "source_107": 107,
+    "canary_visual_review": 15,
+    "unique_reviewed_frames": 110,
+    "overlap_deduplicated": true,
+    "by_source": {
+      "107_frame_visual_review": 95,
+      "canary_visual_review": 15
+    }
+  },
+  "methods_definition": {
+    "baseline": "new_object_labels, cat/dog at confidence threshold 0.5, per frame",
+    "majority": "independent per-class binary vote over same-chunk window; positive when vote share > 0.5; exact ties remain unresolved",
+    "confidence_mean": "per-class maximum raw detection confidence (>=0.4 collection; missing=0), arithmetic mean over same-chunk window; positive at >=0.5",
+    "confidence_weighted": "same as confidence_mean but frame weights 1/(1+distance), using ordinal distance or seconds as applicable; positive at >=0.5",
+    "unresolved": "if no class gets >=0.5, emit no cat/dog label; retain-original policy separately evaluated",
+    "video_prior": "eligible-only per-video class-label counts; replace only a single-species disagreement with dominant class at cutoffs .7/.8/.9; never override co-label frames"
+  },
+  "baseline_metrics": {
+    "cat": {
+      "TP": 20,
+      "FP": 12,
+      "FN": 1,
+      "precision": 0.625,
+      "recall": 0.9524,
+      "F1": 0.7547
+    },
+    "dog": {
+      "TP": 45,
+      "FP": 6,
+      "FN": 32,
+      "precision": 0.8824,
+      "recall": 0.5844,
+      "F1": 0.7031
+    }
+  },
+  "temporal_candidates": [
+    {
+      "name": "majority_ordinal_1",
+      "kind": "ordinal",
+      "radius": 1,
+      "method": "majority",
+      "metrics": {
+        "cat": {
+          "TP": 20,
+          "FP": 7,
+          "FN": 1,
+          "precision": 0.7407,
+          "recall": 0.9524,
+          "F1": 0.8333
+        },
+        "dog": {
+          "TP": 47,
+          "FP": 6,
+          "FN": 30,
+          "precision": 0.8868,
+          "recall": 0.6104,
+          "F1": 0.7231
+        }
+      },
+      "changes": {
+        "reviewed_frames_changed": 10,
+        "improved_frames": 8,
+        "worsened_frames": 2,
+        "changed_frame_ids": [
+          "dog_drinking_water__petcam_20260926_173602_001_frame_26.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_56.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_2.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_3.50",
+          "two_dogs__two_dogs_000_frame_000003",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_5.50",
+          "dog_escape__petcam_20260926_173415_000_frame_30.00",
+          "two_dogs__two_dogs_000_frame_000010",
+          "two_dogs__two_dogs_000_frame_000057",
+          "two_dogs__two_dogs_000_frame_000081"
+        ],
+        "improved_frame_ids": [
+          "dog_drinking_water__petcam_20260926_173602_001_frame_26.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_56.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_3.50",
+          "two_dogs__two_dogs_000_frame_000003",
+          "dog_escape__petcam_20260926_173415_000_frame_30.00",
+          "two_dogs__two_dogs_000_frame_000010",
+          "two_dogs__two_dogs_000_frame_000057",
+          "two_dogs__two_dogs_000_frame_000081"
+        ],
+        "worsened_frame_ids": [
+          "dog_drinking_water__petcam_20260926_173602_001_frame_2.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_5.50"
+        ]
+      }
+    },
+    {
+      "name": "confidence_mean_ordinal_1",
+      "kind": "ordinal",
+      "radius": 1,
+      "method": "confidence_mean",
+      "metrics": {
+        "cat": {
+          "TP": 21,
+          "FP": 5,
+          "FN": 0,
+          "precision": 0.8077,
+          "recall": 1.0,
+          "F1": 0.8936
+        },
+        "dog": {
+          "TP": 44,
+          "FP": 5,
+          "FN": 33,
+          "precision": 0.898,
+          "recall": 0.5714,
+          "F1": 0.6984
+        }
+      },
+      "changes": {
+        "reviewed_frames_changed": 18,
+        "improved_frames": 13,
+        "worsened_frames": 5,
+        "changed_frame_ids": [
+          "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_26.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_56.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_62.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_24.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_28.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_3.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_64.00",
+          "two_dogs__two_dogs_000_frame_000003",
+          "IMG_8450_2__petcam_20260926_173123_000_frame_58.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_52.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_18.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_5.50",
+          "dog_escape__petcam_20260926_173415_000_frame_30.00",
+          "two_dogs__two_dogs_000_frame_000010",
+          "two_dogs__two_dogs_000_frame_000057",
+          "two_dogs__two_dogs_000_frame_000081",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_14.50"
+        ],
+        "improved_frame_ids": [
+          "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_26.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_56.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_3.50",
+          "two_dogs__two_dogs_000_frame_000003",
+          "IMG_8450_2__petcam_20260926_173123_000_frame_58.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_52.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_18.00",
+          "dog_escape__petcam_20260926_173415_000_frame_30.00",
+          "two_dogs__two_dogs_000_frame_000010",
+          "two_dogs__two_dogs_000_frame_000057",
+          "two_dogs__two_dogs_000_frame_000081",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_14.50"
+        ],
+        "worsened_frame_ids": [
+          "dog_drinking_water__petcam_20260926_173602_000_frame_62.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_24.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_28.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_64.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_5.50"
+        ]
+      }
+    },
+    {
+      "name": "confidence_weighted_ordinal_1",
+      "kind": "ordinal",
+      "radius": 1,
+      "method": "confidence_weighted",
+      "metrics": {
+        "cat": {
+          "TP": 21,
+          "FP": 6,
+          "FN": 0,
+          "precision": 0.7778,
+          "recall": 1.0,
+          "F1": 0.875
+        },
+        "dog": {
+          "TP": 41,
+          "FP": 6,
+          "FN": 36,
+          "precision": 0.8723,
+          "recall": 0.5325,
+          "F1": 0.6613
+        }
+      },
+      "changes": {
+        "reviewed_frames_changed": 13,
+        "improved_frames": 8,
+        "worsened_frames": 5,
+        "changed_frame_ids": [
+          "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_26.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_56.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_62.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_24.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_28.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_3.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_64.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_52.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_5.50",
+          "dog_escape__petcam_20260926_173415_000_frame_30.00",
+          "two_dogs__two_dogs_000_frame_000010",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_14.50"
+        ],
+        "improved_frame_ids": [
+          "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_26.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_56.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_3.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_52.00",
+          "dog_escape__petcam_20260926_173415_000_frame_30.00",
+          "two_dogs__two_dogs_000_frame_000010",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_14.50"
+        ],
+        "worsened_frame_ids": [
+          "dog_drinking_water__petcam_20260926_173602_000_frame_62.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_24.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_28.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_64.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_5.50"
+        ]
+      }
+    },
+    {
+      "name": "majority_ordinal_2",
+      "kind": "ordinal",
+      "radius": 2,
+      "method": "majority",
+      "metrics": {
+        "cat": {
+          "TP": 21,
+          "FP": 8,
+          "FN": 0,
+          "precision": 0.7241,
+          "recall": 1.0,
+          "F1": 0.84
+        },
+        "dog": {
+          "TP": 47,
+          "FP": 6,
+          "FN": 30,
+          "precision": 0.8868,
+          "recall": 0.6104,
+          "F1": 0.7231
+        }
+      },
+      "changes": {
+        "reviewed_frames_changed": 16,
+        "improved_frames": 10,
+        "worsened_frames": 6,
+        "changed_frame_ids": [
+          "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_26.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_56.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_62.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_3.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_64.00",
+          "two_dogs__two_dogs_000_frame_000003",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_7.50",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_18.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_5.50",
+          "dog_escape__petcam_20260926_173415_000_frame_4.00",
+          "dog_escape__petcam_20260926_173415_000_frame_30.00",
+          "two_dogs__two_dogs_000_frame_000010",
+          "two_dogs__two_dogs_000_frame_000057",
+          "two_dogs__two_dogs_000_frame_000062",
+          "two_dogs__two_dogs_000_frame_000081"
+        ],
+        "improved_frame_ids": [
+          "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_26.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_56.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_3.50",
+          "two_dogs__two_dogs_000_frame_000003",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_18.00",
+          "dog_escape__petcam_20260926_173415_000_frame_30.00",
+          "two_dogs__two_dogs_000_frame_000010",
+          "two_dogs__two_dogs_000_frame_000057",
+          "two_dogs__two_dogs_000_frame_000081"
+        ],
+        "worsened_frame_ids": [
+          "dog_drinking_water__petcam_20260926_173602_000_frame_62.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_64.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_7.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_5.50",
+          "dog_escape__petcam_20260926_173415_000_frame_4.00",
+          "two_dogs__two_dogs_000_frame_000062"
+        ]
+      }
+    },
+    {
+      "name": "confidence_mean_ordinal_2",
+      "kind": "ordinal",
+      "radius": 2,
+      "method": "confidence_mean",
+      "metrics": {
+        "cat": {
+          "TP": 21,
+          "FP": 2,
+          "FN": 0,
+          "precision": 0.913,
+          "recall": 1.0,
+          "F1": 0.9545
+        },
+        "dog": {
+          "TP": 39,
+          "FP": 5,
+          "FN": 38,
+          "precision": 0.8864,
+          "recall": 0.5065,
+          "F1": 0.6446
+        }
+      },
+      "changes": {
+        "reviewed_frames_changed": 22,
+        "improved_frames": 14,
+        "worsened_frames": 8,
+        "changed_frame_ids": [
+          "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_26.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_56.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_62.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_24.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_28.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_3.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_64.00",
+          "two_dogs__two_dogs_000_frame_000003",
+          "IMG_8450_2__petcam_20260926_173123_000_frame_52.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_52.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_18.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_9.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_50.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_22.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_5.50",
+          "dog_escape__petcam_20260926_173415_000_frame_4.00",
+          "dog_escape__petcam_20260926_173415_000_frame_30.00",
+          "two_dogs__two_dogs_000_frame_000010",
+          "two_dogs__two_dogs_000_frame_000062",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_12.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_14.50"
+        ],
+        "improved_frame_ids": [
+          "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_26.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_56.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_3.50",
+          "two_dogs__two_dogs_000_frame_000003",
+          "IMG_8450_2__petcam_20260926_173123_000_frame_52.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_52.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_18.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_9.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_50.00",
+          "dog_escape__petcam_20260926_173415_000_frame_30.00",
+          "two_dogs__two_dogs_000_frame_000010",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_12.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_14.50"
+        ],
+        "worsened_frame_ids": [
+          "dog_drinking_water__petcam_20260926_173602_000_frame_62.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_24.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_28.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_64.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_22.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_5.50",
+          "dog_escape__petcam_20260926_173415_000_frame_4.00",
+          "two_dogs__two_dogs_000_frame_000062"
+        ]
+      }
+    },
+    {
+      "name": "confidence_weighted_ordinal_2",
+      "kind": "ordinal",
+      "radius": 2,
+      "method": "confidence_weighted",
+      "metrics": {
+        "cat": {
+          "TP": 21,
+          "FP": 5,
+          "FN": 0,
+          "precision": 0.8077,
+          "recall": 1.0,
+          "F1": 0.8936
+        },
+        "dog": {
+          "TP": 40,
+          "FP": 6,
+          "FN": 37,
+          "precision": 0.8696,
+          "recall": 0.5195,
+          "F1": 0.6504
+        }
+      },
+      "changes": {
+        "reviewed_frames_changed": 16,
+        "improved_frames": 10,
+        "worsened_frames": 6,
+        "changed_frame_ids": [
+          "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_26.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_56.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_62.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_24.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_28.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_3.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_64.00",
+          "two_dogs__two_dogs_000_frame_000003",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_52.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_18.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_22.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_5.50",
+          "dog_escape__petcam_20260926_173415_000_frame_30.00",
+          "two_dogs__two_dogs_000_frame_000010",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_14.50"
+        ],
+        "improved_frame_ids": [
+          "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_26.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_56.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_3.50",
+          "two_dogs__two_dogs_000_frame_000003",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_52.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_18.00",
+          "dog_escape__petcam_20260926_173415_000_frame_30.00",
+          "two_dogs__two_dogs_000_frame_000010",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_14.50"
+        ],
+        "worsened_frame_ids": [
+          "dog_drinking_water__petcam_20260926_173602_000_frame_62.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_24.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_28.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_64.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_22.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_5.50"
+        ]
+      }
+    },
+    {
+      "name": "majority_seconds_4",
+      "kind": "seconds",
+      "radius": 4,
+      "method": "majority",
+      "metrics": {
+        "cat": {
+          "TP": 21,
+          "FP": 5,
+          "FN": 0,
+          "precision": 0.8077,
+          "recall": 1.0,
+          "F1": 0.8936
+        },
+        "dog": {
+          "TP": 47,
+          "FP": 6,
+          "FN": 30,
+          "precision": 0.8868,
+          "recall": 0.6104,
+          "F1": 0.7231
+        }
+      },
+      "changes": {
+        "reviewed_frames_changed": 17,
+        "improved_frames": 12,
+        "worsened_frames": 5,
+        "changed_frame_ids": [
+          "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_26.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_56.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_62.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_3.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_64.00",
+          "two_dogs__two_dogs_000_frame_000003",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_18.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_9.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_5.50",
+          "dog_escape__petcam_20260926_173415_000_frame_4.00",
+          "dog_escape__petcam_20260926_173415_000_frame_30.00",
+          "two_dogs__two_dogs_000_frame_000010",
+          "two_dogs__two_dogs_000_frame_000057",
+          "two_dogs__two_dogs_000_frame_000062",
+          "two_dogs__two_dogs_000_frame_000081",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_14.50"
+        ],
+        "improved_frame_ids": [
+          "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_26.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_56.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_3.50",
+          "two_dogs__two_dogs_000_frame_000003",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_18.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_9.50",
+          "dog_escape__petcam_20260926_173415_000_frame_30.00",
+          "two_dogs__two_dogs_000_frame_000010",
+          "two_dogs__two_dogs_000_frame_000057",
+          "two_dogs__two_dogs_000_frame_000081",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_14.50"
+        ],
+        "worsened_frame_ids": [
+          "dog_drinking_water__petcam_20260926_173602_000_frame_62.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_64.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_5.50",
+          "dog_escape__petcam_20260926_173415_000_frame_4.00",
+          "two_dogs__two_dogs_000_frame_000062"
+        ]
+      }
+    },
+    {
+      "name": "confidence_mean_seconds_4",
+      "kind": "seconds",
+      "radius": 4,
+      "method": "confidence_mean",
+      "metrics": {
+        "cat": {
+          "TP": 21,
+          "FP": 2,
+          "FN": 0,
+          "precision": 0.913,
+          "recall": 1.0,
+          "F1": 0.9545
+        },
+        "dog": {
+          "TP": 39,
+          "FP": 5,
+          "FN": 38,
+          "precision": 0.8864,
+          "recall": 0.5065,
+          "F1": 0.6446
+        }
+      },
+      "changes": {
+        "reviewed_frames_changed": 22,
+        "improved_frames": 14,
+        "worsened_frames": 8,
+        "changed_frame_ids": [
+          "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_26.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_56.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_62.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_24.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_28.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_3.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_64.00",
+          "two_dogs__two_dogs_000_frame_000003",
+          "IMG_8450_2__petcam_20260926_173123_000_frame_52.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_52.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_18.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_9.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_50.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_22.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_5.50",
+          "dog_escape__petcam_20260926_173415_000_frame_4.00",
+          "dog_escape__petcam_20260926_173415_000_frame_30.00",
+          "two_dogs__two_dogs_000_frame_000010",
+          "two_dogs__two_dogs_000_frame_000062",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_12.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_14.50"
+        ],
+        "improved_frame_ids": [
+          "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_26.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_56.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_3.50",
+          "two_dogs__two_dogs_000_frame_000003",
+          "IMG_8450_2__petcam_20260926_173123_000_frame_52.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_52.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_18.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_9.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_50.00",
+          "dog_escape__petcam_20260926_173415_000_frame_30.00",
+          "two_dogs__two_dogs_000_frame_000010",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_12.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_14.50"
+        ],
+        "worsened_frame_ids": [
+          "dog_drinking_water__petcam_20260926_173602_000_frame_62.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_24.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_28.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_64.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_22.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_5.50",
+          "dog_escape__petcam_20260926_173415_000_frame_4.00",
+          "two_dogs__two_dogs_000_frame_000062"
+        ]
+      }
+    },
+    {
+      "name": "confidence_weighted_seconds_4",
+      "kind": "seconds",
+      "radius": 4,
+      "method": "confidence_weighted",
+      "metrics": {
+        "cat": {
+          "TP": 21,
+          "FP": 6,
+          "FN": 0,
+          "precision": 0.7778,
+          "recall": 1.0,
+          "F1": 0.875
+        },
+        "dog": {
+          "TP": 40,
+          "FP": 6,
+          "FN": 37,
+          "precision": 0.8696,
+          "recall": 0.5195,
+          "F1": 0.6504
+        }
+      },
+      "changes": {
+        "reviewed_frames_changed": 13,
+        "improved_frames": 8,
+        "worsened_frames": 5,
+        "changed_frame_ids": [
+          "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_26.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_56.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_62.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_24.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_64.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_52.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_18.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_22.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_5.50",
+          "dog_escape__petcam_20260926_173415_000_frame_30.00",
+          "two_dogs__two_dogs_000_frame_000010",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_14.50"
+        ],
+        "improved_frame_ids": [
+          "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_26.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_56.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_52.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_18.00",
+          "dog_escape__petcam_20260926_173415_000_frame_30.00",
+          "two_dogs__two_dogs_000_frame_000010",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_14.50"
+        ],
+        "worsened_frame_ids": [
+          "dog_drinking_water__petcam_20260926_173602_000_frame_62.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_24.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_64.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_22.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_5.50"
+        ]
+      }
+    },
+    {
+      "name": "majority_seconds_8",
+      "kind": "seconds",
+      "radius": 8,
+      "method": "majority",
+      "metrics": {
+        "cat": {
+          "TP": 21,
+          "FP": 6,
+          "FN": 0,
+          "precision": 0.7778,
+          "recall": 1.0,
+          "F1": 0.875
+        },
+        "dog": {
+          "TP": 47,
+          "FP": 5,
+          "FN": 30,
+          "precision": 0.9038,
+          "recall": 0.6104,
+          "F1": 0.7287
+        }
+      },
+      "changes": {
+        "reviewed_frames_changed": 20,
+        "improved_frames": 14,
+        "worsened_frames": 6,
+        "changed_frame_ids": [
+          "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_26.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_56.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_62.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_3.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_64.00",
+          "two_dogs__two_dogs_000_frame_000003",
+          "IMG_8450_2__petcam_20260926_173123_000_frame_52.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_7.50",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_18.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_5.50",
+          "dog_escape__petcam_20260926_173415_000_frame_2.00",
+          "dog_escape__petcam_20260926_173415_000_frame_4.00",
+          "dog_escape__petcam_20260926_173415_000_frame_30.00",
+          "two_dogs__two_dogs_000_frame_000010",
+          "two_dogs__two_dogs_000_frame_000057",
+          "two_dogs__two_dogs_000_frame_000062",
+          "two_dogs__two_dogs_000_frame_000081",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_12.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_14.50"
+        ],
+        "improved_frame_ids": [
+          "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_26.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_56.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_62.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_3.50",
+          "two_dogs__two_dogs_000_frame_000003",
+          "IMG_8450_2__petcam_20260926_173123_000_frame_52.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_18.00",
+          "dog_escape__petcam_20260926_173415_000_frame_30.00",
+          "two_dogs__two_dogs_000_frame_000010",
+          "two_dogs__two_dogs_000_frame_000057",
+          "two_dogs__two_dogs_000_frame_000081",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_12.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_14.50"
+        ],
+        "worsened_frame_ids": [
+          "dog_drinking_water__petcam_20260926_173602_000_frame_64.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_7.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_5.50",
+          "dog_escape__petcam_20260926_173415_000_frame_2.00",
+          "dog_escape__petcam_20260926_173415_000_frame_4.00",
+          "two_dogs__two_dogs_000_frame_000062"
+        ]
+      }
+    },
+    {
+      "name": "confidence_mean_seconds_8",
+      "kind": "seconds",
+      "radius": 8,
+      "method": "confidence_mean",
+      "metrics": {
+        "cat": {
+          "TP": 21,
+          "FP": 4,
+          "FN": 0,
+          "precision": 0.84,
+          "recall": 1.0,
+          "F1": 0.913
+        },
+        "dog": {
+          "TP": 41,
+          "FP": 5,
+          "FN": 36,
+          "precision": 0.8913,
+          "recall": 0.5325,
+          "F1": 0.6667
+        }
+      },
+      "changes": {
+        "reviewed_frames_changed": 24,
+        "improved_frames": 14,
+        "worsened_frames": 8,
+        "changed_frame_ids": [
+          "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_26.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_56.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_62.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_24.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_3.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_64.00",
+          "two_dogs__two_dogs_000_frame_000003",
+          "two_dogs__two_dogs_000_frame_000090",
+          "IMG_8450_2__petcam_20260926_173123_000_frame_52.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_7.50",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_18.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_9.50",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_22.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_5.50",
+          "dog_escape__petcam_20260926_173415_000_frame_2.00",
+          "dog_escape__petcam_20260926_173415_000_frame_4.00",
+          "dog_escape__petcam_20260926_173415_000_frame_30.00",
+          "two_dogs__two_dogs_000_frame_000010",
+          "two_dogs__two_dogs_000_frame_000057",
+          "two_dogs__two_dogs_000_frame_000062",
+          "two_dogs__two_dogs_000_frame_000081",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_12.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_14.50"
+        ],
+        "improved_frame_ids": [
+          "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_26.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_56.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_3.50",
+          "two_dogs__two_dogs_000_frame_000003",
+          "IMG_8450_2__petcam_20260926_173123_000_frame_52.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_18.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_9.50",
+          "dog_escape__petcam_20260926_173415_000_frame_30.00",
+          "two_dogs__two_dogs_000_frame_000010",
+          "two_dogs__two_dogs_000_frame_000057",
+          "two_dogs__two_dogs_000_frame_000081",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_12.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_14.50"
+        ],
+        "worsened_frame_ids": [
+          "dog_drinking_water__petcam_20260926_173602_001_frame_24.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_64.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_7.50",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_22.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_5.50",
+          "dog_escape__petcam_20260926_173415_000_frame_2.00",
+          "dog_escape__petcam_20260926_173415_000_frame_4.00",
+          "two_dogs__two_dogs_000_frame_000062"
+        ]
+      }
+    },
+    {
+      "name": "confidence_weighted_seconds_8",
+      "kind": "seconds",
+      "radius": 8,
+      "method": "confidence_weighted",
+      "metrics": {
+        "cat": {
+          "TP": 21,
+          "FP": 4,
+          "FN": 0,
+          "precision": 0.84,
+          "recall": 1.0,
+          "F1": 0.913
+        },
+        "dog": {
+          "TP": 41,
+          "FP": 6,
+          "FN": 36,
+          "precision": 0.8723,
+          "recall": 0.5325,
+          "F1": 0.6613
+        }
+      },
+      "changes": {
+        "reviewed_frames_changed": 14,
+        "improved_frames": 10,
+        "worsened_frames": 4,
+        "changed_frame_ids": [
+          "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_26.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_56.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_62.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_24.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_64.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_52.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_18.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_9.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_5.50",
+          "dog_escape__petcam_20260926_173415_000_frame_30.00",
+          "two_dogs__two_dogs_000_frame_000010",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_12.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_14.50"
+        ],
+        "improved_frame_ids": [
+          "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_26.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_56.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_52.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_18.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_9.50",
+          "dog_escape__petcam_20260926_173415_000_frame_30.00",
+          "two_dogs__two_dogs_000_frame_000010",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_12.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_14.50"
+        ],
+        "worsened_frame_ids": [
+          "dog_drinking_water__petcam_20260926_173602_000_frame_62.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_24.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_64.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_5.50"
+        ]
+      }
+    }
+  ],
+  "unresolved_policy_comparison": [
+    {
+      "method": "majority_ordinal_1",
+      "unresolved_frames": 54,
+      "unresolved_reviewed_frames": 34,
+      "empty_policy_metrics": {
+        "cat": {
+          "TP": 20,
+          "FP": 7,
+          "FN": 1,
+          "precision": 0.7407,
+          "recall": 0.9524,
+          "F1": 0.8333
+        },
+        "dog": {
+          "TP": 47,
+          "FP": 6,
+          "FN": 30,
+          "precision": 0.8868,
+          "recall": 0.6104,
+          "F1": 0.7231
+        }
+      },
+      "retain_policy_metrics": {
+        "cat": {
+          "TP": 20,
+          "FP": 10,
+          "FN": 1,
+          "precision": 0.6667,
+          "recall": 0.9524,
+          "F1": 0.7843
+        },
+        "dog": {
+          "TP": 49,
+          "FP": 6,
+          "FN": 28,
+          "precision": 0.8909,
+          "recall": 0.6364,
+          "F1": 0.7424
+        }
+      }
+    },
+    {
+      "method": "confidence_mean_ordinal_1",
+      "unresolved_frames": 63,
+      "unresolved_reviewed_frames": 39,
+      "empty_policy_metrics": {
+        "cat": {
+          "TP": 21,
+          "FP": 5,
+          "FN": 0,
+          "precision": 0.8077,
+          "recall": 1.0,
+          "F1": 0.8936
+        },
+        "dog": {
+          "TP": 44,
+          "FP": 5,
+          "FN": 33,
+          "precision": 0.898,
+          "recall": 0.5714,
+          "F1": 0.6984
+        }
+      },
+      "retain_policy_metrics": {
+        "cat": {
+          "TP": 21,
+          "FP": 12,
+          "FN": 0,
+          "precision": 0.6364,
+          "recall": 1.0,
+          "F1": 0.7778
+        },
+        "dog": {
+          "TP": 47,
+          "FP": 5,
+          "FN": 30,
+          "precision": 0.9038,
+          "recall": 0.6104,
+          "F1": 0.7287
+        }
+      }
+    },
+    {
+      "method": "confidence_weighted_ordinal_1",
+      "unresolved_frames": 64,
+      "unresolved_reviewed_frames": 41,
+      "empty_policy_metrics": {
+        "cat": {
+          "TP": 21,
+          "FP": 6,
+          "FN": 0,
+          "precision": 0.7778,
+          "recall": 1.0,
+          "F1": 0.875
+        },
+        "dog": {
+          "TP": 41,
+          "FP": 6,
+          "FN": 36,
+          "precision": 0.8723,
+          "recall": 0.5325,
+          "F1": 0.6613
+        }
+      },
+      "retain_policy_metrics": {
+        "cat": {
+          "TP": 21,
+          "FP": 12,
+          "FN": 0,
+          "precision": 0.6364,
+          "recall": 1.0,
+          "F1": 0.7778
+        },
+        "dog": {
+          "TP": 44,
+          "FP": 6,
+          "FN": 33,
+          "precision": 0.88,
+          "recall": 0.5714,
+          "F1": 0.6929
+        }
+      }
+    },
+    {
+      "method": "majority_ordinal_2",
+      "unresolved_frames": 49,
+      "unresolved_reviewed_frames": 33,
+      "empty_policy_metrics": {
+        "cat": {
+          "TP": 21,
+          "FP": 8,
+          "FN": 0,
+          "precision": 0.7241,
+          "recall": 1.0,
+          "F1": 0.84
+        },
+        "dog": {
+          "TP": 47,
+          "FP": 6,
+          "FN": 30,
+          "precision": 0.8868,
+          "recall": 0.6104,
+          "F1": 0.7231
+        }
+      },
+      "retain_policy_metrics": {
+        "cat": {
+          "TP": 21,
+          "FP": 10,
+          "FN": 0,
+          "precision": 0.6774,
+          "recall": 1.0,
+          "F1": 0.8077
+        },
+        "dog": {
+          "TP": 50,
+          "FP": 6,
+          "FN": 27,
+          "precision": 0.8929,
+          "recall": 0.6494,
+          "F1": 0.7519
+        }
+      }
+    },
+    {
+      "method": "confidence_mean_ordinal_2",
+      "unresolved_frames": 73,
+      "unresolved_reviewed_frames": 46,
+      "empty_policy_metrics": {
+        "cat": {
+          "TP": 21,
+          "FP": 2,
+          "FN": 0,
+          "precision": 0.913,
+          "recall": 1.0,
+          "F1": 0.9545
+        },
+        "dog": {
+          "TP": 39,
+          "FP": 5,
+          "FN": 38,
+          "precision": 0.8864,
+          "recall": 0.5065,
+          "F1": 0.6446
+        }
+      },
+      "retain_policy_metrics": {
+        "cat": {
+          "TP": 21,
+          "FP": 11,
+          "FN": 0,
+          "precision": 0.6562,
+          "recall": 1.0,
+          "F1": 0.7925
+        },
+        "dog": {
+          "TP": 45,
+          "FP": 5,
+          "FN": 32,
+          "precision": 0.9,
+          "recall": 0.5844,
+          "F1": 0.7087
+        }
+      }
+    },
+    {
+      "method": "confidence_weighted_ordinal_2",
+      "unresolved_frames": 68,
+      "unresolved_reviewed_frames": 42,
+      "empty_policy_metrics": {
+        "cat": {
+          "TP": 21,
+          "FP": 5,
+          "FN": 0,
+          "precision": 0.8077,
+          "recall": 1.0,
+          "F1": 0.8936
+        },
+        "dog": {
+          "TP": 40,
+          "FP": 6,
+          "FN": 37,
+          "precision": 0.8696,
+          "recall": 0.5195,
+          "F1": 0.6504
+        }
+      },
+      "retain_policy_metrics": {
+        "cat": {
+          "TP": 21,
+          "FP": 12,
+          "FN": 0,
+          "precision": 0.6364,
+          "recall": 1.0,
+          "F1": 0.7778
+        },
+        "dog": {
+          "TP": 44,
+          "FP": 6,
+          "FN": 33,
+          "precision": 0.88,
+          "recall": 0.5714,
+          "F1": 0.6929
+        }
+      }
+    },
+    {
+      "method": "majority_seconds_4",
+      "unresolved_frames": 53,
+      "unresolved_reviewed_frames": 36,
+      "empty_policy_metrics": {
+        "cat": {
+          "TP": 21,
+          "FP": 5,
+          "FN": 0,
+          "precision": 0.8077,
+          "recall": 1.0,
+          "F1": 0.8936
+        },
+        "dog": {
+          "TP": 47,
+          "FP": 6,
+          "FN": 30,
+          "precision": 0.8868,
+          "recall": 0.6104,
+          "F1": 0.7231
+        }
+      },
+      "retain_policy_metrics": {
+        "cat": {
+          "TP": 21,
+          "FP": 9,
+          "FN": 0,
+          "precision": 0.7,
+          "recall": 1.0,
+          "F1": 0.8235
+        },
+        "dog": {
+          "TP": 50,
+          "FP": 6,
+          "FN": 27,
+          "precision": 0.8929,
+          "recall": 0.6494,
+          "F1": 0.7519
+        }
+      }
+    },
+    {
+      "method": "confidence_mean_seconds_4",
+      "unresolved_frames": 74,
+      "unresolved_reviewed_frames": 46,
+      "empty_policy_metrics": {
+        "cat": {
+          "TP": 21,
+          "FP": 2,
+          "FN": 0,
+          "precision": 0.913,
+          "recall": 1.0,
+          "F1": 0.9545
+        },
+        "dog": {
+          "TP": 39,
+          "FP": 5,
+          "FN": 38,
+          "precision": 0.8864,
+          "recall": 0.5065,
+          "F1": 0.6446
+        }
+      },
+      "retain_policy_metrics": {
+        "cat": {
+          "TP": 21,
+          "FP": 11,
+          "FN": 0,
+          "precision": 0.6562,
+          "recall": 1.0,
+          "F1": 0.7925
+        },
+        "dog": {
+          "TP": 45,
+          "FP": 5,
+          "FN": 32,
+          "precision": 0.9,
+          "recall": 0.5844,
+          "F1": 0.7087
+        }
+      }
+    },
+    {
+      "method": "confidence_weighted_seconds_4",
+      "unresolved_frames": 63,
+      "unresolved_reviewed_frames": 41,
+      "empty_policy_metrics": {
+        "cat": {
+          "TP": 21,
+          "FP": 6,
+          "FN": 0,
+          "precision": 0.7778,
+          "recall": 1.0,
+          "F1": 0.875
+        },
+        "dog": {
+          "TP": 40,
+          "FP": 6,
+          "FN": 37,
+          "precision": 0.8696,
+          "recall": 0.5195,
+          "F1": 0.6504
+        }
+      },
+      "retain_policy_metrics": {
+        "cat": {
+          "TP": 21,
+          "FP": 12,
+          "FN": 0,
+          "precision": 0.6364,
+          "recall": 1.0,
+          "F1": 0.7778
+        },
+        "dog": {
+          "TP": 43,
+          "FP": 6,
+          "FN": 34,
+          "precision": 0.8776,
+          "recall": 0.5584,
+          "F1": 0.6825
+        }
+      }
+    },
+    {
+      "method": "majority_seconds_8",
+      "unresolved_frames": 48,
+      "unresolved_reviewed_frames": 35,
+      "empty_policy_metrics": {
+        "cat": {
+          "TP": 21,
+          "FP": 6,
+          "FN": 0,
+          "precision": 0.7778,
+          "recall": 1.0,
+          "F1": 0.875
+        },
+        "dog": {
+          "TP": 47,
+          "FP": 5,
+          "FN": 30,
+          "precision": 0.9038,
+          "recall": 0.6104,
+          "F1": 0.7287
+        }
+      },
+      "retain_policy_metrics": {
+        "cat": {
+          "TP": 21,
+          "FP": 10,
+          "FN": 0,
+          "precision": 0.6774,
+          "recall": 1.0,
+          "F1": 0.8077
+        },
+        "dog": {
+          "TP": 50,
+          "FP": 5,
+          "FN": 27,
+          "precision": 0.9091,
+          "recall": 0.6494,
+          "F1": 0.7576
+        }
+      }
+    },
+    {
+      "method": "confidence_mean_seconds_8",
+      "unresolved_frames": 57,
+      "unresolved_reviewed_frames": 41,
+      "empty_policy_metrics": {
+        "cat": {
+          "TP": 21,
+          "FP": 4,
+          "FN": 0,
+          "precision": 0.84,
+          "recall": 1.0,
+          "F1": 0.913
+        },
+        "dog": {
+          "TP": 41,
+          "FP": 5,
+          "FN": 36,
+          "precision": 0.8913,
+          "recall": 0.5325,
+          "F1": 0.6667
+        }
+      },
+      "retain_policy_metrics": {
+        "cat": {
+          "TP": 21,
+          "FP": 12,
+          "FN": 0,
+          "precision": 0.6364,
+          "recall": 1.0,
+          "F1": 0.7778
+        },
+        "dog": {
+          "TP": 48,
+          "FP": 5,
+          "FN": 29,
+          "precision": 0.9057,
+          "recall": 0.6234,
+          "F1": 0.7385
+        }
+      }
+    },
+    {
+      "method": "confidence_weighted_seconds_8",
+      "unresolved_frames": 65,
+      "unresolved_reviewed_frames": 42,
+      "empty_policy_metrics": {
+        "cat": {
+          "TP": 21,
+          "FP": 4,
+          "FN": 0,
+          "precision": 0.84,
+          "recall": 1.0,
+          "F1": 0.913
+        },
+        "dog": {
+          "TP": 41,
+          "FP": 6,
+          "FN": 36,
+          "precision": 0.8723,
+          "recall": 0.5325,
+          "F1": 0.6613
+        }
+      },
+      "retain_policy_metrics": {
+        "cat": {
+          "TP": 21,
+          "FP": 12,
+          "FN": 0,
+          "precision": 0.6364,
+          "recall": 1.0,
+          "F1": 0.7778
+        },
+        "dog": {
+          "TP": 43,
+          "FP": 6,
+          "FN": 34,
+          "precision": 0.8776,
+          "recall": 0.5584,
+          "F1": 0.6825
+        }
+      }
+    }
+  ],
+  "video_level_prior": {
+    "eligible_only_counts": {
+      "two_dogs": {
+        "counts": {
+          "cat": 3,
+          "dog": 67
+        },
+        "dominant": "dog",
+        "dominance": 0.9571428571428572,
+        "total_species_frame_labels": 70
+      },
+      "IMG_8450_2": {
+        "counts": {
+          "cat": 32,
+          "dog": 7
+        },
+        "dominant": "cat",
+        "dominance": 0.8205128205128205,
+        "total_species_frame_labels": 39
+      },
+      "dog_escape": {
+        "counts": {
+          "cat": 1,
+          "dog": 2
+        },
+        "dominant": "dog",
+        "dominance": 0.6666666666666666,
+        "total_species_frame_labels": 3
+      },
+      "dog_drinking_water": {
+        "counts": {
+          "cat": 19,
+          "dog": 66
+        },
+        "dominant": "dog",
+        "dominance": 0.7764705882352941,
+        "total_species_frame_labels": 85
+      }
+    },
+    "candidates": [
+      {
+        "name": "video_dominance_0.7",
+        "cutoff": 0.7,
+        "metrics": {
+          "cat": {
+            "TP": 21,
+            "FP": 3,
+            "FN": 0,
+            "precision": 0.875,
+            "recall": 1.0,
+            "F1": 0.9333
+          },
+          "dog": {
+            "TP": 54,
+            "FP": 5,
+            "FN": 23,
+            "precision": 0.9153,
+            "recall": 0.7013,
+            "F1": 0.7941
+          }
+        },
+        "changes": {
+          "reviewed_frames_changed": 10,
+          "improved_frames": 10,
+          "worsened_frames": 0,
+          "changed_frame_ids": [
+            "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_26.00",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_3.50",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_52.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_18.00",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_9.50",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_50.00",
+            "two_dogs__two_dogs_000_frame_000010",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_12.50",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_14.50"
+          ],
+          "improved_frame_ids": [
+            "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_26.00",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_3.50",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_52.00",
+            "dog_drinking_water__petcam_20260926_173602_001_frame_18.00",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_9.50",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_50.00",
+            "two_dogs__two_dogs_000_frame_000010",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_12.50",
+            "dog_drinking_water__petcam_20260926_173602_000_frame_14.50"
+          ],
+          "worsened_frame_ids": []
+        }
+      },
+      {
+        "name": "video_dominance_0.8",
+        "cutoff": 0.8,
+        "metrics": {
+          "cat": {
+            "TP": 21,
+            "FP": 11,
+            "FN": 0,
+            "precision": 0.6562,
+            "recall": 1.0,
+            "F1": 0.7925
+          },
+          "dog": {
+            "TP": 46,
+            "FP": 5,
+            "FN": 31,
+            "precision": 0.902,
+            "recall": 0.5974,
+            "F1": 0.7188
+          }
+        },
+        "changes": {
+          "reviewed_frames_changed": 2,
+          "improved_frames": 2,
+          "worsened_frames": 0,
+          "changed_frame_ids": [
+            "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+            "two_dogs__two_dogs_000_frame_000010"
+          ],
+          "improved_frame_ids": [
+            "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+            "two_dogs__two_dogs_000_frame_000010"
+          ],
+          "worsened_frame_ids": []
+        }
+      },
+      {
+        "name": "video_dominance_0.9",
+        "cutoff": 0.9,
+        "metrics": {
+          "cat": {
+            "TP": 20,
+            "FP": 11,
+            "FN": 1,
+            "precision": 0.6452,
+            "recall": 0.9524,
+            "F1": 0.7692
+          },
+          "dog": {
+            "TP": 46,
+            "FP": 6,
+            "FN": 31,
+            "precision": 0.8846,
+            "recall": 0.5974,
+            "F1": 0.7132
+          }
+        },
+        "changes": {
+          "reviewed_frames_changed": 1,
+          "improved_frames": 1,
+          "worsened_frames": 0,
+          "changed_frame_ids": [
+            "two_dogs__two_dogs_000_frame_000010"
+          ],
+          "improved_frame_ids": [
+            "two_dogs__two_dogs_000_frame_000010"
+          ],
+          "worsened_frame_ids": []
+        }
+      }
+    ]
+  },
+  "known_cases": [
+    {
+      "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+      "baseline_labels": [
+        "dog"
+      ],
+      "raw_species_confidence": {
+        "cat": 0.4697346091270447,
+        "dog": 0.8823254704475403
+      },
+      "ground_truth": [
+        "cat"
+      ],
+      "candidates": [
+        {
+          "method": "majority_ordinal_1",
+          "labels": [
+            "dog"
+          ],
+          "scores": {
+            "cat": 0.5,
+            "dog": 1.0
+          }
+        },
+        {
+          "method": "confidence_mean_ordinal_1",
+          "labels": [
+            "cat",
+            "dog"
+          ],
+          "scores": {
+            "cat": 0.634,
+            "dog": 0.8606
+          }
+        },
+        {
+          "method": "confidence_weighted_ordinal_1",
+          "labels": [
+            "cat",
+            "dog"
+          ],
+          "scores": {
+            "cat": 0.5792,
+            "dog": 0.8678
+          }
+        },
+        {
+          "method": "majority_ordinal_2",
+          "labels": [
+            "cat",
+            "dog"
+          ],
+          "scores": {
+            "cat": 0.6667,
+            "dog": 1.0
+          }
+        },
+        {
+          "method": "confidence_mean_ordinal_2",
+          "labels": [
+            "cat",
+            "dog"
+          ],
+          "scores": {
+            "cat": 0.6114,
+            "dog": 0.8232
+          }
+        },
+        {
+          "method": "confidence_weighted_ordinal_2",
+          "labels": [
+            "cat",
+            "dog"
+          ],
+          "scores": {
+            "cat": 0.5769,
+            "dog": 0.8461
+          }
+        },
+        {
+          "method": "majority_seconds_4",
+          "labels": [
+            "cat",
+            "dog"
+          ],
+          "scores": {
+            "cat": 0.6667,
+            "dog": 1.0
+          }
+        },
+        {
+          "method": "confidence_mean_seconds_4",
+          "labels": [
+            "cat",
+            "dog"
+          ],
+          "scores": {
+            "cat": 0.6114,
+            "dog": 0.8232
+          }
+        },
+        {
+          "method": "confidence_weighted_seconds_4",
+          "labels": [
+            "cat",
+            "dog"
+          ],
+          "scores": {
+            "cat": 0.5537,
+            "dog": 0.8554
+          }
+        },
+        {
+          "method": "majority_seconds_8",
+          "labels": [
+            "cat",
+            "dog"
+          ],
+          "scores": {
+            "cat": 0.8,
+            "dog": 0.8
+          }
+        },
+        {
+          "method": "confidence_mean_seconds_8",
+          "labels": [
+            "cat",
+            "dog"
+          ],
+          "scores": {
+            "cat": 0.6398,
+            "dog": 0.6441
+          }
+        },
+        {
+          "method": "confidence_weighted_seconds_8",
+          "labels": [
+            "cat",
+            "dog"
+          ],
+          "scores": {
+            "cat": 0.5728,
+            "dog": 0.7805
+          }
+        }
+      ]
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_12.50",
+      "baseline_labels": [
+        "cat"
+      ],
+      "raw_species_confidence": {
+        "cat": 0.7299715876579285,
+        "dog": 0.0
+      },
+      "ground_truth": [
+        "dog"
+      ],
+      "candidates": [
+        {
+          "method": "majority_ordinal_1",
+          "labels": [
+            "cat"
+          ],
+          "scores": {
+            "cat": 1.0,
+            "dog": 0.0
+          }
+        },
+        {
+          "method": "confidence_mean_ordinal_1",
+          "labels": [
+            "cat"
+          ],
+          "scores": {
+            "cat": 0.6437,
+            "dog": 0.1641
+          }
+        },
+        {
+          "method": "confidence_weighted_ordinal_1",
+          "labels": [
+            "cat"
+          ],
+          "scores": {
+            "cat": 0.6653,
+            "dog": 0.1231
+          }
+        },
+        {
+          "method": "majority_ordinal_2",
+          "labels": [
+            "cat"
+          ],
+          "scores": {
+            "cat": 0.6,
+            "dog": 0.2
+          }
+        },
+        {
+          "method": "confidence_mean_ordinal_2",
+          "labels": [],
+          "scores": {
+            "cat": 0.4696,
+            "dog": 0.2552
+          }
+        },
+        {
+          "method": "confidence_weighted_ordinal_2",
+          "labels": [
+            "cat"
+          ],
+          "scores": {
+            "cat": 0.5511,
+            "dog": 0.1903
+          }
+        },
+        {
+          "method": "majority_seconds_4",
+          "labels": [
+            "cat"
+          ],
+          "scores": {
+            "cat": 0.75,
+            "dog": 0.25
+          }
+        },
+        {
+          "method": "confidence_mean_seconds_4",
+          "labels": [],
+          "scores": {
+            "cat": 0.4828,
+            "dog": 0.319
+          }
+        },
+        {
+          "method": "confidence_weighted_seconds_4",
+          "labels": [
+            "cat"
+          ],
+          "scores": {
+            "cat": 0.607,
+            "dog": 0.1569
+          }
+        },
+        {
+          "method": "majority_seconds_8",
+          "labels": [],
+          "scores": {
+            "cat": 0.375,
+            "dog": 0.5
+          }
+        },
+        {
+          "method": "confidence_mean_seconds_8",
+          "labels": [],
+          "scores": {
+            "cat": 0.2935,
+            "dog": 0.4815
+          }
+        },
+        {
+          "method": "confidence_weighted_seconds_8",
+          "labels": [],
+          "scores": {
+            "cat": 0.4947,
+            "dog": 0.26
+          }
+        }
+      ]
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_14.50",
+      "baseline_labels": [
+        "cat"
+      ],
+      "raw_species_confidence": {
+        "cat": 0.627281904220581,
+        "dog": 0.0
+      },
+      "ground_truth": [
+        "dog"
+      ],
+      "candidates": [
+        {
+          "method": "majority_ordinal_1",
+          "labels": [
+            "cat"
+          ],
+          "scores": {
+            "cat": 0.6667,
+            "dog": 0.3333
+          }
+        },
+        {
+          "method": "confidence_mean_ordinal_1",
+          "labels": [],
+          "scores": {
+            "cat": 0.4524,
+            "dog": 0.2613
+          }
+        },
+        {
+          "method": "confidence_weighted_ordinal_1",
+          "labels": [],
+          "scores": {
+            "cat": 0.4961,
+            "dog": 0.1959
+          }
+        },
+        {
+          "method": "majority_ordinal_2",
+          "labels": [
+            "cat"
+          ],
+          "scores": {
+            "cat": 0.6,
+            "dog": 0.4
+          }
+        },
+        {
+          "method": "confidence_mean_ordinal_2",
+          "labels": [],
+          "scores": {
+            "cat": 0.3862,
+            "dog": 0.4369
+          }
+        },
+        {
+          "method": "confidence_weighted_ordinal_2",
+          "labels": [],
+          "scores": {
+            "cat": 0.4438,
+            "dog": 0.322
+          }
+        },
+        {
+          "method": "majority_seconds_4",
+          "labels": [],
+          "scores": {
+            "cat": 0.5,
+            "dog": 0.5
+          }
+        },
+        {
+          "method": "confidence_mean_seconds_4",
+          "labels": [],
+          "scores": {
+            "cat": 0.3393,
+            "dog": 0.423
+          }
+        },
+        {
+          "method": "confidence_weighted_seconds_4",
+          "labels": [],
+          "scores": {
+            "cat": 0.4664,
+            "dog": 0.2373
+          }
+        },
+        {
+          "method": "majority_seconds_8",
+          "labels": [],
+          "scores": {
+            "cat": 0.375,
+            "dog": 0.5
+          }
+        },
+        {
+          "method": "confidence_mean_seconds_8",
+          "labels": [],
+          "scores": {
+            "cat": 0.2935,
+            "dog": 0.4773
+          }
+        },
+        {
+          "method": "confidence_weighted_seconds_8",
+          "labels": [],
+          "scores": {
+            "cat": 0.4222,
+            "dog": 0.3047
+          }
+        }
+      ]
+    },
+    {
+      "frame_id": "dog_escape__petcam_20260926_173415_000_frame_12.00",
+      "baseline_labels": [],
+      "raw_species_confidence": {
+        "cat": 0.0,
+        "dog": 0.42569711804389954
+      },
+      "ground_truth": [
+        "dog"
+      ],
+      "candidates": [
+        {
+          "method": "majority_ordinal_1",
+          "labels": [],
+          "scores": {
+            "cat": 0.0,
+            "dog": 0.0
+          }
+        },
+        {
+          "method": "confidence_mean_ordinal_1",
+          "labels": [],
+          "scores": {
+            "cat": 0.0,
+            "dog": 0.1419
+          }
+        },
+        {
+          "method": "confidence_weighted_ordinal_1",
+          "labels": [],
+          "scores": {
+            "cat": 0.0,
+            "dog": 0.2128
+          }
+        },
+        {
+          "method": "majority_ordinal_2",
+          "labels": [],
+          "scores": {
+            "cat": 0.0,
+            "dog": 0.0
+          }
+        },
+        {
+          "method": "confidence_mean_ordinal_2",
+          "labels": [],
+          "scores": {
+            "cat": 0.0,
+            "dog": 0.1838
+          }
+        },
+        {
+          "method": "confidence_weighted_ordinal_2",
+          "labels": [],
+          "scores": {
+            "cat": 0.0,
+            "dog": 0.2213
+          }
+        },
+        {
+          "method": "majority_seconds_4",
+          "labels": [],
+          "scores": {
+            "cat": 0.0,
+            "dog": 0.0
+          }
+        },
+        {
+          "method": "confidence_mean_seconds_4",
+          "labels": [],
+          "scores": {
+            "cat": 0.0,
+            "dog": 0.1838
+          }
+        },
+        {
+          "method": "confidence_weighted_seconds_4",
+          "labels": [],
+          "scores": {
+            "cat": 0.0,
+            "dog": 0.2537
+          }
+        },
+        {
+          "method": "majority_seconds_8",
+          "labels": [],
+          "scores": {
+            "cat": 0.0,
+            "dog": 0.1111
+          }
+        },
+        {
+          "method": "confidence_mean_seconds_8",
+          "labels": [],
+          "scores": {
+            "cat": 0.0,
+            "dog": 0.2857
+          }
+        },
+        {
+          "method": "confidence_weighted_seconds_8",
+          "labels": [],
+          "scores": {
+            "cat": 0.0,
+            "dog": 0.2807
+          }
+        }
+      ]
+    }
+  ],
+  "raw_detection_immutable": true,
+  "best_temporal_candidates": [
+    {
+      "name": "majority_seconds_4",
+      "macro_F1": 0.8083,
+      "metrics": {
+        "cat": {
+          "TP": 21,
+          "FP": 5,
+          "FN": 0,
+          "precision": 0.8077,
+          "recall": 1.0,
+          "F1": 0.8936
+        },
+        "dog": {
+          "TP": 47,
+          "FP": 6,
+          "FN": 30,
+          "precision": 0.8868,
+          "recall": 0.6104,
+          "F1": 0.7231
+        }
+      },
+      "changes": {
+        "reviewed_frames_changed": 17,
+        "improved_frames": 12,
+        "worsened_frames": 5,
+        "changed_frame_ids": [
+          "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_26.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_56.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_62.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_3.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_64.00",
+          "two_dogs__two_dogs_000_frame_000003",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_18.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_9.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_5.50",
+          "dog_escape__petcam_20260926_173415_000_frame_4.00",
+          "dog_escape__petcam_20260926_173415_000_frame_30.00",
+          "two_dogs__two_dogs_000_frame_000010",
+          "two_dogs__two_dogs_000_frame_000057",
+          "two_dogs__two_dogs_000_frame_000062",
+          "two_dogs__two_dogs_000_frame_000081",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_14.50"
+        ],
+        "improved_frame_ids": [
+          "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_26.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_56.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_3.50",
+          "two_dogs__two_dogs_000_frame_000003",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_18.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_9.50",
+          "dog_escape__petcam_20260926_173415_000_frame_30.00",
+          "two_dogs__two_dogs_000_frame_000010",
+          "two_dogs__two_dogs_000_frame_000057",
+          "two_dogs__two_dogs_000_frame_000081",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_14.50"
+        ],
+        "worsened_frame_ids": [
+          "dog_drinking_water__petcam_20260926_173602_000_frame_62.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_64.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_5.50",
+          "dog_escape__petcam_20260926_173415_000_frame_4.00",
+          "two_dogs__two_dogs_000_frame_000062"
+        ]
+      }
+    },
+    {
+      "name": "majority_seconds_8",
+      "macro_F1": 0.8018,
+      "metrics": {
+        "cat": {
+          "TP": 21,
+          "FP": 6,
+          "FN": 0,
+          "precision": 0.7778,
+          "recall": 1.0,
+          "F1": 0.875
+        },
+        "dog": {
+          "TP": 47,
+          "FP": 5,
+          "FN": 30,
+          "precision": 0.9038,
+          "recall": 0.6104,
+          "F1": 0.7287
+        }
+      },
+      "changes": {
+        "reviewed_frames_changed": 20,
+        "improved_frames": 14,
+        "worsened_frames": 6,
+        "changed_frame_ids": [
+          "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_26.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_56.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_62.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_3.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_64.00",
+          "two_dogs__two_dogs_000_frame_000003",
+          "IMG_8450_2__petcam_20260926_173123_000_frame_52.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_7.50",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_18.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_5.50",
+          "dog_escape__petcam_20260926_173415_000_frame_2.00",
+          "dog_escape__petcam_20260926_173415_000_frame_4.00",
+          "dog_escape__petcam_20260926_173415_000_frame_30.00",
+          "two_dogs__two_dogs_000_frame_000010",
+          "two_dogs__two_dogs_000_frame_000057",
+          "two_dogs__two_dogs_000_frame_000062",
+          "two_dogs__two_dogs_000_frame_000081",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_12.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_14.50"
+        ],
+        "improved_frame_ids": [
+          "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_26.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_56.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_62.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_3.50",
+          "two_dogs__two_dogs_000_frame_000003",
+          "IMG_8450_2__petcam_20260926_173123_000_frame_52.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_18.00",
+          "dog_escape__petcam_20260926_173415_000_frame_30.00",
+          "two_dogs__two_dogs_000_frame_000010",
+          "two_dogs__two_dogs_000_frame_000057",
+          "two_dogs__two_dogs_000_frame_000081",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_12.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_14.50"
+        ],
+        "worsened_frame_ids": [
+          "dog_drinking_water__petcam_20260926_173602_000_frame_64.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_7.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_5.50",
+          "dog_escape__petcam_20260926_173415_000_frame_2.00",
+          "dog_escape__petcam_20260926_173415_000_frame_4.00",
+          "two_dogs__two_dogs_000_frame_000062"
+        ]
+      }
+    },
+    {
+      "name": "confidence_mean_ordinal_2",
+      "macro_F1": 0.7995,
+      "metrics": {
+        "cat": {
+          "TP": 21,
+          "FP": 2,
+          "FN": 0,
+          "precision": 0.913,
+          "recall": 1.0,
+          "F1": 0.9545
+        },
+        "dog": {
+          "TP": 39,
+          "FP": 5,
+          "FN": 38,
+          "precision": 0.8864,
+          "recall": 0.5065,
+          "F1": 0.6446
+        }
+      },
+      "changes": {
+        "reviewed_frames_changed": 22,
+        "improved_frames": 14,
+        "worsened_frames": 8,
+        "changed_frame_ids": [
+          "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_26.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_56.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_62.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_24.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_28.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_3.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_64.00",
+          "two_dogs__two_dogs_000_frame_000003",
+          "IMG_8450_2__petcam_20260926_173123_000_frame_52.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_52.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_18.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_9.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_50.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_22.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_5.50",
+          "dog_escape__petcam_20260926_173415_000_frame_4.00",
+          "dog_escape__petcam_20260926_173415_000_frame_30.00",
+          "two_dogs__two_dogs_000_frame_000010",
+          "two_dogs__two_dogs_000_frame_000062",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_12.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_14.50"
+        ],
+        "improved_frame_ids": [
+          "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_26.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_56.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_3.50",
+          "two_dogs__two_dogs_000_frame_000003",
+          "IMG_8450_2__petcam_20260926_173123_000_frame_52.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_52.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_18.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_9.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_50.00",
+          "dog_escape__petcam_20260926_173415_000_frame_30.00",
+          "two_dogs__two_dogs_000_frame_000010",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_12.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_14.50"
+        ],
+        "worsened_frame_ids": [
+          "dog_drinking_water__petcam_20260926_173602_000_frame_62.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_24.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_28.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_64.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_22.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_5.50",
+          "dog_escape__petcam_20260926_173415_000_frame_4.00",
+          "two_dogs__two_dogs_000_frame_000062"
+        ]
+      }
+    },
+    {
+      "name": "confidence_mean_seconds_4",
+      "macro_F1": 0.7995,
+      "metrics": {
+        "cat": {
+          "TP": 21,
+          "FP": 2,
+          "FN": 0,
+          "precision": 0.913,
+          "recall": 1.0,
+          "F1": 0.9545
+        },
+        "dog": {
+          "TP": 39,
+          "FP": 5,
+          "FN": 38,
+          "precision": 0.8864,
+          "recall": 0.5065,
+          "F1": 0.6446
+        }
+      },
+      "changes": {
+        "reviewed_frames_changed": 22,
+        "improved_frames": 14,
+        "worsened_frames": 8,
+        "changed_frame_ids": [
+          "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_26.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_56.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_62.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_24.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_28.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_3.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_64.00",
+          "two_dogs__two_dogs_000_frame_000003",
+          "IMG_8450_2__petcam_20260926_173123_000_frame_52.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_52.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_18.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_9.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_50.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_22.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_5.50",
+          "dog_escape__petcam_20260926_173415_000_frame_4.00",
+          "dog_escape__petcam_20260926_173415_000_frame_30.00",
+          "two_dogs__two_dogs_000_frame_000010",
+          "two_dogs__two_dogs_000_frame_000062",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_12.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_14.50"
+        ],
+        "improved_frame_ids": [
+          "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_26.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_56.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_3.50",
+          "two_dogs__two_dogs_000_frame_000003",
+          "IMG_8450_2__petcam_20260926_173123_000_frame_52.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_52.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_18.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_9.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_50.00",
+          "dog_escape__petcam_20260926_173415_000_frame_30.00",
+          "two_dogs__two_dogs_000_frame_000010",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_12.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_14.50"
+        ],
+        "worsened_frame_ids": [
+          "dog_drinking_water__petcam_20260926_173602_000_frame_62.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_24.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_28.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_64.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_22.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_5.50",
+          "dog_escape__petcam_20260926_173415_000_frame_4.00",
+          "two_dogs__two_dogs_000_frame_000062"
+        ]
+      }
+    },
+    {
+      "name": "confidence_mean_ordinal_1",
+      "macro_F1": 0.796,
+      "metrics": {
+        "cat": {
+          "TP": 21,
+          "FP": 5,
+          "FN": 0,
+          "precision": 0.8077,
+          "recall": 1.0,
+          "F1": 0.8936
+        },
+        "dog": {
+          "TP": 44,
+          "FP": 5,
+          "FN": 33,
+          "precision": 0.898,
+          "recall": 0.5714,
+          "F1": 0.6984
+        }
+      },
+      "changes": {
+        "reviewed_frames_changed": 18,
+        "improved_frames": 13,
+        "worsened_frames": 5,
+        "changed_frame_ids": [
+          "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_26.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_56.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_62.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_24.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_28.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_3.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_64.00",
+          "two_dogs__two_dogs_000_frame_000003",
+          "IMG_8450_2__petcam_20260926_173123_000_frame_58.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_52.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_18.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_5.50",
+          "dog_escape__petcam_20260926_173415_000_frame_30.00",
+          "two_dogs__two_dogs_000_frame_000010",
+          "two_dogs__two_dogs_000_frame_000057",
+          "two_dogs__two_dogs_000_frame_000081",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_14.50"
+        ],
+        "improved_frame_ids": [
+          "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_26.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_56.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_3.50",
+          "two_dogs__two_dogs_000_frame_000003",
+          "IMG_8450_2__petcam_20260926_173123_000_frame_58.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_52.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_18.00",
+          "dog_escape__petcam_20260926_173415_000_frame_30.00",
+          "two_dogs__two_dogs_000_frame_000010",
+          "two_dogs__two_dogs_000_frame_000057",
+          "two_dogs__two_dogs_000_frame_000081",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_14.50"
+        ],
+        "worsened_frame_ids": [
+          "dog_drinking_water__petcam_20260926_173602_000_frame_62.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_24.00",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_28.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_64.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_5.50"
+        ]
+      }
+    }
+  ],
+  "conclusion_metrics": {
+    "baseline_macro_F1": 0.7289,
+    "best_temporal_macro_F1": 0.8083,
+    "best_temporal_name": "majority_seconds_4",
+    "best_video_prior": "video_dominance_0.7",
+    "best_video_prior_macro_F1": 0.8637
+  },
+  "threshold_comparison_same_reviewed_frames": [
+    {
+      "threshold": 0.4,
+      "classes": {
+        "cat": {
+          "TP": 21,
+          "FP": 14,
+          "FN": 0,
+          "precision": 0.6,
+          "recall": 1.0,
+          "F1": 0.75
+        },
+        "dog": {
+          "TP": 51,
+          "FP": 6,
+          "FN": 26,
+          "precision": 0.8947,
+          "recall": 0.6623,
+          "F1": 0.7612
+        }
+      }
+    },
+    {
+      "threshold": 0.5,
+      "classes": {
+        "cat": {
+          "TP": 20,
+          "FP": 12,
+          "FN": 1,
+          "precision": 0.625,
+          "recall": 0.9524,
+          "F1": 0.7547
+        },
+        "dog": {
+          "TP": 45,
+          "FP": 6,
+          "FN": 32,
+          "precision": 0.8824,
+          "recall": 0.5844,
+          "F1": 0.7031
+        }
+      }
+    },
+    {
+      "threshold": 0.6,
+      "classes": {
+        "cat": {
+          "TP": 19,
+          "FP": 7,
+          "FN": 2,
+          "precision": 0.7308,
+          "recall": 0.9048,
+          "F1": 0.8085
+        },
+        "dog": {
+          "TP": 39,
+          "FP": 6,
+          "FN": 38,
+          "precision": 0.8667,
+          "recall": 0.5065,
+          "F1": 0.6393
+        }
+      }
+    },
+    {
+      "threshold": 0.7,
+      "classes": {
+        "cat": {
+          "TP": 18,
+          "FP": 5,
+          "FN": 3,
+          "precision": 0.7826,
+          "recall": 0.8571,
+          "F1": 0.8182
+        },
+        "dog": {
+          "TP": 36,
+          "FP": 6,
+          "FN": 41,
+          "precision": 0.8571,
+          "recall": 0.4675,
+          "F1": 0.605
+        }
+      }
+    },
+    {
+      "threshold": 0.8,
+      "classes": {
+        "cat": {
+          "TP": 18,
+          "FP": 0,
+          "FN": 3,
+          "precision": 1.0,
+          "recall": 0.8571,
+          "F1": 0.9231
+        },
+        "dog": {
+          "TP": 29,
+          "FP": 3,
+          "FN": 48,
+          "precision": 0.9062,
+          "recall": 0.3766,
+          "F1": 0.5321
+        }
+      }
+    }
+  ],
+  "exact_chunk_inventory": {
+    "chunk_count": 8,
+    "eligible_frame_count": 240,
+    "stale_frames_excluded": 377,
+    "chunks": [
+      {
+        "video_id": "IMG_8450_2",
+        "chunk_stem": "petcam_20260926_173123_000",
+        "frame_count": 32,
+        "median_interval_seconds": 2.0
+      },
+      {
+        "video_id": "IMG_8450_2",
+        "chunk_stem": "petcam_20260926_173123_001",
+        "frame_count": 1,
+        "median_interval_seconds": null
+      },
+      {
+        "video_id": "dog_drinking_water",
+        "chunk_stem": "petcam_20260926_173602_000",
+        "frame_count": 30,
+        "median_interval_seconds": 2.0
+      },
+      {
+        "video_id": "dog_drinking_water",
+        "chunk_stem": "petcam_20260926_173602_001",
+        "frame_count": 28,
+        "median_interval_seconds": 2.0
+      },
+      {
+        "video_id": "dog_drinking_water",
+        "chunk_stem": "petcam_20260926_173602_002",
+        "frame_count": 21,
+        "median_interval_seconds": 2.0
+      },
+      {
+        "video_id": "dog_drinking_water",
+        "chunk_stem": "petcam_20260926_173602_003",
+        "frame_count": 10,
+        "median_interval_seconds": 2.0
+      },
+      {
+        "video_id": "dog_escape",
+        "chunk_stem": "petcam_20260926_173415_000",
+        "frame_count": 28,
+        "median_interval_seconds": 2.0
+      },
+      {
+        "video_id": "two_dogs",
+        "chunk_stem": "two_dogs_000",
+        "frame_count": 90,
+        "median_interval_seconds": 2.0
+      }
+    ],
+    "median_interval_across_multiframe_chunks": 2.0
+  },
+  "representative_case_outcomes_majority_seconds_4": [
+    {
+      "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+      "ground_truth": [
+        "cat"
+      ],
+      "baseline_labels": [
+        "dog"
+      ],
+      "raw_species_confidence": {
+        "cat": 0.4697346091270447,
+        "dog": 0.8823254704475403
+      },
+      "best_temporal_method": "majority_seconds_4",
+      "temporal_labels": [
+        "cat",
+        "dog"
+      ],
+      "temporal_evidence_share": {
+        "cat": 0.6667,
+        "dog": 1.0
+      },
+      "fully_correct_after_temporal": false
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_12.50",
+      "ground_truth": [
+        "dog"
+      ],
+      "baseline_labels": [
+        "cat"
+      ],
+      "raw_species_confidence": {
+        "cat": 0.7299715876579285,
+        "dog": 0.0
+      },
+      "best_temporal_method": "majority_seconds_4",
+      "temporal_labels": [
+        "cat"
+      ],
+      "temporal_evidence_share": {
+        "cat": 0.75,
+        "dog": 0.25
+      },
+      "fully_correct_after_temporal": false
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_14.50",
+      "ground_truth": [
+        "dog"
+      ],
+      "baseline_labels": [
+        "cat"
+      ],
+      "raw_species_confidence": {
+        "cat": 0.627281904220581,
+        "dog": 0.0
+      },
+      "best_temporal_method": "majority_seconds_4",
+      "temporal_labels": [],
+      "temporal_evidence_share": {
+        "cat": 0.5,
+        "dog": 0.5
+      },
+      "fully_correct_after_temporal": false
+    },
+    {
+      "frame_id": "dog_escape__petcam_20260926_173415_000_frame_12.00",
+      "ground_truth": [
+        "dog"
+      ],
+      "baseline_labels": [],
+      "raw_species_confidence": {
+        "cat": 0.0,
+        "dog": 0.42569711804389954
+      },
+      "best_temporal_method": "majority_seconds_4",
+      "temporal_labels": [],
+      "temporal_evidence_share": {
+        "cat": 0.0,
+        "dog": 0.0
+      },
+      "fully_correct_after_temporal": false
+    }
+  ]
+}

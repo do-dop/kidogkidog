@@ -1,0 +1,625 @@
+{
+  "canary_frame_ids": [
+    "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+    "dog_drinking_water__petcam_20260926_173602_000_frame_12.50",
+    "dog_drinking_water__petcam_20260926_173602_001_frame_24.00",
+    "dog_escape__petcam_20260926_173415_000_frame_48.00",
+    "two_dogs__two_dogs_000_frame_000005",
+    "dog_drinking_water__petcam_20260926_173602_000_frame_7.50",
+    "IMG_8450_2__petcam_20260926_173123_000_frame_2.00",
+    "dog_escape__petcam_20260926_173415_000_frame_10.00",
+    "two_dogs__two_dogs_000_frame_000006",
+    "IMG_8450_2__petcam_20260926_173123_000_frame_12.00",
+    "dog_escape__petcam_20260926_173415_000_frame_12.00",
+    "two_dogs__two_dogs_000_frame_000001",
+    "IMG_8450_2__petcam_20260926_173123_000_frame_14.00",
+    "dog_drinking_water__petcam_20260926_173602_000_frame_14.50",
+    "dog_escape__petcam_20260926_173415_000_frame_14.00"
+  ],
+  "updated_frame_count": 15,
+  "scene_id_by_frame": {
+    "IMG_8450_2__petcam_20260926_173123_000_frame_66.00": 1454,
+    "dog_drinking_water__petcam_20260926_173602_000_frame_12.50": 1488,
+    "dog_drinking_water__petcam_20260926_173602_001_frame_24.00": 1525,
+    "dog_escape__petcam_20260926_173415_000_frame_48.00": 1479,
+    "two_dogs__two_dogs_000_frame_000005": 1337,
+    "dog_drinking_water__petcam_20260926_173602_000_frame_7.50": 1486,
+    "IMG_8450_2__petcam_20260926_173123_000_frame_2.00": 1423,
+    "dog_escape__petcam_20260926_173415_000_frame_10.00": 1460,
+    "two_dogs__two_dogs_000_frame_000006": 1338,
+    "IMG_8450_2__petcam_20260926_173123_000_frame_12.00": 1427,
+    "dog_escape__petcam_20260926_173415_000_frame_12.00": 1461,
+    "two_dogs__two_dogs_000_frame_000001": 1333,
+    "IMG_8450_2__petcam_20260926_173123_000_frame_14.00": 1428,
+    "dog_drinking_water__petcam_20260926_173602_000_frame_14.50": 1489,
+    "dog_escape__petcam_20260926_173415_000_frame_14.00": 1462
+  },
+  "migration_results": [
+    {
+      "column": "object_detections_json",
+      "result": "already_present_noop"
+    },
+    {
+      "column": "species_resolution_json",
+      "result": "already_present_noop"
+    }
+  ],
+  "event_results": [
+    {
+      "event_id": 1,
+      "result": "updated_source_frames_only",
+      "matched_frame_ids": [
+        "two_dogs__two_dogs_000_frame_000001"
+      ]
+    },
+    {
+      "event_id": 2,
+      "result": "updated_source_frames_only",
+      "matched_frame_ids": [
+        "IMG_8450_2__petcam_20260926_173123_000_frame_12.00",
+        "IMG_8450_2__petcam_20260926_173123_000_frame_66.00"
+      ]
+    },
+    {
+      "event_id": 5,
+      "result": "updated_source_frames_only",
+      "matched_frame_ids": [
+        "dog_escape__petcam_20260926_173415_000_frame_12.00"
+      ]
+    },
+    {
+      "event_id": 7,
+      "result": "updated_source_frames_only",
+      "matched_frame_ids": [
+        "dog_drinking_water__petcam_20260926_173602_000_frame_12.50",
+        "dog_drinking_water__petcam_20260926_173602_000_frame_14.50"
+      ]
+    },
+    {
+      "event_id": 8,
+      "result": "updated_source_frames_only",
+      "matched_frame_ids": [
+        "dog_drinking_water__petcam_20260926_173602_000_frame_7.50"
+      ]
+    },
+    {
+      "event_id": 9,
+      "result": "updated_source_frames_only",
+      "matched_frame_ids": [
+        "dog_drinking_water__petcam_20260926_173602_001_frame_24.00"
+      ]
+    }
+  ],
+  "verification": {
+    "chroma": {
+      "IMG_8450_2__petcam_20260926_173123_000_frame_66.00": {
+        "frame_id_same": true,
+        "embedding_bytes_same": true,
+        "document_same": true,
+        "other_metadata_same": true,
+        "object_labels_same_as_expected": true,
+        "object_detections_same_as_expected": true,
+        "species_resolution_same_as_expected": true
+      },
+      "dog_drinking_water__petcam_20260926_173602_000_frame_12.50": {
+        "frame_id_same": true,
+        "embedding_bytes_same": true,
+        "document_same": true,
+        "other_metadata_same": true,
+        "object_labels_same_as_expected": true,
+        "object_detections_same_as_expected": true,
+        "species_resolution_same_as_expected": true
+      },
+      "dog_drinking_water__petcam_20260926_173602_001_frame_24.00": {
+        "frame_id_same": true,
+        "embedding_bytes_same": true,
+        "document_same": true,
+        "other_metadata_same": true,
+        "object_labels_same_as_expected": true,
+        "object_detections_same_as_expected": true,
+        "species_resolution_same_as_expected": true
+      },
+      "dog_escape__petcam_20260926_173415_000_frame_48.00": {
+        "frame_id_same": true,
+        "embedding_bytes_same": true,
+        "document_same": true,
+        "other_metadata_same": true,
+        "object_labels_same_as_expected": true,
+        "object_detections_same_as_expected": true,
+        "species_resolution_same_as_expected": true
+      },
+      "two_dogs__two_dogs_000_frame_000005": {
+        "frame_id_same": true,
+        "embedding_bytes_same": true,
+        "document_same": true,
+        "other_metadata_same": true,
+        "object_labels_same_as_expected": true,
+        "object_detections_same_as_expected": true,
+        "species_resolution_same_as_expected": true
+      },
+      "dog_drinking_water__petcam_20260926_173602_000_frame_7.50": {
+        "frame_id_same": true,
+        "embedding_bytes_same": true,
+        "document_same": true,
+        "other_metadata_same": true,
+        "object_labels_same_as_expected": true,
+        "object_detections_same_as_expected": true,
+        "species_resolution_same_as_expected": true
+      },
+      "IMG_8450_2__petcam_20260926_173123_000_frame_2.00": {
+        "frame_id_same": true,
+        "embedding_bytes_same": true,
+        "document_same": true,
+        "other_metadata_same": true,
+        "object_labels_same_as_expected": true,
+        "object_detections_same_as_expected": true,
+        "species_resolution_same_as_expected": true
+      },
+      "dog_escape__petcam_20260926_173415_000_frame_10.00": {
+        "frame_id_same": true,
+        "embedding_bytes_same": true,
+        "document_same": true,
+        "other_metadata_same": true,
+        "object_labels_same_as_expected": true,
+        "object_detections_same_as_expected": true,
+        "species_resolution_same_as_expected": true
+      },
+      "two_dogs__two_dogs_000_frame_000006": {
+        "frame_id_same": true,
+        "embedding_bytes_same": true,
+        "document_same": true,
+        "other_metadata_same": true,
+        "object_labels_same_as_expected": true,
+        "object_detections_same_as_expected": true,
+        "species_resolution_same_as_expected": true
+      },
+      "IMG_8450_2__petcam_20260926_173123_000_frame_12.00": {
+        "frame_id_same": true,
+        "embedding_bytes_same": true,
+        "document_same": true,
+        "other_metadata_same": true,
+        "object_labels_same_as_expected": true,
+        "object_detections_same_as_expected": true,
+        "species_resolution_same_as_expected": true
+      },
+      "dog_escape__petcam_20260926_173415_000_frame_12.00": {
+        "frame_id_same": true,
+        "embedding_bytes_same": true,
+        "document_same": true,
+        "other_metadata_same": true,
+        "object_labels_same_as_expected": true,
+        "object_detections_same_as_expected": true,
+        "species_resolution_same_as_expected": true
+      },
+      "two_dogs__two_dogs_000_frame_000001": {
+        "frame_id_same": true,
+        "embedding_bytes_same": true,
+        "document_same": true,
+        "other_metadata_same": true,
+        "object_labels_same_as_expected": true,
+        "object_detections_same_as_expected": true,
+        "species_resolution_same_as_expected": true
+      },
+      "IMG_8450_2__petcam_20260926_173123_000_frame_14.00": {
+        "frame_id_same": true,
+        "embedding_bytes_same": true,
+        "document_same": true,
+        "other_metadata_same": true,
+        "object_labels_same_as_expected": true,
+        "object_detections_same_as_expected": true,
+        "species_resolution_same_as_expected": true
+      },
+      "dog_drinking_water__petcam_20260926_173602_000_frame_14.50": {
+        "frame_id_same": true,
+        "embedding_bytes_same": true,
+        "document_same": true,
+        "other_metadata_same": true,
+        "object_labels_same_as_expected": true,
+        "object_detections_same_as_expected": true,
+        "species_resolution_same_as_expected": true
+      },
+      "dog_escape__petcam_20260926_173415_000_frame_14.00": {
+        "frame_id_same": true,
+        "embedding_bytes_same": true,
+        "document_same": true,
+        "other_metadata_same": true,
+        "object_labels_same_as_expected": true,
+        "object_detections_same_as_expected": true,
+        "species_resolution_same_as_expected": true
+      }
+    },
+    "chroma_all_pass": true,
+    "scenes": {
+      "IMG_8450_2__petcam_20260926_173123_000_frame_66.00": {
+        "scene_id_same": true,
+        "labels_same_as_expected": true,
+        "detections_same_as_expected": true,
+        "species_same_as_expected": true,
+        "other_fields_same": true
+      },
+      "dog_drinking_water__petcam_20260926_173602_000_frame_12.50": {
+        "scene_id_same": true,
+        "labels_same_as_expected": true,
+        "detections_same_as_expected": true,
+        "species_same_as_expected": true,
+        "other_fields_same": true
+      },
+      "dog_drinking_water__petcam_20260926_173602_001_frame_24.00": {
+        "scene_id_same": true,
+        "labels_same_as_expected": true,
+        "detections_same_as_expected": true,
+        "species_same_as_expected": true,
+        "other_fields_same": true
+      },
+      "dog_escape__petcam_20260926_173415_000_frame_48.00": {
+        "scene_id_same": true,
+        "labels_same_as_expected": true,
+        "detections_same_as_expected": true,
+        "species_same_as_expected": true,
+        "other_fields_same": true
+      },
+      "two_dogs__two_dogs_000_frame_000005": {
+        "scene_id_same": true,
+        "labels_same_as_expected": true,
+        "detections_same_as_expected": true,
+        "species_same_as_expected": true,
+        "other_fields_same": true
+      },
+      "dog_drinking_water__petcam_20260926_173602_000_frame_7.50": {
+        "scene_id_same": true,
+        "labels_same_as_expected": true,
+        "detections_same_as_expected": true,
+        "species_same_as_expected": true,
+        "other_fields_same": true
+      },
+      "IMG_8450_2__petcam_20260926_173123_000_frame_2.00": {
+        "scene_id_same": true,
+        "labels_same_as_expected": true,
+        "detections_same_as_expected": true,
+        "species_same_as_expected": true,
+        "other_fields_same": true
+      },
+      "dog_escape__petcam_20260926_173415_000_frame_10.00": {
+        "scene_id_same": true,
+        "labels_same_as_expected": true,
+        "detections_same_as_expected": true,
+        "species_same_as_expected": true,
+        "other_fields_same": true
+      },
+      "two_dogs__two_dogs_000_frame_000006": {
+        "scene_id_same": true,
+        "labels_same_as_expected": true,
+        "detections_same_as_expected": true,
+        "species_same_as_expected": true,
+        "other_fields_same": true
+      },
+      "IMG_8450_2__petcam_20260926_173123_000_frame_12.00": {
+        "scene_id_same": true,
+        "labels_same_as_expected": true,
+        "detections_same_as_expected": true,
+        "species_same_as_expected": true,
+        "other_fields_same": true
+      },
+      "dog_escape__petcam_20260926_173415_000_frame_12.00": {
+        "scene_id_same": true,
+        "labels_same_as_expected": true,
+        "detections_same_as_expected": true,
+        "species_same_as_expected": true,
+        "other_fields_same": true
+      },
+      "two_dogs__two_dogs_000_frame_000001": {
+        "scene_id_same": true,
+        "labels_same_as_expected": true,
+        "detections_same_as_expected": true,
+        "species_same_as_expected": true,
+        "other_fields_same": true
+      },
+      "IMG_8450_2__petcam_20260926_173123_000_frame_14.00": {
+        "scene_id_same": true,
+        "labels_same_as_expected": true,
+        "detections_same_as_expected": true,
+        "species_same_as_expected": true,
+        "other_fields_same": true
+      },
+      "dog_drinking_water__petcam_20260926_173602_000_frame_14.50": {
+        "scene_id_same": true,
+        "labels_same_as_expected": true,
+        "detections_same_as_expected": true,
+        "species_same_as_expected": true,
+        "other_fields_same": true
+      },
+      "dog_escape__petcam_20260926_173415_000_frame_14.00": {
+        "scene_id_same": true,
+        "labels_same_as_expected": true,
+        "detections_same_as_expected": true,
+        "species_same_as_expected": true,
+        "other_fields_same": true
+      }
+    },
+    "scenes_all_pass": true,
+    "behavior_events": {
+      "1": {
+        "event_fields_except_source_frames_same": true,
+        "source_frames_expected": true,
+        "matched_sources": [
+          [
+            0,
+            "two_dogs__two_dogs_000_frame_000001"
+          ]
+        ],
+        "ambiguous_skipped": false
+      },
+      "2": {
+        "event_fields_except_source_frames_same": true,
+        "source_frames_expected": true,
+        "matched_sources": [
+          [
+            0,
+            "IMG_8450_2__petcam_20260926_173123_000_frame_12.00"
+          ],
+          [
+            5,
+            "IMG_8450_2__petcam_20260926_173123_000_frame_66.00"
+          ]
+        ],
+        "ambiguous_skipped": false
+      },
+      "5": {
+        "event_fields_except_source_frames_same": true,
+        "source_frames_expected": true,
+        "matched_sources": [
+          [
+            1,
+            "dog_escape__petcam_20260926_173415_000_frame_12.00"
+          ]
+        ],
+        "ambiguous_skipped": false
+      },
+      "7": {
+        "event_fields_except_source_frames_same": true,
+        "source_frames_expected": true,
+        "matched_sources": [
+          [
+            0,
+            "dog_drinking_water__petcam_20260926_173602_000_frame_12.50"
+          ],
+          [
+            1,
+            "dog_drinking_water__petcam_20260926_173602_000_frame_14.50"
+          ]
+        ],
+        "ambiguous_skipped": false
+      },
+      "8": {
+        "event_fields_except_source_frames_same": true,
+        "source_frames_expected": true,
+        "matched_sources": [
+          [
+            2,
+            "dog_drinking_water__petcam_20260926_173602_000_frame_7.50"
+          ]
+        ],
+        "ambiguous_skipped": false
+      },
+      "9": {
+        "event_fields_except_source_frames_same": true,
+        "source_frames_expected": true,
+        "matched_sources": [
+          [
+            2,
+            "dog_drinking_water__petcam_20260926_173602_001_frame_24.00"
+          ]
+        ],
+        "ambiguous_skipped": false
+      }
+    },
+    "behavior_events_all_pass": true
+  },
+  "search_checks": {
+    "IMG_8450_2": {
+      "cat": {
+        "result_count": 31,
+        "canary_hits": [
+          "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+          "IMG_8450_2__petcam_20260926_173123_000_frame_2.00",
+          "IMG_8450_2__petcam_20260926_173123_000_frame_12.00",
+          "IMG_8450_2__petcam_20260926_173123_000_frame_14.00"
+        ]
+      },
+      "dog": {
+        "result_count": 4,
+        "canary_hits": []
+      },
+      "person": {
+        "result_count": 0,
+        "canary_hits": []
+      }
+    },
+    "dog_drinking_water": {
+      "cat": {
+        "result_count": 11,
+        "canary_hits": []
+      },
+      "dog": {
+        "result_count": 47,
+        "canary_hits": [
+          "dog_drinking_water__petcam_20260926_173602_000_frame_12.50",
+          "dog_drinking_water__petcam_20260926_173602_001_frame_24.00",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_7.50",
+          "dog_drinking_water__petcam_20260926_173602_000_frame_14.50"
+        ]
+      },
+      "person": {
+        "result_count": 1,
+        "canary_hits": []
+      }
+    },
+    "dog_escape": {
+      "cat": {
+        "result_count": 0,
+        "canary_hits": []
+      },
+      "dog": {
+        "result_count": 1,
+        "canary_hits": [
+          "dog_escape__petcam_20260926_173415_000_frame_12.00"
+        ]
+      },
+      "person": {
+        "result_count": 6,
+        "canary_hits": [
+          "dog_escape__petcam_20260926_173415_000_frame_48.00"
+        ]
+      }
+    },
+    "two_dogs": {
+      "cat": {
+        "result_count": 4,
+        "canary_hits": []
+      },
+      "dog": {
+        "result_count": 93,
+        "canary_hits": [
+          "two_dogs__two_dogs_000_frame_000005",
+          "two_dogs__two_dogs_000_frame_000006",
+          "two_dogs__two_dogs_000_frame_000001"
+        ]
+      },
+      "person": {
+        "result_count": 16,
+        "canary_hits": []
+      }
+    }
+  },
+  "suggestion_checks": {
+    "IMG_8450_2": {
+      "count": 3,
+      "items": [
+        {
+          "question": "자동 급식기 근처에 있는 장면이 있어?",
+          "question_source": "LLM",
+          "source_event_id": 3,
+          "original_event_id": 3,
+          "event_start": 4.5,
+          "event_end": 9.0
+        },
+        {
+          "question": "사료 그릇에 접근한 장면이 있어?",
+          "question_source": "LLM",
+          "source_event_id": 2,
+          "original_event_id": 2,
+          "event_start": 12.0,
+          "event_end": 66.5
+        },
+        {
+          "question": "고양이가 보이는 장면 보여줘",
+          "question_source": "label fallback",
+          "source_event_id": 3,
+          "original_event_id": null,
+          "event_start": 4.5,
+          "event_end": 9.0
+        }
+      ]
+    },
+    "dog_drinking_water": {
+      "count": 3,
+      "items": [
+        {
+          "question": "물을 마시는 장면이 있어?",
+          "question_source": "LLM",
+          "source_event_id": 9,
+          "original_event_id": 9,
+          "event_start": 2.0,
+          "event_end": 57.5
+        },
+        {
+          "question": "물 그릇에 가까이 대고 있는 장면이 있어?",
+          "question_source": "LLM",
+          "source_event_id": 13,
+          "original_event_id": 13,
+          "event_start": 23.0,
+          "event_end": 31.5
+        },
+        {
+          "question": "고양이가 보이는 장면 보여줘",
+          "question_source": "label fallback",
+          "source_event_id": 6,
+          "original_event_id": null,
+          "event_start": 30.0,
+          "event_end": 64.5
+        }
+      ]
+    },
+    "dog_escape": {
+      "count": 3,
+      "items": [
+        {
+          "question": "강아지가 보이는 장면 보여줘",
+          "question_source": "label fallback",
+          "source_event_id": null,
+          "original_event_id": null,
+          "event_start": null,
+          "event_end": null
+        },
+        {
+          "question": "강아지가 움직인 장면 찾아줘",
+          "question_source": "label fallback",
+          "source_event_id": 5,
+          "original_event_id": null,
+          "event_start": 2.0,
+          "event_end": 56.06
+        },
+        {
+          "question": "사람이 함께 보이는 장면 있어?",
+          "question_source": "label fallback",
+          "source_event_id": null,
+          "original_event_id": null,
+          "event_start": null,
+          "event_end": null
+        }
+      ]
+    },
+    "two_dogs": {
+      "count": 3,
+      "items": [
+        {
+          "question": "고양이가 보이는 장면 보여줘",
+          "question_source": "label fallback",
+          "source_event_id": null,
+          "original_event_id": null,
+          "event_start": null,
+          "event_end": null
+        },
+        {
+          "question": "고양이가 움직인 장면 찾아줘",
+          "question_source": "label fallback",
+          "source_event_id": 1,
+          "original_event_id": null,
+          "event_start": 0.0,
+          "event_end": 178.0
+        },
+        {
+          "question": "강아지가 보이는 장면 보여줘",
+          "question_source": "label fallback",
+          "source_event_id": null,
+          "original_event_id": null,
+          "event_start": null,
+          "event_end": null
+        }
+      ]
+    }
+  },
+  "storage_writes": {
+    "chroma": true,
+    "mysql_scenes": true,
+    "behavior_event_source_frames": true
+  },
+  "migration_history": {
+    "columns_added_during_first_apply": [
+      "object_detections_json",
+      "species_resolution_json"
+    ],
+    "final_apply_result": "already_present_noop for both columns",
+    "schema_only_migration": true
+  }
+}

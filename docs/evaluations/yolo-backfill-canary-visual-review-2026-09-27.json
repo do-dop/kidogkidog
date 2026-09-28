@@ -1,0 +1,1022 @@
+{
+  "review_date": "2026-09-27",
+  "source": "Exact GCS objects referenced by the 15 canary rows in yolo-backfill-eligible-dry-run-2026-09-27.json",
+  "review_method": "Visual inspection of all 15 downloaded full-resolution frames; no boxes overlaid",
+  "storage_writes_performed": false,
+  "canary_count": 15,
+  "comparison_counts": {
+    "new_more_accurate": 9,
+    "old_more_accurate": 3,
+    "both_partly_correct": 2,
+    "both_wrong": 1,
+    "uncertain": 0
+  },
+  "class_comparison": {
+    "cat": {
+      "visual_positive_frames": 4,
+      "old": {
+        "correct_positive_detections": 2,
+        "false_positives": 1,
+        "false_negatives": 2
+      },
+      "new": {
+        "correct_positive_detections": 3,
+        "false_positives": 2,
+        "false_negatives": 1
+      }
+    },
+    "dog": {
+      "visual_positive_frames": 10,
+      "old": {
+        "correct_positive_detections": 4,
+        "false_positives": 2,
+        "false_negatives": 6
+      },
+      "new": {
+        "correct_positive_detections": 4,
+        "false_positives": 1,
+        "false_negatives": 6
+      }
+    },
+    "person": {
+      "visual_positive_frames": 1,
+      "old": {
+        "correct_positive_detections": 0,
+        "false_positives": 1,
+        "false_negatives": 1
+      },
+      "new": {
+        "correct_positive_detections": 1,
+        "false_positives": 0,
+        "false_negatives": 0
+      }
+    }
+  },
+  "low_confidence_0_4_to_0_5": [
+    {
+      "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+      "detections": [
+        {
+          "label": "cat",
+          "confidence": 0.4697346091270447,
+          "bbox": [
+            727.321044921875,
+            291.4517822265625,
+            1009.4716186523438,
+            663.325439453125
+          ]
+        },
+        {
+          "label": "chair",
+          "confidence": 0.42284390330314636,
+          "bbox": [
+            247.71775817871094,
+            2.2322845458984375,
+            509.7654724121094,
+            675.6492919921875
+          ]
+        }
+      ],
+      "visual_interpretation": "세 마리 고양이가 보인다. bowl은 보이지만 dog는 없다. old cat은 맞고 new dog는 오분류이며 new는 cat을 빠뜨렸다."
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000005",
+      "detections": [
+        {
+          "label": "couch",
+          "confidence": 0.49424460530281067,
+          "bbox": [
+            0.0,
+            1.438751220703125,
+            1674.06005859375,
+            1079.2435302734375
+          ]
+        }
+      ],
+      "visual_interpretation": "소파 위에 두 마리 강아지가 분명히 보인다. new dog가 맞고 old empty는 누락이다. couch도 보이지만 새 label에는 포함되지 않았다."
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_7.50",
+      "detections": [
+        {
+          "label": "cat",
+          "confidence": 0.41680917143821716,
+          "bbox": [
+            3.4346923828125,
+            1.74365234375,
+            643.08984375,
+            630.6929321289062
+          ]
+        }
+      ],
+      "visual_interpretation": "강아지가 초록색 물그릇에 입을 대고 있다. new의 bowl은 맞지만 dog label은 없다. old cat은 잘못된 종 label이다."
+    },
+    {
+      "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_2.00",
+      "detections": [
+        {
+          "label": "bowl",
+          "confidence": 0.49305808544158936,
+          "bbox": [
+            200.76251220703125,
+            668.2921752929688,
+            377.9219055175781,
+            819.9747314453125
+          ]
+        }
+      ],
+      "visual_interpretation": "고양이와 사료 그릇이 보인다. old와 new 모두 cat은 맞지만 bowl은 실제로 보여도 confidence 0.493으로 threshold 0.5 미만이라 new labels에서 빠졌다."
+    },
+    {
+      "frame_id": "dog_escape__petcam_20260926_173415_000_frame_10.00",
+      "detections": [
+        {
+          "label": "couch",
+          "confidence": 0.4766453802585602,
+          "bbox": [
+            502.44488525390625,
+            78.48028564453125,
+            1917.7540283203125,
+            1064.329833984375
+          ]
+        }
+      ],
+      "visual_interpretation": "흰 강아지와 소파, 하단의 그릇이 보이며 bed는 보이지 않는다. old와 new 모두 dog/couch를 놓치고 bed를 잘못 표시한다."
+    },
+    {
+      "frame_id": "dog_escape__petcam_20260926_173415_000_frame_12.00",
+      "detections": [
+        {
+          "label": "dog",
+          "confidence": 0.42569711804389954,
+          "bbox": [
+            503.34228515625,
+            133.40341186523438,
+            971.5328979492188,
+            570.3810424804688
+          ]
+        }
+      ],
+      "visual_interpretation": "작은 흰 강아지가 소파 앞 펜스 안에 보이고 그릇도 보인다. new couch는 맞으며 old bed는 잘못된 물체 분류다. 양쪽 모두 dog를 놓쳤다."
+    },
+    {
+      "frame_id": "dog_escape__petcam_20260926_173415_000_frame_14.00",
+      "detections": [
+        {
+          "label": "bed",
+          "confidence": 0.41512513160705566,
+          "bbox": [
+            330.97723388671875,
+            129.08880615234375,
+            1906.0660400390625,
+            1069.404052734375
+          ]
+        }
+      ],
+      "visual_interpretation": "흰 강아지와 소파가 보인다. new couch는 맞고 old bed는 잘못된 분류다. 두 결과 모두 dog를 놓쳤다."
+    }
+  ],
+  "frames": [
+    {
+      "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_66.00",
+      "video_id": "IMG_8450_2",
+      "timestamp": 66.0,
+      "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_66.00.jpg",
+      "old_object_labels": [
+        "cat"
+      ],
+      "new_object_labels": [
+        "bowl",
+        "dog"
+      ],
+      "object_detections": [
+        {
+          "label": "dog",
+          "confidence": 0.8823254704475403,
+          "bbox": [
+            850.2628784179688,
+            650.2279052734375,
+            1162.366455078125,
+            1004.0178833007812
+          ]
+        },
+        {
+          "label": "bowl",
+          "confidence": 0.7551591396331787,
+          "bbox": [
+            579.7307739257812,
+            385.9215393066406,
+            742.5122680664062,
+            527.221923828125
+          ]
+        },
+        {
+          "label": "dog",
+          "confidence": 0.5290108323097229,
+          "bbox": [
+            726.741943359375,
+            290.9590759277344,
+            1007.9437866210938,
+            661.01220703125
+          ]
+        },
+        {
+          "label": "cat",
+          "confidence": 0.4697346091270447,
+          "bbox": [
+            727.321044921875,
+            291.4517822265625,
+            1009.4716186523438,
+            663.325439453125
+          ]
+        },
+        {
+          "label": "chair",
+          "confidence": 0.42284390330314636,
+          "bbox": [
+            247.71775817871094,
+            2.2322845458984375,
+            509.7654724121094,
+            675.6492919921875
+          ]
+        }
+      ],
+      "visual_ground_truth": {
+        "present": [
+          "cat"
+        ],
+        "absent": [
+          "dog",
+          "person"
+        ],
+        "other_visible_objects": [
+          "bowl"
+        ],
+        "uncertain": []
+      },
+      "comparison_result": "old_more_accurate",
+      "comment": "세 마리 고양이가 보인다. bowl은 보이지만 dog는 없다. old cat은 맞고 new dog는 오분류이며 new는 cat을 빠뜨렸다.",
+      "image_file": "/tmp/yolo_canary_visual_review/01.jpg"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_12.50",
+      "video_id": "dog_drinking_water",
+      "timestamp": 12.5,
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_12.50.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "new_object_labels": [
+        "bowl",
+        "cat"
+      ],
+      "object_detections": [
+        {
+          "label": "bowl",
+          "confidence": 0.7417722940444946,
+          "bbox": [
+            505.0442199707031,
+            421.4561767578125,
+            931.658203125,
+            690.9556884765625
+          ]
+        },
+        {
+          "label": "cat",
+          "confidence": 0.7299715876579285,
+          "bbox": [
+            1.386474609375,
+            3.18829345703125,
+            637.1336669921875,
+            626.9796752929688
+          ]
+        }
+      ],
+      "visual_ground_truth": {
+        "present": [
+          "dog"
+        ],
+        "absent": [
+          "cat",
+          "person"
+        ],
+        "other_visible_objects": [
+          "bowl"
+        ],
+        "uncertain": []
+      },
+      "comparison_result": "old_more_accurate",
+      "comment": "검정과 흰색 강아지가 물그릇에 머리를 대고 있다. old dog는 맞고 new cat은 명백한 오분류다. 그릇은 보인다.",
+      "image_file": "/tmp/yolo_canary_visual_review/02.jpg"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_24.00",
+      "video_id": "dog_drinking_water",
+      "timestamp": 24.0,
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_24.00.jpg",
+      "old_object_labels": [
+        "dog",
+        "person"
+      ],
+      "new_object_labels": [
+        "bowl",
+        "dog"
+      ],
+      "object_detections": [
+        {
+          "label": "bowl",
+          "confidence": 0.8025985956192017,
+          "bbox": [
+            514.887939453125,
+            419.008056640625,
+            945.8544921875,
+            674.2005615234375
+          ]
+        },
+        {
+          "label": "dog",
+          "confidence": 0.5444923639297485,
+          "bbox": [
+            3.396240234375,
+            2.7890625,
+            869.74072265625,
+            632.8072509765625
+          ]
+        }
+      ],
+      "visual_ground_truth": {
+        "present": [
+          "dog"
+        ],
+        "absent": [
+          "cat",
+          "person"
+        ],
+        "other_visible_objects": [
+          "bowl"
+        ],
+        "uncertain": []
+      },
+      "comparison_result": "new_more_accurate",
+      "comment": "강아지와 초록색 그릇이 보인다. 화면 안에 사람은 보이지 않는다. new는 dog와 bowl을 표시하고 old의 person은 오검출이다.",
+      "image_file": "/tmp/yolo_canary_visual_review/03.jpg"
+    },
+    {
+      "frame_id": "dog_escape__petcam_20260926_173415_000_frame_48.00",
+      "video_id": "dog_escape",
+      "timestamp": 48.0,
+      "s3_key": "frames/dog_escape/petcam_20260926_173415_000_frame_48.00.jpg",
+      "old_object_labels": [],
+      "new_object_labels": [
+        "person"
+      ],
+      "object_detections": [
+        {
+          "label": "person",
+          "confidence": 0.6477943062782288,
+          "bbox": [
+            600.3314819335938,
+            736.2921752929688,
+            756.8154296875,
+            896.2846069335938
+          ]
+        }
+      ],
+      "visual_ground_truth": {
+        "present": [
+          "person"
+        ],
+        "absent": [
+          "cat",
+          "dog"
+        ],
+        "other_visible_objects": [],
+        "uncertain": []
+      },
+      "comparison_result": "new_more_accurate",
+      "comment": "전체 프레임은 영상 안내 화면이지만 삽입된 감시 영상 안에 사람이 분명히 보인다. new person 검출은 맞고 old empty는 누락이다.",
+      "image_file": "/tmp/yolo_canary_visual_review/04.jpg"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000005",
+      "video_id": "two_dogs",
+      "timestamp": 8.0,
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000005.jpg",
+      "old_object_labels": [],
+      "new_object_labels": [
+        "dog"
+      ],
+      "object_detections": [
+        {
+          "label": "dog",
+          "confidence": 0.5329406261444092,
+          "bbox": [
+            182.466064453125,
+            269.7972106933594,
+            1164.355712890625,
+            943.4221801757812
+          ]
+        },
+        {
+          "label": "couch",
+          "confidence": 0.49424460530281067,
+          "bbox": [
+            0.0,
+            1.438751220703125,
+            1674.06005859375,
+            1079.2435302734375
+          ]
+        }
+      ],
+      "visual_ground_truth": {
+        "present": [
+          "dog"
+        ],
+        "absent": [
+          "cat",
+          "person"
+        ],
+        "other_visible_objects": [
+          "couch"
+        ],
+        "uncertain": []
+      },
+      "comparison_result": "new_more_accurate",
+      "comment": "소파 위에 두 마리 강아지가 분명히 보인다. new dog가 맞고 old empty는 누락이다. couch도 보이지만 새 label에는 포함되지 않았다.",
+      "image_file": "/tmp/yolo_canary_visual_review/05.jpg"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_7.50",
+      "video_id": "dog_drinking_water",
+      "timestamp": 7.5,
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_7.50.jpg",
+      "old_object_labels": [
+        "cat"
+      ],
+      "new_object_labels": [
+        "bowl"
+      ],
+      "object_detections": [
+        {
+          "label": "bowl",
+          "confidence": 0.6918655037879944,
+          "bbox": [
+            502.9016418457031,
+            419.1217041015625,
+            930.080810546875,
+            692.654296875
+          ]
+        },
+        {
+          "label": "cat",
+          "confidence": 0.41680917143821716,
+          "bbox": [
+            3.4346923828125,
+            1.74365234375,
+            643.08984375,
+            630.6929321289062
+          ]
+        }
+      ],
+      "visual_ground_truth": {
+        "present": [
+          "dog"
+        ],
+        "absent": [
+          "cat",
+          "person"
+        ],
+        "other_visible_objects": [
+          "bowl"
+        ],
+        "uncertain": []
+      },
+      "comparison_result": "new_more_accurate",
+      "comment": "강아지가 초록색 물그릇에 입을 대고 있다. new의 bowl은 맞지만 dog label은 없다. old cat은 잘못된 종 label이다.",
+      "image_file": "/tmp/yolo_canary_visual_review/06.jpg"
+    },
+    {
+      "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_2.00",
+      "video_id": "IMG_8450_2",
+      "timestamp": 2.0,
+      "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_2.00.jpg",
+      "old_object_labels": [
+        "cat"
+      ],
+      "new_object_labels": [
+        "cat"
+      ],
+      "object_detections": [
+        {
+          "label": "cat",
+          "confidence": 0.8965395092964172,
+          "bbox": [
+            568.7089233398438,
+            547.12060546875,
+            997.4525756835938,
+            769.4924926757812
+          ]
+        },
+        {
+          "label": "bowl",
+          "confidence": 0.49305808544158936,
+          "bbox": [
+            200.76251220703125,
+            668.2921752929688,
+            377.9219055175781,
+            819.9747314453125
+          ]
+        }
+      ],
+      "visual_ground_truth": {
+        "present": [
+          "cat"
+        ],
+        "absent": [
+          "dog",
+          "person"
+        ],
+        "other_visible_objects": [
+          "bowl"
+        ],
+        "uncertain": []
+      },
+      "comparison_result": "both_partly_correct",
+      "comment": "고양이와 사료 그릇이 보인다. old와 new 모두 cat은 맞지만 bowl은 실제로 보여도 confidence 0.493으로 threshold 0.5 미만이라 new labels에서 빠졌다.",
+      "image_file": "/tmp/yolo_canary_visual_review/07.jpg"
+    },
+    {
+      "frame_id": "dog_escape__petcam_20260926_173415_000_frame_10.00",
+      "video_id": "dog_escape",
+      "timestamp": 10.0,
+      "s3_key": "frames/dog_escape/petcam_20260926_173415_000_frame_10.00.jpg",
+      "old_object_labels": [
+        "bed"
+      ],
+      "new_object_labels": [
+        "bed"
+      ],
+      "object_detections": [
+        {
+          "label": "bed",
+          "confidence": 0.7401582598686218,
+          "bbox": [
+            496.4024353027344,
+            76.81182861328125,
+            1915.375244140625,
+            1068.1424560546875
+          ]
+        },
+        {
+          "label": "couch",
+          "confidence": 0.4766453802585602,
+          "bbox": [
+            502.44488525390625,
+            78.48028564453125,
+            1917.7540283203125,
+            1064.329833984375
+          ]
+        }
+      ],
+      "visual_ground_truth": {
+        "present": [
+          "dog"
+        ],
+        "absent": [
+          "cat",
+          "person"
+        ],
+        "other_visible_objects": [
+          "couch",
+          "bowl"
+        ],
+        "uncertain": []
+      },
+      "comparison_result": "both_wrong",
+      "comment": "흰 강아지와 소파, 하단의 그릇이 보이며 bed는 보이지 않는다. old와 new 모두 dog/couch를 놓치고 bed를 잘못 표시한다.",
+      "image_file": "/tmp/yolo_canary_visual_review/08.jpg"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000006",
+      "video_id": "two_dogs",
+      "timestamp": 10.0,
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000006.jpg",
+      "old_object_labels": [
+        "couch",
+        "dog"
+      ],
+      "new_object_labels": [
+        "couch",
+        "dog"
+      ],
+      "object_detections": [
+        {
+          "label": "dog",
+          "confidence": 0.9305586218833923,
+          "bbox": [
+            219.40090942382812,
+            323.62957763671875,
+            1197.084228515625,
+            956.2291259765625
+          ]
+        },
+        {
+          "label": "couch",
+          "confidence": 0.7997879385948181,
+          "bbox": [
+            0.0,
+            0.0966796875,
+            1671.7650146484375,
+            1080.0
+          ]
+        }
+      ],
+      "visual_ground_truth": {
+        "present": [
+          "dog"
+        ],
+        "absent": [
+          "cat",
+          "person"
+        ],
+        "other_visible_objects": [
+          "couch"
+        ],
+        "uncertain": []
+      },
+      "comparison_result": "both_partly_correct",
+      "comment": "강아지 두 마리와 소파가 보인다. old와 new의 dog/couch labels 모두 실제 장면과 맞는다.",
+      "image_file": "/tmp/yolo_canary_visual_review/09.jpg"
+    },
+    {
+      "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_12.00",
+      "video_id": "IMG_8450_2",
+      "timestamp": 12.0,
+      "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_12.00.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "new_object_labels": [
+        "bowl",
+        "cat"
+      ],
+      "object_detections": [
+        {
+          "label": "cat",
+          "confidence": 0.9422411322593689,
+          "bbox": [
+            721.8348999023438,
+            490.26654052734375,
+            1082.378662109375,
+            740.9039306640625
+          ]
+        },
+        {
+          "label": "cat",
+          "confidence": 0.8958077430725098,
+          "bbox": [
+            621.8638916015625,
+            522.8526000976562,
+            955.7008666992188,
+            918.5953369140625
+          ]
+        },
+        {
+          "label": "bowl",
+          "confidence": 0.6177772879600525,
+          "bbox": [
+            292.8049621582031,
+            638.68505859375,
+            467.6076965332031,
+            785.4948120117188
+          ]
+        }
+      ],
+      "visual_ground_truth": {
+        "present": [
+          "cat"
+        ],
+        "absent": [
+          "dog",
+          "person"
+        ],
+        "other_visible_objects": [
+          "bowl"
+        ],
+        "uncertain": []
+      },
+      "comparison_result": "new_more_accurate",
+      "comment": "두 마리 고양이와 그릇이 보인다. new cat+bowl은 맞고 old dog는 잘못된 종 label이다.",
+      "image_file": "/tmp/yolo_canary_visual_review/10.jpg"
+    },
+    {
+      "frame_id": "dog_escape__petcam_20260926_173415_000_frame_12.00",
+      "video_id": "dog_escape",
+      "timestamp": 12.0,
+      "s3_key": "frames/dog_escape/petcam_20260926_173415_000_frame_12.00.jpg",
+      "old_object_labels": [
+        "bed"
+      ],
+      "new_object_labels": [
+        "couch"
+      ],
+      "object_detections": [
+        {
+          "label": "couch",
+          "confidence": 0.703570544719696,
+          "bbox": [
+            637.9634399414062,
+            80.47897338867188,
+            1920.0,
+            530.9373779296875
+          ]
+        },
+        {
+          "label": "dog",
+          "confidence": 0.42569711804389954,
+          "bbox": [
+            503.34228515625,
+            133.40341186523438,
+            971.5328979492188,
+            570.3810424804688
+          ]
+        }
+      ],
+      "visual_ground_truth": {
+        "present": [
+          "dog"
+        ],
+        "absent": [
+          "cat",
+          "person"
+        ],
+        "other_visible_objects": [
+          "couch",
+          "bowl"
+        ],
+        "uncertain": []
+      },
+      "comparison_result": "new_more_accurate",
+      "comment": "작은 흰 강아지가 소파 앞 펜스 안에 보이고 그릇도 보인다. new couch는 맞으며 old bed는 잘못된 물체 분류다. 양쪽 모두 dog를 놓쳤다.",
+      "image_file": "/tmp/yolo_canary_visual_review/11.jpg"
+    },
+    {
+      "frame_id": "two_dogs__two_dogs_000_frame_000001",
+      "video_id": "two_dogs",
+      "timestamp": 0.0,
+      "s3_key": "frames/two_dogs/two_dogs_000_frame_000001.jpg",
+      "old_object_labels": [
+        "chair",
+        "tv"
+      ],
+      "new_object_labels": [
+        "chair",
+        "couch",
+        "dog",
+        "tv"
+      ],
+      "object_detections": [
+        {
+          "label": "dog",
+          "confidence": 0.9077696800231934,
+          "bbox": [
+            1519.0411376953125,
+            492.68609619140625,
+            1788.3189697265625,
+            951.162841796875
+          ]
+        },
+        {
+          "label": "dog",
+          "confidence": 0.8299235105514526,
+          "bbox": [
+            984.309814453125,
+            476.1907653808594,
+            1104.6650390625,
+            734.576904296875
+          ]
+        },
+        {
+          "label": "tv",
+          "confidence": 0.775188684463501,
+          "bbox": [
+            373.4696044921875,
+            222.84100341796875,
+            607.6221923828125,
+            401.11761474609375
+          ]
+        },
+        {
+          "label": "chair",
+          "confidence": 0.7654667496681213,
+          "bbox": [
+            1082.5235595703125,
+            439.0066223144531,
+            1337.470458984375,
+            869.2960205078125
+          ]
+        },
+        {
+          "label": "couch",
+          "confidence": 0.7099083662033081,
+          "bbox": [
+            0.9863204956054688,
+            436.3515930175781,
+            224.71633911132812,
+            656.3037109375
+          ]
+        },
+        {
+          "label": "couch",
+          "confidence": 0.5894817113876343,
+          "bbox": [
+            1737.19384765625,
+            334.62744140625,
+            1918.7615966796875,
+            1068.976806640625
+          ]
+        }
+      ],
+      "visual_ground_truth": {
+        "present": [
+          "dog"
+        ],
+        "absent": [
+          "cat",
+          "person"
+        ],
+        "other_visible_objects": [
+          "couch",
+          "chair"
+        ],
+        "uncertain": []
+      },
+      "comparison_result": "new_more_accurate",
+      "comment": "화면에 강아지 두 마리, 왼쪽 소파, 식탁 의자들이 보인다. new가 dog와 couch를 추가하고 old의 chair/tv 일부는 맞지만 강아지를 놓쳤다.",
+      "image_file": "/tmp/yolo_canary_visual_review/12.jpg"
+    },
+    {
+      "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_14.00",
+      "video_id": "IMG_8450_2",
+      "timestamp": 14.0,
+      "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_14.00.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "new_object_labels": [
+        "bowl",
+        "cat"
+      ],
+      "object_detections": [
+        {
+          "label": "cat",
+          "confidence": 0.9457350969314575,
+          "bbox": [
+            502.5103454589844,
+            516.5958251953125,
+            975.2345581054688,
+            899.35107421875
+          ]
+        },
+        {
+          "label": "cat",
+          "confidence": 0.8622266054153442,
+          "bbox": [
+            718.8256225585938,
+            460.3310241699219,
+            1072.90380859375,
+            725.3113403320312
+          ]
+        },
+        {
+          "label": "bowl",
+          "confidence": 0.858572781085968,
+          "bbox": [
+            287.110107421875,
+            617.965087890625,
+            461.66619873046875,
+            766.9610595703125
+          ]
+        }
+      ],
+      "visual_ground_truth": {
+        "present": [
+          "cat"
+        ],
+        "absent": [
+          "dog",
+          "person"
+        ],
+        "other_visible_objects": [
+          "bowl"
+        ],
+        "uncertain": []
+      },
+      "comparison_result": "new_more_accurate",
+      "comment": "두 마리 고양이와 그릇이 보인다. new cat+bowl은 맞고 old dog는 잘못된 종 label이다.",
+      "image_file": "/tmp/yolo_canary_visual_review/13.jpg"
+    },
+    {
+      "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_14.50",
+      "video_id": "dog_drinking_water",
+      "timestamp": 14.5,
+      "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_14.50.jpg",
+      "old_object_labels": [
+        "dog"
+      ],
+      "new_object_labels": [
+        "bowl",
+        "cat"
+      ],
+      "object_detections": [
+        {
+          "label": "cat",
+          "confidence": 0.627281904220581,
+          "bbox": [
+            1.4462890625,
+            2.626708984375,
+            755.0816650390625,
+            607.1778564453125
+          ]
+        },
+        {
+          "label": "bowl",
+          "confidence": 0.6143146753311157,
+          "bbox": [
+            506.1101989746094,
+            418.4224853515625,
+            932.8824462890625,
+            688.8323974609375
+          ]
+        }
+      ],
+      "visual_ground_truth": {
+        "present": [
+          "dog"
+        ],
+        "absent": [
+          "cat",
+          "person"
+        ],
+        "other_visible_objects": [
+          "bowl"
+        ],
+        "uncertain": []
+      },
+      "comparison_result": "old_more_accurate",
+      "comment": "강아지가 초록색 그릇에서 물을 마시는 장면이다. old dog는 맞고 new cat은 명백한 종 오분류다. bowl은 new에서 맞게 검출됐다.",
+      "image_file": "/tmp/yolo_canary_visual_review/14.jpg"
+    },
+    {
+      "frame_id": "dog_escape__petcam_20260926_173415_000_frame_14.00",
+      "video_id": "dog_escape",
+      "timestamp": 14.0,
+      "s3_key": "frames/dog_escape/petcam_20260926_173415_000_frame_14.00.jpg",
+      "old_object_labels": [
+        "bed"
+      ],
+      "new_object_labels": [
+        "couch"
+      ],
+      "object_detections": [
+        {
+          "label": "couch",
+          "confidence": 0.5260490775108337,
+          "bbox": [
+            363.63043212890625,
+            126.75631713867188,
+            1912.9456787109375,
+            1071.818115234375
+          ]
+        },
+        {
+          "label": "bed",
+          "confidence": 0.41512513160705566,
+          "bbox": [
+            330.97723388671875,
+            129.08880615234375,
+            1906.0660400390625,
+            1069.404052734375
+          ]
+        }
+      ],
+      "visual_ground_truth": {
+        "present": [
+          "dog"
+        ],
+        "absent": [
+          "cat",
+          "person"
+        ],
+        "other_visible_objects": [
+          "couch",
+          "bowl"
+        ],
+        "uncertain": []
+      },
+      "comparison_result": "new_more_accurate",
+      "comment": "흰 강아지와 소파가 보인다. new couch는 맞고 old bed는 잘못된 분류다. 두 결과 모두 dog를 놓쳤다.",
+      "image_file": "/tmp/yolo_canary_visual_review/15.jpg"
+    }
+  ]
+}

@@ -3,7 +3,14 @@ import re
 from datetime import datetime, timedelta
 from typing import Any
 
-from pipeline.vector_store import get_indexed_frames, search_with_query_expansion
+from pipeline.vector_store import (
+    get_indexed_frames,
+    get_indexed_frames_in_time_window,
+    search_with_query_expansion,
+    search_within_frames,
+    explicit_object_labels,
+    filter_frames_by_objects,
+)
 from pipeline.query_analyzer import build_prompt_hint
 from db.behavior_events import (
     get_behavior_event_by_id,
@@ -48,6 +55,7 @@ def run_rag_query(
         event_end=event_end,
         video_id=video_id,
     )
+    
 
     if source_event:
         return _run_event_grounded_query(
@@ -70,6 +78,12 @@ def run_rag_query(
         # behavior_events 기반 답변은 가능하도록 앱 전체를 죽이지 않는다.
         print(f"ChromaDB 검색 실패: {exc}", flush=True)
         retrieved_frames = []
+
+    required_objects = explicit_object_labels(query)
+    if required_objects:
+        retrieved_frames = filter_frames_by_objects(retrieved_frames, required_objects)
+        if not retrieved_frames:
+            return _object_condition_unconfirmed(query, video_id, required_objects)
 
     behavior_events = _get_relevant_behavior_events(
         query=query,
@@ -138,6 +152,23 @@ def run_rag_query(
     }
 
 
+def _object_condition_unconfirmed(query: str, video_id: str | None, required: set[str]) -> dict:
+    names = {"cat": "고양이", "dog": "강아지", "person": "사람"}
+    objects = ", ".join(names[label] for label in sorted(required))
+    return {
+        "query": query,
+        "video_id": video_id,
+        "answer": (
+            f"현재 검색 범위의 객체 검출 결과에서 {objects} 조건에 맞는 장면을 확인하지 못했어요. "
+            "검출 누락 가능성이 있어 영상에 없다고 단정할 수는 없어요."
+        ),
+        "results": [],
+        "evidence_items": [],
+        "behavior_events": [],
+        "used_llm": False,
+    }
+
+
 def _resolve_source_event(
     source_event_id: int | None,
     event_start: float | None,
@@ -176,26 +207,52 @@ def _run_event_grounded_query(
     retrieved_frames = []
 
     try:
-        candidate_frames = search_with_query_expansion(
-            query=query,
-            top_k=max(top_k * 5, 20),
+        start_time = _safe_float(source_event.get("start_time"))
+        end_time = _safe_float(source_event.get("end_time"))
+        margin_seconds = 3.0
+        indexed_frames = get_indexed_frames_in_time_window(
             video_id=event_video_id,
+            start_time=max(start_time - margin_seconds, 0.0) if start_time is not None else None,
+            end_time=end_time + margin_seconds if end_time is not None else None,
         )
-        retrieved_frames = _filter_frames_to_event_window(
-            frames=candidate_frames,
+        candidate_frames = _filter_frames_to_event_window(
+            frames=indexed_frames,
             event=source_event,
-            margin_seconds=3.0,
-        )[:top_k]
+            margin_seconds=margin_seconds,
+        )
+        retrieved_frames = search_within_frames(query, candidate_frames, top_k=top_k)
     except Exception as exc:
         print(f"event 기반 CLIP 검색 실패: {exc}", flush=True)
         retrieved_frames = []
 
-    if not retrieved_frames:
-        retrieved_frames = _frames_from_behavior_events(
-            behavior_events=behavior_events,
-            video_id=event_video_id,
-            limit=top_k,
-        )
+    required_objects = explicit_object_labels(query)
+    retrieved_frames = filter_frames_by_objects(retrieved_frames, required_objects)
+    used_source_frames_fallback = not retrieved_frames
+    if used_source_frames_fallback:
+        if required_objects:
+            # Top K로 자르기 전에 전체 대표 프레임을 확인한다. 기존 event 범위를 넓히지 않는다.
+            source_frames = _frames_from_behavior_events(
+                behavior_events=behavior_events,
+                video_id=event_video_id,
+                limit=len(source_event.get("source_frames") or []),
+            )
+            scoped_frames = _filter_frames_to_event_window(source_frames, source_event)
+            retrieved_frames = filter_frames_by_objects(scoped_frames, required_objects)[:top_k]
+        else:
+            retrieved_frames = _frames_from_behavior_events(
+                behavior_events=behavior_events,
+                video_id=event_video_id,
+                limit=top_k,
+            )
+
+    if required_objects and not retrieved_frames:
+        return _object_condition_unconfirmed(query, event_video_id, required_objects)
+
+    for frame in retrieved_frames:
+        # 기존 score는 호환성을 위해 유지하되, fallback 점수를 CLIP 유사도로 표시하지 않는다.
+        frame["retrieval_source"] = "source_frames_fallback" if used_source_frames_fallback else "clip"
+        frame["clip_similarity"] = None if used_source_frames_fallback else frame["score"]
+        frame["event_confidence"] = source_event.get("confidence")
 
     retrieved_frames = _attach_event_window_to_frames(retrieved_frames, source_event)
     retrieved_context = _build_retrieved_context(retrieved_frames)
@@ -407,6 +464,7 @@ def _frames_from_behavior_events(
                 "timestamp": timestamp,
                 "video_id": event_video_id,
                 "object_labels": _normalize_labels(frame.get("object_labels")),
+                "object_detections": frame.get("object_detections") or [],
                 "score": float(event.get("confidence") or event.get("interestingness") or 0.5),
             })
 
@@ -416,11 +474,57 @@ def _frames_from_behavior_events(
     return frames[:limit]
 
 
+def _frame_chunk_stem(frame: dict[str, Any]) -> str | None:
+    """저장된 <원본 청크명>_frame_<번호/초>에서 전체 청크명을 복원한다.
+
+    현재 source_frames와 검색 결과에는 chunk_id가 없다. GCS 키를 우선하고,
+    로컬 경로 또는 Chroma frame_id를 보조로 사용한다. 청크 번호뿐 아니라
+    녹화 실행 시각까지 포함해야 서로 다른 실행의 같은 번호도 구분된다.
+    """
+    for key in ("s3_key", "frame_path", "frame_id"):
+        value = frame.get(key)
+        if not value:
+            continue
+        filename = str(value).replace("\\", "/").rsplit("/", 1)[-1]
+        if key == "frame_id":
+            filename = filename.rsplit("__", 1)[-1]
+        match = re.fullmatch(
+            r"(.+)_frame_\d+(?:\.\d+)?(?:\.(?:jpg|jpeg|png|webp))?",
+            filename,
+            flags=re.IGNORECASE,
+        )
+        if match:
+            return match.group(1)
+    return None
+
+
 def _filter_frames_to_event_window(
     frames: list[dict[str, Any]],
     event: dict[str, Any],
     margin_seconds: float = 3.0,
 ) -> list[dict[str, Any]]:
+    # 시간은 청크 내부 기준이다. 단일 청크를 확인할 수 없는 이벤트에는
+    # 숫자만으로 시간 필터를 적용하지 않고 호출자의 대표 프레임 fallback을 쓴다.
+    event_chunks = {
+        _frame_chunk_stem(frame)
+        for frame in event.get("source_frames") or []
+        if isinstance(frame, dict)
+    }
+    if len(event_chunks) != 1 or None in event_chunks:
+        return []
+
+    event_chunk = next(iter(event_chunks))
+    frames = [
+        frame
+        for frame in frames
+        if _frame_chunk_stem(frame) == event_chunk
+        and (
+            not event.get("video_id")
+            or not frame.get("video_id")
+            or frame["video_id"] == event["video_id"]
+        )
+    ]
+
     start_time = _safe_float(event.get("start_time"))
     end_time = _safe_float(event.get("end_time"))
 
@@ -485,6 +589,7 @@ def _fallback_indexed_frames(video_id: str | None, limit: int = 5) -> list[dict[
             "timestamp": frame.get("timestamp"),
             "video_id": frame.get("video_id") or video_id or "default",
             "object_labels": frame.get("object_labels", ""),
+            "object_detections": frame.get("object_detections") or [],
             "score": 0.0,
         })
 
@@ -496,6 +601,7 @@ def _fallback_indexed_frames(video_id: str | None, limit: int = 5) -> list[dict[
             "timestamp": 0.0,
             "video_id": video_id,
             "object_labels": "",
+            "object_detections": [],
             "score": 0.0,
         })
 
@@ -700,13 +806,14 @@ def _generate_answer_with_langchain(
 - 행동 이벤트를 보조하는 근거로 사용한다.
 
 답변 규칙:
-- behavior_events에 관련 정보가 있으면 "확인할 수 없습니다"라고 먼저 말하지 말고, 가능한 범위에서 답변한다.
-- repeat_count가 있으면 "정확한 실제 횟수"가 아니라 "프레임 기반 반복 감지 후보 N회"라고 표현한다.
-- 사용자가 "몇 번"을 물으면 repeat_count를 활용하되, 실제 행동 횟수가 아니라 분석 후보라는 점을 함께 말한다.
-- 행동을 과하게 단정하지 않는다.
-- "확실히 먹었다", "반드시 불안하다"처럼 단정하지 말고 "~로 보입니다", "~후보로 볼 수 있습니다"라고 표현한다.
-- object_labels는 오탐 가능성이 있으므로, 객체 탐지 기반 정보는 조심스럽게 말한다.
-- 답변에는 관련 시간대, 행동 요약, 반복 후보 횟수 또는 근거를 포함한다.
+- 사용자는 내부 분석 로그가 아니라 "어느 장면을 보면 되는지"를 알고 싶어 한다.
+- 첫 문장은 짧게 결론을 말한다. 예: "고양이가 보이는 장면은 00:02 근처에서 확인할 수 있어요."
+- 중복된 구간은 반복해서 나열하지 말고 하나로 묶는다.
+- confidence, similarity_score, repeat_count, frame count, object_labels 원문, evidence 원문 같은 내부 수치는 노출하지 않는다.
+- "분석된 행동 이벤트", "프레임 기반", "metadata", "ChromaDB" 같은 기술 용어를 사용자 답변에 쓰지 않는다.
+- 행동을 과하게 단정하지 않는다. "~로 보여요", "~장면으로 확인해보면 좋아요"처럼 자연스럽게 말한다.
+- 답변은 2~4문장 또는 최대 3개 bullet로 짧게 작성한다.
+- 마지막에는 필요할 때만 "정확한 행동 판단은 영상으로 한 번 확인해주세요."처럼 부드럽게 덧붙인다.
 - 한국어로 답변한다.
 """.strip(),
             ),
@@ -758,44 +865,23 @@ def _build_fallback_answer(
     LLM을 못 쓸 때도 behavior_events와 검색 결과 기반으로 간단한 답변을 생성한다.
     """
     if behavior_events:
+        visible_events = _deduplicate_answer_events(behavior_events)[:3]
         top_items = []
 
-        for event in behavior_events[:3]:
+        for event in visible_events:
             start_time = event.get("start_time")
             end_time = event.get("end_time")
-
-            if start_time is not None and end_time is not None:
-                time_text = f"{float(start_time):.2f}초~{float(end_time):.2f}초"
-            else:
-                time_text = "시간 정보 없음"
-
-            summary = event.get("summary") or event.get("action") or "행동 설명 없음"
-            repeat_count = event.get("repeat_count") or 0
-            confidence = event.get("confidence")
-            evidence = event.get("evidence") or []
-
-            evidence_text = ""
-            if isinstance(evidence, list) and evidence:
-                evidence_text = f" 근거: {', '.join(str(item) for item in evidence[:2])}"
-
-            confidence_text = ""
-            if confidence is not None:
-                confidence_text = f", 신뢰도 {float(confidence):.2f}"
+            time_text = _format_user_time_range(start_time, end_time)
+            summary = _friendly_event_summary(event)
 
             top_items.append(
-                f"- {time_text}: {summary} "
-                f"(반복 감지 후보 {repeat_count}회{confidence_text})."
-                f"{evidence_text}"
+                f"- {time_text}: {summary}"
             )
 
         joined = "\n".join(top_items)
+        intro = _friendly_intro(query=query, count=len(top_items))
 
-        return (
-            f"질문 '{query}'에 대해 분석된 행동 이벤트 기준으로는 아래 구간을 확인할 수 있습니다.\n\n"
-            f"{joined}\n\n"
-            "단, 반복 횟수는 실제 행동을 사람이 직접 센 값이 아니라 "
-            "프레임 기반 분석에서 반복 감지된 후보 횟수로 보는 것이 적절합니다."
-        )
+        return f"{intro}\n\n{joined}\n\n정확한 행동은 영상을 재생해서 한 번 확인해보면 좋아요."
 
     if retrieved_frames:
         top_items = []
@@ -804,34 +890,169 @@ def _build_fallback_answer(
         for frame in retrieved_frames[:3]:
             timestamp = frame.get("timestamp")
             timestamp_text = f"{float(timestamp):.2f}초" if timestamp is not None else "알 수 없는 시간"
-            labels = frame.get("object_labels") or "감지 객체 없음"
-            score = frame.get("score")
-            score_text = f"{float(score):.4f}" if score is not None else "알 수 없음"
+            labels = _friendly_labels(frame.get("object_labels"))
 
             top_items.append(
-                f"- {timestamp_text}: 감지 객체 `{labels}`, 유사도 {score_text}"
+                f"- {timestamp_text}: {labels}"
             )
 
         joined = "\n".join(top_items)
 
         if not has_strong_match:
             return (
-                f"질문 '{query}'과 정확히 일치하는 장면은 아직 뚜렷하게 찾지 못했습니다.\n\n"
-                "다만 같은 영상에서 확인 가능한 유사 후보 구간은 아래와 같습니다.\n\n"
+                f"'{query}'와 완전히 딱 맞는 장면은 아직 뚜렷하지 않지만, 가까운 후보는 있어요.\n\n"
                 f"{joined}\n\n"
-                "영상 분석 결과가 더 쌓이면 추천 질문과 검색 매칭이 더 안정적으로 연결됩니다."
+                "검색 결과 화면에서 해당 구간을 확인해보세요."
             )
 
         return (
-            f"질문 '{query}'과 관련된 후보 장면은 아래 시간대에서 확인해볼 수 있습니다.\n\n"
+            f"'{query}'와 관련 있어 보이는 장면을 찾았어요.\n\n"
             f"{joined}\n\n"
-            "단, 현재 답변은 검색 metadata 기반이며, 실제 행동을 확정하는 것은 아닙니다."
+            "필요하면 결과 영상을 눌러 바로 확인할 수 있어요."
         )
 
     return (
-        f"질문 '{query}'과 정확히 맞는 장면은 아직 찾지 못했습니다. "
-        "다만 영상 분석 결과가 생성되는 중일 수 있어 잠시 후 다시 검색해보면 더 가까운 후보가 나올 수 있습니다."
+        f"'{query}'와 잘 맞는 장면을 아직 찾지 못했어요. "
+        "다른 표현으로 검색하거나, 영상 분석이 끝난 뒤 다시 시도해보세요."
     )
+
+
+def _deduplicate_answer_events(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    seen = set()
+    output = []
+
+    for event in events:
+        key = (
+            event.get("video_id"),
+            round(float(event.get("start_time") or 0.0), 1),
+            round(float(event.get("end_time") or 0.0), 1),
+            _friendly_event_summary(event),
+        )
+
+        if key in seen:
+            continue
+
+        seen.add(key)
+        output.append(event)
+
+    return output
+
+
+def _format_user_time_range(start_time, end_time) -> str:
+    if start_time is None:
+        return "확인 가능한 구간"
+
+    start_text = _format_user_seconds(start_time)
+
+    if end_time is None:
+        return f"{start_text} 근처"
+
+    duration = max(0.0, float(end_time) - float(start_time))
+
+    if duration < 8:
+        return f"{start_text} 근처"
+
+    return f"{start_text}부터 약 {_format_duration(duration)}"
+
+
+def _format_user_seconds(value) -> str:
+    seconds = max(0, int(round(float(value))))
+    minutes, remaining_seconds = divmod(seconds, 60)
+
+    if minutes <= 0:
+        return f"{remaining_seconds}초"
+
+    return f"{minutes}분 {remaining_seconds:02d}초"
+
+
+def _format_duration(seconds: float) -> str:
+    rounded = max(1, int(round(seconds)))
+    minutes, remaining_seconds = divmod(rounded, 60)
+
+    if minutes <= 0:
+        return f"{remaining_seconds}초"
+
+    if remaining_seconds == 0:
+        return f"{minutes}분"
+
+    return f"{minutes}분 {remaining_seconds}초"
+
+
+def _friendly_intro(query: str, count: int) -> str:
+    if count <= 1:
+        return f"'{query}'와 관련 있어 보이는 장면을 찾았어요."
+
+    return f"'{query}'와 관련 있어 보이는 장면 {count}개를 찾았어요."
+
+
+def _friendly_event_summary(event: dict[str, Any]) -> str:
+    summary = str(event.get("summary") or "").strip()
+    action = str(event.get("action") or "").strip().lower()
+    target = str(event.get("target_object") or "").strip()
+    labels = _labels_from_event(event)
+
+    if target:
+        return f"{target} 근처에서 움직임이 보여요."
+
+    if "cat" in labels or "고양이" in summary:
+        return "고양이가 화면에 보이는 구간이에요."
+
+    if "dog" in labels or "강아지" in summary or "반려동물" in summary:
+        return "반려동물이 움직이는 모습이 보여요."
+
+    if action and action not in {"motion", "unknown"}:
+        return f"{action} 행동으로 보이는 장면이에요."
+
+    if summary:
+        return _soften_summary(summary)
+
+    return "움직임이 확인된 장면이에요."
+
+
+def _labels_from_event(event: dict[str, Any]) -> set[str]:
+    labels = set()
+
+    for frame in event.get("source_frames") or []:
+        if not isinstance(frame, dict):
+            continue
+        raw_labels = frame.get("object_labels") or []
+        if isinstance(raw_labels, str):
+            candidates = raw_labels.split(",")
+        else:
+            candidates = raw_labels
+
+        for label in candidates:
+            normalized = str(label).strip().lower()
+            if normalized:
+                labels.add(normalized)
+
+    return labels
+
+
+def _soften_summary(summary: str) -> str:
+    cleaned = re.sub(r"\s+", " ", summary).strip()
+    cleaned = re.sub(r"\([^)]*(반복|신뢰도|confidence|frame|프레임)[^)]*\)", "", cleaned).strip()
+    cleaned = cleaned.replace("것으로 추정되는 구간입니다", "것으로 보여요")
+    cleaned = cleaned.replace("구간입니다", "장면이에요")
+
+    if len(cleaned) > 70:
+        cleaned = cleaned[:67].rstrip() + "..."
+
+    return cleaned or "확인해볼 만한 장면이에요."
+
+
+def _friendly_labels(value) -> str:
+    labels = _normalize_labels(value)
+    normalized = labels.lower()
+
+    if "cat" in normalized:
+        return "고양이가 보이는 장면이에요."
+    if "dog" in normalized:
+        return "강아지가 보이는 장면이에요."
+    if "person" in normalized:
+        return "사람이 함께 보이는 장면이에요."
+
+    return "검색어와 비슷한 장면이에요."
 
 
 def _deduplicate_behavior_events(events: list[dict[str, Any]]) -> list[dict[str, Any]]:

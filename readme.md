@@ -1,7 +1,7 @@
 # Kidogkidog
 
 > 당신의 펫, 지금 뭐하고 있을까?
-
+ 
 Kidogkidog은 펫캠 영상에서 반려동물의 행동을 자연어로 검색하고, 관련 장면의 타임스탬프와 영상을 확인할 수 있는 Multimodal Video RAG 서비스입니다.
 
 ## 주요 기능
@@ -12,7 +12,7 @@ Kidogkidog은 펫캠 영상에서 반려동물의 행동을 자연어로 검색�
 - 이벤트 기반 처리: 영상 청크를 받아 motion 감지 후 필요한 프레임 추출
 - 벡터 검색: CLIP 임베딩을 ChromaDB에 저장하고 유사 장면 검색
 - 추천 질문: 저장된 행동 이벤트와 사용자 검색 로그 기반 질문 추천
-- S3 연동: 영상 청크 업로드, 다운로드, presigned URL 생성
+- GCS 연동: 영상 청크 업로드·다운로드, API를 통한 비공개 미디어 스트리밍
 
 ## 기술 스택
 
@@ -23,8 +23,8 @@ Kidogkidog은 펫캠 영상에서 반려동물의 행동을 자연어로 검색�
 | Async Worker | Celery, RabbitMQ |
 | AI/ML | CLIP, YOLO, LangChain |
 | Video Processing | OpenCV, FFmpeg |
-| Database | ChromaDB, SQLite, MySQL 호환 메타데이터 계층 |
-| Storage | AWS S3 |
+| Database | ChromaDB, MySQL (Cloud SQL) |
+| Storage | Google Cloud Storage |
 | Infra | Docker Compose |
 
 ## 시스템 구조
@@ -33,13 +33,13 @@ Kidogkidog은 펫캠 영상에서 반려동물의 행동을 자연어로 검색�
 원본 영상
   ↓
 Edge Simulator
-  ↓ 영상 청크 분할 + S3 업로드
+  ↓ 영상 청크 분할 + GCS 업로드
 FastAPI
   ↓ Celery 작업 등록
 RabbitMQ
   ↓
 Celery Worker
-  ↓ S3 청크 다운로드
+  ↓ GCS 청크 다운로드
 Motion 감지 → 프레임 추출 → YOLO 객체 감지
   ↓
 CLIP 임베딩 → ChromaDB 저장
@@ -55,7 +55,7 @@ React UI에서 결과 및 영상 재생
 
 ### 1. 환경 변수 준비
 
-루트 경로에 `.env`를 만들고 S3, DB, LLM 등에 필요한 값을 설정합니다.
+루트 경로에 `.env`를 만들고 GCS, DB, LLM 등에 필요한 값을 설정합니다.
 
 ```bash
 cp ui-react/.env.sample ui-react/.env
@@ -63,30 +63,51 @@ cp ui-react/.env.sample ui-react/.env
 
 React 개발 서버는 기본적으로 `/api` 요청을 `http://127.0.0.1:8000`으로 프록시합니다. 다른 API 서버를 쓰려면 `ui-react/.env`의 `VITE_API_PROXY_TARGET` 값을 변경합니다.
 
-### 2. 최소 인프라 실행
+### 2. GCP ChromaDB 연결 및 최소 인프라 실행
 
-React UI와 로컬 FastAPI 연결만 확인하려면 RabbitMQ만 먼저 띄웁니다.
+GCP에 배포된 API와 같은 `petcam_frames` 컬렉션을 사용합니다.
+루트 `.env`에 다음 값을 설정합니다. Docker Compose는 호스트 주소만
+`host.docker.internal`로 바꿔 같은 터널에 연결합니다.
+
+```dotenv
+CHROMA_HOST=127.0.0.1
+CHROMA_PORT=18001
+CHROMA_SSL=false
+CHROMA_COLLECTION=petcam_frames
+```
+
+GCP 로그인 및 VM SSH 접근 권한이 있는 컴퓨터에서 별도 터미널로 실행하고,
+로컬 API 또는 worker를 사용하는 동안 열어 둡니다. 터널이 이미 실행 중이면
+다시 실행하지 않습니다. 종료는 `Ctrl+C`입니다.
+
+```bash
+bash scripts/chroma-tunnel.sh
+```
+
+이 터널은 `127.0.0.1:18001`을 GCP `kidog-chroma` VM의 8000번 포트로 연결합니다.
+VM의 ChromaDB 포트를 인터넷에 공개하지 않습니다. Cloud Run은 기존 내부 IP로
+직접 접근하므로 이 터널이 필요하지 않습니다.
+
+영상 처리 작업을 등록하려면 RabbitMQ도 실행합니다.
 
 ```bash
 docker compose up -d rabbitmq
 ```
 
-ChromaDB까지 Docker로 함께 띄우려면 다음 명령을 사용합니다.
-
-```bash
-docker compose up -d rabbitmq chromadb
-```
+기본 Compose 실행에서는 로컬 ChromaDB를 시작하지 않습니다. 기존 로컬 데이터는
+삭제하지 않으며, 로컬 ChromaDB 서비스는 `local-chroma` 프로필에 보관되어 있습니다.
+기존 로컬 벡터가 GCP로 자동 복사되지는 않습니다.
 
 ### 3. 백엔드 실행
 
 ```bash
-uvicorn api.main:app --reload
+python -m dotenv -f .env run -- uvicorn api.main:app --reload
 ```
 
 영상 청크 처리까지 테스트하려면 worker도 별도 터미널에서 실행합니다.
 
 ```bash
-celery -A pipeline.tasks worker --loglevel=info --pool=solo
+python -m dotenv -f .env run -- celery -A pipeline.tasks worker --loglevel=info --pool=solo
 ```
 
 ### 4. React 프론트엔드 실행
@@ -105,10 +126,12 @@ http://localhost:5173
 
 ### 5. API와 worker를 Docker로 실행
 
-로컬 Python 실행 대신 API와 worker까지 Docker로 실행하려면 다음 명령을 사용합니다.
+로컬 Python 실행 대신 API와 worker까지 Docker로 실행하려면 Docker Desktop과
+위 SSH 터널을 켠 다음 실행합니다. 변경된 환경 변수를 적용하려면 컨테이너를
+다시 생성해야 합니다.
 
 ```bash
-docker compose up -d api worker
+docker compose up -d --build --force-recreate api worker
 ```
 
 상태 확인:
@@ -123,6 +146,18 @@ docker compose ps
 docker compose down
 ```
 
+영상 업로드는 같은 GCS 버킷을 사용하고, 로컬 API에 작업을 등록합니다.
+
+```bash
+python -m dotenv -f .env run -- python -m simulator.edge_simulator data/videos --server-url http://localhost:8000
+```
+
+worker가 배포 API와 같은 GCS 버킷과 Cloud SQL 데이터베이스를 사용해야 영상과
+분석 결과도 배포 페이지에서 조회됩니다. 로컬 GCP 인증에는 GCS 읽기·쓰기 권한이
+필요합니다. ChromaDB 연결 변경만으로 MySQL/GCS 인증이 설정되지는 않습니다.
+처리가 끝난 뒤에는 로컬 worker·RabbitMQ·터널을 꺼도 배포 페이지에서 검색할 수
+있습니다. 검색어 벡터 생성과 검색 응답 처리는 Cloud Run API가 수행합니다.
+
 ## 프로젝트 구조
 
 ```text
@@ -135,7 +170,7 @@ kidogkidog/
 │   └── videos/                    # 로컬 테스트 영상 입력 경로
 ├── db/
 │   ├── behavior_events.py         # 행동 이벤트 저장 및 조회
-│   ├── connection.py              # SQLite/MySQL 연결 어댑터
+│   ├── connection.py              # MySQL 연결
 │   ├── json_utils.py              # DB JSON 직렬화 유틸리티
 │   ├── scenes.py                  # 장면 메타데이터 저장 및 조회
 │   ├── schema.py                  # 테이블 생성 및 초기화
@@ -144,16 +179,14 @@ kidogkidog/
 │   ├── behavior_event_extractor.py
 │   ├── clip_embedder.py
 │   ├── frame_extractor.py
+│   ├── gcs_uploader.py            # GCS 업로드·다운로드
 │   ├── motion_detector.py
 │   ├── query_analyzer.py
 │   ├── query_suggester.py
 │   ├── rag_chain.py
-│   ├── s3_uploader.py
 │   ├── tasks.py                   # Celery 영상 처리 작업
 │   ├── vector_store.py            # ChromaDB 저장 및 검색
 │   └── yolo_detector.py
-├── scripts/
-│   └── migrate_sqlite_to_mysql.py
 ├── simulator/
 │   ├── chunk_splitter.py          # FFmpeg 청크 분할
 │   ├── edge_simulator.py          # 청크 업로드 및 API 전송 시뮬레이터
@@ -180,9 +213,6 @@ kidogkidog/
 pipeline/frames/
 simulator/chunks/
 db/chroma/
-db/*.db
-db/*.sqlite
-db/*.sqlite3
 ui-react/dist/
 ui-react/node_modules/
 ```

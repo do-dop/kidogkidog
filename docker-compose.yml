@@ -9,14 +9,14 @@ services:
       - .env
     environment:
       CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672/
-      CHROMA_HOST: chromadb
-      CHROMA_PORT: 8000
-      KIDOGKIDOG_DB_PATH: /app/db/kidogkidog.db
+      # Docker Desktop reaches the SSH tunnel running on the Mac host.
+      CHROMA_HOST: host.docker.internal
+      CHROMA_PORT: ${CHROMA_PORT:-18001}
+      CHROMA_SSL: "false"
     volumes:
       - ./db:/app/db
       - clip-cache:/root/.cache/clip
     depends_on:
-      - chromadb
       - rabbitmq
     networks:
       - kidognet
@@ -30,19 +30,20 @@ services:
       - .env
     environment:
       CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672/
-      CHROMA_HOST: chromadb
-      CHROMA_PORT: 8000
-      KIDOGKIDOG_DB_PATH: /app/db/kidogkidog.db
+      CHROMA_HOST: host.docker.internal
+      CHROMA_PORT: ${CHROMA_PORT:-18001}
+      CHROMA_SSL: "false"
     volumes:
       - ./db:/app/db
       - clip-cache:/root/.cache/clip
     depends_on:
-      - chromadb
       - rabbitmq
     networks:
       - kidognet
 
   chromadb:
+    # Opt-in only; normal API/worker traffic uses the GCP SSH tunnel.
+    profiles: [local-chroma]
     image: chromadb/chroma
     ports:
       - "8001:8000"

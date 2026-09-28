@@ -637,6 +637,24 @@ def _normalize_behavior_event(
             "s3_key": frame.get("s3_key"),
             "timestamp": frame.get("timestamp"),
             "object_labels": _parse_object_labels(frame.get("object_labels")),
+            "object_detections": [
+                {
+                    "label": str(detection["label"]),
+                    "confidence": float(detection["confidence"]),
+                    "bbox": [float(value) for value in detection["bbox"]],
+                }
+                for detection in frame.get("object_detections", [])
+                if isinstance(detection, dict)
+                and detection.get("label") is not None
+                and detection.get("confidence") is not None
+                and isinstance(detection.get("bbox"), (list, tuple))
+                and len(detection["bbox"]) == 4
+            ],
+            "species_resolution": [
+                dict(resolution)
+                for resolution in frame.get("species_resolution", [])
+                if isinstance(resolution, dict)
+            ],
         })
 
     return {

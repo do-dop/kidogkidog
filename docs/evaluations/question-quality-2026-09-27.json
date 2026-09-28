@@ -1,0 +1,341 @@
+{
+  "runs": {
+    "before": [
+      {
+        "video": "IMG_8450_2",
+        "items": [
+          {
+            "question": "자동 급식기 근처에 오래 머문 구간은 언제야?",
+            "source_event_id": 3,
+            "event_start": 4.5,
+            "event_end": 9.0
+          },
+          {
+            "question": "사료 그릇에서 먹이를 먹은 장면이 있어?",
+            "source_event_id": 2,
+            "event_start": 12.0,
+            "event_end": 66.5
+          },
+          {
+            "question": "자동 급식기에 관심을 보인 장면이 있어?",
+            "source_event_id": 3,
+            "event_start": 4.5,
+            "event_end": 9.0
+          }
+        ],
+        "generated": [
+          "자동 급식기 근처에 오래 머문 구간은 언제야?",
+          "사료 그릇에서 먹이를 먹은 장면이 있어?",
+          "자동 급식기에 관심을 보인 장면이 있어?",
+          "사료 그릇에 접근한 장면이 있어?",
+          "주변을 탐색한 장면이 있어?",
+          "사료를 입에 가져다 대는 장면이 있어?"
+        ]
+      },
+      {
+        "video": "dog_drinking_water",
+        "items": [
+          {
+            "question": "물 그릇에서 물을 마신 장면이 있어?",
+            "source_event_id": 17,
+            "event_start": 18.0,
+            "event_end": 18.0
+          },
+          {
+            "question": "반려동물이 물을 마시는 동안 머문 구간은 언제야?",
+            "source_event_id": 9,
+            "event_start": 2.0,
+            "event_end": 57.5
+          },
+          {
+            "question": "고양이가 보이는 장면 보여줘",
+            "source_event_id": 6,
+            "event_start": 30.0,
+            "event_end": 64.5
+          }
+        ],
+        "generated": [
+          "물 그릇에서 물을 마신 장면이 있어?",
+          "반려동물이 물 그릇에 다가간 장면이 있어?",
+          "물 그릇에 머리를 가까이 대고 있는 장면이 있어?",
+          "반려동물이 물을 마시는 동안 머문 구간은 언제야?",
+          "물방울이 튀는 장면이 있어?",
+          "물 그릇에 가까이 간 장면이 있어?",
+          "물 그릇에서 혀를 내밀어 물을 마신 장면이 있어?",
+          "반려동물이 물을 마시는 행동이 반복된 장면이 있어?"
+        ]
+      },
+      {
+        "video": "dog_escape",
+        "items": [
+          {
+            "question": "장난감을 넘어서는 장면이 있어?",
+            "source_event_id": 5,
+            "event_start": 2.0,
+            "event_end": 56.06
+          },
+          {
+            "question": "장애물 위로 뛰어오르려는 장면이 있어?",
+            "source_event_id": 5,
+            "event_start": 2.0,
+            "event_end": 56.06
+          },
+          {
+            "question": "사람이 함께 보이는 장면 있어?",
+            "source_event_id": 5,
+            "event_start": 2.0,
+            "event_end": 56.06
+          }
+        ],
+        "generated": [
+          "장난감을 넘어서는 장면이 있어?",
+          "장난감 옆에서 활발하게 움직인 장면이 있어?",
+          "식기 근처에서 관심을 보인 장면이 있어?",
+          "장애물 위로 뛰어오르려는 장면이 있어?",
+          "펜스 주변에서 움직인 구간은 언제야?",
+          "장난감에 반응을 확인할 수 있는 장면이 있어?",
+          "장애물을 넘는 자세를 보여준 장면이 있어?",
+          "반려동물이 뛴 장면은 언제였어?"
+        ]
+      },
+      {
+        "video": "two_dogs",
+        "items": [
+          {
+            "question": "소파 위에 올라간 장면이 있어?",
+            "source_event_id": 1,
+            "event_start": 0.0,
+            "event_end": 178.0
+          },
+          {
+            "question": "사람이 등장한 순간의 반응을 확인할 수 있어?",
+            "source_event_id": 1,
+            "event_start": 0.0,
+            "event_end": 178.0
+          },
+          {
+            "question": "반려동물이 움직인 장면은 언제였어?",
+            "source_event_id": 1,
+            "event_start": 0.0,
+            "event_end": 178.0
+          }
+        ],
+        "generated": [
+          "소파 위에 올라간 장면이 있어?",
+          "사람이 등장한 순간의 반응을 확인할 수 있어?",
+          "반려동물이 움직인 장면은 언제였어?",
+          "tv 근처에 오래 머문 구간은 언제야?",
+          "의자 아래에 들어간 장면이 있어?",
+          "반려동물이 방 안에 있는 장면이 있어?"
+        ]
+      }
+    ],
+    "after": [
+      {
+        "video": "IMG_8450_2",
+        "items": [
+          {
+            "question": "자동 급식기 근처에 있는 장면이 있어?",
+            "source_event_id": 3,
+            "event_start": 4.5,
+            "event_end": 9.0
+          },
+          {
+            "question": "사료 그릇에 접근한 장면이 있어?",
+            "source_event_id": 2,
+            "event_start": 12.0,
+            "event_end": 66.5
+          },
+          {
+            "question": "고양이가 보이는 장면 보여줘",
+            "source_event_id": 3,
+            "event_start": 4.5,
+            "event_end": 9.0
+          }
+        ],
+        "generated": [
+          "자동 급식기 근처에 있는 장면이 있어?",
+          "사료 그릇에 접근한 장면이 있어?"
+        ]
+      },
+      {
+        "video": "dog_drinking_water",
+        "items": [
+          {
+            "question": "물을 마신 장면이 있어?",
+            "source_event_id": 17,
+            "event_start": 18.0,
+            "event_end": 18.0
+          },
+          {
+            "question": "고양이가 보이는 장면 보여줘",
+            "source_event_id": 6,
+            "event_start": 30.0,
+            "event_end": 64.5
+          },
+          {
+            "question": "고양이가 움직인 장면 찾아줘",
+            "source_event_id": 8,
+            "event_start": 3.5,
+            "event_end": 9.5
+          }
+        ],
+        "generated": [
+          "물을 마신 장면이 있어?"
+        ]
+      },
+      {
+        "video": "dog_escape",
+        "items": [
+          {
+            "question": "사람이 함께 보이는 장면 있어?",
+            "source_event_id": 5,
+            "event_start": 2.0,
+            "event_end": 56.06
+          },
+          {
+            "question": "침대 근처에서 움직인 장면 찾아줘",
+            "source_event_id": 5,
+            "event_start": 2.0,
+            "event_end": 56.06
+          },
+          {
+            "question": "침대을 살펴보는 장면 있어?",
+            "source_event_id": 5,
+            "event_start": 2.0,
+            "event_end": 56.06
+          }
+        ],
+        "generated": []
+      },
+      {
+        "video": "two_dogs",
+        "items": [
+          {
+            "question": "고양이가 보이는 장면 보여줘",
+            "source_event_id": 1,
+            "event_start": 0.0,
+            "event_end": 178.0
+          },
+          {
+            "question": "고양이가 움직인 장면 찾아줘",
+            "source_event_id": 1,
+            "event_start": 0.0,
+            "event_end": 178.0
+          },
+          {
+            "question": "강아지가 보이는 장면 보여줘",
+            "source_event_id": 1,
+            "event_start": 0.0,
+            "event_end": 178.0
+          }
+        ],
+        "generated": []
+      }
+    ]
+  },
+  "events": [
+    {
+      "id": 5,
+      "video_id": "dog_escape",
+      "duration": 54.06,
+      "repeat_count": 1
+    },
+    {
+      "id": 9,
+      "video_id": "dog_drinking_water",
+      "duration": 55.5,
+      "repeat_count": 1
+    },
+    {
+      "id": 3,
+      "video_id": "IMG_8450_2",
+      "duration": 4.5,
+      "repeat_count": 1
+    },
+    {
+      "id": 15,
+      "video_id": "dog_drinking_water",
+      "duration": 0.0,
+      "repeat_count": 1
+    },
+    {
+      "id": 14,
+      "video_id": "dog_drinking_water",
+      "duration": 3.0,
+      "repeat_count": 1
+    },
+    {
+      "id": 2,
+      "video_id": "IMG_8450_2",
+      "duration": 54.5,
+      "repeat_count": 1
+    },
+    {
+      "id": 7,
+      "video_id": "dog_drinking_water",
+      "duration": 15.0,
+      "repeat_count": 1
+    },
+    {
+      "id": 11,
+      "video_id": "dog_drinking_water",
+      "duration": 5.5,
+      "repeat_count": 1
+    },
+    {
+      "id": 13,
+      "video_id": "dog_drinking_water",
+      "duration": 8.5,
+      "repeat_count": 1
+    },
+    {
+      "id": 10,
+      "video_id": "dog_drinking_water",
+      "duration": 30.0,
+      "repeat_count": 1
+    },
+    {
+      "id": 6,
+      "video_id": "dog_drinking_water",
+      "duration": 34.5,
+      "repeat_count": 1
+    },
+    {
+      "id": 16,
+      "video_id": "dog_drinking_water",
+      "duration": 1.5,
+      "repeat_count": 1
+    },
+    {
+      "id": 17,
+      "video_id": "dog_drinking_water",
+      "duration": 0.0,
+      "repeat_count": 1
+    },
+    {
+      "id": 4,
+      "video_id": "IMG_8450_2",
+      "duration": 0.0,
+      "repeat_count": 1
+    },
+    {
+      "id": 1,
+      "video_id": "two_dogs",
+      "duration": 178.0,
+      "repeat_count": 90
+    },
+    {
+      "id": 8,
+      "video_id": "dog_drinking_water",
+      "duration": 6.0,
+      "repeat_count": 4
+    },
+    {
+      "id": 12,
+      "video_id": "dog_drinking_water",
+      "duration": 3.5,
+      "repeat_count": 2
+    }
+  ]
+}

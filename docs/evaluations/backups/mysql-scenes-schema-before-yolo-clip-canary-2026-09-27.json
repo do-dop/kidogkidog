@@ -1,0 +1,65 @@
+{
+  "mysql_version": "8.4.11-google",
+  "show_create_table": {
+    "Table": "scenes",
+    "Create Table": "CREATE TABLE `scenes` (\n  `id` bigint NOT NULL AUTO_INCREMENT,\n  `video_id` varchar(255) NOT NULL,\n  `start_time` double NOT NULL,\n  `end_time` double NOT NULL,\n  `object_labels` text,\n  `s3_key` text,\n  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,\n  PRIMARY KEY (`id`),\n  KEY `idx_scenes_video_time` (`video_id`,`start_time`)\n) ENGINE=InnoDB AUTO_INCREMENT=1573 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci"
+  },
+  "columns": [
+    {
+      "Field": "id",
+      "Type": "bigint",
+      "Null": "NO",
+      "Key": "PRI",
+      "Default": null,
+      "Extra": "auto_increment"
+    },
+    {
+      "Field": "video_id",
+      "Type": "varchar(255)",
+      "Null": "NO",
+      "Key": "MUL",
+      "Default": null,
+      "Extra": ""
+    },
+    {
+      "Field": "start_time",
+      "Type": "double",
+      "Null": "NO",
+      "Key": "",
+      "Default": null,
+      "Extra": ""
+    },
+    {
+      "Field": "end_time",
+      "Type": "double",
+      "Null": "NO",
+      "Key": "",
+      "Default": null,
+      "Extra": ""
+    },
+    {
+      "Field": "object_labels",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": null,
+      "Extra": ""
+    },
+    {
+      "Field": "s3_key",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": null,
+      "Extra": ""
+    },
+    {
+      "Field": "created_at",
+      "Type": "timestamp",
+      "Null": "YES",
+      "Key": "",
+      "Default": "CURRENT_TIMESTAMP",
+      "Extra": "DEFAULT_GENERATED"
+    }
+  ]
+}
