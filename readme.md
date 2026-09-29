@@ -1,5 +1,5 @@
 # Kidogkidog
-
+ 
 > 당신의 펫, 지금 뭐하고 있을까?
  
 Kidogkidog은 펫캠 영상에서 반려동물의 행동을 자연어로 검색하고, 관련 장면의 타임스탬프와 영상을 확인할 수 있는 Multimodal Video RAG 서비스입니다.
