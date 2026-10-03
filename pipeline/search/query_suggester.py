@@ -2,6 +2,157 @@ from db.behavior_events import get_top_behavior_events
 from pipeline.search.question_generator import generate_questions_from_behavior_events
 from pipeline.storage.vector_store import get_indexed_frames
 
+def _event_text(event: dict) -> str:
+    """행동 이벤트에서 분류에 쓸 텍스트를 모은다."""
+    return " ".join(
+        str(event.get(key, "") or "")
+        for key in [
+            "subject",
+            "action",
+            "target_object",
+            "summary",
+            "evidence",
+        ]
+    ).lower()
+
+
+def _event_category(event: dict) -> str:
+    """비슷한 행동 이벤트를 하나의 카테고리로 묶는다."""
+    text = _event_text(event)
+
+    vehicle_words = ["차", "차량", "자동차", "바퀴", "vehicle", "car", "wheel"]
+    under_words = ["아래", "밑", "숨", "들어", "under", "hide", "enter"]
+    food_words = ["먹", "음식", "먹이", "사료", "밥", "그릇", "bowl", "food"]
+    water_words = ["물", "마시", "water"]
+    person_words = ["사람", "보호자", "손", "person", "human", "hand"]
+
+    if any(word in text for word in vehicle_words) and any(word in text for word in under_words):
+        return "vehicle_under"
+
+    if any(word in text for word in vehicle_words):
+        return "vehicle"
+
+    if any(word in text for word in food_words):
+        return "food"
+
+    if any(word in text for word in water_words):
+        return "water"
+
+    if any(word in text for word in person_words):
+        return "person"
+
+    if any(word in text for word in under_words):
+        return "hide_or_enter"
+
+    return "other"
+
+
+def _event_score(event: dict) -> float:
+    try:
+        return float(event.get("interestingness") or 0)
+    except Exception:
+        return 0.0
+
+
+def _dedupe_events_by_category(events: list[dict], limit: int) -> list[dict]:
+    """
+    같은 종류 이벤트는 1개만 남긴다.
+    음식 이벤트가 많이 잡혀도 추천 후보를 독점하지 않게 한다.
+    """
+    best_by_category: dict[str, dict] = {}
+
+    for event in events:
+        category = _event_category(event)
+
+        if category not in best_by_category:
+            best_by_category[category] = event
+            continue
+
+        if _event_score(event) > _event_score(best_by_category[category]):
+            best_by_category[category] = event
+
+    priority = [
+        "vehicle_under",
+        "vehicle",
+        "hide_or_enter",
+        "person",
+        "water",
+        "food",
+        "other",
+    ]
+
+    result = []
+    for category in priority:
+        if category in best_by_category:
+            result.append(best_by_category[category])
+
+    return result[:limit]
+
+
+def _question_category(question: str) -> str:
+    text = question.lower()
+
+    if any(word in text for word in ["차", "차량", "자동차", "바퀴", "밑", "아래"]):
+        return "vehicle"
+    if any(word in text for word in ["먹", "음식", "먹이", "사료", "밥", "그릇"]):
+        return "food"
+    if any(word in text for word in ["물", "마시"]):
+        return "water"
+    if any(word in text for word in ["사람", "보호자", "손"]):
+        return "person"
+    if any(word in text for word in ["숨", "들어", "머문"]):
+        return "hide_or_enter"
+
+    return "other"
+
+
+def _dedupe_questions_by_category(questions: list[str], limit: int) -> list[str]:
+    """
+    같은 종류 질문은 1개만 남긴다.
+    예: 음식 질문 3개 → 음식 질문 1개
+    """
+    result = []
+    seen_categories = set()
+
+    for question in questions:
+        category = _question_category(question)
+
+        if category in seen_categories:
+            continue
+
+        result.append(question)
+        seen_categories.add(category)
+
+        if len(result) >= limit:
+            break
+
+    return result
+
+
+def _is_low_value_question(question: str) -> bool:
+    """
+    검색 결과로 이어지기 어려운 너무 넓은 추천 질문을 제외한다.
+    예: 주변 물체 근처, 오래 이어진 행동처럼 구체적인 장면이 없는 질문.
+    """
+    text = str(question or "").strip()
+
+    if not text:
+        return True
+
+    weak_phrases = [
+        "주변 물체",
+        "주변 객체",
+        "주변 환경",
+        "오래 이어진 행동",
+        "행동이 있는 구간",
+        "행동 후보",
+    ]
+
+    if any(phrase in text for phrase in weak_phrases):
+        return True
+
+    return False
+
 
 def suggest_queries(
     user_id: str | None = None,
@@ -36,7 +187,7 @@ def suggest_query_items(
     """
     behavior_events = get_top_behavior_events(
         video_id=video_id,
-        limit=8,
+        limit=max(limit * 8, 30),
     )
 
     if behavior_events:
@@ -47,9 +198,19 @@ def suggest_query_items(
         )
         generated_questions = generate_questions_from_behavior_events(
             events=behavior_events,
-            limit=limit,
+            limit=max(limit * 3, 9),
         )
 
+        generated_questions = [
+            question
+            for question in _deduplicate_keep_order(generated_questions)
+            if not _is_low_value_question(question)
+        ]
+
+        generated_questions = _dedupe_questions_by_category(
+            generated_questions,
+            limit=limit,
+        )
         generated_questions = _deduplicate_keep_order([
             *video_specific_questions,
             *generated_questions,
@@ -89,10 +250,11 @@ def get_suggestion_behavior_events(
 ) -> list[dict]:
     """
     UI에서 '오늘 발견한 주요 행동'을 보여주기 위한 행동 이벤트 반환.
+    같은 종류의 행동은 1개만 남겨서 음식 질문이 여러 개 반복되지 않게 한다.
     """
     events = get_top_behavior_events(
         video_id=video_id,
-        limit=limit * 3,
+        limit=max(limit * 8, 30),
     )
 
     filtered_events = []
@@ -114,10 +276,39 @@ def get_suggestion_behavior_events(
         seen_signatures.add(signature)
         filtered_events.append(event)
 
-        if len(filtered_events) >= limit:
-            break
+    # 여기서 카테고리별로 1개만 남김
+    # 예: 음식 이벤트가 여러 개 있어도 food 1개만 남음
+    deduped_events = _dedupe_events_by_category(
+        filtered_events,
+        limit=limit,
+    )
 
-    return filtered_events[:limit]
+    return deduped_events[:limit]
+
+
+def get_suggestion_events(
+    video_id: str | None = None,
+    limit: int = 5,
+) -> list[dict]:
+    """
+    예전 scene_event 기반 추천 근거 함수.
+
+    현재는 객체/장면 후보 기반 추천을 사용하지 않으므로 빈 리스트를 반환한다.
+    app.py에서 이 함수를 import하고 있을 수 있어서 함수 이름만 유지한다.
+    """
+    return []
+
+
+def has_behavior_events(video_id: str | None = None) -> bool:
+    """
+    특정 영상에 행동 이벤트가 존재하는지 확인한다.
+    """
+    behavior_events = get_top_behavior_events(
+        video_id=video_id,
+        limit=1,
+    )
+
+    return bool(behavior_events)
 
 
 def _generate_video_specific_questions(
@@ -375,7 +566,13 @@ def _generate_questions_from_indexed_frames(
             "주변 물체를 살펴보는 장면 있어?",
         ])
 
-    return _deduplicate_keep_order(questions)[:limit]
+    questions = [
+        question
+        for question in _deduplicate_keep_order(questions)
+        if not _is_low_value_question(question)
+    ]
+
+    return questions[:limit]
 
 
 def _parse_object_labels(value) -> list[str]:
