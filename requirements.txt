@@ -93,6 +93,7 @@ pillow==12.2.0
 polars==1.39.3
 polars-runtime-32==1.39.3
 prompt_toolkit==3.0.52
+prometheus-client==0.26.0
 protobuf==6.33.6
 psutil==7.2.2
 pyarrow==23.0.1

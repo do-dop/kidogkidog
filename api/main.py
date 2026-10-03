@@ -1,5 +1,9 @@
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import Response
+from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 
 from api.routers import frames, media, recordings, search, suggestions, upload
 from db.schema import init_db
@@ -24,6 +28,12 @@ def startup():
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+
+if os.getenv("METRICS_ENABLED", "false").lower() in {"1", "true", "yes"}:
+    @app.get("/metrics", include_in_schema=False)
+    def metrics():
+        return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
 
 app.include_router(media.router)

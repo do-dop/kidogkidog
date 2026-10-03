@@ -146,6 +146,33 @@ docker compose ps
 docker compose down
 ```
 
+### 영상 처리 시간 관측 (Prometheus + Grafana)
+
+Docker Desktop을 켠 뒤 모니터링 프로필을 함께 실행합니다. 처음에는 백엔드 이미지를
+빌드하므로 시간이 걸릴 수 있습니다.
+
+```bash
+docker compose --profile monitoring up -d --build api worker prometheus grafana
+```
+
+Grafana는 `http://localhost:3000` (초기 계정 `admin` / `admin`), Prometheus는
+`http://localhost:9090`에서 엽니다. Grafana의 **Kidogkidog → 영상 처리** 대시보드에
+YOLO 감지, CLIP 이미지·텍스트 임베딩, ChromaDB 저장·검색, 프레임 추출 등 단계별
+평균·95백분위 처리 시간과 실패 횟수가 표시됩니다. 초기 비밀번호는 로컬 `.env`의
+`GRAFANA_ADMIN_PASSWORD`로 변경할 수 있습니다. Prometheus의 Targets에서
+`kidog-api`, `kidog-worker`가 모두 UP인지 확인합니다.
+
+측정값은 모니터링을 켠 뒤 **새로 처리한 영상**부터 쌓입니다. 기존 검색 DB의
+프레임을 조회하는 것만으로는 영상 처리 단계 지표가 생기지 않습니다. 로컬에서
+Python worker를 직접 실행할 때는 `METRICS_ENABLED=true METRICS_PORT=8002`를
+설정하고 위의 `--pool=solo` 방식을 사용합니다. worker 지표는
+`http://localhost:8002/metrics`, API 지표는 `http://localhost:8000/metrics`에서
+직접 확인할 수 있습니다. 영상 ID·질문 원문은 Prometheus 라벨에 넣지 않습니다.
+
+```bash
+docker compose --profile monitoring down
+```
+
 영상 업로드는 같은 GCS 버킷을 사용하고, 로컬 API에 작업을 등록합니다.
 
 ```bash

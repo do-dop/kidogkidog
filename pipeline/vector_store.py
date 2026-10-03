@@ -1,5 +1,6 @@
 import chromadb
 from pipeline.clip_embedder import embed_image, embed_text
+from pipeline.metrics import measure_stage
 from pathlib import Path
 from datetime import datetime, timedelta
 import os
@@ -188,11 +189,12 @@ def index_frame(
         metadata["recorded_at"] = str(recorded_at)
 
     print(f"ChromaDB add 시작: {frame_id}", flush=True)
-    collection.add(
-        embeddings=[embedding],
-        ids=[frame_id],
-        metadatas=[metadata],
-    )
+    with measure_stage("chroma_write"):
+        collection.add(
+            embeddings=[embedding],
+            ids=[frame_id],
+            metadatas=[metadata],
+        )
     print(f"ChromaDB add 완료: {frame_id}", flush=True)
     return frame_id
 
@@ -232,7 +234,8 @@ def search(query, top_k=3, video_id=None, recording_date=None, time_range=None):
     if video_id:
         query_kwargs["where"] = {"video_id": video_id}
 
-    results = collection.query(**query_kwargs)
+    with measure_stage("chroma_query"):
+        results = collection.query(**query_kwargs)
 
     output = []
     if not results["ids"] or not results["ids"][0]:

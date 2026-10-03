@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import List, Set
 
 from ultralytics import YOLO
+from pipeline.metrics import measure_stage
 
 
 # 펫캠/동물 영상에서 우선 의미 있는 COCO 클래스만 남김
@@ -40,7 +41,8 @@ def get_yolo_model():
 
     yolov8n.pt는 가장 가벼운 모델이라 Celery worker에서 먼저 붙이기 좋다.
     """
-    return YOLO("yolov8n.pt")
+    with measure_stage("yolo_model_load"):
+        return YOLO("yolov8n.pt")
 
 
 def detect_objects(
@@ -64,11 +66,12 @@ def detect_objects(
 
     try:
         model = get_yolo_model()
-        results = model.predict(
-            source=frame_path,
-            conf=confidence_threshold,
-            verbose=False,
-        )
+        with measure_stage("yolo_detection"):
+            results = model.predict(
+                source=frame_path,
+                conf=confidence_threshold,
+                verbose=False,
+            )
 
         detected_labels = set()
 

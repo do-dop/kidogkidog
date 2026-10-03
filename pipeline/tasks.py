@@ -1,4 +1,5 @@
 from celery import Celery
+from celery.signals import worker_ready
 from pipeline.frame_extractor import extract_frames
 from pipeline.gcs_uploader import download_video, upload_frame
 from pipeline.vector_store import index_frame
@@ -9,9 +10,11 @@ from db.scenes import insert_scene
 from db.schema import init_db
 import os
 import json
+import time
 from datetime import timedelta
 from pathlib import Path
 from pipeline.gcs_uploader import get_object_metadata
+from pipeline.metrics import CHUNKS, FRAMES, STAGE_SECONDS, measure_stage, start_worker_metrics
 
 FRAME_ROOT = Path("pipeline/frames")
 
@@ -19,6 +22,7 @@ celery_app = Celery(
     'tasks',
     broker=os.getenv('CELERY_BROKER_URL', 'amqp://guest:guest@localhost:5672/')
 )
+worker_ready.connect(start_worker_metrics, weak=False)
 
 
 def upload_frame_to_object_storage(local_frame_path, video_id):
@@ -101,6 +105,7 @@ def process_chunk(chunk_path):
     → 로컬 프레임 삭제
     """
     print(f"[Task 시작] {chunk_path}")
+    task_started = time.monotonic()
 
     video_id = get_video_id_from_object_key(chunk_path)
     frame_output_dir = FRAME_ROOT / video_id
@@ -114,25 +119,28 @@ def process_chunk(chunk_path):
         chunk_recorded_at = chunk_metadata.get("LastModified")
 
         # 1. GCS에서 영상/청크 다운로드
-        download_video(chunk_path, local_path)
+        with measure_stage("video_download"):
+            download_video(chunk_path, local_path)
         print(f"다운로드 완료: {local_path}")
 
         # 2. 프레임 추출 (motion 감지 포함)
-        frames = extract_frames(
-            local_path,
-            output_dir=str(frame_output_dir),
-            frame_prefix=Path(local_path).stem,
-        )
+        with measure_stage("frame_extraction"):
+            frames = extract_frames(
+                local_path,
+                output_dir=str(frame_output_dir),
+                frame_prefix=Path(local_path).stem,
+            )
         print(f"프레임 {len(frames)}개 추출 완료")
 
         # 3. 프레임을 먼저 GCS에 모두 업로드
         uploaded_frames = []
 
         for frame in frames:
-            frame_s3_key = upload_frame_to_object_storage(
-                frame["frame_path"],
-                video_id,
-            )
+            with measure_stage("frame_upload"):
+                frame_s3_key = upload_frame_to_object_storage(
+                    frame["frame_path"],
+                    video_id,
+                )
 
             uploaded_frames.append({
                 **frame,
@@ -197,13 +205,14 @@ def process_chunk(chunk_path):
                 ensure_ascii=False,
             )
 
-            insert_scene(
-                video_id=video_id,
-                start_time=frame["timestamp"],
-                end_time=frame["timestamp"] + 1.0,
-                object_labels=object_labels_json,
-                s3_key=frame["s3_key"],
-            )
+            with measure_stage("scene_write"):
+                insert_scene(
+                    video_id=video_id,
+                    start_time=frame["timestamp"],
+                    end_time=frame["timestamp"] + 1.0,
+                    object_labels=object_labels_json,
+                    s3_key=frame["s3_key"],
+                )
 
         print(f"scenes 메타데이터 {len(indexed_frames)}개 저장 완료!")
 
@@ -215,11 +224,12 @@ def process_chunk(chunk_path):
         if indexed_frames:
             print("행동 이벤트 분석 시작...", flush=True)
 
-            behavior_events = extract_behavior_events(
-                indexed_frames=indexed_frames,
-                video_id=video_id,
-                limit=5,
-            )
+            with measure_stage("behavior_analysis"):
+                behavior_events = extract_behavior_events(
+                    indexed_frames=indexed_frames,
+                    video_id=video_id,
+                    limit=5,
+                )
 
             if behavior_events:
                 insert_behavior_events(behavior_events)
@@ -237,6 +247,8 @@ def process_chunk(chunk_path):
             os.remove(local_path)
             print(f"임시 파일 삭제: {local_path}")
 
+        FRAMES.inc(len(indexed_frames))
+        CHUNKS.labels(outcome="success").inc()
         return {
             "chunk_path": chunk_path,
             "video_id": video_id,
@@ -247,6 +259,7 @@ def process_chunk(chunk_path):
         }
 
     except Exception as exc:
+        CHUNKS.labels(outcome="failure").inc()
         print(f"[Task 실패] {chunk_path} - {exc}", flush=True)
 
         # 실패하더라도 가능한 로컬 파일은 정리
@@ -258,3 +271,5 @@ def process_chunk(chunk_path):
             print(f"임시 파일 삭제: {local_path}")
 
         raise
+    finally:
+        STAGE_SECONDS.labels(stage="chunk_total").observe(time.monotonic() - task_started)
