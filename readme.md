@@ -4,6 +4,8 @@
 
 Kidogkidog은 펫캠 영상에서 반려동물의 행동을 자연어로 검색하고, 관련 장면의 타임스탬프와 영상을 확인할 수 있는 Multimodal Video RAG 서비스입니다.
 
+포트폴리오 및 면접용 구현 정리는 [docs/portfolio.md](docs/portfolio.md)에서 확인할 수 있습니다.
+
 ## 주요 기능
 
 - 자연어 행동 검색: "강아지가 물 마신 장면 보여줘" 같은 문장으로 장면 검색
@@ -202,14 +204,14 @@ kidogkidog/
 │   ├── schema.py                  # 테이블 생성 및 초기화
 │   └── search_history.py          # 검색 로그와 빈출 검색어 관리
 ├── pipeline/
+│   ├── __init__.py                # 기존 import 경로를 새 모듈에 연결
 │   ├── tasks.py                   # Celery 영상 처리 작업 및 작업 이름 유지
 │   ├── video/                    # 움직임 감지와 프레임 추출
 │   ├── models/                   # CLIP 임베딩과 YOLO 객체 감지
 │   ├── storage/                  # GCS 파일과 ChromaDB 벡터 저장소
 │   ├── events/                   # 행동·장면 이벤트 추출
 │   ├── search/                   # 질의 분석, 추천 질문, RAG 답변
-│   ├── observability/            # 처리 시간 및 실패 지표
-│   └── *.py                      # 기존 import 경로를 위한 호환 모듈
+│   └── observability/            # 처리 시간 및 실패 지표
 ├── simulator/
 │   ├── chunk_splitter.py          # FFmpeg 청크 분할
 │   └── edge_simulator.py          # 청크 업로드 및 API 전송 시뮬레이터
