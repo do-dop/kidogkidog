@@ -3,7 +3,7 @@ from pathlib import Path
 import re
 
 from db.scenes import get_scene_records
-from pipeline.gcs_uploader import create_presigned_url, list_objects
+from pipeline.storage.gcs_uploader import create_presigned_url, list_objects
 
 from api.services.media_service import media_path_for_key, thumbnail_path_for_key
 

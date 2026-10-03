@@ -10,7 +10,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from simulator.chunk_splitter import split_video_into_chunks
-from pipeline.gcs_uploader import upload_video
+from pipeline.storage.gcs_uploader import upload_video
 
 VIDEO_EXTENSIONS = {".mp4", ".mov", ".avi", ".mkv", ".m4v"}
 

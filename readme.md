@@ -202,17 +202,14 @@ kidogkidog/
 │   ├── schema.py                  # 테이블 생성 및 초기화
 │   └── search_history.py          # 검색 로그와 빈출 검색어 관리
 ├── pipeline/
-│   ├── behavior_event_extractor.py
-│   ├── clip_embedder.py
-│   ├── frame_extractor.py
-│   ├── gcs_uploader.py            # GCS 업로드·다운로드
-│   ├── motion_detector.py
-│   ├── query_analyzer.py
-│   ├── query_suggester.py
-│   ├── rag_chain.py
-│   ├── tasks.py                   # Celery 영상 처리 작업
-│   ├── vector_store.py            # ChromaDB 저장 및 검색
-│   └── yolo_detector.py
+│   ├── tasks.py                   # Celery 영상 처리 작업 및 작업 이름 유지
+│   ├── video/                    # 움직임 감지와 프레임 추출
+│   ├── models/                   # CLIP 임베딩과 YOLO 객체 감지
+│   ├── storage/                  # GCS 파일과 ChromaDB 벡터 저장소
+│   ├── events/                   # 행동·장면 이벤트 추출
+│   ├── search/                   # 질의 분석, 추천 질문, RAG 답변
+│   ├── observability/            # 처리 시간 및 실패 지표
+│   └── *.py                      # 기존 import 경로를 위한 호환 모듈
 ├── simulator/
 │   ├── chunk_splitter.py          # FFmpeg 청크 분할
 │   └── edge_simulator.py          # 청크 업로드 및 API 전송 시뮬레이터

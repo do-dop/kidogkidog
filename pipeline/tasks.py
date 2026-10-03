@@ -1,10 +1,10 @@
 from celery import Celery
 from celery.signals import worker_ready
-from pipeline.frame_extractor import extract_frames
-from pipeline.gcs_uploader import download_video, upload_frame
-from pipeline.vector_store import index_frame
-from pipeline.yolo_detector import detect_objects
-from pipeline.behavior_event_extractor import extract_behavior_events
+from pipeline.video.frame_extractor import extract_frames
+from pipeline.storage.gcs_uploader import download_video, upload_frame
+from pipeline.storage.vector_store import index_frame
+from pipeline.models.yolo_detector import detect_objects
+from pipeline.events.behavior_event_extractor import extract_behavior_events
 from db.behavior_events import insert_behavior_events
 from db.scenes import insert_scene
 from db.schema import init_db
@@ -13,8 +13,8 @@ import json
 import time
 from datetime import timedelta
 from pathlib import Path
-from pipeline.gcs_uploader import get_object_metadata
-from pipeline.metrics import CHUNKS, FRAMES, STAGE_SECONDS, measure_stage, start_worker_metrics
+from pipeline.storage.gcs_uploader import get_object_metadata
+from pipeline.observability.metrics import CHUNKS, FRAMES, STAGE_SECONDS, measure_stage, start_worker_metrics
 
 FRAME_ROOT = Path("pipeline/frames")
 
