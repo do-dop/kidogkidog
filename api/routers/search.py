@@ -21,7 +21,7 @@ def query(request: QueryRequest):
     started_at = time.perf_counter()
 
     try:
-        from pipeline.rag_chain import run_rag_query
+        from pipeline.search.rag_chain import run_rag_query
 
         rag_result = run_rag_query(
             query=request.query,

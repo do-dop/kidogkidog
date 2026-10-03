@@ -43,6 +43,8 @@ type SearchResult = {
   objects: Tag[];
   startSeconds?: number;
   playbackStartSeconds?: number;
+  playbackEndSeconds?: number;
+  recordingId?: string;
   seekStartSeconds?: number;
   seekEndSeconds?: number;
   videoId?: string;
@@ -53,6 +55,12 @@ type SearchResult = {
   eventStart?: number;
   eventEnd?: number;
   representativeTimestamp?: number;
+};
+
+type PlaybackSegment = {
+  videoUrl: string;
+  startAtSeconds: number;
+  endAtSeconds: number;
 };
 
 type ApiQueryResult = {
@@ -351,9 +359,13 @@ function mapApiResults(payload: ApiQueryResult, items: Recording[] = []): Search
     const frameThumbnailUrl = result.s3_key ? mediaUrl(`/media/s3?key=${encodeURIComponent(result.s3_key)}`) : undefined;
     const dateTime = resultDateTime(recording, seconds);
     const recordingDurationSeconds = durationToSeconds(recording?.duration);
-    const playbackStartSeconds = recording && recordingDurationSeconds && playbackStart <= recordingDurationSeconds + 1
+    const playbackIsChunkRelative = Boolean(recording && recordingDurationSeconds && playbackStart <= recordingDurationSeconds + 1);
+    const playbackStartSeconds = playbackIsChunkRelative
       ? Math.max(0, playbackStart)
       : recording ? Math.max(0, playbackStart - (recording.startSeconds ?? 0)) : playbackStart;
+    const playbackEndSeconds = playbackEnd === undefined ? undefined
+      : playbackIsChunkRelative ? playbackEnd
+        : recording ? playbackEnd - (recording.startSeconds ?? 0) : playbackEnd;
     const eventStart = result.event_start;
     const eventEnd = result.event_end;
     const noteParts = [];
@@ -370,13 +382,15 @@ function mapApiResults(payload: ApiQueryResult, items: Recording[] = []): Search
       dateLabel: dateTime.dateLabel,
       offsetLabel: dateTime.offsetLabel,
       chunkLabel: dateTime.chunkLabel,
-      duration: "0:10",
+      duration: formatDuration(Math.max(0, (playbackEndSeconds ?? playbackStartSeconds + 10) - playbackStartSeconds)),
       score: result.score ?? 0,
       note: noteParts.join(" · ") || (result.object_labels ? `감지 객체: ${result.object_labels}` : "검색어와 유사한 장면"),
       thumb: index % gradients.length,
       objects: labelsToTags(result.object_labels),
       startSeconds: seconds,
       playbackStartSeconds,
+      playbackEndSeconds,
+      recordingId: recording?.id,
       seekStartSeconds: playbackStart,
       seekEndSeconds: playbackEnd,
       videoId: result.video_id,
@@ -389,6 +403,42 @@ function mapApiResults(payload: ApiQueryResult, items: Recording[] = []): Search
       representativeTimestamp: seconds,
     };
   });
+}
+
+function nextRecording(current: Recording, items: Recording[]): Recording | undefined {
+  const match = current.id.match(/^(.*_)(\d{3})(\.mp4)$/i);
+  if (!match) return undefined;
+  const nextId = `${match[1]}${String(Number(match[2]) + 1).padStart(3, "0")}${match[3]}`;
+  const duration = durationToSeconds(current.duration) ?? 60;
+  return items.find((item) =>
+    item.id === nextId
+    && item.videoId === current.videoId
+    && item.startSeconds === (current.startSeconds ?? 0) + duration
+  );
+}
+
+function searchPlaybackSegments(result: SearchResult, items: Recording[]): PlaybackSegment[] {
+  let recording = items.find((item) => item.id === result.recordingId);
+  if (!recording?.videoUrl) return [];
+
+  let start = Math.max(0, result.playbackStartSeconds ?? 0);
+  const requestedEnd = result.playbackEndSeconds ?? start + 10;
+  let remaining = Math.max(0, requestedEnd - start);
+  const segments: PlaybackSegment[] = [];
+
+  while (recording?.videoUrl && remaining > 0) {
+    const duration = durationToSeconds(recording.duration) ?? 60;
+    const end = Math.min(duration, start + remaining);
+    if (end > start) {
+      segments.push({ videoUrl: recording.videoUrl, startAtSeconds: start, endAtSeconds: end });
+      remaining -= end - start;
+    }
+    if (remaining <= 0) break;
+    recording = nextRecording(recording, items);
+    start = 0;
+  }
+
+  return segments;
 }
 
 function pickRelevantResults(items: SearchResult[]) {
@@ -1719,7 +1769,16 @@ export default function App() {
               </div>
               <div className="playback-grid">
                 <div className="stack">
-                  <VideoPanel label="검색 결과 시각으로 이동" camera={activeResult.note} time={activeResult.displayDateTime || activeResult.time} videoUrl={activeResult.videoUrl} startAtSeconds={activeResult.playbackStartSeconds ?? activeResult.seekStartSeconds} wide />
+                  <VideoPanel
+                    key={activeResult.id}
+                    label="검색 결과 구간 재생"
+                    camera={activeResult.note}
+                    time={activeResult.displayDateTime || activeResult.time}
+                    videoUrl={activeResult.videoUrl}
+                    startAtSeconds={activeResult.playbackStartSeconds ?? activeResult.seekStartSeconds}
+                    playbackSegments={searchPlaybackSegments(activeResult, recordingItems)}
+                    wide
+                  />
                   <Timeline activeResult={activeResult} results={visibleResults} onSelect={setActiveResult} />
                   <div className="button-row">
                     <button className="secondary-button" onClick={() => stepResult(-1)}><Icon>skip_previous</Icon>이전 결과</button>
@@ -1760,6 +1819,7 @@ function VideoPanel({
   time,
   videoUrl,
   startAtSeconds = 0,
+  playbackSegments,
   wide = false,
   showControls = true,
   loop = false,
@@ -1769,17 +1829,34 @@ function VideoPanel({
   time: string;
   videoUrl?: string;
   startAtSeconds?: number;
+  playbackSegments?: PlaybackSegment[];
   wide?: boolean;
   showControls?: boolean;
   loop?: boolean;
 }) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const safeStartAtSeconds = Math.max(0, Number.isFinite(startAtSeconds) ? startAtSeconds : 0);
-  const videoKey = `${videoUrl || "empty"}-${safeStartAtSeconds}`;
+  const [segmentIndex, setSegmentIndex] = useState(0);
+  const segment = playbackSegments?.[segmentIndex];
+  const currentVideoUrl = segment?.videoUrl ?? videoUrl;
+  const requestedStart = segment?.startAtSeconds ?? startAtSeconds;
+  const safeStartAtSeconds = Math.max(0, Number.isFinite(requestedStart) ? requestedStart : 0);
+  const videoKey = `${currentVideoUrl || "empty"}-${safeStartAtSeconds}-${segmentIndex}`;
+
+  function finishSegment(video: HTMLVideoElement) {
+    if (!playbackSegments?.length) return;
+    if (segmentIndex + 1 < playbackSegments.length) {
+      setSegmentIndex((current) => current === segmentIndex ? current + 1 : current);
+    } else {
+      video.pause();
+      if (segment && video.currentTime < segment.endAtSeconds && segment.endAtSeconds <= video.duration) {
+        video.currentTime = segment.endAtSeconds;
+      }
+    }
+  }
 
   useEffect(() => {
     const video = videoRef.current;
-    if (!video || !videoUrl) return;
+    if (!video || !currentVideoUrl) return;
 
     const seek = () => {
       if (safeStartAtSeconds <= 0) return;
@@ -1801,12 +1878,28 @@ function VideoPanel({
 
     video.addEventListener("loadedmetadata", seek, { once: true });
     return () => video.removeEventListener("loadedmetadata", seek);
-  }, [safeStartAtSeconds, videoUrl]);
+  }, [safeStartAtSeconds, currentVideoUrl]);
 
   return (
-    <div className={`${wide ? "video-panel wide" : "video-panel"} ${videoUrl ? "with-media" : ""}`}>
-      {videoUrl ? (
-        <video key={videoKey} ref={videoRef} className="video-player" src={videoUrl} controls={showControls} autoPlay muted playsInline loop={loop} />
+    <div className={`${wide ? "video-panel wide" : "video-panel"} ${currentVideoUrl ? "with-media" : ""}`}>
+      {currentVideoUrl ? (
+        <video
+          key={videoKey}
+          ref={videoRef}
+          className="video-player"
+          src={currentVideoUrl}
+          controls={showControls}
+          autoPlay
+          muted
+          playsInline
+          loop={loop}
+          onTimeUpdate={(event) => {
+            if (segment && event.currentTarget.currentTime >= segment.endAtSeconds - 0.08) {
+              finishSegment(event.currentTarget);
+            }
+          }}
+          onEnded={(event) => finishSegment(event.currentTarget)}
+        />
       ) : (
         <div className="video-gradient" />
       )}

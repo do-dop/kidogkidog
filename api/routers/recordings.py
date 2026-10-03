@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 
 from api.services.recording_service import list_s3_recording_chunks
-from pipeline.query_suggester import get_suggestion_behavior_events
+from pipeline.search.query_suggester import get_suggestion_behavior_events
 
 
 router = APIRouter(prefix="/recordings", tags=["recordings"])

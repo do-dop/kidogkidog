@@ -18,7 +18,7 @@ def reindex_local_frames(video_id: str | None = None):
         )
 
     try:
-        from pipeline.vector_store import index_frames
+        from pipeline.storage.vector_store import index_frames
 
         if video_id:
             target_dir = FRAMES_DIR / video_id

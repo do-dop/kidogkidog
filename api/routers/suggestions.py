@@ -6,8 +6,8 @@ from db.search_history import (
     get_user_recent_queries,
     get_user_top_queries,
 )
-from pipeline.query_suggester import get_suggestion_behavior_events, suggest_query_items
-from pipeline.vector_store import get_indexed_frames
+from pipeline.search.query_suggester import get_suggestion_behavior_events, suggest_query_items
+from pipeline.storage.vector_store import get_indexed_frames
 
 
 router = APIRouter(tags=["suggestions"])

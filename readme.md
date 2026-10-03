@@ -146,6 +146,33 @@ docker compose ps
 docker compose down
 ```
 
+### 영상 처리 시간 관측 (Prometheus + Grafana)
+
+Docker Desktop을 켠 뒤 모니터링 프로필을 함께 실행합니다. 처음에는 백엔드 이미지를
+빌드하므로 시간이 걸릴 수 있습니다.
+
+```bash
+docker compose --profile monitoring up -d --build api worker prometheus grafana
+```
+
+Grafana는 `http://localhost:3000` (초기 계정 `admin` / `admin`), Prometheus는
+`http://localhost:9090`에서 엽니다. Grafana의 **Kidogkidog → 영상 처리** 대시보드에
+YOLO 감지, CLIP 이미지·텍스트 임베딩, ChromaDB 저장·검색, 프레임 추출 등 단계별
+평균·95백분위 처리 시간과 실패 횟수가 표시됩니다. 초기 비밀번호는 로컬 `.env`의
+`GRAFANA_ADMIN_PASSWORD`로 변경할 수 있습니다. Prometheus의 Targets에서
+`kidog-api`, `kidog-worker`가 모두 UP인지 확인합니다.
+
+측정값은 모니터링을 켠 뒤 **새로 처리한 영상**부터 쌓입니다. 기존 검색 DB의
+프레임을 조회하는 것만으로는 영상 처리 단계 지표가 생기지 않습니다. 로컬에서
+Python worker를 직접 실행할 때는 `METRICS_ENABLED=true METRICS_PORT=8002`를
+설정하고 위의 `--pool=solo` 방식을 사용합니다. worker 지표는
+`http://localhost:8002/metrics`, API 지표는 `http://localhost:8000/metrics`에서
+직접 확인할 수 있습니다. 영상 ID·질문 원문은 Prometheus 라벨에 넣지 않습니다.
+
+```bash
+docker compose --profile monitoring down
+```
+
 영상 업로드는 같은 GCS 버킷을 사용하고, 로컬 API에 작업을 등록합니다.
 
 ```bash
@@ -164,8 +191,7 @@ worker가 배포 API와 같은 GCS 버킷과 Cloud SQL 데이터베이스를 사
 kidogkidog/
 ├── api/
 │   ├── Dockerfile
-│   ├── main.py                    # FastAPI 엔드포인트, 검색 API, 미디어 프록시
-│   └── requirements.txt
+│   └── main.py                    # FastAPI 엔드포인트, 검색 API, 미디어 프록시
 ├── data/
 │   └── videos/                    # 로컬 테스트 영상 입력 경로
 ├── db/
@@ -176,21 +202,17 @@ kidogkidog/
 │   ├── schema.py                  # 테이블 생성 및 초기화
 │   └── search_history.py          # 검색 로그와 빈출 검색어 관리
 ├── pipeline/
-│   ├── behavior_event_extractor.py
-│   ├── clip_embedder.py
-│   ├── frame_extractor.py
-│   ├── gcs_uploader.py            # GCS 업로드·다운로드
-│   ├── motion_detector.py
-│   ├── query_analyzer.py
-│   ├── query_suggester.py
-│   ├── rag_chain.py
-│   ├── tasks.py                   # Celery 영상 처리 작업
-│   ├── vector_store.py            # ChromaDB 저장 및 검색
-│   └── yolo_detector.py
+│   ├── tasks.py                   # Celery 영상 처리 작업 및 작업 이름 유지
+│   ├── video/                    # 움직임 감지와 프레임 추출
+│   ├── models/                   # CLIP 임베딩과 YOLO 객체 감지
+│   ├── storage/                  # GCS 파일과 ChromaDB 벡터 저장소
+│   ├── events/                   # 행동·장면 이벤트 추출
+│   ├── search/                   # 질의 분석, 추천 질문, RAG 답변
+│   ├── observability/            # 처리 시간 및 실패 지표
+│   └── *.py                      # 기존 import 경로를 위한 호환 모듈
 ├── simulator/
 │   ├── chunk_splitter.py          # FFmpeg 청크 분할
-│   ├── edge_simulator.py          # 청크 업로드 및 API 전송 시뮬레이터
-│   └── preprocessor.py
+│   └── edge_simulator.py          # 청크 업로드 및 API 전송 시뮬레이터
 ├── ui-react/
 │   ├── src/
 │   │   ├── App.css

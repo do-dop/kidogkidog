@@ -13,6 +13,7 @@ services:
       CHROMA_HOST: host.docker.internal
       CHROMA_PORT: ${CHROMA_PORT:-18001}
       CHROMA_SSL: "false"
+      METRICS_ENABLED: "true"
     volumes:
       - ./db:/app/db
       - clip-cache:/root/.cache/clip
@@ -25,7 +26,10 @@ services:
     build:
       context: .
       dockerfile: api/Dockerfile
-    command: celery -A pipeline.tasks worker --loglevel=info --concurrency=1
+    # Solo keeps instrumentation and the metrics HTTP server in one process.
+    command: celery -A pipeline.tasks worker --loglevel=info --pool=solo --concurrency=1
+    ports:
+      - "127.0.0.1:8002:8002"
     env_file:
       - .env
     environment:
@@ -33,6 +37,8 @@ services:
       CHROMA_HOST: host.docker.internal
       CHROMA_PORT: ${CHROMA_PORT:-18001}
       CHROMA_SSL: "false"
+      METRICS_ENABLED: "true"
+      METRICS_PORT: "8002"
     volumes:
       - ./db:/app/db
       - clip-cache:/root/.cache/clip
@@ -60,6 +66,41 @@ services:
     networks:
       - kidognet
 
+  prometheus:
+    profiles: [monitoring]
+    image: prom/prometheus:v3.5.0
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=7d
+    ports:
+      - "127.0.0.1:9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    depends_on:
+      - api
+      - worker
+    networks:
+      - kidognet
+
+  grafana:
+    profiles: [monitoring]
+    image: grafana/grafana:12.1.0
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+    networks:
+      - kidognet
+
 networks:
   kidognet:
     driver: bridge
@@ -67,3 +108,5 @@ networks:
 volumes:
   clip-cache:
   chroma-data:
+  prometheus-data:
+  grafana-data:

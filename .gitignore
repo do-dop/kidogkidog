@@ -50,3 +50,6 @@ dist/
 
 # Cloud SQL Auth Proxy 바이너리
 cloud-sql-proxy
+
+# 로컬 작업 메모
+TODO.md

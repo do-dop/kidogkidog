@@ -1,0 +1,75 @@
+{
+  "uid": "kidog-pipeline",
+  "title": "Kidogkidog · 영상 처리",
+  "tags": ["kidogkidog", "pipeline"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "5s",
+  "time": {"from": "now-1h", "to": "now"},
+  "panels": [
+    {
+      "id": 7,
+      "title": "수집 상태 (1 = 정상)",
+      "type": "stat",
+      "datasource": {"type": "prometheus", "uid": "kidog-prometheus"},
+      "gridPos": {"h": 4, "w": 24, "x": 0, "y": 0},
+      "fieldConfig": {"defaults": {"unit": "short"}, "overrides": []},
+      "targets": [{"expr": "up{job=~\"kidog-api|kidog-worker\"}", "legendFormat": "{{job}}", "refId": "A"}]
+    },
+    {
+      "id": 1,
+      "title": "단계별 평균 처리 시간",
+      "type": "timeseries",
+      "datasource": {"type": "prometheus", "uid": "kidog-prometheus"},
+      "gridPos": {"h": 9, "w": 12, "x": 0, "y": 4},
+      "fieldConfig": {"defaults": {"unit": "s"}, "overrides": []},
+      "targets": [{"expr": "sum by (stage) (rate(kidog_pipeline_stage_seconds_sum[5m])) / sum by (stage) (rate(kidog_pipeline_stage_seconds_count[5m]))", "legendFormat": "{{stage}}", "refId": "A"}]
+    },
+    {
+      "id": 2,
+      "title": "단계별 95백분위 처리 시간",
+      "type": "timeseries",
+      "datasource": {"type": "prometheus", "uid": "kidog-prometheus"},
+      "gridPos": {"h": 9, "w": 12, "x": 12, "y": 4},
+      "fieldConfig": {"defaults": {"unit": "s"}, "overrides": []},
+      "targets": [{"expr": "histogram_quantile(0.95, sum by (le, stage) (rate(kidog_pipeline_stage_seconds_bucket[5m])))", "legendFormat": "{{stage}}", "refId": "A"}]
+    },
+    {
+      "id": 3,
+      "title": "5분간 단계별 누적 시간",
+      "type": "barchart",
+      "datasource": {"type": "prometheus", "uid": "kidog-prometheus"},
+      "gridPos": {"h": 9, "w": 12, "x": 0, "y": 13},
+      "fieldConfig": {"defaults": {"unit": "s"}, "overrides": []},
+      "targets": [{"expr": "sum by (stage) (increase(kidog_pipeline_stage_seconds_sum{job=\"kidog-worker\"}[5m]))", "legendFormat": "{{stage}}", "refId": "A"}]
+    },
+    {
+      "id": 4,
+      "title": "인덱싱 프레임 수 (누적)",
+      "type": "timeseries",
+      "datasource": {"type": "prometheus", "uid": "kidog-prometheus"},
+      "gridPos": {"h": 9, "w": 12, "x": 12, "y": 13},
+      "fieldConfig": {"defaults": {"unit": "short"}, "overrides": []},
+      "targets": [{"expr": "kidog_pipeline_frames_total{job=\"kidog-worker\"}", "legendFormat": "프레임", "refId": "A"}]
+    },
+    {
+      "id": 5,
+      "title": "단계별 오류 (최근 1시간)",
+      "type": "timeseries",
+      "datasource": {"type": "prometheus", "uid": "kidog-prometheus"},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 22},
+      "fieldConfig": {"defaults": {"unit": "short"}, "overrides": []},
+      "targets": [{"expr": "sum by (stage) (increase(kidog_pipeline_stage_errors_total[1h]))", "legendFormat": "{{stage}}", "refId": "A"}]
+    },
+    {
+      "id": 6,
+      "title": "청크 처리 결과 (최근 1시간)",
+      "type": "timeseries",
+      "datasource": {"type": "prometheus", "uid": "kidog-prometheus"},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 22},
+      "fieldConfig": {"defaults": {"unit": "short"}, "overrides": []},
+      "targets": [{"expr": "sum by (outcome) (increase(kidog_pipeline_chunks_total[1h]))", "legendFormat": "{{outcome}}", "refId": "A"}]
+    }
+  ]
+}

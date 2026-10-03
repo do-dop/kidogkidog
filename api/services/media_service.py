@@ -7,7 +7,7 @@ from urllib.parse import quote
 
 from fastapi import HTTPException, Request, Response
 
-from pipeline.gcs_uploader import (
+from pipeline.storage.gcs_uploader import (
     download_bytes,
     download_range,
     download_video,
