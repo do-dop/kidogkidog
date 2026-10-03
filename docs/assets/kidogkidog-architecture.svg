@@ -1,0 +1,231 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1120" viewBox="0 0 1800 1120">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f8fbff"/>
+      <stop offset="1" stop-color="#eef6ff"/>
+    </linearGradient>
+    <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1677ff"/>
+      <stop offset="1" stop-color="#0754c8"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="7" flood-color="#173b66" flood-opacity=".13"/>
+    </filter>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#1677ff"/>
+    </marker>
+    <marker id="arrowOrange" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#f08a24"/>
+    </marker>
+    <marker id="arrowPurple" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#7557d5"/>
+    </marker>
+    <style>
+      text { font-family: Pretendard, Inter, Arial, sans-serif; fill: #102a43; }
+      .title { font-size: 38px; font-weight: 800; }
+      .subtitle { font-size: 19px; fill: #58708d; }
+      .zone-title { font-size: 22px; font-weight: 800; fill: #0b5fad; }
+      .zone-sub { font-size: 14px; fill: #617b97; }
+      .box-title { font-size: 19px; font-weight: 800; }
+      .box-sub { font-size: 13px; fill: #667d95; }
+      .small { font-size: 12px; fill: #486581; }
+      .flow { fill: none; stroke-width: 3; marker-end: url(#arrowBlue); }
+      .ingest { stroke: #1677ff; }
+      .query { stroke: #7557d5; stroke-dasharray: 8 7; marker-end: url(#arrowPurple); }
+      .media { stroke: #f08a24; marker-end: url(#arrowOrange); }
+      .box { fill: #fff; stroke: #abc5df; stroke-width: 2; rx: 16; filter: url(#shadow); }
+      .pill { rx: 12; }
+    </style>
+  </defs>
+
+  <rect width="1800" height="1120" fill="url(#bg)"/>
+  <text x="54" y="62" class="title">Kidogkidog — Pet Cam AI System Architecture</text>
+  <text x="56" y="94" class="subtitle">Event-driven multimodal video analysis, grounded retrieval, and timestamp-based playback</text>
+
+  <!-- Legend -->
+  <g transform="translate(1325 38)">
+    <rect width="420" height="72" class="box"/>
+    <line x1="24" y1="24" x2="94" y2="24" class="flow ingest"/>
+    <text x="110" y="29" class="small">Video ingestion &amp; indexing</text>
+    <line x1="24" y1="49" x2="94" y2="49" class="flow query"/>
+    <text x="110" y="54" class="small">Query &amp; retrieval</text>
+    <line x1="260" y1="49" x2="320" y2="49" class="flow media"/>
+    <text x="334" y="54" class="small">Playback</text>
+  </g>
+
+  <!-- Top clients -->
+  <rect x="84" y="140" width="300" height="96" class="box"/>
+  <circle cx="130" cy="188" r="24" fill="#e8f3ff"/>
+  <path d="M116 183h28v20h-28z M122 176h16l4 7h-24z" fill="none" stroke="#1677ff" stroke-width="3"/>
+  <text x="170" y="181" class="box-title">Edge Simulator</text>
+  <text x="170" y="205" class="box-sub">Chunk split · upload trigger</text>
+
+  <rect x="747" y="140" width="300" height="96" class="box"/>
+  <circle cx="793" cy="188" r="24" fill="#eaf9ff"/>
+  <text x="783" y="197" font-size="27" font-weight="800" fill="#00a6d6">R</text>
+  <text x="833" y="181" class="box-title">React Web UI</text>
+  <text x="833" y="205" class="box-sub">Search · evidence · playback</text>
+
+  <rect x="1372" y="140" width="300" height="96" class="box"/>
+  <circle cx="1418" cy="188" r="24" fill="#e9f8ed"/>
+  <path d="M1405 178h26v20h-26z M1409 174h18v4h-18z" fill="none" stroke="#34a853" stroke-width="3"/>
+  <text x="1458" y="181" class="box-title">Google Cloud Storage</text>
+  <text x="1458" y="205" class="box-sub">Video chunks · keyframes</text>
+
+  <!-- Zones -->
+  <rect x="46" y="286" width="1004" height="590" rx="24" fill="#e9f5ff" stroke="#b8dafa" stroke-width="2"/>
+  <text x="76" y="326" class="zone-title">VIDEO INGESTION &amp; AI PIPELINE</text>
+  <text x="76" y="351" class="zone-sub">Asynchronous processing for motion-aware indexing and behavior understanding</text>
+
+  <rect x="1080" y="286" width="674" height="590" rx="24" fill="#edf0ff" stroke="#c9ccf5" stroke-width="2"/>
+  <text x="1110" y="326" class="zone-title">SEARCH, RETRIEVAL &amp; STORAGE</text>
+  <text x="1110" y="351" class="zone-sub">Ground answers with vector frames, behavior events, and timestamp metadata</text>
+
+  <!-- Async orchestration -->
+  <rect x="90" y="390" width="250" height="92" class="box"/>
+  <circle cx="130" cy="436" r="22" fill="url(#blue)"/>
+  <text x="122" y="444" font-size="24" font-weight="800" fill="#fff">⚡</text>
+  <text x="166" y="428" class="box-title">FastAPI Upload API</text>
+  <text x="166" y="451" class="box-sub">Validate object key · enqueue task</text>
+
+  <rect x="392" y="390" width="214" height="92" class="box"/>
+  <circle cx="434" cy="436" r="22" fill="#f2994a"/>
+  <text x="425" y="443" font-size="20" font-weight="800" fill="#fff">MQ</text>
+  <text x="470" y="428" class="box-title">RabbitMQ</text>
+  <text x="470" y="451" class="box-sub">Task broker</text>
+
+  <rect x="658" y="390" width="318" height="92" class="box"/>
+  <circle cx="700" cy="436" r="22" fill="#39a96b"/>
+  <text x="691" y="443" font-size="20" font-weight="800" fill="#fff">C</text>
+  <text x="736" y="428" class="box-title">Celery Worker</text>
+  <text x="736" y="451" class="box-sub">Download · process · persist · cleanup</text>
+
+  <!-- Processing -->
+  <rect x="90" y="550" width="250" height="112" class="box"/>
+  <rect x="108" y="568" width="54" height="54" rx="14" fill="#e9f2ff"/>
+  <text x="119" y="602" font-size="25" font-weight="800" fill="#1677ff">CV</text>
+  <text x="178" y="583" class="box-title">OpenCV</text>
+  <text x="178" y="607" class="box-sub">MOG2 motion detection</text>
+  <text x="178" y="628" class="box-sub">Frame extraction</text>
+  <rect x="178" y="637" width="128" height="20" class="pill" fill="#fff2e6"/>
+  <text x="187" y="652" class="small" fill="#b45f06">FFmpeg fallback</text>
+
+  <rect x="392" y="550" width="214" height="112" class="box"/>
+  <circle cx="434" cy="606" r="24" fill="#eef0ff"/>
+  <text x="420" y="614" font-size="19" font-weight="800" fill="#5b5bd6">YOLO</text>
+  <text x="470" y="594" class="box-title">Object Detection</text>
+  <text x="470" y="619" class="box-sub">Labels &amp; metadata</text>
+
+  <rect x="658" y="550" width="318" height="112" class="box"/>
+  <circle cx="700" cy="606" r="24" fill="#e8f4ff"/>
+  <text x="684" y="614" font-size="20" font-weight="800" fill="#1677ff">CLIP</text>
+  <text x="736" y="594" class="box-title">Frame Embedding</text>
+  <text x="736" y="619" class="box-sub">Image → shared vector space</text>
+
+  <rect x="90" y="716" width="516" height="112" class="box"/>
+  <circle cx="132" cy="772" r="24" fill="#f4eaff"/>
+  <text x="119" y="781" font-size="23" font-weight="800" fill="#7a43c7">AI</text>
+  <text x="172" y="757" class="box-title">Vision-Language Model</text>
+  <text x="172" y="781" class="box-sub">Representative frames → behavior event extraction</text>
+  <text x="172" y="803" class="box-sub">Subject · action · target · duration · confidence · evidence</text>
+
+  <rect x="658" y="716" width="318" height="112" class="box"/>
+  <circle cx="700" cy="772" r="24" fill="#fff3ea"/>
+  <text x="686" y="780" font-size="18" font-weight="800" fill="#d46b08">TMP</text>
+  <text x="736" y="757" class="box-title">Timestamp Enrichment</text>
+  <text x="736" y="781" class="box-sub">GCS LastModified + frame offset</text>
+  <text x="736" y="803" class="box-sub">recorded_at · event window</text>
+
+  <!-- Search side -->
+  <rect x="1120" y="390" width="284" height="106" class="box"/>
+  <circle cx="1162" cy="443" r="23" fill="url(#blue)"/>
+  <text x="1153" y="451" font-size="23" font-weight="800" fill="#fff">Q</text>
+  <text x="1198" y="430" class="box-title">FastAPI Search API</text>
+  <text x="1198" y="454" class="box-sub">Query · date/time filter</text>
+  <text x="1198" y="474" class="box-sub">source event grounding</text>
+
+  <rect x="1440" y="390" width="270" height="106" class="box"/>
+  <circle cx="1482" cy="443" r="23" fill="#efeaff"/>
+  <text x="1472" y="451" font-size="22" font-weight="800" fill="#7557d5">LC</text>
+  <text x="1518" y="430" class="box-title">RAG Answer</text>
+  <text x="1518" y="454" class="box-sub">LangChain + fallback</text>
+  <text x="1518" y="474" class="box-sub">Evidence-grounded response</text>
+
+  <rect x="1120" y="566" width="284" height="128" class="box"/>
+  <circle cx="1162" cy="630" r="23" fill="#ffe9ee"/>
+  <text x="1150" y="638" font-size="21" font-weight="800" fill="#df3f67">DB</text>
+  <text x="1198" y="604" class="box-title">ChromaDB</text>
+  <text x="1198" y="628" class="box-sub">CLIP frame vectors</text>
+  <text x="1198" y="650" class="box-sub">Similarity search · Top-K</text>
+  <text x="1198" y="672" class="box-sub">video/date/time metadata filter</text>
+
+  <rect x="1440" y="566" width="270" height="128" class="box"/>
+  <circle cx="1482" cy="630" r="23" fill="#e8f5ff"/>
+  <text x="1467" y="637" font-size="18" font-weight="800" fill="#087bb5">SQL</text>
+  <text x="1518" y="604" class="box-title">MySQL / Cloud SQL</text>
+  <text x="1518" y="628" class="box-sub">Scenes · behavior events</text>
+  <text x="1518" y="650" class="box-sub">Search history · suggestions</text>
+  <text x="1518" y="672" class="box-sub">Evidence windows &amp; metadata</text>
+
+  <rect x="1120" y="748" width="590" height="82" class="box"/>
+  <text x="1150" y="780" class="box-title">Media Proxy</text>
+  <text x="1150" y="805" class="box-sub">HTTP Range (206 Partial Content) · private GCS access · thumbnail cache</text>
+
+  <!-- Deployment -->
+  <rect x="46" y="920" width="1708" height="148" rx="24" fill="#f5f7fb" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="76" y="958" class="zone-title">DEPLOYMENT &amp; SECURITY</text>
+  <rect x="76" y="980" width="250" height="58" class="box"/>
+  <text x="99" y="1006" class="box-title">GitHub Actions</text>
+  <text x="99" y="1027" class="box-sub">Path-based CI/CD · OIDC</text>
+  <rect x="382" y="980" width="250" height="58" class="box"/>
+  <text x="405" y="1006" class="box-title">Artifact Registry</text>
+  <text x="405" y="1027" class="box-sub">API / Web images</text>
+  <rect x="688" y="980" width="250" height="58" class="box"/>
+  <text x="711" y="1006" class="box-title">Cloud Run</text>
+  <text x="711" y="1027" class="box-sub">Web + API · scale to zero</text>
+  <rect x="994" y="980" width="300" height="58" class="box"/>
+  <text x="1017" y="1006" class="box-title">Private ChromaDB VM</text>
+  <text x="1017" y="1027" class="box-sub">Direct VPC egress · internal IP</text>
+  <rect x="1350" y="980" width="350" height="58" class="box"/>
+  <text x="1373" y="1006" class="box-title">Secret Manager + Cloud SQL</text>
+  <text x="1373" y="1027" class="box-sub">No static service-account key</text>
+
+  <!-- Main flows -->
+  <path d="M234 236 V262 H1498 V236" class="flow ingest"/>
+  <text x="660" y="255" class="small">1. split &amp; upload video chunks</text>
+  <path d="M1372 188 H1120 V364 H215 V390" class="flow ingest"/>
+  <text x="1080" y="178" class="small">2. object key</text>
+  <path d="M340 436 H392" class="flow ingest"/>
+  <path d="M606 436 H658" class="flow ingest"/>
+  <path d="M817 482 V520 H215 V550" class="flow ingest"/>
+  <path d="M340 606 H392" class="flow ingest"/>
+  <path d="M606 606 H658" class="flow ingest"/>
+  <path d="M215 662 V692 H348 V716" class="flow ingest"/>
+  <path d="M817 662 V716" class="flow ingest"/>
+  <path d="M976 606 H1095 V630 H1120" class="flow ingest"/>
+  <path d="M606 772 H1094 V650 H1440" class="flow ingest"/>
+  <path d="M976 772 H1416 V672 H1440" class="flow ingest"/>
+
+  <!-- Query flows -->
+  <path d="M897 236 V270 H1262 V390" class="flow query"/>
+  <text x="945" y="264" class="small">natural-language query</text>
+  <path d="M1262 496 V566" class="flow query"/>
+  <path d="M1404 630 H1440" class="flow query"/>
+  <path d="M1575 566 V520 H1404 V460" class="flow query"/>
+  <path d="M1404 443 H1440" class="flow query"/>
+  <path d="M1575 390 V352 H897 V236" class="flow query"/>
+  <text x="1416" y="344" class="small">answer + evidence + timestamps</text>
+
+  <!-- Media playback -->
+  <path d="M897 236 V840 H1415 V830" class="flow media"/>
+  <path d="M1415 748 V720 H1728 V236 H1672" class="flow media"/>
+  <text x="1475" y="716" class="small">Range download</text>
+  <path d="M1372 214 H1080 V258 H920 V236" class="flow media"/>
+  <text x="1090" y="252" class="small">proxied video bytes</text>
+
+  <!-- Deployment arrows -->
+  <path d="M326 1009 H382" class="flow ingest"/>
+  <path d="M632 1009 H688" class="flow ingest"/>
+  <path d="M938 1009 H994" class="flow ingest"/>
+  <path d="M1294 1009 H1350" class="flow ingest"/>
+</svg>
