@@ -57,3 +57,6 @@ ops/ansible/.vault_pass.*
 
 # 로컬 작업 메모
 TODO.md
+
+# Jenkins lab secrets (admin password, deploy key)
+ops/jenkins/.secrets/

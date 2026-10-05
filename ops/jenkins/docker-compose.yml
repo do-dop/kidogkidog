@@ -1,0 +1,18 @@
+# 프로젝트 전용 Jenkins (스터디용 jenkins-controller와 별개). http://127.0.0.1:8081
+name: kidog-jenkins
+services:
+  jenkins:
+    build: .
+    ports:
+      - "127.0.0.1:8081:8080"
+    environment:
+      LAB_VM_HOST: ${LAB_VM_HOST:?Set LAB_VM_HOST to the worker VM address}
+    volumes:
+      - jenkins-home:/var/jenkins_home
+      - ./casc:/casc:ro
+      - ../..:/repo:ro                                   # 파이프라인 소스(커밋된 내용만 사용)
+      - ./.secrets/admin_password:/run/secrets/admin_password:ro
+      - ./.secrets/deploy_key:/run/secrets/deploy_key:ro
+      - ../ansible/.vault_pass.lab:/run/secrets/vault_pass:ro
+volumes:
+  jenkins-home:

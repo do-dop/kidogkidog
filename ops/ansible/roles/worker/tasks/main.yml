@@ -68,6 +68,7 @@
     src: "{{ worker_dir }}/.last_good_image"
   register: last_good_raw
   failed_when: false
+  check_mode: false
 
 - name: Remember the last good image
   ansible.builtin.set_fact:

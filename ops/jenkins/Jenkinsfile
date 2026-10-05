@@ -1,0 +1,119 @@
+// Lab worker deploy: lint -> syntax check -> dry run -> approval -> deploy -> verify.
+// Ansible does the host work (including the health check and the rollback);
+// Jenkins decides which version goes out and records the outcome.
+pipeline {
+  agent any
+
+  options {
+    timestamps()
+    ansiColor('xterm')
+    disableConcurrentBuilds()
+    timeout(time: 30, unit: 'MINUTES')
+  }
+
+  parameters {
+    string(name: 'IMAGE_TAG', defaultValue: '', description: 'Worker image tag in Artifact Registry (e.g. lab-901fae3-10051448)')
+    booleanParam(name: 'DRY_RUN_ONLY', defaultValue: false, description: 'Stop after the --check --diff stage')
+    booleanParam(name: 'SKIP_APPROVAL', defaultValue: false, description: 'Do not ask for confirmation before the real deploy')
+  }
+
+  environment {
+    ANSIBLE_FORCE_COLOR = 'true'
+    ANSIBLE_INVENTORY = 'inventory/jenkins.yml'
+  }
+
+  stages {
+    stage('Validate parameters') {
+      steps {
+        script {
+          if (!(params.IMAGE_TAG ==~ /^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$/)) {
+            error('IMAGE_TAG must be 1-128 characters of letters, digits, ".", "_" or "-".')
+          }
+          currentBuild.displayName = "#${env.BUILD_NUMBER} ${params.IMAGE_TAG}"
+        }
+      }
+    }
+
+    stage('Install Ansible dependencies') {
+      steps {
+        dir('ops/ansible') {
+          sh 'ansible --version | head -1 && ansible-galaxy collection install -r requirements.yml'
+        }
+      }
+    }
+
+    stage('Lint') {
+      steps {
+        dir('ops/ansible') {
+          sh 'ansible-lint playbooks roles'
+        }
+      }
+    }
+
+    stage('Syntax check') {
+      steps {
+        dir('ops/ansible') {
+          withCredentials([file(credentialsId: 'lab-ansible-vault', variable: 'VAULT_FILE')]) {
+            sh '''
+              set +x
+              ANSIBLE_VAULT_IDENTITY_LIST="lab@$VAULT_FILE" \
+                ansible-playbook playbooks/site.yml --syntax-check -e "worker_image_tag=$IMAGE_TAG"
+            '''
+          }
+        }
+      }
+    }
+
+    stage('Dry run (--check --diff)') {
+      steps {
+        dir('ops/ansible') {
+          sshagent(credentials: ['lab-worker-ssh']) {
+            withCredentials([file(credentialsId: 'lab-ansible-vault', variable: 'VAULT_FILE')]) {
+              sh '''
+                set +x
+                ANSIBLE_VAULT_IDENTITY_LIST="lab@$VAULT_FILE" \
+                  ansible-playbook playbooks/site.yml --check --diff -e "worker_image_tag=$IMAGE_TAG"
+              '''
+            }
+          }
+        }
+      }
+    }
+
+    stage('Approve deploy') {
+      when {
+        allOf {
+          expression { !params.DRY_RUN_ONLY }
+          expression { !params.SKIP_APPROVAL }
+        }
+      }
+      steps {
+        timeout(time: 10, unit: 'MINUTES') {
+          input message: "Deploy ${params.IMAGE_TAG} to the lab worker VM?", ok: 'Deploy'
+        }
+      }
+    }
+
+    stage('Deploy and verify') {
+      when { expression { !params.DRY_RUN_ONLY } }
+      steps {
+        dir('ops/ansible') {
+          sshagent(credentials: ['lab-worker-ssh']) {
+            withCredentials([file(credentialsId: 'lab-ansible-vault', variable: 'VAULT_FILE')]) {
+              sh '''
+                set +x
+                ANSIBLE_VAULT_IDENTITY_LIST="lab@$VAULT_FILE" \
+                  ansible-playbook playbooks/site.yml -e "worker_image_tag=$IMAGE_TAG"
+              '''
+            }
+          }
+        }
+      }
+    }
+  }
+
+  post {
+    success { echo "Deployed ${params.IMAGE_TAG}." }
+    failure { echo "Deploy of ${params.IMAGE_TAG} failed. If the health check failed, Ansible already restored the previous image; see the log above." }
+  }
+}

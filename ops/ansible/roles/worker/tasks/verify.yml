@@ -9,6 +9,7 @@
   delay: "{{ health_check_delay }}"
   until: worker_metrics.status == 200
   changed_when: false
+  check_mode: false   # 읽기 전용 검사라서 --check에서도 실제로 실행한다
 
 - name: Check that a Celery consumer is attached to the queue
   ansible.builtin.command:
@@ -19,3 +20,4 @@
   delay: "{{ health_check_delay }}"
   until: consumers.stdout is search('celery')
   changed_when: false
+  check_mode: false   # 읽기 전용 검사라서 --check에서도 실제로 실행한다
