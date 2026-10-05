@@ -105,7 +105,7 @@
     - name: Start RabbitMQ, Cloud SQL proxy, and worker
       community.docker.docker_compose_v2:
         project_src: "{{ worker_dir }}"
-        pull: always
+        pull: "{{ 'never' if ansible_check_mode else 'always' }}"
         state: present
         wait: true
         wait_timeout: 180
@@ -138,7 +138,7 @@
         - name: Start the last good image
           community.docker.docker_compose_v2:
             project_src: "{{ worker_dir }}"
-            pull: always
+            pull: "{{ 'never' if ansible_check_mode else 'always' }}"
             state: present
             wait: true
             wait_timeout: 180
