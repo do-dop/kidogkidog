@@ -93,6 +93,7 @@
       register: vm_token
       no_log: true
       changed_when: false
+      check_mode: false
 
     - name: Authenticate Docker to Artifact Registry
       ansible.builtin.command:
