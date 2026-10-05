@@ -1,0 +1,21 @@
+---
+# 배포·복구 후 공통 검증: worker가 준비되어 큐를 소비하는지 확인한다.
+- name: Wait until the worker serves its metrics (it is ready to consume)
+  ansible.builtin.uri:
+    url: http://127.0.0.1:8002/metrics
+    status_code: 200
+  register: worker_metrics
+  retries: "{{ health_check_retries }}"
+  delay: "{{ health_check_delay }}"
+  until: worker_metrics.status == 200
+  changed_when: false
+
+- name: Check that a Celery consumer is attached to the queue
+  ansible.builtin.command:
+    argv: [docker, compose, exec, -T, rabbitmq, rabbitmqctl, list_consumers, -p, "{{ rabbitmq_vhost }}"]
+    chdir: "{{ worker_dir }}"
+  register: consumers
+  retries: "{{ health_check_retries }}"
+  delay: "{{ health_check_delay }}"
+  until: consumers.stdout is search('celery')
+  changed_when: false

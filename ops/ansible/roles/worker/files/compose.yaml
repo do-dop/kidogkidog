@@ -1,0 +1,49 @@
+services:
+  rabbitmq:
+    image: ${RABBITMQ_IMAGE:?Set RABBITMQ_IMAGE}
+    restart: unless-stopped
+    env_file:
+      - path: ./rabbit.env
+        format: raw
+    ports:
+      - "${BROKER_BIND_IP:?Set BROKER_BIND_IP}:5672:5672"
+      - "127.0.0.1:15672:15672"
+      - "127.0.0.1:15692:15692"
+    volumes:
+      - rabbit-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 15s
+      timeout: 10s
+      retries: 8
+
+  cloudsql-proxy:
+    image: ${CLOUDSQL_PROXY_IMAGE:?Set CLOUDSQL_PROXY_IMAGE}
+    restart: unless-stopped
+    command:
+      - --address=0.0.0.0
+      - --port=3306
+      - ${CLOUD_SQL_INSTANCE:?Set CLOUD_SQL_INSTANCE}
+
+  worker:
+    image: ${WORKER_IMAGE:?Set WORKER_IMAGE}
+    restart: unless-stopped
+    command: celery -A pipeline.tasks worker --loglevel=info --pool=solo --concurrency=1
+    env_file:
+      - path: ./worker.env
+        format: raw
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      cloudsql-proxy:
+        condition: service_started
+    ports:
+      - "127.0.0.1:8002:8002"
+    volumes:
+      - clip-cache:/root/.cache/clip
+      - frames:/app/pipeline/frames
+
+volumes:
+  rabbit-data:
+  clip-cache:
+  frames:
