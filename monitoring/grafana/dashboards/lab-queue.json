@@ -1,0 +1,35 @@
+{
+  "uid": "kidog-lab-queue",
+  "title": "Kidogkidog · 실습 큐와 worker",
+  "tags": ["kidogkidog", "lab"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "5s",
+  "time": {"from": "now-1h", "to": "now"},
+  "panels": [
+    {"id": 1, "title": "수집 상태 (1 = 정상)", "type": "stat",
+     "datasource": {"type": "prometheus", "uid": "kidog-prometheus"},
+     "gridPos": {"h": 4, "w": 24, "x": 0, "y": 0},
+     "targets": [{"expr": "up{job=~\"kidog-worker|rabbitmq\"}", "legendFormat": "{{job}}", "refId": "A"}]},
+    {"id": 2, "title": "큐 대기 / 처리 중 메시지", "type": "timeseries",
+     "datasource": {"type": "prometheus", "uid": "kidog-prometheus"},
+     "gridPos": {"h": 9, "w": 12, "x": 0, "y": 4},
+     "targets": [
+       {"expr": "sum(rabbitmq_queue_messages_ready{queue=\"celery\"})", "legendFormat": "대기 (ready)", "refId": "A"},
+       {"expr": "sum(rabbitmq_queue_messages_unacked{queue=\"celery\"})", "legendFormat": "처리 중 (unacked)", "refId": "B"}]},
+    {"id": 3, "title": "큐에 붙은 소비자 수", "type": "timeseries",
+     "datasource": {"type": "prometheus", "uid": "kidog-prometheus"},
+     "gridPos": {"h": 9, "w": 12, "x": 12, "y": 4},
+     "targets": [{"expr": "sum(rabbitmq_queue_consumers{queue=\"celery\"})", "legendFormat": "consumers", "refId": "A"}]},
+    {"id": 4, "title": "청크 결과 (누적)", "type": "timeseries",
+     "datasource": {"type": "prometheus", "uid": "kidog-prometheus"},
+     "gridPos": {"h": 9, "w": 12, "x": 0, "y": 13},
+     "targets": [{"expr": "kidog_pipeline_chunks_total{job=\"kidog-worker\"}", "legendFormat": "{{outcome}}", "refId": "A"}]},
+    {"id": 5, "title": "청크 한 건 처리 시간", "type": "timeseries",
+     "datasource": {"type": "prometheus", "uid": "kidog-prometheus"},
+     "fieldConfig": {"defaults": {"unit": "s"}, "overrides": []},
+     "gridPos": {"h": 9, "w": 12, "x": 12, "y": 13},
+     "targets": [{"expr": "sum(rate(kidog_pipeline_stage_seconds_sum{stage=\"chunk_total\"}[5m])) / sum(rate(kidog_pipeline_stage_seconds_count{stage=\"chunk_total\"}[5m]))", "legendFormat": "평균", "refId": "A"}]}
+  ]
+}

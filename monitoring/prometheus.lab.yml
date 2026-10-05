@@ -1,0 +1,15 @@
+# 실습 VM 모니터링용. VM의 loopback 포트를 SSH(IAP) 터널로 로컬에 연결한 뒤 사용한다.
+#   monitoring/lab-tunnel.sh
+# Prometheus가 컨테이너라면 host.docker.internal로 접근한다.
+global:
+  scrape_interval: 5s
+
+scrape_configs:
+  - job_name: kidog-worker
+    metrics_path: /metrics
+    static_configs:
+      - targets: [host.docker.internal:18002]
+  - job_name: rabbitmq
+    metrics_path: /metrics
+    static_configs:
+      - targets: [host.docker.internal:15692]
