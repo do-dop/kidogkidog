@@ -45,7 +45,13 @@ pipeline {
     stage('Lint') {
       steps {
         dir('ops/ansible') {
-          sh 'ansible-lint playbooks roles'
+          // ansible-lint runs a syntax check internally, which loads the vaulted vars.
+          withCredentials([file(credentialsId: 'lab-ansible-vault', variable: 'VAULT_FILE')]) {
+            sh '''
+              set +x
+              ANSIBLE_VAULT_IDENTITY_LIST="lab@$VAULT_FILE" ansible-lint playbooks roles
+            '''
+          }
         }
       }
     }

@@ -15,4 +15,5 @@ USER jenkins
 COPY plugins.txt /usr/share/jenkins/ref/plugins.txt
 RUN jenkins-plugin-cli --plugin-file /usr/share/jenkins/ref/plugins.txt
 ENV CASC_JENKINS_CONFIG=/casc/jenkins.yaml
-ENV JAVA_OPTS="-Djenkins.install.runSetupWizard=false"
+# 파이프라인 소스를 로컬 저장소(/repo, 읽기 전용 마운트)에서 가져오므로 로컬 checkout을 허용한다.
+ENV JAVA_OPTS="-Djenkins.install.runSetupWizard=false -Dhudson.plugins.git.GitSCM.ALLOW_LOCAL_CHECKOUT=true"
