@@ -42,6 +42,14 @@ def init_db():
     ''')
 
     cursor.execute('''
+        CREATE TABLE IF NOT EXISTS processed_chunks (
+            chunk_path VARCHAR(512) PRIMARY KEY,
+            video_id VARCHAR(255) NOT NULL,
+            completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    ''')
+
+    cursor.execute('''
         CREATE TABLE IF NOT EXISTS search_logs (
             id BIGINT PRIMARY KEY AUTO_INCREMENT,
             user_id VARCHAR(255) NOT NULL,

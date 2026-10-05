@@ -4,9 +4,10 @@ from collections import Counter
 from db.connection import connect
 
 
-def insert_scene(video_id, start_time, end_time, object_labels=None, s3_key=None):
-    """프레임 메타데이터 저장"""
-    conn = connect()
+def insert_scene(video_id, start_time, end_time, object_labels=None, s3_key=None, conn=None):
+    """프레임 메타데이터 저장. conn을 넘기면 커밋·종료는 호출자가 맡는다."""
+    owns_conn = conn is None
+    conn = conn or connect()
     cursor = conn.cursor()
 
     cursor.execute('''
@@ -14,8 +15,9 @@ def insert_scene(video_id, start_time, end_time, object_labels=None, s3_key=None
         VALUES (?, ?, ?, ?, ?)
     ''', (video_id, start_time, end_time, object_labels, s3_key))
 
-    conn.commit()
-    conn.close()
+    if owns_conn:
+        conn.commit()
+        conn.close()
 
 
 def get_scene_records(video_id=None):

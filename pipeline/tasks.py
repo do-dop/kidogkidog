@@ -8,6 +8,7 @@ from pipeline.events.behavior_event_extractor import extract_behavior_events
 from db.behavior_events import insert_behavior_events
 from db.scenes import insert_scene
 from db.schema import init_db
+from db.processed_chunks import commit_chunk_results, is_chunk_processed
 import os
 import json
 import time
@@ -21,6 +22,17 @@ FRAME_ROOT = Path("pipeline/frames")
 celery_app = Celery(
     'tasks',
     broker=os.getenv('CELERY_BROKER_URL', 'amqp://guest:guest@localhost:5672/')
+)
+celery_app.conf.update(
+    # 작업이 끝난 뒤에 ack한다. worker가 중간에 죽으면 메시지가 큐로 돌아가 다시 처리된다.
+    task_acks_late=True,
+    task_reject_on_worker_lost=True,
+    # 긴 작업을 미리 받아 두지 않게 해서 죽은 worker가 다른 메시지까지 쥐고 있지 않게 한다.
+    worker_prefetch_multiplier=1,
+    broker_connection_retry_on_startup=True,
+    # solo 풀은 작업 중 heartbeat를 보내지 못해, 수 분짜리 청크를 처리하는 동안 RabbitMQ가
+    # 연결을 끊고 ack가 실패한다(실습 VM에서 확인). 끊김 감지는 TCP에 맡긴다.
+    broker_heartbeat=0,
 )
 worker_ready.connect(start_worker_metrics, weak=False)
 
@@ -88,7 +100,19 @@ def delete_local_frames(frames):
     return deleted_count
 
 
-@celery_app.task(name='pipeline.tasks.process_chunk')
+# 재실행은 processed_chunks 완료 표시와 결정적인 GCS/ChromaDB 키 덕분에 안전하다.
+# 존재하지 않는 객체는 다시 시도해도 같은 결과이므로 재시도하지 않는다.
+@celery_app.task(
+    name='pipeline.tasks.process_chunk',
+    acks_late=True,
+    reject_on_worker_lost=True,
+    autoretry_for=(Exception,),
+    dont_autoretry_for=(FileNotFoundError,),
+    max_retries=int(os.getenv("CHUNK_MAX_RETRIES", "3")),
+    retry_backoff=10,
+    retry_backoff_max=300,
+    retry_jitter=True,
+)
 def process_chunk(chunk_path):
     """
     S3 영상/청크 수신
@@ -99,15 +123,23 @@ def process_chunk(chunk_path):
     → YOLO 객체 감지
     → CLIP 임베딩
     → ChromaDB 저장
-    → MySQL scenes 메타데이터 저장
     → 행동 이벤트 분석
-    → MySQL behavior_events 저장
+    → MySQL scenes·behavior_events·완료 표시를 한 트랜잭션으로 저장
     → 로컬 프레임 삭제
     """
     print(f"[Task 시작] {chunk_path}")
     task_started = time.monotonic()
 
     video_id = get_video_id_from_object_key(chunk_path)
+
+    # 재전달·중복 요청으로 이미 끝난 청크는 다시 처리하지 않는다.
+    init_db()
+    if is_chunk_processed(chunk_path):
+        print(f"[Task 스킵] 이미 처리된 청크: {chunk_path}", flush=True)
+        CHUNKS.labels(outcome="duplicate").inc()
+        STAGE_SECONDS.labels(stage="chunk_total").observe(time.monotonic() - task_started)
+        return {"chunk_path": chunk_path, "video_id": video_id, "status": "duplicate"}
+
     frame_output_dir = FRAME_ROOT / video_id
 
     local_path = f"/tmp/{os.path.basename(chunk_path)}"
@@ -196,27 +228,7 @@ def process_chunk(chunk_path):
 
         print(f"프레임 {len(indexed_frames)}개 ChromaDB 저장 완료")
 
-        # 5. MySQL에 scenes 메타데이터 저장
-        init_db()
-
-        for frame in indexed_frames:
-            object_labels_json = json.dumps(
-                frame.get("object_labels", []),
-                ensure_ascii=False,
-            )
-
-            with measure_stage("scene_write"):
-                insert_scene(
-                    video_id=video_id,
-                    start_time=frame["timestamp"],
-                    end_time=frame["timestamp"] + 1.0,
-                    object_labels=object_labels_json,
-                    s3_key=frame["s3_key"],
-                )
-
-        print(f"scenes 메타데이터 {len(indexed_frames)}개 저장 완료!")
-
-        # 6. 행동 이벤트 분석 및 저장
+        # 5. 행동 이벤트 분석
         #
         # indexed_frames에는 frame_path, timestamp, motion_start, motion_end,
         # segment_id, video_id, s3_key, object_labels, frame_id가 들어있다.
@@ -230,13 +242,41 @@ def process_chunk(chunk_path):
                     video_id=video_id,
                     limit=5,
                 )
-
-            if behavior_events:
-                insert_behavior_events(behavior_events)
-
-            print(f"행동 이벤트 {len(behavior_events)}개 저장 완료!", flush=True)
         else:
             print("행동 이벤트 분석 생략: indexed_frames가 없습니다.", flush=True)
+
+        # 6. MySQL 저장 (scenes + behavior_events + 완료 표시를 한 트랜잭션으로)
+        #
+        # GCS 프레임 키와 ChromaDB 프레임 ID는 청크마다 결정적이라 재실행해도 덮어쓰거나
+        # 건너뛰지만, MySQL은 insert라 중복될 수 있다. 완료 표시와 함께 커밋해
+        # 재실행 시 전부 저장되었거나 전혀 저장되지 않은 상태만 남게 한다.
+        def write_results(conn):
+            for frame in indexed_frames:
+                insert_scene(
+                    video_id=video_id,
+                    start_time=frame["timestamp"],
+                    end_time=frame["timestamp"] + 1.0,
+                    object_labels=json.dumps(
+                        frame.get("object_labels", []),
+                        ensure_ascii=False,
+                    ),
+                    s3_key=frame["s3_key"],
+                    conn=conn,
+                )
+
+            if behavior_events:
+                insert_behavior_events(behavior_events, conn=conn)
+
+        with measure_stage("scene_write"):
+            committed = commit_chunk_results(chunk_path, video_id, write_results)
+
+        if committed:
+            print(
+                f"scenes {len(indexed_frames)}개, 행동 이벤트 {len(behavior_events)}개 저장 완료!",
+                flush=True,
+            )
+        else:
+            print(f"다른 worker가 먼저 저장 완료: {chunk_path}", flush=True)
 
         # 7. 행동 분석까지 끝난 뒤 로컬 프레임 삭제
         deleted_frame_count = delete_local_frames(indexed_frames)
@@ -247,9 +287,11 @@ def process_chunk(chunk_path):
             os.remove(local_path)
             print(f"임시 파일 삭제: {local_path}")
 
-        FRAMES.inc(len(indexed_frames))
-        CHUNKS.labels(outcome="success").inc()
+        if committed:
+            FRAMES.inc(len(indexed_frames))
+        CHUNKS.labels(outcome="success" if committed else "duplicate").inc()
         return {
+            "status": "processed" if committed else "duplicate",
             "chunk_path": chunk_path,
             "video_id": video_id,
             "frame_count": len(indexed_frames),

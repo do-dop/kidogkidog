@@ -45,6 +45,9 @@ class _Connection:
     def commit(self):
         return self._raw_connection.commit()
 
+    def rollback(self):
+        return self._raw_connection.rollback()
+
     def close(self):
         return self._raw_connection.close()
 
