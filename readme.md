@@ -226,7 +226,8 @@ kidogkidog/
 │   └── vite.config.ts             # Vite dev server 및 API 프록시
 ├── docker-compose.yml
 ├── requirements.txt
-└── yolov8n.pt
+├── yolov8n.pt
+└── yolov8s.pt                     # 기본 YOLO 가중치 (YOLO_MODEL로 변경 가능)
 ```
 
 ## 로컬 산출물
