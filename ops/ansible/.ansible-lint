@@ -1,0 +1,8 @@
+---
+profile: production
+exclude_paths:
+  - .cache/
+# 변수명이 group_vars와 공유되는 이름(rabbitmq_*, mysql_* 등)이라 role 접두사 규칙은
+# 경고로만 둔다. 이름을 바꾸면 인벤토리와 Vault 변수도 함께 바꿔야 한다.
+warn_list:
+  - var-naming[no-role-prefix]

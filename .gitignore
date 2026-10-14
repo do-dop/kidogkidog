@@ -51,5 +51,12 @@ dist/
 # Cloud SQL Auth Proxy 바이너리
 cloud-sql-proxy
 
+# Worker lab Ansible: real inventory and vault password stay local
+ops/ansible/inventory/lab.ini
+ops/ansible/.vault_pass.*
+
 # 로컬 작업 메모
 TODO.md
+
+# Jenkins lab secrets (admin password, deploy key)
+ops/jenkins/.secrets/

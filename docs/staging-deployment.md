@@ -46,4 +46,30 @@ The workflow deploys the API and web UI only. The API scales down to zero when i
 
 ChromaDB remains on the existing VM so every tester queries the same 377-vector collection. The API uses Cloud Run Direct VPC egress to reach the VM's internal IP; it does not use a Serverless VPC Access connector, which would keep connector VMs billed even while idle.
 
-Celery and RabbitMQ are not deployed yet. Run the worker locally only while ingesting or re-indexing video; deployed users can still test search quality against already-indexed vectors.
+## Video processing worker
+
+Uploaded chunks are processed on the `lab-worker` GCE VM (`10.178.0.3`), which now serves staging. Ansible (`ops/ansible`) runs RabbitMQ, the Cloud SQL Auth Proxy and the Celery worker there with Docker Compose; the worker writes to the staging bucket, `kidogkidog-db` and the `petcam_frames` collection.
+
+`/upload` on the staging API queues `process_chunk` on that RabbitMQ through Direct VPC egress (`default-allow-internal` already admits the Cloud Run egress range on port 5672). It requires the `X-Upload-Token` header. The workflow reads both values from Secret Manager:
+
+| Repository variable | Secret |
+| --- | --- |
+| `CELERY_BROKER_URL_SECRET` | `lab-celery-broker-url` (`amqp://kidog_lab:...@10.178.0.3:5672/kidog_lab`) |
+| `UPLOAD_API_TOKEN_SECRET` | `lab-upload-token` |
+
+The secrets keep their `lab-` names because the RabbitMQ account on the VM was created for the lab and only changes when its data volume is recreated.
+
+Deploy a new worker image after the staging deploy publishes it, so the worker runs the same code as the API:
+
+```bash
+cd ops/ansible
+ansible-playbook playbooks/site.yml -e worker_image_tag=<staging image tag>
+```
+
+To ingest video, set `UPLOAD_API_TOKEN` (the `lab-upload-token` value) and `GCS_BUCKET_NAME` locally, then run the simulator against the staging API:
+
+```bash
+python -m dotenv -f .env run -- python -m simulator.edge_simulator data/videos --server-url https://kidog-api-staging-ptiwpgodca-du.a.run.app
+```
+
+The `lab-kidog-api` Cloud Run service still points at the same RabbitMQ; anything it queues is now written to staging. Delete it or remove its `CELERY_BROKER_URL` before using it again.

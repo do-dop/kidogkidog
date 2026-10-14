@@ -1,0 +1,53 @@
+---
+- name: Require Ubuntu 24.04 or newer
+  ansible.builtin.assert:
+    that:
+      - ansible_facts['distribution'] == 'Ubuntu'
+      - ansible_facts['distribution_version'] is version('24.04', '>=')
+    fail_msg: This role targets Ubuntu 24.04 or newer.
+
+- name: Install Docker repository prerequisites
+  ansible.builtin.apt:
+    name: [ca-certificates, curl, python3-debian]
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Create APT keyring directory
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Install Docker's signing key
+  ansible.builtin.get_url:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    dest: /etc/apt/keyrings/docker.asc
+    mode: '0644'
+
+- name: Configure Docker's Ubuntu package repository
+  ansible.builtin.deb822_repository:
+    name: docker
+    types: [deb]
+    uris: https://download.docker.com/linux/ubuntu
+    suites: "{{ ansible_facts['distribution_release'] }}"
+    components: [stable]
+    signed_by: /etc/apt/keyrings/docker.asc
+
+- name: Install Docker Engine and Compose plugin
+  ansible.builtin.apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Start Docker
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: true

@@ -1,0 +1,162 @@
+---
+- name: Require lab settings
+  ansible.builtin.assert:
+    that:
+      - item.value is defined
+      - item.value | string | length > 0
+    fail_msg: "{{ item.name }} must be set (see inventory/group_vars/all)."
+    quiet: true
+  loop:
+    - { name: worker_image, value: "{{ worker_image | default('') }}" }
+    - { name: cloud_sql_instance, value: "{{ cloud_sql_instance | default('') }}" }
+    - { name: gcs_bucket_name, value: "{{ gcs_bucket_name | default('') }}" }
+    - { name: chroma_host, value: "{{ chroma_host | default('') }}" }
+    - { name: mysql_user, value: "{{ mysql_user | default('') }}" }
+    - { name: mysql_password, value: "{{ mysql_password | default('') }}" }
+    - { name: mysql_database, value: "{{ mysql_database | default('') }}" }
+    - { name: rabbitmq_user, value: "{{ rabbitmq_user | default('') }}" }
+    - { name: rabbitmq_password, value: "{{ rabbitmq_password | default('') }}" }
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Validate RabbitMQ URL components (they are placed in an AMQP URL)
+  ansible.builtin.assert:
+    that:
+      - rabbitmq_user is match('^[A-Za-z0-9_-]+$')
+      - rabbitmq_password is match('^[A-Za-z0-9_-]{24,}$')
+      - rabbitmq_vhost is match('^[A-Za-z0-9_-]+$')
+    fail_msg: RabbitMQ username, vhost, and password must be URL-safe; password must be at least 24 characters.
+    quiet: true
+  no_log: true
+
+- name: Create worker configuration directory
+  ansible.builtin.file:
+    path: "{{ worker_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'
+
+- name: Copy Compose definition
+  ansible.builtin.copy:
+    src: compose.yaml
+    dest: "{{ worker_dir }}/compose.yaml"
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: Render RabbitMQ credentials
+  ansible.builtin.template:
+    src: rabbit.env.j2
+    dest: "{{ worker_dir }}/rabbit.env"
+    owner: root
+    group: root
+    mode: '0600'
+  no_log: true
+
+- name: Render worker credentials and connection settings
+  ansible.builtin.template:
+    src: worker.env.j2
+    dest: "{{ worker_dir }}/worker.env"
+    owner: root
+    group: root
+    mode: '0600'
+  no_log: true
+
+- name: Read the last image that passed the health check
+  ansible.builtin.slurp:
+    src: "{{ worker_dir }}/.last_good_image"
+  register: last_good_raw
+  failed_when: false
+  check_mode: false
+
+- name: Remember the last good image
+  ansible.builtin.set_fact:
+    last_good_image: "{{ (last_good_raw.content | b64decode | trim) if last_good_raw.content is defined else '' }}"
+
+- name: Deploy the worker image, verify it, and roll back on failure
+  block:
+    - name: Render Compose settings for the requested image
+      ansible.builtin.template:
+        src: compose.env.j2
+        dest: "{{ worker_dir }}/.env"
+        owner: root
+        group: root
+        mode: '0600'
+
+    - name: Obtain a short-lived VM service account token
+      ansible.builtin.uri:
+        url: http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token
+        headers:
+          Metadata-Flavor: Google
+        return_content: true
+      register: vm_token
+      no_log: true
+      changed_when: false
+      check_mode: false
+
+    - name: Authenticate Docker to Artifact Registry
+      ansible.builtin.command:
+        argv: [docker, login, -u, oauth2accesstoken, --password-stdin, "https://{{ artifact_registry_host }}"]
+        stdin: "{{ vm_token.json.access_token }}"
+      no_log: true
+      changed_when: false
+
+    - name: Start RabbitMQ, Cloud SQL proxy, and worker
+      community.docker.docker_compose_v2:
+        project_src: "{{ worker_dir }}"
+        pull: "{{ 'never' if ansible_check_mode else 'always' }}"
+        state: present
+        wait: true
+        wait_timeout: 180
+
+    - name: Verify the worker is healthy
+      ansible.builtin.include_tasks: verify.yml
+
+    - name: Record this image as the last good one
+      ansible.builtin.copy:
+        content: "{{ worker_image }}\n"
+        dest: "{{ worker_dir }}/.last_good_image"
+        owner: root
+        group: root
+        mode: '0600'
+
+  rescue:
+    - name: Restore the last good image
+      when: last_good_image | length > 0 and last_good_image != worker_image
+      block:
+        - name: Render Compose settings for the last good image
+          ansible.builtin.template:
+            src: compose.env.j2
+            dest: "{{ worker_dir }}/.env"
+            owner: root
+            group: root
+            mode: '0600'
+          vars:
+            worker_image_to_run: "{{ last_good_image }}"
+
+        - name: Start the last good image
+          community.docker.docker_compose_v2:
+            project_src: "{{ worker_dir }}"
+            pull: "{{ 'never' if ansible_check_mode else 'always' }}"
+            state: present
+            wait: true
+            wait_timeout: 180
+
+        - name: Verify the restored image is healthy
+          ansible.builtin.include_tasks: verify.yml
+
+    - name: Fail the run so the pipeline is marked as failed
+      ansible.builtin.fail:
+        msg: >-
+          Deploying {{ worker_image }} failed its health check.
+          {{ 'Rolled back to ' ~ last_good_image ~ ' and it passed the health check.'
+             if (last_good_image | length > 0 and last_good_image != worker_image)
+             else 'No earlier good image was available to roll back to.' }}
+
+  always:
+    - name: Remove the temporary registry login
+      ansible.builtin.command:
+        argv: [docker, logout, "{{ artifact_registry_host }}"]
+      changed_when: false
+      no_log: true

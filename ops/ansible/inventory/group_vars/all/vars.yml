@@ -1,0 +1,19 @@
+---
+# 비밀이 아닌 worker 설정. 비밀값은 vault.yml에 암호화되어 있고, 여기서 vault_ 변수로 참조한다.
+# lab-worker VM은 스테이징 worker로 전환했다: 스테이징 API(kidog-api-staging)가 이 VM의
+# RabbitMQ에 작업을 넣고, worker는 스테이징 버킷·DB·Chroma 컬렉션에 결과를 쓴다.
+# RabbitMQ 계정(kidog_lab)은 데이터 볼륨을 처음 만들 때만 적용되므로 기존 이름을 유지한다.
+worker_image: "asia-northeast3-docker.pkg.dev/kidogkidog-509506/kidog/kidog-api:{{ worker_image_tag }}"
+worker_image_tag: "lab-901fae3-10051448"
+cloud_sql_instance: "kidogkidog-509506:asia-northeast3:kidog-mysql"
+gcs_bucket_name: "kidogkidog-media-700543886823"
+chroma_host: "10.178.0.2"
+chroma_collection: "petcam_frames"
+mysql_user: "kidog_app"
+mysql_database: "kidogkidog-db"
+rabbitmq_user: "kidog_lab"
+rabbitmq_vhost: "kidog_lab"
+
+mysql_password: "{{ vault_mysql_password }}"
+rabbitmq_password: "{{ vault_rabbitmq_password }}"
+openai_api_key: "{{ vault_openai_api_key }}"

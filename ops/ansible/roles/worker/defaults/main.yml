@@ -1,0 +1,9 @@
+---
+worker_dir: /opt/kidogkidog-worker
+rabbitmq_image: "rabbitmq:4.1-management"
+cloudsql_proxy_image: "gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.26.0"
+artifact_registry_host: "asia-northeast3-docker.pkg.dev"
+rabbitmq_vhost: kidog_lab
+chroma_collection: petcam_frames_lab
+health_check_retries: 30
+health_check_delay: 5

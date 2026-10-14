@@ -1,0 +1,12 @@
+---
+# 실습 worker VM을 구성한다. 배치는 serial로 한 대씩 진행한다.
+- name: Configure and deploy the video worker
+  hosts: worker
+  become: true
+  serial: 1
+  any_errors_fatal: true
+  roles:
+    - role: docker
+      tags: [docker]
+    - role: worker
+      tags: [worker]

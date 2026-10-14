@@ -32,6 +32,7 @@ def insert_behavior_event(
     interestingness=None,
     evidence=None,
     source_frames=None,
+    conn=None,
 ):
     """
     행동 이벤트 1개 저장
@@ -39,7 +40,8 @@ def insert_behavior_event(
     if duration is None:
         duration = round(float(end_time) - float(start_time), 2)
 
-    conn = connect()
+    owns_conn = conn is None
+    conn = conn or connect()
     cursor = conn.cursor()
 
     cursor.execute('''
@@ -77,13 +79,14 @@ def insert_behavior_event(
 
     event_id = cursor.lastrowid
 
-    conn.commit()
-    conn.close()
+    if owns_conn:
+        conn.commit()
+        conn.close()
 
     return event_id
 
 
-def insert_behavior_events(events):
+def insert_behavior_events(events, conn=None):
     """
     행동 이벤트 여러 개 저장
     """
@@ -104,6 +107,7 @@ def insert_behavior_events(events):
             interestingness=event.get("interestingness"),
             evidence=event.get("evidence", []),
             source_frames=event.get("source_frames", []),
+            conn=conn,
         )
 
         event_ids.append(event_id)

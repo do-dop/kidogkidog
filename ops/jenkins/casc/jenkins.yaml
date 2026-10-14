@@ -1,0 +1,54 @@
+jenkins:
+  systemMessage: "Kidogkidog lab Jenkins (Ansible worker deploy)"
+  numExecutors: 1
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: admin
+          password: "${readFile:/run/secrets/admin_password}"
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+  globalNodeProperties:
+    - envVars:
+        env:
+          - key: LAB_VM_HOST
+            value: "${LAB_VM_HOST}"
+
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+          - basicSSHUserPrivateKey:
+              scope: GLOBAL
+              id: lab-worker-ssh
+              username: jenkins-deploy
+              description: SSH key for the lab worker VM
+              privateKeySource:
+                directEntry:
+                  privateKey: "${readFile:/run/secrets/deploy_key}"
+          - file:
+              scope: GLOBAL
+              id: lab-ansible-vault
+              fileName: vault_pass.lab
+              description: Ansible Vault password (lab)
+              secretBytes: "${base64:${readFile:/run/secrets/vault_pass}}"
+
+jobs:
+  - script: >
+      pipelineJob('kidog-worker-deploy') {
+        description('Deploy a worker image to the lab VM with Ansible (lint, check, approve, deploy, verify, roll back).')
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote { url('file:///repo') }
+                branches('*/feat/worker-stage1')
+              }
+            }
+            scriptPath('ops/jenkins/Jenkinsfile')
+            lightweight(false)
+          }
+        }
+      }
