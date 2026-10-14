@@ -945,6 +945,10 @@ button {
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   box-shadow: var(--shadow-float);
+  /* backdrop-filter가 stacking context를 만들어 캘린더 팝오버의 z-index가 툴바 안에 갇힌다.
+     툴바 자체를 뒤따르는 glass 카드(empty-state 등)보다 위에 올린다. */
+  position: relative;
+  z-index: 20;
 }
 
 .toolbar-field {
