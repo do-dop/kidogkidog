@@ -300,16 +300,17 @@ def expand_search_query(original_query: str) -> list[str]:
 
 def search_with_query_expansion(query, top_k=3, video_id=None, recording_date=None, time_range=None):
     """
-    원문 검색 결과에 확장 검색 결과를 보조로 합친 뒤 score 기준으로 정렬한다.
+    원문/확장 검색을 넉넉히 조회한 뒤 동일 프레임과 인접 장면을 통합한다.
     """
     expanded_queries = _search_queries_with_original(query)
     merged_results = []
+    candidate_top_k = min(max(top_k * 3, top_k), 30)
 
     for expanded_query in expanded_queries:
         try:
             query_results = search(
                 expanded_query,
-                top_k=top_k,
+                top_k=candidate_top_k,
                 video_id=video_id,
                 recording_date=recording_date,
                 time_range=time_range,
@@ -322,8 +323,9 @@ def search_with_query_expansion(query, top_k=3, video_id=None, recording_date=No
         return []
 
     deduplicated_results = _deduplicate_search_results(merged_results)
+    scene_results = _merge_adjacent_result_scenes(deduplicated_results)
     return sorted(
-        deduplicated_results,
+        scene_results,
         key=lambda item: float(item.get("score") or 0.0),
         reverse=True,
     )[:top_k]
@@ -486,6 +488,7 @@ def _find_duplicate_result_index(result, deduplicated, path_to_index):
 
     result_video_id = result.get("video_id")
     result_timestamp = _safe_float(result.get("timestamp"))
+    result_chunk = _result_source_chunk_key(result)
 
     if result_video_id is None or result_timestamp is None:
         return None
@@ -497,10 +500,90 @@ def _find_duplicate_result_index(result, deduplicated, path_to_index):
         if existing_video_id != result_video_id or existing_timestamp is None:
             continue
 
+        existing_chunk = _result_source_chunk_key(existing_result)
+        if result_chunk and existing_chunk and result_chunk != existing_chunk:
+            continue
+
         if abs(existing_timestamp - result_timestamp) <= 1.0:
             return index
 
     return None
+
+
+def _result_source_chunk_key(result):
+    source = result.get("s3_key") or result.get("frame_id") or result.get("frame_path")
+    if not source:
+        return None
+    filename = Path(str(source)).name
+    if "_frame_" not in filename:
+        return None
+    return filename.split("_frame_", 1)[0]
+
+
+def _merge_adjacent_result_scenes(results, max_gap_seconds=4.0, max_span_seconds=20.0):
+    """Collapse nearby ranked frames from one source chunk into a playback scene.
+
+    This is a presentation/evidence grouping heuristic, not action recognition.
+    It deliberately refuses to join results from different chunks because their
+    frame timestamps may restart at zero.
+    """
+    grouped = {}
+    ungroupable = []
+    for result in results:
+        chunk_key = _result_source_chunk_key(result)
+        video_id = result.get("video_id")
+        timestamp = _safe_float(result.get("timestamp"))
+        if not chunk_key or video_id is None or timestamp is None:
+            ungroupable.append(result)
+            continue
+        grouped.setdefault((video_id, chunk_key), []).append(result)
+
+    scenes = list(ungroupable)
+    for (video_id, chunk_key), chunk_results in grouped.items():
+        chronological = sorted(
+            chunk_results,
+            key=lambda item: _safe_float(item.get("timestamp")) or 0.0,
+        )
+        cluster = []
+
+        def flush():
+            if not cluster:
+                return
+            representative = max(
+                cluster,
+                key=lambda item: float(item.get("score") or 0.0),
+            )
+            timestamps = [float(item["timestamp"]) for item in cluster]
+            scene_start, scene_end = min(timestamps), max(timestamps)
+            scene = dict(representative)
+            scene.update({
+                "representative_timestamp": float(representative["timestamp"]),
+                "scene_start": scene_start,
+                "scene_end": scene_end,
+                "playback_start": max(0.0, scene_start - 3.0),
+                "playback_end": scene_end + 5.0,
+                "merged_frame_count": len(cluster),
+                "video_id": video_id,
+                "source_chunk": chunk_key,
+            })
+            scenes.append(scene)
+            cluster.clear()
+
+        for result in chronological:
+            timestamp = float(result["timestamp"])
+            previous_timestamp = float(cluster[-1]["timestamp"]) if cluster else None
+            cluster_start = float(cluster[0]["timestamp"]) if cluster else timestamp
+            adjacent = (
+                previous_timestamp is not None
+                and timestamp - previous_timestamp <= max_gap_seconds
+                and timestamp - cluster_start <= max_span_seconds
+            )
+            if cluster and not adjacent:
+                flush()
+            cluster.append(result)
+        flush()
+
+    return scenes
 
 
 def _remember_result_paths(result, index, path_to_index):

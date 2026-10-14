@@ -258,10 +258,12 @@ def _get_relevant_behavior_events(
         try:
             timestamp = float(timestamp)
 
+            scene_start = _safe_float(frame.get("scene_start"))
+            scene_end = _safe_float(frame.get("scene_end"))
             overlapping_events = get_behavior_events_overlapping(
                 video_id=frame_video_id,
-                start_time=max(timestamp - 3.0, 0.0),
-                end_time=timestamp + 3.0,
+                start_time=max((scene_start if scene_start is not None else timestamp) - 3.0, 0.0),
+                end_time=(scene_end if scene_end is not None else timestamp) + 3.0,
                 limit=5,
             )
 
