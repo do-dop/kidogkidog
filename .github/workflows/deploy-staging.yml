@@ -109,7 +109,7 @@ jobs:
             --network-tags "cloud-run-api" \
             --vpc-egress private-ranges-only \
             --set-env-vars "MYSQL_UNIX_SOCKET=/cloudsql/${{ vars.CLOUD_SQL_INSTANCE }},MYSQL_USER=${{ vars.MYSQL_USER }},MYSQL_DATABASE=${{ vars.MYSQL_DATABASE }},CHROMA_HOST=${{ vars.CHROMA_INTERNAL_IP }},CHROMA_PORT=8000,GCS_BUCKET_NAME=${{ vars.GCS_BUCKET_NAME }}" \
-            --set-secrets "MYSQL_PASSWORD=${{ vars.MYSQL_PASSWORD_SECRET }}:latest,OPENAI_API_KEY=${{ vars.OPENAI_API_KEY_SECRET }}:latest"
+            --set-secrets "MYSQL_PASSWORD=${{ vars.MYSQL_PASSWORD_SECRET }}:latest,OPENAI_API_KEY=${{ vars.OPENAI_API_KEY_SECRET }}:latest,CELERY_BROKER_URL=${{ vars.CELERY_BROKER_URL_SECRET }}:latest,UPLOAD_API_TOKEN=${{ vars.UPLOAD_API_TOKEN_SECRET }}:latest"
 
   deploy-web:
     needs: changes
