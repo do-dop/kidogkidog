@@ -1,3 +1,4 @@
+import os
 from functools import lru_cache
 from pathlib import Path
 from typing import List, Set
@@ -39,10 +40,12 @@ def get_yolo_model():
     """
     YOLO 모델을 한 번만 로드해서 재사용한다.
 
-    yolov8n.pt는 가장 가벼운 모델이라 Celery worker에서 먼저 붙이기 좋다.
+    yolov8n은 고양이/강아지 혼동과 작은 객체(bird 등) 누락이 많아 yolov8s를 기본으로 쓴다.
+    CPU worker에서 느리면 YOLO_MODEL=yolov8n.pt로 되돌릴 수 있다.
     """
+    model_name = os.getenv("YOLO_MODEL", "yolov8s.pt")
     with measure_stage("yolo_model_load"):
-        return YOLO("yolov8n.pt")
+        return YOLO(model_name)
 
 
 def detect_objects(
