@@ -61,7 +61,8 @@ jobs:
           context: .
           file: api/Dockerfile
           tags: kidog-api:ci
-          load: true
+          # 빌드 성공 여부만 확인한다. 이미지를 docker로 load하는 데만 몇 분이 걸리고,
+          # 배포용 이미지는 deploy-staging에서 다시 빌드하므로 load할 필요가 없다.
           cache-from: type=gha,scope=kidog-api
           cache-to: type=gha,mode=max,scope=kidog-api
 
