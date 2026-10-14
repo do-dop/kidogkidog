@@ -55,6 +55,33 @@ React UI에서 결과 및 영상 재생
 
 ## 로컬 실행
 
+### 질문 라우터 Shadow Mode
+
+질문 유형 분류는 기존 검색 결과를 변경하지 않는 shadow 모드로 먼저 검증할 수 있습니다.
+Jev API 키가 없거나 호출에 실패하면 규칙 기반 분류 결과만 구조화 로그로 남으며,
+어떤 경우에도 기존 검색 요청을 중단하지 않습니다.
+
+```dotenv
+QUESTION_ROUTER_MODE=shadow
+TYPESAFE_API_KEY=...
+TYPESAFE_DEFAULT_MODEL=jev-1.13.0
+JEV_TIMEOUT_SECONDS=10.0
+QUESTION_ROUTER_CONFIDENCE_THRESHOLD=0.80
+QUESTION_ROUTER_FALLBACK_THRESHOLD=0.50
+```
+
+로컬 디버깅 중 분류 결과를 `/query` 응답에도 포함하려면 아래 값을 추가합니다.
+운영 환경에서는 질문 라우팅 내부 정보가 불필요하게 노출되지 않도록 기본값을 사용합니다.
+
+```dotenv
+QUESTION_ROUTER_EXPOSE_RESULT=true
+```
+
+`QUESTION_ROUTER_MODE=off`가 기본값입니다. Shadow 로그에는 검색어 원문 대신 SHA-256
+해시 앞 12자리와 글자 수만 기록합니다. 결과 노출 옵션을 켜지 않으면 Jev 분류는
+검색 응답을 지연시키지 않도록 FastAPI background task에서 실행됩니다.
+기존 `JEV_API_KEY`, `JEV_MODEL`, `JEV_BASE_URL` 이름도 호환성을 위해 지원합니다.
+
 ### 1. 환경 변수 준비
 
 루트 경로에 `.env`를 만들고 GCS, DB, LLM 등에 필요한 값을 설정합니다.

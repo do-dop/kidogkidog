@@ -1,6 +1,7 @@
+import os
 import time
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, BackgroundTasks, HTTPException
 
 from api.schemas import QueryRequest
 from db.search_history import insert_search_log, upsert_user_frequent_query
@@ -10,7 +11,7 @@ router = APIRouter(tags=["search"])
 
 
 @router.post("/query")
-def query(request: QueryRequest):
+def query(request: QueryRequest, background_tasks: BackgroundTasks):
     if not request.query.strip():
         raise HTTPException(
             status_code=400,
@@ -19,6 +20,20 @@ def query(request: QueryRequest):
 
     top_k = max(1, min(request.top_k, 10))
     started_at = time.perf_counter()
+    route_decision = None
+    expose_route = os.getenv("QUESTION_ROUTER_EXPOSE_RESULT", "").lower()
+
+    try:
+        from pipeline.search.question_router import get_router_mode, run_shadow_classification
+
+        if get_router_mode() == "shadow":
+            if expose_route in {"1", "true", "yes"}:
+                route_decision = run_shadow_classification(request.query)
+            else:
+                background_tasks.add_task(run_shadow_classification, request.query)
+    except Exception as exc:
+        # 질문 라우터는 shadow 기능이므로 어떤 실패도 기존 검색을 막지 않는다.
+        print(f"질문 라우터 shadow 실행 실패: {exc}", flush=True)
 
     try:
         from pipeline.search.rag_chain import run_rag_query
@@ -55,7 +70,7 @@ def query(request: QueryRequest):
         except Exception as exc:
             print(f"검색 로그 저장 실패: {exc}", flush=True)
 
-    return {
+    response = {
         "status": "ok",
         "query": request.query,
         "video_id": request.video_id,
@@ -67,3 +82,8 @@ def query(request: QueryRequest):
         "behavior_events": rag_result.get("behavior_events", []),
         "used_llm": rag_result["used_llm"],
     }
+
+    if route_decision and expose_route in {"1", "true", "yes"}:
+        response["question_route"] = route_decision.to_dict()
+
+    return response
