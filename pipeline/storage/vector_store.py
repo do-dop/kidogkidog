@@ -532,7 +532,7 @@ def _safe_float(value):
         return None
 
 
-def get_indexed_frames(video_id=None):
+def get_indexed_frames(video_id=None, recording_date=None, time_range=None):
     """
     ChromaDB에 저장된 프레임 metadata 조회
     """
@@ -545,6 +545,8 @@ def get_indexed_frames(video_id=None):
         if isinstance(video_id, list) and frame_video_id not in video_id:
             continue
         if isinstance(video_id, str) and frame_video_id != video_id:
+            continue
+        if not _matches_datetime_filter(metadata, recording_date=recording_date, time_range=time_range):
             continue
 
         frames.append({

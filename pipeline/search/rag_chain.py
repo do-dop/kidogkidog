@@ -91,16 +91,26 @@ def run_rag_query(
         retrieved_frames = _fallback_indexed_frames(
             video_id=video_id,
             limit=top_k,
+            recording_date=recording_date,
+            time_range=time_range,
         )
 
     if not retrieved_frames and not behavior_events:
+        if _has_datetime_filter(recording_date, time_range):
+            answer = (
+                f"선택한 날짜와 시간대에서는 '{query}'과 맞는 장면을 찾지 못했어요. "
+                "다른 날짜나 시간대를 선택해서 다시 검색해보세요."
+            )
+        else:
+            answer = (
+                f"질문 '{query}'과 정확히 맞는 장면은 아직 찾지 못했습니다. "
+                "다만 이 영상의 인덱스가 충분하지 않거나 분석 결과가 아직 생성 중일 수 있어요."
+            )
+
         return {
             "query": query,
             "video_id": video_id,
-            "answer": (
-                f"질문 '{query}'과 정확히 맞는 장면은 아직 찾지 못했습니다. "
-                "다만 이 영상의 인덱스가 충분하지 않거나 분석 결과가 아직 생성 중일 수 있어요."
-            ),
+            "answer": answer,
             "results": [],
             "evidence_items": [],
             "behavior_events": [],
@@ -273,12 +283,14 @@ def _get_relevant_behavior_events(
             print(f"겹치는 행동 이벤트 조회 실패: {exc}", flush=True)
 
     # 2. 영상 전체 주요 behavior_events 조회
+    # 날짜/시간대 필터는 조회 후에 적용되므로, 필터가 있으면 후보를 넉넉히 가져온 뒤 거른다.
     try:
+        has_filter = _has_datetime_filter(recording_date, time_range)
         top_events = get_top_behavior_events(
             video_id=video_id,
-            limit=10,
+            limit=200 if has_filter else 10,
         )
-        candidates.extend(_filter_events_by_datetime(top_events, recording_date, time_range))
+        candidates.extend(_filter_events_by_datetime(top_events, recording_date, time_range)[:10])
 
     except Exception as exc:
         print(f"주요 행동 이벤트 조회 실패: {exc}", flush=True)
@@ -320,6 +332,22 @@ def _frame_recorded_at_from_key(s3_key: str | None):
         "%Y%m%d%H%M%S",
     )
     return base + timedelta(seconds=int(match.group(3)) * 60 + float(match.group(4)))
+
+
+def _has_datetime_filter(recording_date: str | None, time_range: dict[str, int] | None) -> bool:
+    if recording_date:
+        return True
+
+    if not time_range:
+        return False
+
+    try:
+        start_hour = int(time_range.get("start_hour"))
+        end_hour = int(time_range.get("end_hour"))
+    except (TypeError, ValueError):
+        return False
+
+    return not (start_hour <= 0 and end_hour >= 24)
 
 
 def _matches_datetime_filter(recorded_at, recording_date: str | None, time_range: dict[str, int] | None):
@@ -470,9 +498,18 @@ def _attach_event_window_to_frames(
     return output
 
 
-def _fallback_indexed_frames(video_id: str | None, limit: int = 5) -> list[dict[str, Any]]:
+def _fallback_indexed_frames(
+    video_id: str | None,
+    limit: int = 5,
+    recording_date: str | None = None,
+    time_range: dict[str, int] | None = None,
+) -> list[dict[str, Any]]:
     try:
-        frames = get_indexed_frames(video_id=video_id)
+        frames = get_indexed_frames(
+            video_id=video_id,
+            recording_date=recording_date,
+            time_range=time_range,
+        )
     except Exception as exc:
         print(f"대체 프레임 조회 실패: {exc}", flush=True)
         return []
@@ -490,7 +527,8 @@ def _fallback_indexed_frames(video_id: str | None, limit: int = 5) -> list[dict[
             "score": 0.0,
         })
 
-    if not fallback_frames and video_id:
+    # 날짜/시간대를 골랐는데 맞는 프레임이 없으면 다른 날짜의 0초 프레임을 보여주지 않는다.
+    if not fallback_frames and video_id and not _has_datetime_filter(recording_date, time_range):
         fallback_frames.append({
             "frame_id": f"fallback-{video_id}-0",
             "frame_path": None,
