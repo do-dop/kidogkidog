@@ -79,6 +79,7 @@ type ApiQueryResult = {
     representative_timestamp?: number;
     playback_start?: number;
     playback_end?: number;
+    merged_frame_count?: number;
   }>;
   evidence_items?: ApiQueryResult["results"];
   behavior_events?: BehaviorEvent[];
@@ -373,6 +374,9 @@ function mapApiResults(payload: ApiQueryResult, items: Recording[] = []): Search
     if (playbackEnd !== undefined) {
       noteParts.push(`재생 구간: ${formatSeconds(playbackStart)}~${formatSeconds(playbackEnd)}`);
     }
+    if (Number(result.merged_frame_count) > 1) {
+      noteParts.push(`인접 프레임 ${result.merged_frame_count}개 통합`);
+    }
 
     return {
       id: result.frame_id ?? `api-result-${index}`,
@@ -403,6 +407,70 @@ function mapApiResults(payload: ApiQueryResult, items: Recording[] = []): Search
       representativeTimestamp: seconds,
     };
   });
+}
+
+const recordingDurationCache = new Map<string, Promise<number | undefined>>();
+
+function loadRecordingDuration(recording: Recording): Promise<number | undefined> {
+  if (!recording.videoUrl) return Promise.resolve(undefined);
+  const cacheKey = recording.id || recording.videoUrl;
+  const cached = recordingDurationCache.get(cacheKey);
+  if (cached) return cached;
+
+  const durationPromise = new Promise<number | undefined>((resolve) => {
+    const video = document.createElement("video");
+    video.preload = "metadata";
+
+    let settled = false;
+    const finish = (duration?: number) => {
+      if (settled) return;
+      settled = true;
+      window.clearTimeout(timeoutId);
+      video.removeEventListener("loadedmetadata", onLoadedMetadata);
+      video.removeEventListener("error", onError);
+      video.removeAttribute("src");
+      video.load();
+      resolve(duration);
+    };
+    const onLoadedMetadata = () => finish(
+      Number.isFinite(video.duration) && video.duration > 0 ? video.duration : undefined,
+    );
+    const onError = () => finish(undefined);
+    const timeoutId = window.setTimeout(() => finish(undefined), 15000);
+
+    video.addEventListener("loadedmetadata", onLoadedMetadata, { once: true });
+    video.addEventListener("error", onError, { once: true });
+    video.src = recording.videoUrl!;
+    video.load();
+  });
+
+  recordingDurationCache.set(cacheKey, durationPromise);
+  return durationPromise;
+}
+
+async function clampResultsToMediaDuration(results: SearchResult[], items: Recording[]) {
+  return Promise.all(results.map(async (result) => {
+    const recording = items.find((item) => item.id === result.recordingId);
+    if (!recording || result.playbackEndSeconds === undefined) return result;
+
+    const mediaDuration = await loadRecordingDuration(recording);
+    if (mediaDuration === undefined) return result;
+
+    const playbackStart = result.playbackStartSeconds ?? 0;
+    const playbackEnd = Math.min(result.playbackEndSeconds, mediaDuration);
+    if (playbackEnd >= result.playbackEndSeconds) return result;
+
+    const updatedNote = result.note.replace(
+      /재생 구간: [^·]+/,
+      `재생 구간: ${formatSeconds(playbackStart)}~${formatSeconds(playbackEnd)}`,
+    );
+    return {
+      ...result,
+      note: updatedNote,
+      duration: formatDuration(Math.max(0, playbackEnd - playbackStart)),
+      playbackEndSeconds: playbackEnd,
+    };
+  }));
 }
 
 function nextRecording(current: Recording, items: Recording[]): Recording | undefined {
@@ -1013,7 +1081,8 @@ export default function App() {
       if (!response.ok) throw new Error(`API ${response.status}`);
 
       const payload = (await response.json()) as ApiQueryResult;
-      const nextResults = pickRelevantResults(mapApiResults(payload, recordingItems));
+      const rankedResults = pickRelevantResults(mapApiResults(payload, recordingItems));
+      const nextResults = await clampResultsToMediaDuration(rankedResults, recordingItems);
       setAnswer(payload.answer || `${nextQuery}와 관련된 장면을 찾았어요.`);
       setResults(nextResults);
       setActiveResult(nextResults[0] ?? null);
