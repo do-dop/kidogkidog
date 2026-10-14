@@ -182,6 +182,9 @@ const gradients = [
   "linear-gradient(150deg,#2a343c,#161f24)",
 ];
 
+// 녹화 청크 목록 재시도 간격. 합계 약 1분으로 Cloud Run 콜드 스타트(약 30초)를 넘긴다.
+const CHUNK_RETRY_DELAYS_MS = [2000, 4000, 8000, 15000, 15000, 15000];
+
 const recordings: Recording[] = [
   { id: "demo-0705", time: "07:05", duration: "5:00", period: "오전", thumb: 3, motion: "낮음", recordingDate: "2026-06-16", tags: [{ icon: "🐶", label: "dog" }, { icon: "🛏️", label: "bed" }] },
   { id: "demo-0830", time: "08:30", duration: "5:00", period: "오전", thumb: 0, motion: "보통", recordingDate: "2026-06-16", tags: [{ icon: "🐶", label: "dog" }, { icon: "🥣", label: "bowl" }] },
@@ -637,6 +640,8 @@ export default function App() {
   const [topQueries, setTopQueries] = useState<UserQuery[]>([]);
   const [recordingsLoading, setRecordingsLoading] = useState(false);
   const [recordingsNotice, setRecordingsNotice] = useState("");
+  const [recordingsFailed, setRecordingsFailed] = useState(false);
+  const [recordingsRefreshToken, setRecordingsRefreshToken] = useState(0);
   const [reindexing, setReindexing] = useState(false);
   const [behaviorRefreshToken, setBehaviorRefreshToken] = useState(0);
   const [suggestionRefreshToken, setSuggestionRefreshToken] = useState(0);
@@ -677,14 +682,18 @@ export default function App() {
 
   useEffect(() => {
     let ignore = false;
+    let retryTimer: number | undefined;
+    let attempt = 0;
 
     async function loadChunks() {
       setRecordingsLoading(true);
-      setRecordingsNotice("");
+      setRecordingsFailed(false);
+      if (attempt === 0) setRecordingsNotice("");
 
       try {
         const response = await fetch("/api/recordings/chunks");
 
+        // Cloud Run이 콜드 스타트 중이면 인스턴스가 뜰 때까지(약 30초) 429/503을 돌려준다.
         if (!response.ok) throw new Error(`API ${response.status}`);
 
         const payload = (await response.json()) as ApiChunksResult;
@@ -712,14 +721,22 @@ export default function App() {
               ? `GCS 청크 ${nextRecordings.length}개를 불러왔습니다.`
               : "GCS chunks/ 경로에 표시할 청크 영상이 없습니다.",
           );
+          setRecordingsLoading(false);
         }
       } catch {
-        if (!ignore) {
-          setS3Recordings([]);
-          setRecordingsNotice("GCS 청크 목록 API에 연결하지 못해 데모 녹화 목록을 표시합니다.");
+        if (ignore) return;
+
+        if (attempt < CHUNK_RETRY_DELAYS_MS.length) {
+          setRecordingsNotice("서버를 준비하는 중입니다. 잠시 후 녹화 영상을 다시 불러옵니다.");
+          retryTimer = window.setTimeout(loadChunks, CHUNK_RETRY_DELAYS_MS[attempt]);
+          attempt += 1;
+          return;
         }
-      } finally {
-        if (!ignore) setRecordingsLoading(false);
+
+        setS3Recordings([]);
+        setRecordingsFailed(true);
+        setRecordingsNotice("녹화 영상 목록을 불러오지 못했습니다.");
+        setRecordingsLoading(false);
       }
     }
 
@@ -727,10 +744,14 @@ export default function App() {
 
     return () => {
       ignore = true;
+      if (retryTimer !== undefined) {
+        window.clearTimeout(retryTimer);
+      }
     };
-  }, []);
+  }, [recordingsRefreshToken]);
 
-  const recordingItems = s3Recordings.length > 0 ? s3Recordings : recordings;
+  // 데모 녹화는 썸네일과 영상이 없어 실제 청크처럼 보이면 안 되므로 목록에는 섞지 않는다.
+  const recordingItems = s3Recordings;
   const searchVideoOptions = useMemo(
     () => Array.from(new Set(recordingItems.map((recording) => recording.videoId).filter(Boolean))) as string[],
     [recordingItems],
@@ -1156,6 +1177,7 @@ export default function App() {
 
   function stepRecording(delta: number) {
     const source = currentVideoRecordings.length > 0 ? currentVideoRecordings : recordingItems;
+    if (source.length === 0) return;
     const index = Math.max(0, source.findIndex((item) => item.id === activeRecording.id));
     const nextIndex = Math.min(source.length - 1, Math.max(0, index + delta));
     setActiveRecording(source[nextIndex]);
@@ -1396,6 +1418,9 @@ export default function App() {
                   <ClipCard key={clip.id} clip={clip} eventCount={eventsForRecording(clip, behaviorEvents).length} onOpen={() => openRecording(clip)} />
                 ))}
               </div>
+              {filteredRecordings.length === 0 && (
+                <RecordingsStatus loading={recordingsLoading} failed={recordingsFailed} notice={recordingsNotice} onRetry={() => setRecordingsRefreshToken((token) => token + 1)} />
+              )}
             </section>
           )}
 
@@ -1623,6 +1648,9 @@ export default function App() {
                       <ClipCard key={clip.id} clip={clip} eventCount={eventsForRecording(clip, behaviorEvents).length} onOpen={() => openRecording(clip)} />
                     ))}
                   </div>
+                  {filteredRecordings.length === 0 && (
+                    <RecordingsStatus loading={recordingsLoading} failed={recordingsFailed} notice={recordingsNotice} onRetry={() => setRecordingsRefreshToken((token) => token + 1)} />
+                  )}
                 </div>
 
                 <div className="brand-callout-banner">
@@ -2235,6 +2263,37 @@ function BehaviorEventPanel({
       {chunkEvents.length > 0 && videoEvents.length !== chunkEvents.length && (
         <p className="chunk-event-empty">현재 청크와 직접 겹치는 행동 후보는 {chunkEvents.length}개입니다.</p>
       )}
+    </div>
+  );
+}
+
+function RecordingsStatus({ loading, failed, notice, onRetry }: { loading: boolean; failed: boolean; notice: string; onRetry: () => void }) {
+  if (loading) {
+    return (
+      <div className="empty-state">
+        <Icon filled>hourglass_top</Icon>
+        <strong>녹화 영상을 불러오는 중이에요</strong>
+        <p>{notice || "GCS 청크 목록을 확인하고 있습니다."}</p>
+      </div>
+    );
+  }
+
+  if (failed) {
+    return (
+      <div className="empty-state">
+        <Icon filled>cloud_off</Icon>
+        <strong>{notice}</strong>
+        <p>서버가 응답하지 않습니다. 잠시 후 다시 시도해주세요.</p>
+        <button className="secondary-button" type="button" onClick={onRetry}>다시 시도</button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="empty-state">
+      <Icon filled>videocam_off</Icon>
+      <strong>선택한 날짜와 시간대에 녹화 영상이 없어요</strong>
+      <p>다른 날짜나 시간대를 선택해보세요.</p>
     </div>
   );
 }
