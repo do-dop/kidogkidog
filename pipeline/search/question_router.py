@@ -39,6 +39,7 @@ class RouteDecision:
 
 AGGREGATE_PATTERNS = (
     r"몇\s*번",
+    r"몇\s*회",
     r"얼마나\s*(?:자주|많이|오래)",
     r"총\s*(?:몇|얼마)",
     r"가장\s*(?:많이|오래|자주)",

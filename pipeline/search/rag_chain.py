@@ -1,15 +1,19 @@
 import os
 import re
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 from typing import Any
 
 from pipeline.storage.vector_store import get_indexed_frames, search_with_query_expansion
 from pipeline.search.query_analyzer import build_prompt_hint
 from db.behavior_events import (
     get_behavior_event_by_id,
+    get_behavior_events_for_aggregation,
     get_top_behavior_events,
     get_behavior_events_overlapping,
 )
+from pipeline.search.aggregate_query import count_episodes, event_matches_action, parse_count_action
+from pipeline.search.question_router import QuestionType, classify_with_rules
 
 
 DEFAULT_FALLBACK_MESSAGE = (
@@ -48,6 +52,15 @@ def run_rag_query(
         event_end=event_end,
         video_id=video_id,
     )
+
+    if classify_with_rules(query).question_type == QuestionType.AGGREGATE:
+        return _run_aggregate_query(
+            query=query,
+            video_id=video_id,
+            top_k=top_k,
+            recording_date=recording_date,
+            time_range=time_range,
+        )
 
     if source_event:
         return _run_event_grounded_query(
@@ -145,6 +158,114 @@ def run_rag_query(
         "evidence_items": retrieved_frames,
         "behavior_events": behavior_events,
         "used_llm": used_llm,
+    }
+
+
+def _run_aggregate_query(
+    query: str,
+    video_id: str | None,
+    top_k: int,
+    recording_date: str | None,
+    time_range: dict[str, int] | None,
+) -> dict[str, Any]:
+    parsed = parse_count_action(query)
+    if parsed is None:
+        answer = "이 질문의 행동이나 계산 단위를 아직 정확히 셀 수 없어요. '물 몇 번 마셨어?'처럼 한 가지 행동의 횟수를 물어봐 주세요."
+        return _empty_aggregate_result(query, video_id, answer)
+
+    action, action_label = parsed
+    if not recording_date:
+        today = datetime.now(ZoneInfo("Asia/Seoul")).date()
+        if "어제" in query:
+            recording_date = (today - timedelta(days=1)).isoformat()
+        elif "오늘" in query:
+            recording_date = today.isoformat()
+
+    try:
+        timeline = get_behavior_events_for_aggregation(video_id=video_id)
+    except Exception as exc:
+        print(f"aggregate 행동 이벤트 조회 실패: {exc}", flush=True)
+        return _empty_aggregate_result(query, video_id, "행동 기록을 조회하지 못해 횟수를 계산할 수 없어요.")
+
+    matched = [event for event in timeline if event_matches_action(event, action)]
+    if _has_datetime_filter(recording_date, time_range):
+        # A missing capture time means the event may belong inside the requested period.
+        # An incomplete timeline must not produce an exact count.
+        if any(not any(
+            _frame_recorded_at_from_key(frame.get("s3_key"))
+            for frame in (event.get("source_frames") or [])
+            if isinstance(frame, dict)
+        ) for event in matched):
+            return _empty_aggregate_result(
+                query, video_id,
+                "일부 행동의 촬영 시각을 확인할 수 없어 해당 기간의 횟수를 정확히 계산할 수 없어요.",
+            )
+        matched = _filter_events_by_datetime(matched, recording_date, time_range)
+
+    episodes = count_episodes(matched)
+    if not episodes:
+        return _empty_aggregate_result(
+            query, video_id,
+            f"{action_label} 장면을 확인하지 못했어요. 기록만으로 0회라고 단정할 수는 없어요.",
+        )
+
+    evidence = []
+    result_frames = []
+    for episode in episodes:
+        evidence.append({
+            "video_id": episode["video_id"],
+            "start_time": episode["start_time"],
+            "end_time": episode["end_time"],
+            "event_ids": episode["event_ids"],
+        })
+        if len(result_frames) < top_k:
+            frames = _frames_from_behavior_events(episode["events"], episode["video_id"], limit=1)
+            if frames:
+                frame = frames[0]
+                frame["event_start"] = episode["start_time"]
+                frame["event_end"] = episode["end_time"]
+                frame["source_event_id"] = episode["event_ids"][0]
+                result_frames.append(frame)
+
+    times = ", ".join(
+        f"{item['video_id']} {item['start_time']:.1f}~{item['end_time']:.1f}초"
+        for item in evidence[:3]
+    )
+    more = f" 외 {len(evidence) - 3}개 구간" if len(evidence) > 3 else ""
+    answer = (
+        f"기록에서 {action_label}로 표시된 구간 {len(evidence)}개를 찾았어요. "
+        f"근거 구간: {times}{more}. 실제 행동 횟수는 영상을 확인해 주세요."
+    )
+    return {
+        "query": query,
+        "video_id": video_id,
+        "answer": answer,
+        "results": result_frames,
+        "evidence_items": result_frames,
+        "behavior_events": matched,
+        "used_llm": False,
+        "aggregate_result": {
+            "action": action,
+            "metric": "episode_count",
+            "count": len(evidence),
+            "count_basis": "detected_behavior_intervals",
+            "recording_date": recording_date,
+            "time_range": time_range,
+            "intervals": evidence,
+        },
+    }
+
+
+def _empty_aggregate_result(query: str, video_id: str | None, answer: str) -> dict[str, Any]:
+    return {
+        "query": query,
+        "video_id": video_id,
+        "answer": answer,
+        "results": [],
+        "evidence_items": [],
+        "behavior_events": [],
+        "used_llm": False,
+        "aggregate_result": None,
     }
 
 

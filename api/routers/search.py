@@ -86,4 +86,7 @@ def query(request: QueryRequest, background_tasks: BackgroundTasks):
     if route_decision and expose_route in {"1", "true", "yes"}:
         response["question_route"] = route_decision.to_dict()
 
+    if rag_result.get("aggregate_result") is not None:
+        response["aggregate_result"] = rag_result["aggregate_result"]
+
     return response

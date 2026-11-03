@@ -82,6 +82,16 @@ QUESTION_ROUTER_EXPOSE_RESULT=true
 검색 응답을 지연시키지 않도록 FastAPI background task에서 실행됩니다.
 기존 `JEV_API_KEY`, `JEV_MODEL`, `JEV_BASE_URL` 이름도 호환성을 위해 지원합니다.
 
+### Aggregate 행동 횟수 질문
+
+`/query`에서 "물 몇 번 마셨어?", "밥 몇 번 먹었어?" 같은 질문은 전체 행동 이벤트를
+시간순으로 조회해 같은 행동의 겹치는 구간을 하나로 묶습니다. 반환된 `aggregate_result`에는
+후보 구간 수와 각 구간의 영상 ID, 시작·종료 시각, 근거 이벤트 ID가 포함됩니다.
+`repeat_count`는 일부 이벤트에서 프레임 수를 뜻하므로 합산하지 않습니다.
+현재 수치는 기록에서 탐지된 **후보 구간 수**입니다. 기록이 비어 있거나 필요한 촬영 시각을
+확인할 수 없으면 정확한 횟수를 제시하지 않습니다. 총 지속 시간, 빈도, 기간 비교는 아직
+지원하지 않습니다. 발표용 흐름은 `notebooks/aggregate-question-results.ipynb`에서 볼 수 있습니다.
+
 ### 1. 환경 변수 준비
 
 루트 경로에 `.env`를 만들고 GCS, DB, LLM 등에 필요한 값을 설정합니다.

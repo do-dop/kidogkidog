@@ -196,6 +196,32 @@ def get_top_behavior_events(video_id=None, limit=5):
     return get_behavior_events(video_id=video_id, limit=limit)
 
 
+def get_behavior_events_for_aggregation(video_id=None):
+    """Return the complete event timeline; ranking limits must never affect counts."""
+    conn = connect(dict_rows=True)
+    try:
+        cursor = conn.cursor()
+        columns = (
+            "id, video_id, start_time, end_time, subject, action, target_object, "
+            "summary, duration, repeat_count, confidence, interestingness, "
+            "evidence_json, source_frames_json, created_at"
+        )
+        if video_id:
+            cursor.execute(
+                f"SELECT {columns} FROM behavior_events WHERE video_id = ? "
+                "ORDER BY video_id, start_time, end_time, id",
+                (video_id,),
+            )
+        else:
+            cursor.execute(
+                f"SELECT {columns} FROM behavior_events "
+                "ORDER BY video_id, start_time, end_time, id"
+            )
+        return [_row_to_behavior_event(row) for row in cursor.fetchall()]
+    finally:
+        conn.close()
+
+
 def get_behavior_event_by_id(event_id):
     """
     추천 질문과 연결된 단일 행동 이벤트 조회
