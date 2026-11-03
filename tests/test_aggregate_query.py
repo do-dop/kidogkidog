@@ -21,6 +21,19 @@ class AggregateQueryTests(unittest.TestCase):
         self.assertFalse(event_matches_action({"action": "강아지가 울타리 근처에 있음"}, "gate_climb"))
         self.assertFalse(event_matches_action({"action": "강아지가 울타리에 올라가려고 시도"}, "gate_climb"))
 
+    def test_gate_climb_accepts_visual_evidence_described_as_crossing(self):
+        self.assertTrue(event_matches_action(
+            {"action": "반려동물이 울타리를 넘어가는 것으로 보임", "target_object": "울타리"},
+            "gate_climb",
+        ))
+        self.assertTrue(event_matches_action(
+            {
+                "action": "반려동물이 우리를 넘으려고 시도함",
+                "evidence": ["반려동물이 우리 쪽으로 손을 뻗고 점프를 시도함"],
+            },
+            "gate_climb",
+        ))
+
     def test_overlap_merges_but_separate_actions_remain_separate(self):
         events = [
             {"id": 1, "video_id": "v1", "start_time": 10, "end_time": 14},

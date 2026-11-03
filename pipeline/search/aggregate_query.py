@@ -31,11 +31,16 @@ def parse_count_action(query: str) -> tuple[str, str] | None:
 def event_matches_action(event: dict[str, Any], action: str) -> bool:
     description = " ".join(str(event.get(key) or "") for key in ("action", "summary", "target_object"))
     if action == "gate_climb":
-        if re.search(r"올라|올랐|기어|타고|climb", description, re.I) is None:
+        if re.search(r"올라|올랐|기어|타고|넘|climb", description, re.I) is None:
             return False
-        if re.search(r"울타리|펜스|gate", description, re.I) is None:
+        if re.search(r"울타리|펜스|우리(?:를|에|위)|gate|fence", description, re.I) is None:
             return False
-        return re.search(r"시도|하려|려고|못\s*올라", description, re.I) is None
+        if re.search(r"못\s*올라", description, re.I):
+            return False
+        if re.search(r"시도|하려|려고", description, re.I):
+            evidence = " ".join(str(item) for item in (event.get("evidence") or []))
+            return bool(re.search(r"발.{0,6}걸치|손.{0,6}뻗|몸.{0,6}올라|점프", evidence, re.I))
+        return True
     if UNCERTAIN_PATTERN.search(description):
         return False
     return bool(re.search(ACTION_PATTERNS[action][0], description, re.I))
