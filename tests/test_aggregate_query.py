@@ -12,6 +12,15 @@ class AggregateQueryTests(unittest.TestCase):
         self.assertTrue(event_matches_action({"action": "물을 마심"}, "drink"))
         self.assertFalse(event_matches_action({"action": "물그릇 근처에 있음"}, "drink"))
 
+    def test_gate_climb_requires_climbing_not_nearness_or_attempt(self):
+        self.assertEqual(
+            parse_count_action("강아지가 울타리에 몇 번 올라탔어?"),
+            ("gate_climb", "울타리 올라타기"),
+        )
+        self.assertTrue(event_matches_action({"action": "강아지가 울타리에 올라탐"}, "gate_climb"))
+        self.assertFalse(event_matches_action({"action": "강아지가 울타리 근처에 있음"}, "gate_climb"))
+        self.assertFalse(event_matches_action({"action": "강아지가 울타리에 올라가려고 시도"}, "gate_climb"))
+
     def test_overlap_merges_but_separate_actions_remain_separate(self):
         events = [
             {"id": 1, "video_id": "v1", "start_time": 10, "end_time": 14},

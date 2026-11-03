@@ -7,6 +7,11 @@ from typing import Any
 ACTION_PATTERNS = {
     "drink": (r"마시|마심|마셨|마셨어|마신|마셔|음수|물\s*먹|drink|drank", "물 마시기"),
     "eat": (r"(?:밥|사료|먹이|간식|음식).{0,8}먹|먹었|먹는|먹고|먹음|식사|섭취|eat|eating", "먹기"),
+    "gate_climb": (
+        r"(?:울타리|펜스|gate).{0,14}(?:올라|올랐|기어|타고|climb)|"
+        r"(?:올라|올랐|기어|타고|climb).{0,14}(?:울타리|펜스|gate)",
+        "울타리 올라타기",
+    ),
 }
 COUNT_PATTERN = re.compile(r"몇\s*(?:번|회)|횟수", re.I)
 UNCERTAIN_PATTERN = re.compile(r"마시지\s*않|먹지\s*않|마시는지|먹는지|근처|주변|앞에|옆에", re.I)
@@ -24,7 +29,13 @@ def parse_count_action(query: str) -> tuple[str, str] | None:
 
 
 def event_matches_action(event: dict[str, Any], action: str) -> bool:
-    description = " ".join(str(event.get(key) or "") for key in ("action", "summary"))
+    description = " ".join(str(event.get(key) or "") for key in ("action", "summary", "target_object"))
+    if action == "gate_climb":
+        if re.search(r"올라|올랐|기어|타고|climb", description, re.I) is None:
+            return False
+        if re.search(r"울타리|펜스|gate", description, re.I) is None:
+            return False
+        return re.search(r"시도|하려|려고|못\s*올라", description, re.I) is None
     if UNCERTAIN_PATTERN.search(description):
         return False
     return bool(re.search(ACTION_PATTERNS[action][0], description, re.I))
