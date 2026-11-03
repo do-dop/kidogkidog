@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 from typing import Any
 
-from pipeline.storage.vector_store import get_indexed_frames, search_with_query_expansion
 from pipeline.search.query_analyzer import build_prompt_hint
 from db.behavior_events import (
     get_behavior_event_by_id,
@@ -71,6 +70,8 @@ def run_rag_query(
         )
 
     try:
+        from pipeline.storage.vector_store import search_with_query_expansion
+
         retrieved_frames = search_with_query_expansion(
             query=query,
             top_k=top_k,
@@ -206,7 +207,7 @@ def _run_aggregate_query(
     if not episodes:
         return _empty_aggregate_result(
             query, video_id,
-            f"{action_label} 장면을 확인하지 못했어요. 기록만으로 0회라고 단정할 수는 없어요.",
+            f"{action_label} 행동 구간이 기록에서 분리되지 않아 횟수를 계산할 수 없어요. 원본 영상을 확인해 주세요.",
         )
 
     evidence = []
@@ -307,6 +308,8 @@ def _run_event_grounded_query(
     retrieved_frames = []
 
     try:
+        from pipeline.storage.vector_store import search_with_query_expansion
+
         candidate_frames = search_with_query_expansion(
             query=query,
             top_k=max(top_k * 5, 20),
@@ -626,6 +629,8 @@ def _fallback_indexed_frames(
     time_range: dict[str, int] | None = None,
 ) -> list[dict[str, Any]]:
     try:
+        from pipeline.storage.vector_store import get_indexed_frames
+
         frames = get_indexed_frames(
             video_id=video_id,
             recording_date=recording_date,
