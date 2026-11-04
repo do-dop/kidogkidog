@@ -199,13 +199,6 @@ const recordings: Recording[] = [
   { id: "demo-2310", time: "23:10", duration: "5:00", period: "야간", thumb: 3, motion: "낮음", recordingDate: "2026-06-16", tags: [{ icon: "🐶", label: "dog" }, { icon: "🛏️", label: "bed" }] },
 ];
 
-const liveEvents = [
-  { icon: "pets", text: "소파 근처에 있어요", time: "방금", tags: ["dog", "couch"] },
-  { icon: "restaurant", text: "밥그릇 앞에서 식사 중이에요", time: "2분 전", tags: ["dog", "bowl"] },
-  { icon: "directions_walk", text: "거실을 돌아다니고 있어요", time: "8분 전", tags: ["dog", "floor"] },
-  { icon: "bedtime", text: "방석 위에서 쉬고 있어요", time: "15분 전", tags: ["dog", "bed"] },
-];
-
 const demoUserId = "kidog-demo";
 
 function Icon({ children, filled = false }: { children: string; filled?: boolean }) {
@@ -360,7 +353,7 @@ function mapApiResults(payload: ApiQueryResult, items: Recording[] = []): Search
     const playbackStart = Number(result.playback_start ?? seconds);
     const playbackEnd = result.playback_end !== undefined ? Number(result.playback_end) : undefined;
     const recording = findRecordingForFrame(result, items);
-    const frameThumbnailUrl = result.s3_key ? mediaUrl(`/media/s3?key=${encodeURIComponent(result.s3_key)}`) : undefined;
+    const frameThumbnailUrl = result.s3_key ? mediaUrl(`/media/s3?key=${encodeURIComponent(result.s3_key)}&w=${THUMBNAIL_WIDTH}`) : undefined;
     const dateTime = resultDateTime(recording, seconds);
     const recordingDurationSeconds = durationToSeconds(recording?.duration);
     const playbackIsChunkRelative = Boolean(recording && recordingDurationSeconds && playbackStart <= recordingDurationSeconds + 1);
@@ -541,6 +534,14 @@ function mediaUrl(mediaPath?: string | null, fallbackUrl?: string | null) {
   return fallbackUrl || undefined;
 }
 
+// 카드 썸네일은 원본(1920px, 약 650KB) 대신 서버에서 줄인 이미지를 받는다.
+const THUMBNAIL_WIDTH = 640;
+
+function resizedThumbnailUrl(url?: string) {
+  if (!url || !url.includes("/media/s3?key=") || url.includes("&w=")) return url;
+  return `${url}&w=${THUMBNAIL_WIDTH}`;
+}
+
 function dateKey(year: number, month: number, day: number) {
   return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 }
@@ -593,7 +594,7 @@ function mapApiChunks(payload: ApiChunksResult): Recording[] {
     startSeconds: chunk.start_seconds,
     videoId: chunk.video_id,
     videoUrl: mediaUrl(chunk.media_path, chunk.url),
-    thumbnailUrl: mediaUrl(chunk.thumbnail_media_path, chunk.thumbnail_url),
+    thumbnailUrl: resizedThumbnailUrl(mediaUrl(chunk.thumbnail_media_path, chunk.thumbnail_url)),
   }));
 }
 
@@ -719,8 +720,15 @@ export default function App() {
   const [apiNotice, setApiNotice] = useState("");
   const [activeResult, setActiveResult] = useState<SearchResult | null>(null);
   const [activeRecording, setActiveRecording] = useState<Recording>(recordings[0]);
-  const didDefaultSearchVideoRef = useRef(false);
   const recordingsRef = useRef<HTMLDivElement | null>(null);
+  const resultsRef = useRef<HTMLDivElement | null>(null);
+  const [searchRunId, setSearchRunId] = useState(0);
+
+  useEffect(() => {
+    // 검색 결과는 검색창 아래 한참 떨어져 있어서, 검색을 시작하면 그 영역으로 이동한다.
+    if (searchRunId === 0) return;
+    resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [searchRunId]);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -825,24 +833,6 @@ export default function App() {
     [recordingItems],
   );
   const selectedDate = dateKey(selectedYear, selectedMonth, selectedDay);
-
-  useEffect(() => {
-    if (didDefaultSearchVideoRef.current || selectedSearchVideoId || s3Recordings.length === 0) return;
-
-    const latestRecording = [...s3Recordings]
-      .filter((recording) => recording.videoId)
-      .sort((a, b) => {
-        const aTime = a.recordedAt || `${a.recordingDate || ""}T${a.time}`;
-        const bTime = b.recordedAt || `${b.recordingDate || ""}T${b.time}`;
-        return aTime.localeCompare(bTime);
-      })
-      .at(-1);
-
-    if (latestRecording?.videoId) {
-      didDefaultSearchVideoRef.current = true;
-      setSelectedSearchVideoId(latestRecording.videoId);
-    }
-  }, [s3Recordings, selectedSearchVideoId]);
 
   useEffect(() => {
     let ignore = false;
@@ -1005,21 +995,20 @@ export default function App() {
     [activeRecording.videoId, behaviorEvents],
   );
 
-  const livePreviewRecording = useMemo(() => {
-    const items = s3Recordings.filter((recording) => recording.videoId === "IMG_8472");
-    return [...items].sort((a, b) => {
+  const liveDetectionItems = highlightedBehaviors.slice(0, 4);
+
+  // 가장 눈에 띄는 감지가 있으면 그 녹화를, 없으면 가장 최근 녹화를 보여준다.
+  const latestRecording = useMemo(
+    () => [...s3Recordings].sort((a, b) => {
       const aTime = a.recordedAt || `${a.recordingDate || ""}T${a.time}`;
       const bTime = b.recordedAt || `${b.recordingDate || ""}T${b.time}`;
       return bTime.localeCompare(aTime);
-    })[0];
-  }, [s3Recordings]);
-
-  const livePreviewEvents = useMemo(
-    () => livePreviewRecording ? eventsForRecording(livePreviewRecording, behaviorEvents) : [],
-    [behaviorEvents, livePreviewRecording],
+    })[0],
+    [s3Recordings],
   );
-
-  const liveDetectionItems = highlightedBehaviors.slice(0, 4);
+  const liveRecording = liveDetectionItems[0]?.recording ?? latestRecording;
+  const liveEvent = liveDetectionItems[0]?.event
+    ?? (liveRecording ? eventsForRecording(liveRecording, behaviorEvents)[0] : undefined);
 
   const visibleResults = results;
   const currentVideoRecordings = recordingItems.filter(
@@ -1029,7 +1018,7 @@ export default function App() {
   );
 
   const topTitle = {
-    live: ["실시간 라이브", `${petName}의 거실을 실시간으로 지켜보고 있어요`],
+    live: ["최근 감지", `${petName}의 최근 녹화에서 분석된 행동을 확인하세요`],
     recordings: ["녹화 영상", "GCS에 업로드된 1분 단위 청크를 둘러보세요"],
     search: ["AI 검색", "자연어로 물어보면 관련 장면을 찾아드려요"],
     chunkPlayback: ["녹화 영상 재생", "GCS 청크를 원본 흐름대로 확인합니다"],
@@ -1072,6 +1061,7 @@ export default function App() {
 
     setQuery(nextQuery);
     setSubmitted(true);
+    setSearchRunId((id) => id + 1);
     setLoading(true);
     setApiNotice("");
     setAnswer("");
@@ -1271,7 +1261,7 @@ export default function App() {
 
         <p className="nav-label">메뉴</p>
         {[
-          { key: "live" as const, icon: "sensors", label: "라이브" },
+          { key: "live" as const, icon: "history", label: "최근 감지" },
           { key: "recordings" as const, icon: "grid_view", label: "녹화 영상" },
           { key: "search" as const, icon: "search", label: "AI 검색" },
         ].map((item) => {
@@ -1359,7 +1349,7 @@ export default function App() {
             {[
               { key: "search" as const, label: "AI 검색" },
               { key: "recordings" as const, label: "녹화 영상" },
-              { key: "live" as const, label: "라이브" },
+              { key: "live" as const, label: "최근 감지" },
             ].map((item) => {
               const activeScreen = screen === "chunkPlayback" ? "recordings" : screen === "searchPlayback" ? "search" : screen;
               const active = activeScreen === item.key;
@@ -1415,53 +1405,47 @@ export default function App() {
             <section className="live-grid">
               <div className="stack">
                 <VideoPanel
-                  label="LIVE"
+                  label="최근 녹화"
                   camera=""
-                  time={formatLiveDateTime(now)}
-                  videoUrl={livePreviewRecording?.videoUrl}
+                  time={liveRecording ? `${liveRecording.recordingDate ?? ""} ${liveRecording.time}`.trim() : ""}
+                  videoUrl={liveRecording?.videoUrl}
                   showControls={false}
                   loop
                 />
                 <div className="metric-row">
-                  <Metric icon="pets" label="현재 상태" value={livePreviewEvents[0]?.summary || "최근 수신 청크를 분석 중"} />
-                  <Metric icon="schedule" label="오늘 수신 영상" value={`${s3Recordings.length || recordingItems.length}개 청크 · ${livePreviewRecording?.videoId || "데모"}`} />
+                  <Metric icon="pets" label="가장 최근 감지" value={liveEvent?.summary || "분석된 행동 기록이 아직 없어요"} />
+                  <Metric icon="schedule" label="수신 영상" value={`${s3Recordings.length || recordingItems.length}개 청크${liveRecording?.videoId ? ` · ${liveRecording.videoId}` : ""}`} />
                 </div>
               </div>
               <aside className="side-panel">
                 <div className="panel-title">
                   <Icon filled>auto_awesome</Icon>
-                  <strong>AI 실시간 감지</strong>
-                  <span className="analyzing"><span />분석 중</span>
+                  <strong>최근 감지</strong>
                 </div>
                 <div className="moment-card">
-                  <span>지금 이 순간</span>
-                  <strong>{livePreviewEvents[0]?.summary || `${petName}의 최근 녹화 청크를 확인 중이에요`}</strong>
-                  <div className="tag-row">
-                    {livePreviewRecording ? tagList(livePreviewRecording.tags) : <span className="tag">🎬 demo</span>}
-                    <span className="confidence">{Math.round(((livePreviewEvents[0]?.confidence ?? 0.84) * 100))}%</span>
-                  </div>
+                  <span>가장 최근 감지</span>
+                  <strong>{liveEvent?.summary || "아직 분석된 감지 기록이 없어요"}</strong>
+                  {liveEvent && (
+                    <div className="tag-row">
+                      {liveRecording && tagList(liveRecording.tags)}
+                      <span className="confidence">{scoreBehavior(liveEvent)}%</span>
+                    </div>
+                  )}
                 </div>
                 <p className="section-kicker">최근 감지 기록</p>
                 <div className="event-list">
-                  {(liveDetectionItems.length > 0 ? liveDetectionItems : liveEvents).map((item) => (
-                    "event" in item ? (
-                      <button className="event-item live-event-button" key={`${item.event.id}-${item.recording.id}`} onClick={() => openRecording(item.recording, item.event)}>
-                        <div className="event-icon"><Icon filled>auto_awesome</Icon></div>
-                        <div>
-                          <strong>{behaviorTitle(item.event)}</strong>
-                          <p>{item.event.summary || `${petName}의 행동 변화가 감지된 구간입니다.`}</p>
-                          <span>{behaviorTimeLabel(item.event, item.recording)} · {scoreBehavior(item.event)}%</span>
-                        </div>
-                      </button>
-                    ) : (
-                    <div className="event-item" key={item.text}>
-                      <div className="event-icon"><Icon>{item.icon}</Icon></div>
+                  {liveDetectionItems.length === 0 && (
+                    <p className="empty-note">분석이 끝난 영상이 올라오면 여기에 행동 기록이 표시돼요.</p>
+                  )}
+                  {liveDetectionItems.map((item) => (
+                    <button className="event-item live-event-button" key={`${item.event.id}-${item.recording.id}`} onClick={() => openRecording(item.recording, item.event)}>
+                      <div className="event-icon"><Icon filled>auto_awesome</Icon></div>
                       <div>
-                        <strong>{item.text}</strong>
-                        <p>{item.tags.join(" · ")} <span>{item.time}</span></p>
+                        <strong>{behaviorTitle(item.event)}</strong>
+                        <p>{item.event.summary || `${petName}의 행동 변화가 감지된 구간입니다.`}</p>
+                        <span>{behaviorTimeLabel(item.event, item.recording)} · {scoreBehavior(item.event)}%</span>
                       </div>
-                    </div>
-                    )
+                    </button>
                   ))}
                 </div>
                 <button className="primary-button" onClick={() => go("search")}>
@@ -1564,29 +1548,29 @@ export default function App() {
                     <div className="feature-matrix-card">
                       <div className="feature-matrix-icon">🤖</div>
                       <div>
-                        <strong>AI 3D Vision</strong>
-                        <p>12가지 행동 패턴 자동 감지</p>
+                        <strong>행동 이벤트 분석</strong>
+                        <p>움직임이 있는 구간의 행동을 자동으로 요약</p>
                       </div>
                     </div>
                     <div className="feature-matrix-card">
                       <div className="feature-matrix-icon">⚡</div>
                       <div>
-                        <strong>Smart Pipeline</strong>
-                        <p>GCS 5분 단편 클립 분할 인덱싱</p>
+                        <strong>자동 인덱싱</strong>
+                        <p>짧은 클립을 장면 단위로 분석해 저장</p>
                       </div>
                     </div>
                     <div className="feature-matrix-card">
                       <div className="feature-matrix-icon">🔍</div>
                       <div>
-                        <strong>Natural LLM Query</strong>
-                        <p>자연어로 3초 만에 장면 탐색</p>
+                        <strong>자연어 검색</strong>
+                        <p>질문하면 해당 장면과 시점을 찾아줘요</p>
                       </div>
                     </div>
                     <div className="feature-matrix-card">
-                      <div className="feature-matrix-icon">🔔</div>
+                      <div className="feature-matrix-icon">▶️</div>
                       <div>
-                        <strong>Realtime Care</strong>
-                        <p>이상 행동 감지 및 맞춤 알림</p>
+                        <strong>구간 재생</strong>
+                        <p>검색 결과에서 해당 시점부터 바로 재생</p>
                       </div>
                     </div>
                   </div>
@@ -1644,6 +1628,7 @@ export default function App() {
                   선택 범위 · {selectedSearchVideoId || "전체 영상"} · {selectedYear}년 {selectedMonth}월 {selectedDay}일 · {formatHourRange(searchStartHour, searchEndHour)}
                 </p>
 
+                <div ref={resultsRef} className="results-anchor" aria-hidden="true" />
                 {loading ? (
                   <div className="search-loading-card">
                     <span className="search-spinner" />
@@ -1667,7 +1652,7 @@ export default function App() {
                         )}
                       </div>
                     </div>
-                    {!loading && (
+                    {!loading && visibleResults.length > 0 && (
                       <>
                         <div className="result-header">
                           <strong>관련 장면 {visibleResults.length}개</strong>
@@ -1696,7 +1681,7 @@ export default function App() {
                       <span>SMART CLIPS & BEHAVIORS</span>
                     </div>
                     <h2>오늘 포착된 녹화 청크 & 주요 행동</h2>
-                    <p>{selectedYear}년 {selectedMonth}월 {selectedDay}일 · 총 {filteredRecordings.length}개 5분 클립 기록</p>
+                    <p>{selectedYear}년 {selectedMonth}월 {selectedDay}일 · 총 {filteredRecordings.length}개 클립 기록</p>
                   </div>
 
                   <div className="home-recordings-head">

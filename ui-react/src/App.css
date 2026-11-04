@@ -16,7 +16,7 @@
 
 body {
   margin: 0;
-  min-width: 1120px;
+  min-width: 768px; /* 폰 레이아웃은 아직 없다. 태블릿 세로(768px)까지만 맞춘다. */
   min-height: 100vh;
   background-color: #120e0a;
 }
@@ -2513,3 +2513,33 @@ button {
   opacity: 0.9;
 }
 
+
+/* 검색 시작 시 스크롤 목적지. 고정 상단바에 가려지지 않게 여백을 둔다. */
+.results-anchor {
+  scroll-margin-top: 88px;
+}
+
+.empty-note {
+  margin: 0;
+  padding: 12px 4px;
+  font-size: 13px;
+  color: var(--text-3);
+}
+
+/* 아래의 .feature-matrix-grid 기본 규칙이 파일 앞쪽의 미디어 쿼리를 덮어쓰므로 여기서 다시 지정한다. */
+@media (max-width: 1024px) {
+  .feature-matrix-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .feature-matrix-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 아이콘 폰트가 늦게 불러와질 때 생기는 가로 스크롤 방지 (스크롤 컨테이너를 만들지 않는 clip) */
+.app-shell {
+  overflow-x: clip;
+}
