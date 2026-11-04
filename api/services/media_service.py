@@ -1,8 +1,11 @@
 import hashlib
+import io
 import mimetypes
+from collections import OrderedDict
 from pathlib import Path
 import subprocess
 import tempfile
+from threading import Lock
 from urllib.parse import quote
 
 from fastapi import HTTPException, Request, Response
@@ -15,6 +18,14 @@ from pipeline.storage.gcs_uploader import (
 )
 
 
+IMAGE_SUFFIXES = (".jpg", ".jpeg", ".png")
+MIN_IMAGE_WIDTH = 64
+MAX_IMAGE_WIDTH = 1280
+_RESIZED_IMAGE_CACHE: "OrderedDict[tuple[str, int], bytes]" = OrderedDict()
+_RESIZED_IMAGE_CACHE_LIMIT = 256
+_RESIZED_IMAGE_CACHE_LOCK = Lock()
+
+
 def media_path_for_key(s3_key):
     return f"/media/s3?key={quote(s3_key)}"
 
@@ -23,9 +34,51 @@ def thumbnail_path_for_key(s3_key):
     return f"/media/thumbnail?key={quote(s3_key)}"
 
 
-def build_s3_media_response(key: str, request: Request):
+def build_resized_image_response(key: str, width: int):
+    """프레임 이미지를 목록·카드용 크기로 줄여서 돌려준다. 원본은 1920px(약 650KB)라 한 화면에 수십 장이면 느리다."""
+    width = max(MIN_IMAGE_WIDTH, min(width, MAX_IMAGE_WIDTH))
+    cache_key = (key, width)
+
+    with _RESIZED_IMAGE_CACHE_LOCK:
+        cached = _RESIZED_IMAGE_CACHE.get(cache_key)
+        if cached is not None:
+            _RESIZED_IMAGE_CACHE.move_to_end(cache_key)
+
+    if cached is None:
+        try:
+            from PIL import Image
+
+            with Image.open(io.BytesIO(download_bytes(key))) as image:
+                image = image.convert("RGB")
+                if image.width > width:
+                    image = image.resize((width, max(1, round(image.height * width / image.width))))
+                buffer = io.BytesIO()
+                image.save(buffer, format="JPEG", quality=80, optimize=True)
+                cached = buffer.getvalue()
+        except Exception as exc:
+            raise HTTPException(
+                status_code=404,
+                detail=f"이미지를 불러오지 못했습니다: {exc}",
+            ) from exc
+
+        with _RESIZED_IMAGE_CACHE_LOCK:
+            _RESIZED_IMAGE_CACHE[cache_key] = cached
+            while len(_RESIZED_IMAGE_CACHE) > _RESIZED_IMAGE_CACHE_LIMIT:
+                _RESIZED_IMAGE_CACHE.popitem(last=False)
+
+    return Response(
+        content=cached,
+        media_type="image/jpeg",
+        headers={"Cache-Control": "private, max-age=86400"},
+    )
+
+
+def build_s3_media_response(key: str, request: Request, width: int | None = None):
     if not key:
         raise HTTPException(status_code=400, detail="key가 필요합니다.")
+
+    if width and key.lower().endswith(IMAGE_SUFFIXES):
+        return build_resized_image_response(key, width)
 
     media_type = mimetypes.guess_type(key)[0] or "application/octet-stream"
     range_header = request.headers.get("range")
