@@ -20,6 +20,21 @@ DEFAULT_FALLBACK_MESSAGE = (
     "대신 분석된 행동 이벤트와 검색된 프레임 metadata를 기준으로 결과를 확인해주세요."
 )
 
+# 스테이징 영상으로 측정한 CLIP(ViT-L/14) 최상위 유사도: 관련 질문 0.249~0.285, 무관한 질문 0.161~0.214.
+# 둘 사이의 중간값을 기본 기준으로 쓴다. 영상이나 모델이 바뀌면 SEARCH_MIN_SCORE로 조정한다.
+DEFAULT_MIN_SEARCH_SCORE = 0.23
+
+# 행동 이벤트가 질문과 맞는다고 보려면 _behavior_query_score의 키워드 그룹이 하나 이상 일치해야 한다.
+# 0.3점짜리 단어 일치("장면" 같은 흔한 단어)만으로는 근거로 삼지 않는다.
+_MIN_EVENT_KEYWORD_SCORE = 1.0
+
+
+def _min_search_score() -> float:
+    try:
+        return float(os.getenv("SEARCH_MIN_SCORE", DEFAULT_MIN_SEARCH_SCORE))
+    except ValueError:
+        return DEFAULT_MIN_SEARCH_SCORE
+
 
 def run_rag_query(
     query: str,
@@ -69,20 +84,30 @@ def run_rag_query(
             user_id=user_id,
         )
 
+    search_succeeded = True
+    candidate_count = 0
+
     try:
         from pipeline.storage.vector_store import search_with_query_expansion
 
-        retrieved_frames = search_with_query_expansion(
+        candidates = search_with_query_expansion(
             query=query,
             top_k=top_k,
             video_id=video_id,
             recording_date=recording_date,
             time_range=time_range,
         )
+        candidate_count = len(candidates)
+        # CLIP은 무엇을 물어도 가장 가까운 프레임을 돌려준다. 점수가 낮으면 맞는 장면이 없다는 뜻이다.
+        retrieved_frames = [
+            frame for frame in candidates
+            if float(frame.get("score") or 0.0) >= _min_search_score()
+        ]
     except Exception as exc:
         # ChromaDB가 깨졌거나 인덱스 파일이 불안정할 때도
         # behavior_events 기반 답변은 가능하도록 앱 전체를 죽이지 않는다.
         print(f"ChromaDB 검색 실패: {exc}", flush=True)
+        search_succeeded = False
         retrieved_frames = []
 
     behavior_events = _get_relevant_behavior_events(
@@ -94,6 +119,14 @@ def run_rag_query(
         limit=5,
     )
 
+    if search_succeeded and not retrieved_frames:
+        # 관련 프레임이 없으면 질문과 단어가 맞는 이벤트만 근거로 쓴다.
+        # 그렇지 않으면 "주요 행동 이벤트"가 무관한 질문에도 결과로 채워진다.
+        behavior_events = [
+            event for event in behavior_events
+            if _behavior_query_score(query, event) >= _MIN_EVENT_KEYWORD_SCORE
+        ]
+
     if not retrieved_frames and behavior_events:
         retrieved_frames = _frames_from_behavior_events(
             behavior_events=behavior_events,
@@ -101,7 +134,9 @@ def run_rag_query(
             limit=top_k,
         )
 
-    if not retrieved_frames and not behavior_events:
+    if not search_succeeded and not retrieved_frames and not behavior_events:
+        # 검색 자체가 실패했을 때만 인덱스에 있는 프레임을 대신 보여준다.
+        # 검색이 정상이었는데 맞는 장면이 없으면 임의의 프레임을 내놓지 않는다.
         retrieved_frames = _fallback_indexed_frames(
             video_id=video_id,
             limit=top_k,
@@ -114,6 +149,11 @@ def run_rag_query(
             answer = (
                 f"선택한 날짜와 시간대에서는 '{query}'과 맞는 장면을 찾지 못했어요. "
                 "다른 날짜나 시간대를 선택해서 다시 검색해보세요."
+            )
+        elif candidate_count:
+            answer = (
+                f"'{query}'과 맞는 장면을 찾지 못했어요. "
+                "다른 표현으로 물어보시거나 추천 질문을 눌러 보세요."
             )
         else:
             answer = (
@@ -683,6 +723,17 @@ def _safe_float(value):
         return None
 
 
+# 한 글자 키워드("물", "공")가 다른 단어 안에서 우연히 일치하지 않도록 먼저 지운다.
+# 예: "반려동물"의 "물"이 모든 이벤트를 물 마시기 질문과 일치시켰다.
+_SUBSTRING_TRAPS = ("동물", "공간", "공원", "공격")
+
+
+def _strip_substring_traps(text: str) -> str:
+    for trap in _SUBSTRING_TRAPS:
+        text = text.replace(trap, "")
+    return text
+
+
 def _behavior_query_score(query: str, event: dict[str, Any]) -> float:
     """
     질문 텍스트와 행동 이벤트가 얼마나 관련 있는지 간단히 점수화한다.
@@ -692,7 +743,7 @@ def _behavior_query_score(query: str, event: dict[str, Any]) -> float:
     if not query:
         return 0.0
 
-    query_text = query.lower().replace(" ", "")
+    query_text = _strip_substring_traps(query.lower().replace(" ", ""))
 
     event_text_parts = [
         event.get("subject"),
@@ -709,7 +760,7 @@ def _behavior_query_score(query: str, event: dict[str, Any]) -> float:
         event_text_parts.append(str(evidence))
 
     event_text = " ".join(str(item or "") for item in event_text_parts)
-    event_text = event_text.lower().replace(" ", "")
+    event_text = _strip_substring_traps(event_text.lower().replace(" ", ""))
 
     score = 0.0
 

@@ -37,7 +37,7 @@ def event(event_id, s3_key):
 class SearchDateFilterTests(unittest.TestCase):
     def run_query(self, collection, top_events=(), **kwargs):
         with ExitStack() as stack:
-            stack.enter_context(patch.object(rag, "search_with_query_expansion", return_value=[]))
+            stack.enter_context(patch.object(vs, "search_with_query_expansion", return_value=[]))
             stack.enter_context(patch.object(rag, "get_behavior_events_overlapping", return_value=[]))
             top = stack.enter_context(
                 patch.object(rag, "get_top_behavior_events", return_value=list(top_events))
@@ -72,12 +72,23 @@ class SearchDateFilterTests(unittest.TestCase):
         self.assertEqual(top.call_args.kwargs["limit"], 200)
         self.assertEqual([item["id"] for item in result["behavior_events"]], [99])
 
-    def test_without_date_filter_fallback_frames_are_kept(self):
+    def test_without_date_filter_no_match_does_not_invent_frames(self):
         result, top = self.run_query(
             collection_with(OTHER_DATE_KEY),
             time_range={"start_hour": 0, "end_hour": 24},
         )
         self.assertEqual(top.call_args.kwargs["limit"], 10)
+        self.assertEqual(result["results"], [])
+
+    def test_indexed_frames_are_used_only_when_search_itself_fails(self):
+        with ExitStack() as stack:
+            stack.enter_context(patch.object(vs, "search_with_query_expansion", side_effect=RuntimeError("chroma down")))
+            stack.enter_context(patch.object(rag, "get_behavior_events_overlapping", return_value=[]))
+            stack.enter_context(patch.object(rag, "get_top_behavior_events", return_value=[]))
+            stack.enter_context(patch.object(vs, "get_collection", return_value=collection_with(OTHER_DATE_KEY)))
+            stack.enter_context(patch.object(rag, "build_prompt_hint", return_value=""))
+            stack.enter_context(patch.dict("os.environ", {"OPENAI_API_KEY": ""}))
+            result = rag.run_rag_query(query="물 마셨어?", video_id="video")
         self.assertEqual([frame["s3_key"] for frame in result["results"]], [OTHER_DATE_KEY])
 
 
