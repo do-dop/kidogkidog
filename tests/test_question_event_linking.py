@@ -101,7 +101,7 @@ class QuestionEventLinkingTests(unittest.TestCase):
     def test_http_query_without_source_uses_general_search(self):
         app = FastAPI()
         app.include_router(search.router)
-        with patch.object(rag, 'search_with_query_expansion', return_value=[]) as general, \
+        with patch('pipeline.storage.vector_store.search_with_query_expansion', return_value=[]) as general, \
              patch.object(rag, '_run_event_grounded_query') as grounded, \
              patch.object(rag, 'get_behavior_event_by_id') as lookup, \
              patch.object(rag, '_get_relevant_behavior_events', return_value=[]), \
@@ -130,7 +130,7 @@ class QuestionEventLinkingTests(unittest.TestCase):
         self.assertEqual(source, item)
         with patch.object(rag, 'get_behavior_event_by_id', return_value=original) as lookup, \
              patch.object(rag, '_run_event_grounded_query', return_value={'answer': 'ok', 'results': [], 'used_llm': False}) as grounded, \
-             patch.object(rag, 'search_with_query_expansion') as general:
+             patch('pipeline.storage.vector_store.search_with_query_expansion') as general:
             response = client.post('/query', json={
                 'query': source['question'], 'video_id': 'video',
                 **{k: source[k] for k in ('source_event_id', 'event_start', 'event_end')},
