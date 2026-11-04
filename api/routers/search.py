@@ -81,6 +81,9 @@ def query(request: QueryRequest, background_tasks: BackgroundTasks):
         "evidence_items": rag_result.get("evidence_items", rag_result["results"]),
         "behavior_events": rag_result.get("behavior_events", []),
         "used_llm": rag_result["used_llm"],
+        "query_type": rag_result.get("query_type", "search"),
+        "total_event_count": rag_result.get("total_event_count"),
+        "truncated": rag_result.get("truncated", False),
     }
 
     if route_decision and expose_route in {"1", "true", "yes"}:

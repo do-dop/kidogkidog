@@ -65,6 +65,7 @@ type PlaybackSegment = {
 
 type ApiQueryResult = {
   answer?: string;
+  query_type?: "sequence" | "search";
   results?: Array<{
     video_id?: string;
     timestamp?: number;
@@ -1102,7 +1103,8 @@ export default function App() {
       if (!response.ok) throw new Error(`API ${response.status}`);
 
       const payload = (await response.json()) as ApiQueryResult;
-      const rankedResults = pickRelevantResults(mapApiResults(payload, recordingItems));
+      const mappedResults = mapApiResults(payload, recordingItems);
+      const rankedResults = payload.query_type === "sequence" ? mappedResults : pickRelevantResults(mappedResults);
       const nextResults = await clampResultsToMediaDuration(rankedResults, recordingItems);
       setAnswer(payload.answer || `${nextQuery}와 관련된 장면을 찾았어요.`);
       setResults(nextResults);
@@ -1656,7 +1658,7 @@ export default function App() {
                     <div className="answer-card">
                       <div className="brand-mark answer-mark"><PawMark /></div>
                       <div>
-                        <span>AI 답변</span>
+                        <span>검색 답변</span>
                         {loading ? (
                           <p className="answer-loading">
                             <span className="loading-mark"><Icon filled>auto_awesome</Icon></span>
@@ -1886,7 +1888,7 @@ export default function App() {
                   <div className="answer-card compact">
                     <div className="brand-mark answer-mark"><PawMark /></div>
                     <div>
-                      <span>AI 답변</span>
+                      <span>검색 답변</span>
                       <p>{answer || `${activeResult.displayDateTime || activeResult.time} 시각에서 ${activeResult.note}이 확인됐어요.`}</p>
                     </div>
                   </div>
