@@ -1,0 +1,75 @@
+{
+  "video_id": "dog_escape",
+  "scope": "first_36_seconds",
+  "frame_sampling_seconds": 2,
+  "model": "gpt-4o-mini",
+  "review_status": "model_candidates_not_ground_truth",
+  "db_written": false,
+  "events": [
+    {
+      "video_id": "dog_escape",
+      "start_time": 4.0,
+      "end_time": 12.0,
+      "action": "반려동물이 울타리를 넘으려는 것으로 보임",
+      "summary": "반려동물이 울타리를 넘으려고 시도하고 있는 모습입니다.",
+      "target_object": "울타리",
+      "confidence": 0.8,
+      "evidence": [
+        "반려동물이 울타리 근처에 있으며 위로 올라가려고 하는 모습이 포착됨",
+        "반려동물이 지속적으로 울타리 쪽으로 몸을 움직이고 있음"
+      ]
+    },
+    {
+      "video_id": "dog_escape",
+      "start_time": 10.0,
+      "end_time": 14.0,
+      "action": "반려동물이 울타리를 넘어가는 것으로 보임",
+      "summary": "반려동물이 울타리를 넘어 밖으로 나가려는 행동을 보임.",
+      "target_object": "울타리",
+      "confidence": 0.8,
+      "evidence": [
+        "반려동물이 울타리를 넘어가려는 모습이 확인됨",
+        "울타리 위에 발이 걸쳐 있는 모습이 보임"
+      ]
+    },
+    {
+      "video_id": "dog_escape",
+      "start_time": 14.0,
+      "end_time": 20.0,
+      "action": "반려동물이 울타리를 계속 넘으려는 것으로 보임",
+      "summary": "반려동물이 울타리를 넘으려는 과정을 반복하는 듯함.",
+      "target_object": "울타리",
+      "confidence": 0.7,
+      "evidence": [
+        "반려동물이 울타리 위에 발을 걸치고 있는 모습이 관찰됨",
+        "울타리를 넘는 행동이 두 번 이상 보임"
+      ]
+    },
+    {
+      "video_id": "dog_escape",
+      "start_time": 22.0,
+      "end_time": 32.0,
+      "action": "반려동물이 우리를 넘으려는 행동을 하고 있는 것으로 보임",
+      "summary": "반려동물이 우리를 넘으려고 시도하는 모습을 보임",
+      "target_object": null,
+      "confidence": 0.8,
+      "evidence": [
+        "반려동물이 우리 쪽으로 손을 뻗고 있는 모습이 포착됨",
+        "반려동물이 점프를 시도하면서 우리를 넘으려는 움직임이 여러 차례 나타남"
+      ]
+    },
+    {
+      "video_id": "dog_escape",
+      "start_time": 30.0,
+      "end_time": 36.0,
+      "action": "반려동물이 울타리를 넘는 것으로 보임",
+      "summary": "반려동물이 울타리를 넘어 자유롭게 이동하려는 행동을 보임",
+      "target_object": "울타리",
+      "confidence": 0.8,
+      "evidence": [
+        "울타리를 넘으려는 움직임이 보임",
+        "반려동물이 울타리 주변에서 활동함"
+      ]
+    }
+  ]
+}

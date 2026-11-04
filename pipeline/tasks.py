@@ -240,7 +240,7 @@ def process_chunk(chunk_path):
                 behavior_events = extract_behavior_events(
                     indexed_frames=indexed_frames,
                     video_id=video_id,
-                    limit=5,
+                    limit=20,
                 )
         else:
             print("행동 이벤트 분석 생략: indexed_frames가 없습니다.", flush=True)

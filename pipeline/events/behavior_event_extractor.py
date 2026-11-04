@@ -9,12 +9,14 @@ from typing import Any
 DEFAULT_MODEL = "gpt-4o-mini"
 MAX_REPRESENTATIVE_FRAMES = 6
 SEGMENT_GAP_SECONDS = 3.0
+MAX_ANALYSIS_WINDOW_SECONDS = 12.0
+ANALYSIS_WINDOW_OVERLAP_SECONDS = 2.0
 
 
 def extract_behavior_events(
     indexed_frames: list[dict] | None = None,
     video_id: str | None = None,
-    limit: int = 5,
+    limit: int = 20,
     model: str = DEFAULT_MODEL,
     max_segments: int = 8,
 ) -> list[dict]:
@@ -85,7 +87,11 @@ def extract_behavior_events(
     if not frames:
         return []
 
-    frame_groups = _group_frames_by_segment(frames)
+    frame_groups = [
+        window
+        for group in _group_frames_by_segment(frames)
+        for window in _split_long_group(group)
+    ]
 
     if not frame_groups:
         return []
@@ -111,29 +117,27 @@ def extract_behavior_events(
         if not representative_frames:
             continue
 
-        event = None
+        analyzed_events = None
 
         if _can_use_vlm(representative_frames):
-            event = _analyze_segment_with_vlm(
+            analyzed_events = _analyze_segment_with_vlm(
                 frames=representative_frames,
                 all_segment_frames=group,
                 model=model,
             )
 
-        if not event:
-            event = _build_fallback_behavior_event(group)
+        if analyzed_events is None:
+            fallback = _build_fallback_behavior_event(group)
+            analyzed_events = [fallback] if fallback else []
 
-        if not event:
-            continue
-
-        normalized_event = _normalize_behavior_event(
-            event=event,
-            group=group,
-            representative_frames=representative_frames,
-        )
-
-        if normalized_event:
-            behavior_events.append(normalized_event)
+        for event in analyzed_events:
+            normalized_event = _normalize_behavior_event(
+                event=event,
+                group=group,
+                representative_frames=representative_frames,
+            )
+            if normalized_event:
+                behavior_events.append(normalized_event)
 
     behavior_events = _deduplicate_behavior_events(behavior_events)
 
@@ -306,6 +310,37 @@ def _group_frames_by_segment(frames: list[dict]) -> list[list[dict]]:
     return groups
 
 
+def _split_long_group(group: list[dict]) -> list[list[dict]]:
+    """Analyze long motion segments in short, overlapping time windows."""
+    if not group:
+        return []
+
+    group_start = _get_group_start(group)
+    group_end = _get_group_end(group)
+    if group_end - group_start <= MAX_ANALYSIS_WINDOW_SECONDS:
+        return [group]
+
+    windows = []
+    window_start = group_start
+    while window_start < group_end:
+        window_end = min(window_start + MAX_ANALYSIS_WINDOW_SECONDS, group_end)
+        selected = [
+            {
+                **frame,
+                "motion_start": round(window_start, 2),
+                "motion_end": round(window_end, 2),
+            }
+            for frame in group
+            if window_start <= float(frame.get("timestamp") or 0.0) <= window_end
+        ]
+        if selected:
+            windows.append(selected)
+        if window_end >= group_end:
+            break
+        window_start = window_end - ANALYSIS_WINDOW_OVERLAP_SECONDS
+    return windows
+
+
 def _select_representative_frames(
     frames: list[dict],
     max_count: int = MAX_REPRESENTATIVE_FRAMES,
@@ -362,7 +397,7 @@ def _analyze_segment_with_vlm(
     frames: list[dict],
     all_segment_frames: list[dict],
     model: str = DEFAULT_MODEL,
-) -> dict | None:
+) -> list[dict] | None:
     """
     여러 프레임 이미지를 VLM에 전달하여 행동 이벤트를 생성한다.
     """
@@ -386,6 +421,10 @@ def _analyze_segment_with_vlm(
 
             data_url = _image_to_data_url(path)
 
+            image_contents.append({
+                "type": "input_text",
+                "text": f"다음 프레임의 영상 시각: {float(frame.get('timestamp') or 0.0):.2f}초",
+            })
             image_contents.append({
                 "type": "input_image",
                 "image_url": data_url,
@@ -416,10 +455,9 @@ def _analyze_segment_with_vlm(
         output_text = response.output_text.strip()
         parsed = _parse_json_output(output_text)
 
-        if isinstance(parsed, list):
-            parsed = parsed[0] if parsed else None
-
-        if not isinstance(parsed, dict):
+        if isinstance(parsed, dict):
+            parsed = parsed.get("events", [parsed])
+        if not isinstance(parsed, list) or any(not isinstance(item, dict) for item in parsed):
             return None
 
         return parsed
@@ -483,11 +521,15 @@ def _build_vlm_prompt(segment_context: dict) -> str:
     return f"""
 너는 반려동물 펫캠 영상 분석 도우미다.
 
-아래 이미지는 같은 움직임 구간에서 시간 순서대로 추출된 프레임들이다.
-사용자가 궁금해할 만한 반려동물의 행동 이벤트를 1개만 추출해라.
+아래 이미지는 짧은 움직임 구간에서 시간 순서대로 추출된 프레임들이다.
+서로 떨어진 행동은 별도 이벤트로 나누고, 확인 가능한 행동이 없으면 빈 배열을 반환해라.
 
 중요한 규칙:
 - 이미지에서 확인 가능한 내용만 말한다.
+- 각 이벤트의 start_time과 end_time은 첨부된 프레임 시각을 근거로 지정한다.
+- 행동이 시작하기 전이나 끝난 뒤까지 구간을 넓히지 않는다.
+- 같은 행동이 중단되었다가 다시 시작하면 각각 별도의 이벤트로 기록한다.
+- 이미지에서 구분할 수 없는 행동(예: 그릇 근처에 있는 것과 실제로 마시는 것)은 단정하지 않는다.
 - 확실하지 않은 행동은 단정하지 말고 "~로 보임", "~하는 것으로 보임"처럼 표현한다.
 - 단순히 객체 라벨이 보인다는 설명은 피한다.
 - 동물 종류는 코드나 metadata의 라벨을 그대로 따라 쓰지 말고, 이미지를 보고 판단한다.
@@ -504,8 +546,10 @@ def _build_vlm_prompt(segment_context: dict) -> str:
 구간 metadata:
 {context_json}
 
-출력 형식:
-{{
+출력 형식 (이벤트가 없으면 {{"events": []}}):
+{{"events": [{{
+  "start_time": 4.0,
+  "end_time": 12.0,
   "subject": "반려동물",
   "action": "반려동물이 무엇을 하는 것으로 보이는지 짧게 작성",
   "target_object": "행동 대상이 있으면 작성, 없으면 null",
@@ -513,11 +557,8 @@ def _build_vlm_prompt(segment_context: dict) -> str:
   "repeat_count": 1,
   "confidence": 0.7,
   "interestingness": 0.8,
-  "evidence": [
-    "판단 근거 1",
-    "판단 근거 2"
-  ]
-}}
+  "evidence": ["판단 근거 1", "판단 근거 2"]
+}}]}}
 
 """.strip()
 
@@ -596,8 +637,17 @@ def _normalize_behavior_event(
     if not group:
         return None
 
-    start_time = _get_group_start(group)
-    end_time = _get_group_end(group)
+    group_start = _get_group_start(group)
+    group_end = _get_group_end(group)
+    try:
+        start_time = max(group_start, float(event.get("start_time", group_start)))
+        end_time = min(group_end, float(event.get("end_time", group_end)))
+    except (TypeError, ValueError):
+        return None
+    if end_time <= start_time:
+        return None
+    start_time = round(start_time, 2)
+    end_time = round(end_time, 2)
     duration = round(end_time - start_time, 2)
 
     first_frame = group[0]
@@ -630,7 +680,18 @@ def _normalize_behavior_event(
 
     source_frames = []
 
-    for frame in representative_frames:
+    evidence_frames = [
+        frame for frame in representative_frames
+        if start_time <= float(frame.get("timestamp") or 0.0) <= end_time
+    ]
+    if not evidence_frames and representative_frames:
+        midpoint = (start_time + end_time) / 2
+        evidence_frames = [min(
+            representative_frames,
+            key=lambda frame: abs(float(frame.get("timestamp") or 0.0) - midpoint),
+        )]
+
+    for frame in evidence_frames:
         source_frames.append({
             "frame_id": frame.get("frame_id"),
             "frame_path": frame.get("frame_path"),

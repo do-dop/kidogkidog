@@ -1,0 +1,15 @@
+{
+  "video_id": "dog_escape",
+  "source_video": "chunks_dog_escape_petcam_20260926_173415_000.mp4",
+  "question": "강아지가 울타리에 몇 번 올라탔어?",
+  "action": "gate_climb",
+  "metric": "episode_count",
+  "count": 2,
+  "review_status": "user_reviewed_provisional",
+  "time_unit": "seconds_from_video_start",
+  "counting_rule": "울타리에 올라탄 때부터 떨어질 때까지를 한 구간으로 센다. 근처에만 있는 장면은 제외한다.",
+  "intervals": [
+    {"start_time": 4.0, "end_time": 16.0},
+    {"start_time": 22.0, "end_time": 31.0}
+  ]
+}
