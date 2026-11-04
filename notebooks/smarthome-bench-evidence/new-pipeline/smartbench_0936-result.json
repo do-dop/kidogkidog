@@ -4,42 +4,45 @@
   "confirmed": [
     {
       "candidate_time": 4.75,
-      "subject_id": "black and white puppy",
+      "subject_id": "animal_1",
       "start_time": 4.75,
       "end_time": 5.0,
       "before_time": 3.5,
       "after_time": 4.75,
       "reset_time": null,
       "reason": "The black and white puppy's front paw is seen lifted off the floor by 4.75s.",
-      "model_status": "confirmed"
+      "model_status": "confirmed",
+      "model_subject_id": "black and white puppy"
     },
     {
-      "candidate_time": 9.25,
-      "subject_id": "black and white dog",
-      "start_time": 8.0,
-      "end_time": 10.0,
-      "before_time": 8.0,
-      "after_time": 9.25,
-      "reset_time": null,
-      "reason": "The dog's front paw is seen touching the floor at the start and lifted off the floor by 9.250s.",
-      "model_status": "confirmed"
+      "candidate_time": 15.75,
+      "subject_id": "animal_1",
+      "start_time": 14.5,
+      "end_time": 16.0,
+      "before_time": 14.5,
+      "after_time": 15.5,
+      "reset_time": 5.359,
+      "reason": "Front paw observed lifted off the floor starting at 15.5s",
+      "model_status": "confirmed",
+      "model_subject_id": "black and white dog"
     },
     {
       "candidate_time": 19.25,
-      "subject_id": "puppy_1",
+      "subject_id": "animal_1",
       "start_time": 16.75,
       "end_time": 21.5,
       "before_time": 18.0,
       "after_time": 19.25,
-      "reset_time": 19.75,
+      "reset_time": 16.25,
       "reason": "The same puppy is visible with a front paw touching the floor at 18.000s and the same paw lifted at 19.250s.",
-      "model_status": "confirmed"
+      "model_status": "confirmed",
+      "model_subject_id": "puppy_1"
     }
   ],
   "uncertain": [
     {
       "candidate_time": 7.75,
-      "subject_id": "black and white puppy",
+      "subject_id": "animal_1",
       "start_time": 6.5,
       "end_time": 9.25,
       "before_time": 7.0,
@@ -47,18 +50,20 @@
       "reset_time": null,
       "reason": "The puppy's front paw was initially touching the floor and is fully lifted off the floor by 7.75 seconds.",
       "model_status": "confirmed",
+      "model_subject_id": "black and white puppy",
       "review_reason": "같은 개체의 새로운 진입 전 이탈/리셋 근거 없음"
     },
     {
-      "candidate_time": 15.75,
-      "subject_id": "black and white dog",
-      "start_time": 14.5,
-      "end_time": 16.0,
-      "before_time": 14.5,
-      "after_time": 15.5,
+      "candidate_time": 9.25,
+      "subject_id": "animal_1",
+      "start_time": 8.0,
+      "end_time": 10.0,
+      "before_time": 8.0,
+      "after_time": 9.25,
       "reset_time": null,
-      "reason": "Front paw observed lifted off the floor starting at 15.5s",
+      "reason": "The dog's front paw is seen touching the floor at the start and lifted off the floor by 9.250s.",
       "model_status": "confirmed",
+      "model_subject_id": "black and white dog",
       "review_reason": "같은 개체의 새로운 진입 전 이탈/리셋 근거 없음"
     }
   ],
@@ -72,7 +77,8 @@
       "after_time": 6.25,
       "reset_time": null,
       "reason": "The black and white puppy's front paw was observed touching the floor at 5.0 seconds, and is visibly off the floor by 6.25 seconds.",
-      "model_status": "rejected"
+      "model_status": "rejected",
+      "model_subject_id": "black and white puppy"
     }
   ],
   "duplicates": [],
@@ -332,7 +338,8 @@
         "after_time": 4.75,
         "reset_time": null,
         "status": "confirmed",
-        "reason": "The black and white puppy's front paw is seen lifted off the floor by 4.75s."
+        "reason": "The black and white puppy's front paw is seen lifted off the floor by 4.75s.",
+        "track_id": "animal_1"
       },
       "clip": [
         3.5,
@@ -345,6 +352,12 @@
         "same_subject_visible": true,
         "subject_id": "black and white puppy",
         "reason": "The same puppy is visible in both frames. In the first frame, its front paw is on the floor, and in the second frame, it is off the floor."
+      },
+      "track_resolution": {
+        "index": 0,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "Consistent visual and spatial context with later frames."
       }
     },
     {
@@ -431,7 +444,8 @@
         "after_time": 7.75,
         "reset_time": null,
         "status": "confirmed",
-        "reason": "The puppy's front paw was initially touching the floor and is fully lifted off the floor by 7.75 seconds."
+        "reason": "The puppy's front paw was initially touching the floor and is fully lifted off the floor by 7.75 seconds.",
+        "track_id": "animal_1"
       },
       "clip": [
         6.5,
@@ -444,6 +458,18 @@
         "same_subject_visible": true,
         "subject_id": "puppy",
         "reason": "The same puppy is visible in both frames, with the front paw on the floor in the first frame and lifted in the second frame, confirming the event."
+      },
+      "track_resolution": {
+        "index": 2,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "Consistent appearance and position as in previous frames."
+      },
+      "reset_check": {
+        "reset_visible": false,
+        "reset_time": null,
+        "same_subject": true,
+        "reason": "The same puppy is visible with the front paw always off the floor after the initial lift. No visible return to before_state."
       }
     },
     {
@@ -475,7 +501,8 @@
         "after_time": 9.25,
         "reset_time": null,
         "status": "confirmed",
-        "reason": "The dog's front paw is seen touching the floor at the start and lifted off the floor by 9.250s."
+        "reason": "The dog's front paw is seen touching the floor at the start and lifted off the floor by 9.250s.",
+        "track_id": "animal_1"
       },
       "clip": [
         8.0,
@@ -488,6 +515,18 @@
         "same_subject_visible": true,
         "subject_id": "black and white dog",
         "reason": "The black and white dog is visible in both frames. In the first frame, one front paw is touching the floor. In the second frame, the same front paw is off the floor."
+      },
+      "track_resolution": {
+        "index": 3,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "Matches previous descriptions and position."
+      },
+      "reset_check": {
+        "reset_visible": false,
+        "reset_time": null,
+        "same_subject": true,
+        "reason": "The puppy's front paw was not clearly observed touching the floor again between events."
       }
     },
     {
@@ -517,9 +556,10 @@
         "end_time": 16.0,
         "before_time": 14.5,
         "after_time": 15.5,
-        "reset_time": null,
+        "reset_time": 5.359,
         "status": "confirmed",
-        "reason": "Front paw observed lifted off the floor starting at 15.5s"
+        "reason": "Front paw observed lifted off the floor starting at 15.5s",
+        "track_id": "animal_1"
       },
       "clip": [
         14.5,
@@ -532,6 +572,18 @@
         "same_subject_visible": true,
         "subject_id": "puppy",
         "reason": "The same puppy is visible in both frames with the front paw first touching the floor and then off the floor, confirming the lift action."
+      },
+      "track_resolution": {
+        "index": 4,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "Continues to show the same animal described earlier."
+      },
+      "reset_check": {
+        "reset_visible": true,
+        "reset_time": 5.359,
+        "same_subject": true,
+        "reason": "The puppy's front paw returns to touching the floor at 5.359s, indicating the reset to the before_state, and it is consistently the same animal throughout the frames."
       }
     },
     {
@@ -561,21 +613,22 @@
         "end_time": 21.5,
         "before_time": 18.0,
         "after_time": 19.25,
-        "reset_time": 19.75,
+        "reset_time": 16.25,
         "status": "confirmed",
-        "reason": "The same puppy is visible with a front paw touching the floor at 18.000s and the same paw lifted at 19.250s."
+        "reason": "The same puppy is visible with a front paw touching the floor at 18.000s and the same paw lifted at 19.250s.",
+        "track_id": "animal_1"
       },
       "clip": [
         16.75,
         21.75
       ],
       "evidence_check": {
-        "status": "uncertain",
+        "status": "confirmed",
         "before_state_visible": true,
         "after_state_visible": true,
-        "same_subject_visible": false,
-        "subject_id": "unknown",
-        "reason": "Unable to confirm if the same individual is in both frames due to indistinguishable features."
+        "same_subject_visible": true,
+        "subject_id": "puppy_1",
+        "reason": "The same puppy is visible in both frames, with its front paw on the floor in the first frame and off the floor in the second."
       },
       "repair": {
         "subject_id": "puppy_1",
@@ -594,6 +647,18 @@
         "same_subject_visible": true,
         "subject_id": "puppy_1",
         "reason": "The same puppy is visible in both frames, initially with a front paw touching the floor, and then with it off the floor."
+      },
+      "track_resolution": {
+        "index": 5,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "Same visual context and position as all previous frames."
+      },
+      "reset_check": {
+        "reset_visible": true,
+        "reset_time": 16.25,
+        "same_subject": true,
+        "reason": "The same puppy's front paw touches the floor at 16.250s, returning to the before_state after the initial after_state event."
       }
     }
   ],
@@ -601,5 +666,6 @@
     "scan_and_intent": "gpt-4o",
     "verify": "gpt-4o"
   },
-  "coverage_note": "All timeline windows scanned at coarse_step; brief actions may still be missed."
+  "coverage_note": "All timeline windows scanned at coarse_step; brief actions may still be missed.",
+  "track_status": "model_resolved"
 }

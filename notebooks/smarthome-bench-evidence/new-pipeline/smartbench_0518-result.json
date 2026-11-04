@@ -4,25 +4,27 @@
   "confirmed": [
     {
       "candidate_time": 19.75,
-      "subject_id": "black dog",
+      "subject_id": "animal_1",
       "start_time": 18.5,
       "end_time": 20.0,
       "before_time": 19.5,
       "after_time": 20.0,
       "reset_time": null,
       "reason": "The black dog transitions from having its whole body on the floor at 19.500s to having its whole body on the sofa seat at 20.000s.",
-      "model_status": "confirmed"
+      "model_status": "confirmed",
+      "model_subject_id": "black dog"
     },
     {
       "candidate_time": 20.75,
-      "subject_id": "white dog",
+      "subject_id": "animal_2",
       "start_time": 20.75,
       "end_time": 21.75,
       "before_time": 20.5,
       "after_time": 21.0,
       "reset_time": null,
       "reason": "whole body on sofa seat",
-      "model_status": "confirmed"
+      "model_status": "confirmed",
+      "model_subject_id": "white dog"
     }
   ],
   "uncertain": [],
@@ -36,7 +38,8 @@
       "after_time": null,
       "reset_time": null,
       "reason": "The puppy does not visibly transition to the sofa seat in the frames provided.",
-      "model_status": "rejected"
+      "model_status": "rejected",
+      "model_subject_id": "unknown"
     },
     {
       "candidate_time": 9.25,
@@ -47,7 +50,8 @@
       "after_time": null,
       "reset_time": null,
       "reason": "The black dog did not achieve the after state of having its whole body on the sofa seat during the clip.",
-      "model_status": "rejected"
+      "model_status": "rejected",
+      "model_subject_id": "black dog"
     },
     {
       "candidate_time": 12.25,
@@ -58,7 +62,8 @@
       "after_time": null,
       "reset_time": null,
       "reason": "The white dog is not seen fully on the sofa at any point during the clip.",
-      "model_status": "rejected"
+      "model_status": "rejected",
+      "model_subject_id": "white dog"
     },
     {
       "candidate_time": 12.75,
@@ -69,7 +74,8 @@
       "after_time": null,
       "reset_time": null,
       "reason": "No transition to after_state; dog remains on the floor.",
-      "model_status": "rejected"
+      "model_status": "rejected",
+      "model_subject_id": "white dog"
     }
   ],
   "duplicates": [],
@@ -555,7 +561,8 @@
         "after_time": 20.0,
         "reset_time": null,
         "status": "confirmed",
-        "reason": "The black dog transitions from having its whole body on the floor at 19.500s to having its whole body on the sofa seat at 20.000s."
+        "reason": "The black dog transitions from having its whole body on the floor at 19.500s to having its whole body on the sofa seat at 20.000s.",
+        "track_id": "animal_1"
       },
       "clip": [
         18.5,
@@ -568,6 +575,12 @@
         "same_subject_visible": true,
         "subject_id": "black_puppy",
         "reason": "The black puppy is visibly on the floor in the first frame and fully on the sofa seat in the second frame."
+      },
+      "track_resolution": {
+        "index": 4,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "The black dog is clearly visible on the couch in the first image."
       }
     },
     {
@@ -599,7 +612,8 @@
         "after_time": 21.0,
         "reset_time": null,
         "status": "confirmed",
-        "reason": "whole body on sofa seat"
+        "reason": "whole body on sofa seat",
+        "track_id": "animal_2"
       },
       "clip": [
         19.5,
@@ -612,6 +626,12 @@
         "same_subject_visible": true,
         "subject_id": "white_puppy",
         "reason": "The white puppy is completely on the floor in the first frame and fully on the sofa in the second frame, showing clear progression."
+      },
+      "track_resolution": {
+        "index": 5,
+        "track_id": "animal_2",
+        "certain": true,
+        "reason": "The white dog is entering the room and then interacting with the black dog on the couch."
       }
     }
   ],
@@ -619,5 +639,6 @@
     "scan_and_intent": "gpt-4o",
     "verify": "gpt-4o"
   },
-  "coverage_note": "All timeline windows scanned at coarse_step; brief actions may still be missed."
+  "coverage_note": "All timeline windows scanned at coarse_step; brief actions may still be missed.",
+  "track_status": "model_resolved"
 }

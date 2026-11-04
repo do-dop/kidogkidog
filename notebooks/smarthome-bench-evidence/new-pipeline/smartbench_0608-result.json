@@ -4,31 +4,33 @@
   "confirmed": [
     {
       "candidate_time": 1.5,
-      "subject_id": "강아지",
+      "subject_id": "animal_1",
       "start_time": 0.0,
       "end_time": 2.75,
       "before_time": 0.0,
       "after_time": 2.0,
       "reset_time": null,
       "reason": "The same dog is wholly outside the water at 0.000s and is completely submerged in the pool at 2.000s.",
-      "model_status": "confirmed"
+      "model_status": "confirmed",
+      "model_subject_id": "강아지"
     },
     {
       "candidate_time": 20.25,
-      "subject_id": "black and white dog",
+      "subject_id": "animal_1",
       "start_time": 19.0,
       "end_time": 21.5,
       "before_time": 19.0,
       "after_time": 20.25,
-      "reset_time": null,
+      "reset_time": 10.5,
       "reason": "The black and white dog is seen outside the water at 19.0s, and its whole body is submerged in water by 20.25s.",
-      "model_status": "confirmed"
+      "model_status": "confirmed",
+      "model_subject_id": "black and white dog"
     }
   ],
   "uncertain": [
     {
       "candidate_time": 24.25,
-      "subject_id": "black dog",
+      "subject_id": "animal_1",
       "start_time": 23.0,
       "end_time": 24.5,
       "before_time": 23.0,
@@ -36,6 +38,7 @@
       "reset_time": null,
       "reason": "The black dog is fully submerged in the water in all frames provided, meeting the after_state requirement.",
       "model_status": "uncertain",
+      "model_subject_id": "black dog",
       "review_reason": "전후 상태 또는 개체를 확인하지 못함"
     }
   ],
@@ -49,13 +52,14 @@
       "after_time": null,
       "reset_time": null,
       "reason": "The dog's whole body was never fully submerged in water within the given frames.",
-      "model_status": "rejected"
+      "model_status": "rejected",
+      "model_subject_id": "black dog"
     }
   ],
   "duplicates": [
     {
       "candidate_time": 20.75,
-      "subject_id": "black and white dog",
+      "subject_id": "animal_1",
       "start_time": 19.5,
       "end_time": 21.0,
       "before_time": 19.5,
@@ -63,6 +67,7 @@
       "reset_time": null,
       "reason": "The black and white dog is outside the water at 19.500s and fully submerged by 21.000s.",
       "model_status": "confirmed",
+      "model_subject_id": "black and white dog",
       "review_reason": "같은 개체의 기존 구간과 겹침"
     }
   ],
@@ -334,19 +339,20 @@
         "after_time": 2.0,
         "reset_time": null,
         "status": "confirmed",
-        "reason": "The same dog is wholly outside the water at 0.000s and is completely submerged in the pool at 2.000s."
+        "reason": "The same dog is wholly outside the water at 0.000s and is completely submerged in the pool at 2.000s.",
+        "track_id": "animal_1"
       },
       "clip": [
         0.0,
         4.0
       ],
       "evidence_check": {
-        "status": "rejected",
+        "status": "confirmed",
         "before_state_visible": true,
-        "after_state_visible": false,
-        "same_subject_visible": false,
-        "subject_id": null,
-        "reason": "The second frame does not clearly show the whole body of the dog submerged in water, only part of the dog is visible, suggesting the after_state is not met."
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": "강아지",
+        "reason": "The same dog is visible in the first frame outside of the water and in the second frame submerged in the water, confirming the transition."
       },
       "repair": {
         "subject_id": "강아지",
@@ -365,6 +371,12 @@
         "same_subject_visible": true,
         "subject_id": "강아지",
         "reason": "The dog is fully outside the pool in the first frame and fully submerged in the water in the second frame, confirming the transition."
+      },
+      "track_resolution": {
+        "index": 0,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "The animal ('강아지') is swimming in the pool initially, establishing its presence."
       }
     },
     {
@@ -430,9 +442,10 @@
         "end_time": 21.5,
         "before_time": 19.0,
         "after_time": 20.25,
-        "reset_time": null,
+        "reset_time": 10.5,
         "status": "confirmed",
-        "reason": "The black and white dog is seen outside the water at 19.0s, and its whole body is submerged in water by 20.25s."
+        "reason": "The black and white dog is seen outside the water at 19.0s, and its whole body is submerged in water by 20.25s.",
+        "track_id": "animal_1"
       },
       "clip": [
         19.0,
@@ -445,6 +458,18 @@
         "same_subject_visible": true,
         "subject_id": "black and white dog",
         "reason": "The black and white dog is fully outside the water in the first frame and fully in the water in the second frame."
+      },
+      "track_resolution": {
+        "index": 2,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "The 'black and white dog' continues swimming in a similar position as the first image, indicating it's the same animal."
+      },
+      "reset_check": {
+        "reset_visible": true,
+        "reset_time": 10.5,
+        "same_subject": true,
+        "reason": "The same dog is clearly seen exiting the water and is fully outside of it before 19.000s."
       }
     },
     {
@@ -476,7 +501,8 @@
         "after_time": 21.0,
         "reset_time": null,
         "status": "confirmed",
-        "reason": "The black and white dog is outside the water at 19.500s and fully submerged by 21.000s."
+        "reason": "The black and white dog is outside the water at 19.500s and fully submerged by 21.000s.",
+        "track_id": "animal_1"
       },
       "clip": [
         19.5,
@@ -489,6 +515,12 @@
         "same_subject_visible": true,
         "subject_id": "dog",
         "reason": "The same black and white dog is clearly visible outside the pool in the first frame and inside the pool in the second."
+      },
+      "track_resolution": {
+        "index": 3,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "The 'black and white dog' remains in a consistent location and appearance, likely the same as earlier."
       }
     },
     {
@@ -516,17 +548,25 @@
         "reset_time": null,
         "status": "uncertain",
         "reason": "The black dog is fully submerged in the water in all frames provided, meeting the after_state requirement.",
-        "evidence_check_reason": "전후 근거 시각이 유효하지 않음"
+        "evidence_check_reason": "전후 근거 시각이 유효하지 않음",
+        "track_id": "animal_1"
       },
       "clip": [
         23.0,
         24.732999999999997
-      ]
+      ],
+      "track_resolution": {
+        "index": 4,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "The 'black dog' is in the pool, following the same swimming trajectory as the previous frames."
+      }
     }
   ],
   "models": {
     "scan_and_intent": "gpt-4o",
     "verify": "gpt-4o"
   },
-  "coverage_note": "All timeline windows scanned at coarse_step; brief actions may still be missed."
+  "coverage_note": "All timeline windows scanned at coarse_step; brief actions may still be missed.",
+  "track_status": "model_resolved"
 }

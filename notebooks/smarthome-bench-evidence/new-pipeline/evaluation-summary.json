@@ -10,7 +10,7 @@
       "pipeline_uncertain_candidates": 0,
       "pipeline_rejected": 4,
       "pipeline_duplicates": 0,
-      "track_status": "not_run_api_quota_exhausted",
+      "track_status": "model_resolved",
       "time_only_matches": {
         "matches": [
           {
@@ -36,7 +36,7 @@
       "pipeline_uncertain_candidates": 1,
       "pipeline_rejected": 2,
       "pipeline_duplicates": 0,
-      "track_status": "not_run_api_quota_exhausted",
+      "track_status": "model_resolved",
       "time_only_matches": {
         "matches": [
           {
@@ -60,7 +60,7 @@
       "pipeline_uncertain_candidates": 1,
       "pipeline_rejected": 1,
       "pipeline_duplicates": 1,
-      "track_status": "not_run_api_quota_exhausted",
+      "track_status": "model_resolved",
       "time_only_matches": {
         "matches": [
           {
@@ -83,23 +83,23 @@
       "reference_confirmed": 2,
       "reference_uncertain": 0,
       "pipeline_confirmed": 2,
-      "pipeline_uncertain_candidates": 2,
+      "pipeline_uncertain_candidates": 1,
       "pipeline_rejected": 1,
-      "pipeline_duplicates": 0,
-      "track_status": "not_run_api_quota_exhausted",
+      "pipeline_duplicates": 1,
+      "track_status": "model_resolved",
       "time_only_matches": {
         "matches": [
           {
             "prediction_index": 0,
             "reference_index": 0
+          },
+          {
+            "prediction_index": 1,
+            "reference_index": 1
           }
         ],
-        "unmatched_prediction_indices": [
-          1
-        ],
-        "missed_reference_indices": [
-          1
-        ]
+        "unmatched_prediction_indices": [],
+        "missed_reference_indices": []
       },
       "warning": "Time match does not prove animal identity; unresolved model aliases can make a matching total misleading."
     },
@@ -112,12 +112,12 @@
       "pipeline_uncertain_candidates": 2,
       "pipeline_rejected": 1,
       "pipeline_duplicates": 0,
-      "track_status": "not_run_api_quota_exhausted",
+      "track_status": "model_resolved",
       "time_only_matches": {
         "matches": [
           {
             "prediction_index": 1,
-            "reference_index": 5
+            "reference_index": 6
           },
           {
             "prediction_index": 2,
@@ -134,7 +134,7 @@
           1,
           3,
           4,
-          6
+          5
         ]
       },
       "warning": "Time match does not prove animal identity; unresolved model aliases can make a matching total misleading."
@@ -148,7 +148,7 @@
       "pipeline_uncertain_candidates": 2,
       "pipeline_rejected": 4,
       "pipeline_duplicates": 0,
-      "track_status": "not_run_api_quota_exhausted",
+      "track_status": "model_resolved",
       "time_only_matches": null,
       "warning": "Time match does not prove animal identity; unresolved model aliases can make a matching total misleading."
     },
@@ -157,21 +157,27 @@
       "reference_kind": "user_reviewed_original_dog_escape_duplicate",
       "reference_confirmed": 2,
       "reference_uncertain": 0,
-      "pipeline_confirmed": 0,
-      "pipeline_uncertain_candidates": 0,
+      "pipeline_confirmed": 2,
+      "pipeline_uncertain_candidates": 3,
       "pipeline_rejected": 4,
-      "pipeline_duplicates": 0,
-      "track_status": "not_run_api_quota_exhausted",
+      "pipeline_duplicates": 1,
+      "track_status": "model_resolved",
       "time_only_matches": {
-        "matches": [],
+        "matches": [
+          {
+            "prediction_index": 0,
+            "reference_index": 0
+          },
+          {
+            "prediction_index": 1,
+            "reference_index": 1
+          }
+        ],
         "unmatched_prediction_indices": [],
-        "missed_reference_indices": [
-          0,
-          1
-        ]
+        "missed_reference_indices": []
       },
       "warning": "Time match does not prove animal identity; unresolved model aliases can make a matching total misleading."
     }
   ],
-  "pipeline_note": "These are cached model outputs before successful cross-window identity resolution. The final identity-linking API call was blocked by exhausted account credits."
+  "pipeline_note": "Cross-window identity resolution and between-event reset checks were rerun. Model judgments and provisional human labels still require event-level review."
 }

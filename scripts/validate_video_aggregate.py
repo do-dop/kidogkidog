@@ -22,6 +22,7 @@ from pipeline.search.video_aggregate import (  # noqa: E402
     repair_failed_claims,
     reduce_transitions,
     resolve_subject_tracks,
+    verify_resets,
 )
 
 
@@ -47,7 +48,7 @@ class CachedVision:
         self.cached = 0
 
     def __call__(self, prompt, frames):
-        adapter = self.verify if prompt.startswith(("Verify ONE", "Independently challenge", "A previous candidate", "These images")) else self.scan
+        adapter = self.verify if prompt.startswith(("Verify ONE", "Independently challenge", "A previous candidate", "These images", "You are checking")) else self.scan
         digest = hashlib.sha256()
         digest.update(adapter.model.encode())
         digest.update(prompt.encode())
@@ -99,6 +100,8 @@ def main():
                 try:
                     result["verifications"] = resolve_subject_tracks(
                         path, result["verifications"], vision)
+                    result["verifications"] = verify_resets(
+                        path, result["intent"], result["verifications"], vision)
                     result["track_status"] = "model_resolved"
                 except Exception as exc:
                     result["track_status"] = "unresolved_error"

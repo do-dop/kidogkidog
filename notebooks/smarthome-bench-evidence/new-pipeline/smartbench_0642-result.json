@@ -4,20 +4,21 @@
   "confirmed": [
     {
       "candidate_time": 2.0,
-      "subject_id": "black puppy",
+      "subject_id": "animal_1",
       "start_time": 0.75,
       "end_time": 3.5,
       "before_time": 0.75,
       "after_time": 2.5,
       "reset_time": null,
       "reason": "The black puppy's whole body is inside the water at 2.500s.",
-      "model_status": "confirmed"
+      "model_status": "confirmed",
+      "model_subject_id": "black puppy"
     }
   ],
   "uncertain": [
     {
       "candidate_time": 8.25,
-      "subject_id": "black puppy",
+      "subject_id": "animal_1",
       "start_time": 7.0,
       "end_time": 9.75,
       "before_time": 7.0,
@@ -25,6 +26,7 @@
       "reset_time": null,
       "reason": "Whole body of black puppy is inside the water as early as 7.0s",
       "model_status": "uncertain",
+      "model_subject_id": "black puppy",
       "review_reason": "전후 상태 또는 개체를 확인하지 못함"
     }
   ],
@@ -38,7 +40,8 @@
       "after_time": 6.25,
       "reset_time": null,
       "reason": "The entire body of the black puppy is inside the water at 6.250s, confirming the transition.",
-      "model_status": "rejected"
+      "model_status": "rejected",
+      "model_subject_id": "black puppy"
     },
     {
       "candidate_time": 12.75,
@@ -49,7 +52,8 @@
       "after_time": 12.75,
       "reset_time": null,
       "reason": "The black puppy's whole body is visibly inside the water at 12.750s.",
-      "model_status": "rejected"
+      "model_status": "rejected",
+      "model_subject_id": "black puppy"
     }
   ],
   "duplicates": [],
@@ -239,7 +243,8 @@
         "after_time": 2.5,
         "reset_time": null,
         "status": "confirmed",
-        "reason": "The black puppy's whole body is inside the water at 2.500s."
+        "reason": "The black puppy's whole body is inside the water at 2.500s.",
+        "track_id": "animal_1"
       },
       "clip": [
         0.75,
@@ -252,6 +257,12 @@
         "same_subject_visible": true,
         "subject_id": "black_puppy",
         "reason": "The same black puppy is visible outside the water at 0.750s and inside the water at 2.500s."
+      },
+      "track_resolution": {
+        "index": 0,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "The black puppy is the only visible animal in the video for this time frame."
       }
     },
     {
@@ -339,12 +350,19 @@
         "reset_time": null,
         "status": "uncertain",
         "reason": "Whole body of black puppy is inside the water as early as 7.0s",
-        "evidence_check_reason": "전후 근거 시각이 유효하지 않음"
+        "evidence_check_reason": "전후 근거 시각이 유효하지 않음",
+        "track_id": "animal_1"
       },
       "clip": [
         7.0,
         9.75
-      ]
+      ],
+      "track_resolution": {
+        "index": 2,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "The black puppy is in a similar location to where seen earlier, and looks consistent in appearance."
+      }
     },
     {
       "candidate": {
@@ -406,5 +424,6 @@
     "scan_and_intent": "gpt-4o",
     "verify": "gpt-4o"
   },
-  "coverage_note": "All timeline windows scanned at coarse_step; brief actions may still be missed."
+  "coverage_note": "All timeline windows scanned at coarse_step; brief actions may still be missed.",
+  "track_status": "model_resolved"
 }

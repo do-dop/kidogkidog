@@ -5,6 +5,7 @@ from fastapi import APIRouter, BackgroundTasks, HTTPException
 
 from api.schemas import QueryRequest
 from db.search_history import insert_search_log, upsert_user_frequent_query
+from pipeline.search.result_grouping import group_results_by_video
 
 
 router = APIRouter(tags=["search"])
@@ -52,8 +53,15 @@ def query(request: QueryRequest, background_tasks: BackgroundTasks):
     finally:
         latency_ms = int((time.perf_counter() - started_at) * 1000)
 
+    grouped_results = group_results_by_video(rag_result.get("results", []), top_k)
+    raw_evidence = rag_result.get("evidence_items", rag_result.get("results", []))
+    grouped_evidence = (
+        grouped_results if raw_evidence is rag_result.get("results")
+        else group_results_by_video(raw_evidence, top_k)
+    )
+
     if request.user_id:
-        result_count = len(rag_result.get("results", []))
+        result_count = len(grouped_results)
         try:
             insert_search_log(
                 user_id=request.user_id,
@@ -77,8 +85,8 @@ def query(request: QueryRequest, background_tasks: BackgroundTasks):
         "recording_date": request.recording_date,
         "top_k": top_k,
         "answer": rag_result["answer"],
-        "results": rag_result["results"],
-        "evidence_items": rag_result.get("evidence_items", rag_result["results"]),
+        "results": grouped_results,
+        "evidence_items": grouped_evidence,
         "behavior_events": rag_result.get("behavior_events", []),
         "used_llm": rag_result["used_llm"],
     }

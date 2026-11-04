@@ -1,6 +1,8 @@
 import unittest
+from pathlib import Path
+from unittest.mock import patch
 
-from pipeline.search.video_aggregate import parse_count_intent, reduce_transitions, timeline_windows
+from pipeline.search.video_aggregate import parse_count_intent, reduce_transitions, timeline_windows, verify_resets
 
 
 def item(time, subject, before, after, *, reset=None, start=None, end=None, status="confirmed"):
@@ -70,6 +72,43 @@ class VideoAggregateTests(unittest.TestCase):
         result = reduce_transitions([first, second])
         self.assertEqual(result["confirmed_count"], 1)
         self.assertEqual(len(result["duplicates"]), 1)
+
+    def test_between_event_frames_can_prove_reset_outside_verification_clip(self):
+        first = item(2.0, "dog", 1.5, 2.0, start=2.0, end=2.4)
+        second = item(10.0, "dog", 9.5, 10.0, start=10.0, end=10.4)
+        for event in (first, second):
+            event["observation"]["track_id"] = "animal_1"
+
+        def confirm_reset(prompt, frames):
+            self.assertIn("same animal", prompt.lower())
+            self.assertEqual(frames, [{"time": 5.0}])
+            return {"reset_visible": True, "same_subject": True, "reset_time": 5.0}
+
+        with patch("pipeline.search.video_aggregate.video_duration", return_value=12.0), \
+             patch("pipeline.search.video_aggregate.sample_frames", return_value=[{"time": 5.0}]):
+            verified = verify_resets(Path("unused.mp4"), {"before_state": "floor"},
+                                     [first, second], confirm_reset)
+
+        result = reduce_transitions(verified)
+        self.assertEqual(result["confirmed_count"], 2)
+        self.assertEqual(result["confirmed"][1]["reset_time"], 5.0)
+
+    def test_reset_rejection_keeps_repeat_uncertain(self):
+        first = item(2.0, "dog", 1.5, 2.0, start=2.0, end=2.4)
+        second = item(10.0, "dog", 9.5, 10.0, reset=9.6, start=10.0, end=10.4)
+        for event in (first, second):
+            event["observation"]["track_id"] = "animal_1"
+
+        with patch("pipeline.search.video_aggregate.video_duration", return_value=12.0), \
+             patch("pipeline.search.video_aggregate.sample_frames", return_value=[]):
+            verified = verify_resets(
+                Path("unused.mp4"), {}, [first, second],
+                lambda prompt, frames: {"reset_visible": False, "same_subject": True,
+                                        "reset_time": None})
+
+        result = reduce_transitions(verified)
+        self.assertEqual(result["confirmed_count"], 1)
+        self.assertEqual(result["uncertain_count"], 1)
 
 
 if __name__ == "__main__":

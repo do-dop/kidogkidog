@@ -1,53 +1,44 @@
 {
   "confirmed_count": 2,
-  "uncertain_count": 2,
+  "uncertain_count": 1,
   "confirmed": [
     {
       "candidate_time": 10.25,
-      "subject_id": "black cat",
+      "subject_id": "animal_1",
       "start_time": 10.25,
       "end_time": 11.0,
       "before_time": 9.0,
       "after_time": 10.25,
       "reset_time": null,
       "reason": "The black cat's head is raised away from the food bowl at 10.25s, completing the transition from the head lowered near the bowl at 9.0s.",
-      "model_status": "confirmed"
+      "model_status": "confirmed",
+      "model_subject_id": "black cat"
     },
     {
+      "candidate_time": 24.25,
+      "subject_id": "animal_1",
+      "start_time": 23.0,
+      "end_time": 25.0,
+      "before_time": 23.0,
+      "after_time": 25.0,
+      "reset_time": 19.016,
+      "reason": "The black cat's head is raised and away from the food bowl.",
+      "model_status": "confirmed",
+      "model_subject_id": "black cat"
+    }
+  ],
+  "uncertain": [
+    {
       "candidate_time": 15.75,
-      "subject_id": "black and white cat",
+      "subject_id": "animal_1",
       "start_time": 14.5,
       "end_time": 16.25,
       "before_time": 14.5,
       "after_time": 16.25,
       "reset_time": null,
       "reason": "The cat's head moved from a position near the food bowl to being raised and away from it.",
-      "model_status": "confirmed"
-    }
-  ],
-  "uncertain": [
-    {
-      "candidate_time": 24.25,
-      "subject_id": "black cat",
-      "start_time": 23.0,
-      "end_time": 25.0,
-      "before_time": 23.0,
-      "after_time": 25.0,
-      "reset_time": null,
-      "reason": "The black cat's head is raised and away from the food bowl.",
       "model_status": "confirmed",
-      "review_reason": "같은 개체의 새로운 진입 전 이탈/리셋 근거 없음"
-    },
-    {
-      "candidate_time": 24.75,
-      "subject_id": "black and white cat",
-      "start_time": 23.5,
-      "end_time": 26.25,
-      "before_time": 23.5,
-      "after_time": 24.75,
-      "reset_time": null,
-      "reason": "The cat's head is visibly raised and away from the food bowl at 24.750s.",
-      "model_status": "confirmed",
+      "model_subject_id": "black and white cat",
       "review_reason": "같은 개체의 새로운 진입 전 이탈/리셋 근거 없음"
     }
   ],
@@ -61,10 +52,25 @@
       "after_time": 16.25,
       "reset_time": null,
       "reason": "Head clearly lifted and turned away from food bowl by frame at 16.25s.",
-      "model_status": "rejected"
+      "model_status": "rejected",
+      "model_subject_id": "black and white cat"
     }
   ],
-  "duplicates": [],
+  "duplicates": [
+    {
+      "candidate_time": 24.75,
+      "subject_id": "animal_1",
+      "start_time": 23.5,
+      "end_time": 26.25,
+      "before_time": 23.5,
+      "after_time": 24.75,
+      "reset_time": null,
+      "reason": "The cat's head is visibly raised and away from the food bowl at 24.750s.",
+      "model_status": "confirmed",
+      "model_subject_id": "black and white cat",
+      "review_reason": "같은 개체의 기존 구간과 겹침"
+    }
+  ],
   "video": "/Users/taehee/Documents/jolup_project/data/videos/smartbench_0142.mp4",
   "query": "고양이가 밥을 먹다가 고개를 몇 번 들었어?",
   "intent": {
@@ -386,7 +392,8 @@
         "after_time": 10.25,
         "reset_time": null,
         "status": "confirmed",
-        "reason": "The black cat's head is raised away from the food bowl at 10.25s, completing the transition from the head lowered near the bowl at 9.0s."
+        "reason": "The black cat's head is raised away from the food bowl at 10.25s, completing the transition from the head lowered near the bowl at 9.0s.",
+        "track_id": "animal_1"
       },
       "clip": [
         9.0,
@@ -399,6 +406,12 @@
         "same_subject_visible": true,
         "subject_id": "black_cat",
         "reason": "The cat's head is lowered near the food bowl in the first frame and raised away in the second frame, confirming the 'lift' action."
+      },
+      "track_resolution": {
+        "index": 0,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "First observation of a black cat."
       }
     },
     {
@@ -430,7 +443,8 @@
         "after_time": 16.25,
         "reset_time": null,
         "status": "confirmed",
-        "reason": "The cat's head moved from a position near the food bowl to being raised and away from it."
+        "reason": "The cat's head moved from a position near the food bowl to being raised and away from it.",
+        "track_id": "animal_1"
       },
       "clip": [
         14.5,
@@ -443,6 +457,18 @@
         "same_subject_visible": true,
         "subject_id": "cat_1",
         "reason": "The same cat appears in both frames. In the first frame, the head is near the food bowl, and in the second, it is raised and away, completing the defined action."
+      },
+      "track_resolution": {
+        "index": 1,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "Same cat based on appearance and proximity in time."
+      },
+      "reset_check": {
+        "reset_visible": false,
+        "reset_time": null,
+        "same_subject": true,
+        "reason": "The cat's head remains consistently raised, away from the food bowl, without returning to a lowered position between 10.250s and 14.500s."
       }
     },
     {
@@ -527,9 +553,10 @@
         "end_time": 25.0,
         "before_time": 23.0,
         "after_time": 25.0,
-        "reset_time": null,
+        "reset_time": 19.016,
         "status": "confirmed",
-        "reason": "The black cat's head is raised and away from the food bowl."
+        "reason": "The black cat's head is raised and away from the food bowl.",
+        "track_id": "animal_1"
       },
       "clip": [
         23.0,
@@ -542,6 +569,18 @@
         "same_subject_visible": true,
         "subject_id": "unknown",
         "reason": "The same cat is visible in both frames with head lowered near the food bowl in the first frame and head raised away from the food bowl in the second frame."
+      },
+      "track_resolution": {
+        "index": 3,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "Consistent appearance and continuous presence near the same location."
+      },
+      "reset_check": {
+        "reset_visible": true,
+        "reset_time": 19.016,
+        "same_subject": true,
+        "reason": "The same cat visibly lowered its head back to the food bowl before the next proposed transition."
       }
     },
     {
@@ -573,7 +612,8 @@
         "after_time": 24.75,
         "reset_time": null,
         "status": "confirmed",
-        "reason": "The cat's head is visibly raised and away from the food bowl at 24.750s."
+        "reason": "The cat's head is visibly raised and away from the food bowl at 24.750s.",
+        "track_id": "animal_1"
       },
       "clip": [
         23.5,
@@ -586,6 +626,12 @@
         "same_subject_visible": true,
         "subject_id": "black and white cat",
         "reason": "The subject is visibly the same cat in both frames. The first frame shows the cat with its head lowered near a food bowl, and the second frame shows the cat with its head raised, away from the food bowl."
+      },
+      "track_resolution": {
+        "index": 4,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "Same cat immediately after previous frame at the same spot."
       }
     }
   ],
@@ -593,5 +639,6 @@
     "scan_and_intent": "gpt-4o",
     "verify": "gpt-4o"
   },
-  "coverage_note": "All timeline windows scanned at coarse_step; brief actions may still be missed."
+  "coverage_note": "All timeline windows scanned at coarse_step; brief actions may still be missed.",
+  "track_status": "model_resolved"
 }

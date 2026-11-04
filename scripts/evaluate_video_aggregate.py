@@ -68,7 +68,7 @@ def main() -> None:
         result = json.loads(path.read_text(encoding="utf-8"))
         cases.append(evaluate_case(label, result))
     summary = {"method": labels["note"], "cases": cases,
-               "pipeline_note": "These are cached model outputs before successful cross-window identity resolution. The final identity-linking API call was blocked by exhausted account credits."}
+               "pipeline_note": "Cross-window identity resolution and between-event reset checks were rerun. Model judgments and provisional human labels still require event-level review."}
     output = EVIDENCE / "evaluation-summary.json"
     output.write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print("video              reference  pipeline  unresolved  time-matched  false  missed")

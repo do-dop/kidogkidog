@@ -5,7 +5,7 @@
   "uncertain": [
     {
       "candidate_time": 20.75,
-      "subject_id": "black dog",
+      "subject_id": "animal_1",
       "start_time": 19.75,
       "end_time": 21.0,
       "before_time": 19.75,
@@ -13,11 +13,12 @@
       "reset_time": null,
       "reason": "Black dog's whole body visible on sofa seat at 21.000s after being on floor at 19.750s.",
       "model_status": "uncertain",
+      "model_subject_id": "black dog",
       "review_reason": "전후 상태 또는 개체를 확인하지 못함"
     },
     {
       "candidate_time": 21.25,
-      "subject_id": "black dog",
+      "subject_id": "animal_1",
       "start_time": null,
       "end_time": 21.25,
       "before_time": null,
@@ -25,6 +26,7 @@
       "reset_time": null,
       "reason": "The black dog's whole body is visibly on the sofa seat by 21.250s.",
       "model_status": "uncertain",
+      "model_subject_id": "black dog",
       "review_reason": "전후 상태 또는 개체를 확인하지 못함"
     }
   ],
@@ -38,7 +40,8 @@
       "after_time": 2.75,
       "reset_time": null,
       "reason": "The black dog is seen jumping onto the sofa, and by 2.750s, its whole body is on the sofa seat, fulfilling the transition requirement.",
-      "model_status": "rejected"
+      "model_status": "rejected",
+      "model_subject_id": "black dog"
     },
     {
       "candidate_time": 5.25,
@@ -49,7 +52,8 @@
       "after_time": 5.0,
       "reset_time": null,
       "reason": "The black dog's entire body is on the sofa seat at t=5.000s.",
-      "model_status": "rejected"
+      "model_status": "rejected",
+      "model_subject_id": "black dog"
     },
     {
       "candidate_time": 8.75,
@@ -60,7 +64,8 @@
       "after_time": null,
       "reset_time": null,
       "reason": "The black dog is not fully seen on the sofa in any given frame, only nearby or with partial body visible.",
-      "model_status": "rejected"
+      "model_status": "rejected",
+      "model_subject_id": "black dog"
     },
     {
       "candidate_time": 15.25,
@@ -71,7 +76,8 @@
       "after_time": 15.5,
       "reset_time": null,
       "reason": "The black dog's whole body is on the sofa seat by 15.500 seconds.",
-      "model_status": "rejected"
+      "model_status": "rejected",
+      "model_subject_id": "black dog"
     }
   ],
   "duplicates": [],
@@ -539,7 +545,8 @@
         "reset_time": null,
         "status": "uncertain",
         "reason": "Black dog's whole body visible on sofa seat at 21.000s after being on floor at 19.750s.",
-        "evidence_check_reason": "The first frame does not provide visibility of the dog on the floor, making it unclear if it was the same dog seen on the sofa in the second frame."
+        "evidence_check_reason": "The first frame does not provide visibility of the dog on the floor, making it unclear if it was the same dog seen on the sofa in the second frame.",
+        "track_id": "animal_1"
       },
       "clip": [
         19.5,
@@ -570,6 +577,12 @@
         "same_subject_visible": false,
         "subject_id": "unknown",
         "reason": "The subject cannot be clearly identified as the same in both frames due to motion blur and partial visibility."
+      },
+      "track_resolution": {
+        "index": 4,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "The descriptions and timing suggest continuity of the same animal in both images."
       }
     },
     {
@@ -602,17 +615,25 @@
         "reset_time": null,
         "status": "uncertain",
         "reason": "The black dog's whole body is visibly on the sofa seat by 21.250s.",
-        "evidence_check_reason": "전후 근거 시각이 유효하지 않음"
+        "evidence_check_reason": "전후 근거 시각이 유효하지 않음",
+        "track_id": "animal_1"
       },
       "clip": [
         20.0,
         22.75
-      ]
+      ],
+      "track_resolution": {
+        "index": 5,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "The same 'black dog' is visible, showing spatial and temporal continuity."
+      }
     }
   ],
   "models": {
     "scan_and_intent": "gpt-4o",
     "verify": "gpt-4o"
   },
-  "coverage_note": "All timeline windows scanned at coarse_step; brief actions may still be missed."
+  "coverage_note": "All timeline windows scanned at coarse_step; brief actions may still be missed.",
+  "track_status": "model_resolved"
 }

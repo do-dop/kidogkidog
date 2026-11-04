@@ -55,6 +55,9 @@ type SearchResult = {
   eventStart?: number;
   eventEnd?: number;
   representativeTimestamp?: number;
+  timelineSeconds?: number;
+  matchedSceneCount?: number;
+  relatedScenes?: SearchResult[];
 };
 
 type PlaybackSegment = {
@@ -63,9 +66,7 @@ type PlaybackSegment = {
   endAtSeconds: number;
 };
 
-type ApiQueryResult = {
-  answer?: string;
-  results?: Array<{
+type ApiSearchFrame = {
     video_id?: string;
     timestamp?: number;
     score?: number;
@@ -80,7 +81,13 @@ type ApiQueryResult = {
     playback_start?: number;
     playback_end?: number;
     merged_frame_count?: number;
-  }>;
+    matched_scene_count?: number;
+    related_scenes?: ApiSearchFrame[];
+};
+
+type ApiQueryResult = {
+  answer?: string;
+  results?: ApiSearchFrame[];
   evidence_items?: ApiQueryResult["results"];
   behavior_events?: BehaviorEvent[];
   used_llm?: boolean;
@@ -326,7 +333,7 @@ function labelsToTags(labels?: string): Tag[] {
     .map((label) => ({ icon: label.toLowerCase().includes("dog") ? "🐶" : "•", label }));
 }
 
-function findRecordingForFrame(result: NonNullable<ApiQueryResult["results"]>[number], items: Recording[]) {
+function findRecordingForFrame(result: ApiSearchFrame, items: Recording[]) {
   const s3Key = result.s3_key || "";
   const frameId = result.frame_id || "";
 
@@ -373,6 +380,14 @@ function mapApiResults(payload: ApiQueryResult, items: Recording[] = []): Search
     if (Number(result.merged_frame_count) > 1) {
       noteParts.push(`인접 프레임 ${result.merged_frame_count}개 통합`);
     }
+    if (Number(result.matched_scene_count) > 1) {
+      noteParts.push(`같은 영상의 관련 장면 ${result.matched_scene_count}개`);
+    }
+
+    const relatedScenes = result.related_scenes?.map((scene, sceneIndex) => {
+      const sceneResult = mapApiResults({ results: [{ ...scene, related_scenes: undefined }] }, items)[0];
+      return { ...sceneResult, id: scene.frame_id ?? `${result.frame_id ?? `api-result-${index}`}-scene-${sceneIndex}` };
+    });
 
     return {
       id: result.frame_id ?? `api-result-${index}`,
@@ -401,6 +416,9 @@ function mapApiResults(payload: ApiQueryResult, items: Recording[] = []): Search
       eventStart,
       eventEnd,
       representativeTimestamp: seconds,
+      timelineSeconds: (recording?.startSeconds ?? 0) + playbackStartSeconds,
+      matchedSceneCount: result.matched_scene_count,
+      relatedScenes,
     };
   });
 }
@@ -444,17 +462,20 @@ function loadRecordingDuration(recording: Recording): Promise<number | undefined
   return durationPromise;
 }
 
-async function clampResultsToMediaDuration(results: SearchResult[], items: Recording[]) {
+async function clampResultsToMediaDuration(results: SearchResult[], items: Recording[]): Promise<SearchResult[]> {
   return Promise.all(results.map(async (result) => {
+    const relatedScenes: SearchResult[] | undefined = result.relatedScenes
+      ? await clampResultsToMediaDuration(result.relatedScenes, items)
+      : undefined;
     const recording = items.find((item) => item.id === result.recordingId);
-    if (!recording || result.playbackEndSeconds === undefined) return result;
+    if (!recording || result.playbackEndSeconds === undefined) return { ...result, relatedScenes };
 
     const mediaDuration = await loadRecordingDuration(recording);
-    if (mediaDuration === undefined) return result;
+    if (mediaDuration === undefined) return { ...result, relatedScenes };
 
     const playbackStart = result.playbackStartSeconds ?? 0;
     const playbackEnd = Math.min(result.playbackEndSeconds, mediaDuration);
-    if (playbackEnd >= result.playbackEndSeconds) return result;
+    if (playbackEnd >= result.playbackEndSeconds) return { ...result, relatedScenes };
 
     const updatedNote = result.note.replace(
       /재생 구간: [^·]+/,
@@ -465,6 +486,7 @@ async function clampResultsToMediaDuration(results: SearchResult[], items: Recor
       note: updatedNote,
       duration: formatDuration(Math.max(0, playbackEnd - playbackStart)),
       playbackEndSeconds: playbackEnd,
+      relatedScenes,
     };
   }));
 }
@@ -719,6 +741,7 @@ export default function App() {
   const [behaviorNotice, setBehaviorNotice] = useState("");
   const [apiNotice, setApiNotice] = useState("");
   const [activeResult, setActiveResult] = useState<SearchResult | null>(null);
+  const [activeScene, setActiveScene] = useState<SearchResult | null>(null);
   const [activeRecording, setActiveRecording] = useState<Recording>(recordings[0]);
   const recordingsRef = useRef<HTMLDivElement | null>(null);
   const resultsRef = useRef<HTMLDivElement | null>(null);
@@ -922,6 +945,7 @@ export default function App() {
       setAnswer("");
       setResults([]);
       setActiveResult(null);
+      setActiveScene(null);
       setActiveSuggestionSource(null);
       setApiNotice("");
     }
@@ -1011,6 +1035,7 @@ export default function App() {
     ?? (liveRecording ? eventsForRecording(liveRecording, behaviorEvents)[0] : undefined);
 
   const visibleResults = results;
+  const playbackResult = activeScene ?? activeResult;
   const currentVideoRecordings = recordingItems.filter(
     (recording) => recording.videoId && activeRecording.videoId
       ? recording.videoId === activeRecording.videoId
@@ -1039,8 +1064,13 @@ export default function App() {
   }
 
   function openResult(result: SearchResult) {
-    setActiveResult(result);
+    selectResult(result);
     setScreen("searchPlayback");
+  }
+
+  function selectResult(result: SearchResult) {
+    setActiveResult(result);
+    setActiveScene(result.relatedScenes?.[0] ?? result);
   }
 
   function openRecording(recording: Recording, event?: BehaviorEvent) {
@@ -1067,6 +1097,7 @@ export default function App() {
     setAnswer("");
     setResults([]);
     setActiveResult(null);
+    setActiveScene(null);
     setActiveSuggestionSource(null);
 
     try {
@@ -1096,7 +1127,7 @@ export default function App() {
       const nextResults = await clampResultsToMediaDuration(rankedResults, recordingItems);
       setAnswer(payload.answer || `${nextQuery}와 관련된 장면을 찾았어요.`);
       setResults(nextResults);
-      setActiveResult(nextResults[0] ?? null);
+      if (nextResults[0]) selectResult(nextResults[0]);
 
       if (payload.behavior_events?.length) {
         setBehaviorEvents((current) => {
@@ -1114,6 +1145,7 @@ export default function App() {
       setAnswer(`"${nextQuery}" 검색 중 문제가 발생했습니다. 백엔드와 인덱스 상태를 확인해주세요.`);
       setResults([]);
       setActiveResult(null);
+      setActiveScene(null);
       setApiNotice("FastAPI 서버 또는 검색 인덱스에 연결하지 못했습니다.");
     } finally {
       setLoading(false);
@@ -1132,6 +1164,7 @@ export default function App() {
     setAnswer("");
     setResults([]);
     setActiveResult(null);
+    setActiveScene(null);
     setApiNotice("");
   }
 
@@ -1231,7 +1264,7 @@ export default function App() {
 
     const index = Math.max(0, visibleResults.findIndex((item) => item.id === activeResult.id));
     const nextIndex = Math.min(visibleResults.length - 1, Math.max(0, index + delta));
-    setActiveResult(visibleResults[nextIndex]);
+    selectResult(visibleResults[nextIndex]);
   }
 
   function stepRecording(delta: number) {
@@ -1655,7 +1688,7 @@ export default function App() {
                     {!loading && visibleResults.length > 0 && (
                       <>
                         <div className="result-header">
-                          <strong>관련 장면 {visibleResults.length}개</strong>
+                          <strong>관련 영상 {visibleResults.length}개</strong>
                           <span>유사도 순</span>
                         </div>
                         <div className="result-grid">
@@ -1840,7 +1873,7 @@ export default function App() {
             </section>
           )}
 
-          {screen === "searchPlayback" && activeResult && (
+          {screen === "searchPlayback" && activeResult && playbackResult && (
             <section className="playback-page stack">
               <div className="playback-head">
                 <button className="secondary-button" onClick={() => go("search")}>
@@ -1852,16 +1885,20 @@ export default function App() {
               <div className="playback-grid">
                 <div className="stack">
                   <VideoPanel
-                    key={activeResult.id}
+                    key={playbackResult.id}
                     label="검색 결과 구간 재생"
-                    camera={activeResult.note}
-                    time={activeResult.displayDateTime || activeResult.time}
-                    videoUrl={activeResult.videoUrl}
-                    startAtSeconds={activeResult.playbackStartSeconds ?? activeResult.seekStartSeconds}
-                    playbackSegments={searchPlaybackSegments(activeResult, recordingItems)}
+                    camera={playbackResult.note}
+                    time={playbackResult.displayDateTime || playbackResult.time}
+                    videoUrl={playbackResult.videoUrl}
+                    startAtSeconds={playbackResult.playbackStartSeconds ?? playbackResult.seekStartSeconds}
+                    playbackSegments={searchPlaybackSegments(playbackResult, recordingItems)}
                     wide
                   />
-                  <Timeline activeResult={activeResult} results={visibleResults} onSelect={setActiveResult} />
+                  <Timeline
+                    activeResult={playbackResult}
+                    results={activeResult.relatedScenes?.length ? activeResult.relatedScenes : [activeResult]}
+                    onSelect={setActiveScene}
+                  />
                   <div className="button-row">
                     <button className="secondary-button" onClick={() => stepResult(-1)}><Icon>skip_previous</Icon>이전 결과</button>
                     <button className="primary-button" onClick={() => stepResult(1)}>다음 결과<Icon>skip_next</Icon></button>
@@ -1872,13 +1909,13 @@ export default function App() {
                     <div className="brand-mark answer-mark"><PawMark /></div>
                     <div>
                       <span>AI 답변</span>
-                      <p>{answer || `${activeResult.displayDateTime || activeResult.time} 시각에서 ${activeResult.note}이 확인됐어요.`}</p>
+                      <p>{answer || `${playbackResult.displayDateTime || playbackResult.time} 시각에서 ${playbackResult.note}이 확인됐어요.`}</p>
                     </div>
                   </div>
-                  <p className="section-kicker">검색된 장면 {visibleResults.length}개</p>
+                  <p className="section-kicker">검색된 영상 {visibleResults.length}개</p>
                   <div className="side-results">
                     {visibleResults.map((result) => (
-                      <button className={result.id === activeResult.id ? "side-result active" : "side-result"} key={result.id} onClick={() => setActiveResult(result)}>
+                      <button className={result.id === activeResult.id ? "side-result active" : "side-result"} key={result.id} onClick={() => selectResult(result)}>
                         <div style={result.thumbnailUrl ? { backgroundImage: `url(${result.thumbnailUrl})` } : { background: gradients[result.thumb] }} />
                         <span>{result.displayDateTime || result.time}</span>
                         <strong>{result.note}</strong>
@@ -2407,15 +2444,15 @@ function Timeline({
   onSelect: (result: SearchResult) => void;
 }) {
   const sameVideoResults = results.filter((result) => {
-    if (activeResult.videoUrl && result.videoUrl) return result.videoUrl === activeResult.videoUrl;
     if (activeResult.videoId && result.videoId) return result.videoId === activeResult.videoId;
+    if (activeResult.videoUrl && result.videoUrl) return result.videoUrl === activeResult.videoUrl;
     return true;
   });
 
   const maxResultSecond = Math.max(
     60,
-    ...sameVideoResults.map((result) => result.playbackStartSeconds ?? result.startSeconds ?? 0),
-    activeResult.playbackStartSeconds ?? activeResult.startSeconds ?? 0,
+    ...sameVideoResults.map((result) => result.timelineSeconds ?? result.playbackStartSeconds ?? result.startSeconds ?? 0),
+    activeResult.timelineSeconds ?? activeResult.playbackStartSeconds ?? activeResult.startSeconds ?? 0,
   );
   const timelineDuration = Math.ceil(maxResultSecond / 15) * 15;
   const tickStep = timelineDuration <= 60 ? 15 : timelineDuration <= 180 ? 30 : 60;
@@ -2425,7 +2462,7 @@ function Timeline({
   );
 
   const timelinePercent = (result: SearchResult) => {
-    const second = result.playbackStartSeconds ?? result.startSeconds ?? 0;
+    const second = result.timelineSeconds ?? result.playbackStartSeconds ?? result.startSeconds ?? 0;
     return Math.min(100, Math.max(0, (second / timelineDuration) * 100));
   };
 

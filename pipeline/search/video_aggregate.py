@@ -346,6 +346,57 @@ def resolve_subject_tracks(video_path: Path, verified: list[dict[str, Any]],
     return verified
 
 
+def verify_resets(video_path: Path, intent: dict[str, str],
+                  verified: list[dict[str, Any]], ask_json: Any) -> list[dict[str, Any]]:
+    """Check intervening frames before accepting another entry by the same animal."""
+    last_by_track: dict[str, dict[str, Any]] = {}
+    for item in sorted(verified, key=lambda x: x["candidate"]["time"]):
+        row = item.get("observation") or {}
+        if row.get("status") != "confirmed":
+            continue
+        track = str(row.get("track_id") or "unknown")
+        if track == "unknown":
+            continue
+        current_before = _finite_time(row.get("before_time"), 0, video_duration(video_path))
+        current_after = _finite_time(row.get("after_time"), 0, video_duration(video_path))
+        if current_before is None or current_after is None:
+            continue
+        previous = last_by_track.get(track)
+        if previous is None:
+            last_by_track[track] = item
+            continue
+        previous_after = float(previous["observation"]["after_time"])
+        if current_before <= previous_after:
+            continue
+        span = current_before - previous_after
+        frames = sample_frames(video_path, previous_after, current_before,
+                               max(0.25, span / 16))
+        prompt = (
+            "You are checking whether one animal RESET between two candidate "
+            "entries into a target state. Look at ALL timestamped frames. Return "
+            "JSON {\"reset_visible\":boolean,\"reset_time\":number|null,"
+            "\"same_subject\":boolean,\"reason\":string}. The first event "
+            "already reached after_state at the beginning. For a second count, "
+            "the SAME animal must visibly return to before_state at reset_time "
+            "after that first event and before the proposed next transition. "
+            "Elapsed time, a camera cut, or a different animal in before_state is "
+            "not proof. If uncertain, reset_visible=false. "
+            f"Intent: {json.dumps(intent, ensure_ascii=False)}. "
+            f"Stable track: {track}. Previous after time: {previous_after:.3f}s. "
+            f"Next claimed before time: {current_before:.3f}s."
+        )
+        check = ask_json(prompt, frames)
+        item["reset_check"] = check
+        reset = _finite_time(check.get("reset_time") if isinstance(check, dict) else None,
+                             previous_after, current_before)
+        if (isinstance(check, dict) and check.get("reset_visible") is True
+                and check.get("same_subject") is True and reset is not None
+                and previous_after < reset <= current_before):
+            row["reset_time"] = reset
+            last_by_track[track] = item
+    return verified
+
+
 def reduce_transitions(verified: list[dict[str, Any]]) -> dict[str, Any]:
     """Count only proven state entries; never merge distinct animals by time gap."""
     confirmed, uncertain, rejected, duplicates = [], [], [], []
@@ -363,9 +414,18 @@ def reduce_transitions(verified: list[dict[str, Any]]) -> dict[str, Any]:
                   "start_time": _finite_time(row.get("start_time"), start, end),
                   "end_time": _finite_time(row.get("end_time"), start, end),
                   "before_time": before, "after_time": after,
-                  "reset_time": _finite_time(row.get("reset_time"), start, end),
+                  # A reset can happen long before this candidate's short
+                  # verification clip; it is checked in the intervening video.
+                  "reset_time": _finite_time(row.get("reset_time"), 0, float("inf")),
                   "reason": str(row.get("reason") or ""), "model_status": status,
                   "model_subject_id": row.get("subject_id")}
+        reset_check = item.get("reset_check")
+        if reset_check is not None and not (
+            isinstance(reset_check, dict)
+            and reset_check.get("reset_visible") is True
+            and reset_check.get("same_subject") is True
+        ):
+            record["reset_time"] = None
         if status == "rejected":
             rejected.append(record)
             continue
@@ -428,6 +488,7 @@ def analyze_video_count(video_path: Path, query: str, ask_json: Any,
     if resolve_tracks:
         try:
             verified = resolve_subject_tracks(video_path, verified, ask_json)
+            verified = verify_resets(video_path, intent, verified, ask_json)
             track_status = "model_resolved"
         except Exception as exc:
             # Preserve all expensive scan and evidence responses. A failed ID
