@@ -1,0 +1,385 @@
+{
+  "video_id": "smartbench_0747",
+  "fps": 0.5,
+  "events": [
+    {
+      "video_id": "smartbench_0747",
+      "start_time": 30.0,
+      "end_time": 42.0,
+      "subject": "반려동물",
+      "action": "반려동물이 무엇인가를 탐색하는 것으로 보임",
+      "target_object": null,
+      "summary": "반려동물이 주변을 탐색하는 모습이 포착됨.",
+      "duration": 12.0,
+      "repeat_count": 1,
+      "confidence": 0.8,
+      "interestingness": 0.9,
+      "evidence": [
+        "반려동물이 카메라에 가까이 다가감",
+        "주변 환경을 관찰하는 듯한 모습"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 30.0,
+          "object_labels": [
+            "cat"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 32.0,
+          "object_labels": [
+            "cat"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 34.0,
+          "object_labels": [
+            "cat"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 38.0,
+          "object_labels": [
+            "cat"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 40.0,
+          "object_labels": [
+            "cat"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 42.0,
+          "object_labels": [
+            "cat"
+          ]
+        }
+      ]
+    },
+    {
+      "video_id": "smartbench_0747",
+      "start_time": 20.0,
+      "end_time": 24.0,
+      "subject": "반려동물",
+      "action": "반려동물이 잎사귀에 가까이 다가가는 것으로 보임",
+      "target_object": null,
+      "summary": "반려동물이 잎사귀를 탐색하는 행동을 보임",
+      "duration": 4.0,
+      "repeat_count": 1,
+      "confidence": 0.7,
+      "interestingness": 0.8,
+      "evidence": [
+        "반려동물이 나뭇잎에 머리를 가까이 대고 있는 모습",
+        "잎사귀 주변에서 움직이고 있는 모습"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 20.0,
+          "object_labels": [
+            "cat"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 22.0,
+          "object_labels": [
+            "cat"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 24.0,
+          "object_labels": [
+            "cat"
+          ]
+        }
+      ]
+    },
+    {
+      "video_id": "smartbench_0747",
+      "start_time": 10.0,
+      "end_time": 18.0,
+      "subject": "반려동물",
+      "action": "반려동물이 무언가에 가까이 다가가는 것으로 보임",
+      "target_object": null,
+      "summary": "반려동물이 주변의 나뭇잎에 관심을 보이는 모습입니다.",
+      "duration": 8.0,
+      "repeat_count": 1,
+      "confidence": 0.7,
+      "interestingness": 0.7,
+      "evidence": [
+        "반려동물이 나뭇잎 주변으로 움직임",
+        "반려동물이 나뭇잎에 가까이 접근함"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 10.0,
+          "object_labels": [
+            "cat"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 12.0,
+          "object_labels": [
+            "cat"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 14.0,
+          "object_labels": [
+            "cat"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 18.0,
+          "object_labels": [
+            "cat"
+          ]
+        }
+      ]
+    },
+    {
+      "video_id": "smartbench_0747",
+      "start_time": 28.0,
+      "end_time": 32.0,
+      "subject": "반려동물",
+      "action": "반려동물이 카메라를 향해 가까이 다가오는 것으로 보임",
+      "target_object": null,
+      "summary": "반려동물이 카메라쪽으로 접근하고 있는 모습이 확인됨",
+      "duration": 4.0,
+      "repeat_count": 1,
+      "confidence": 0.7,
+      "interestingness": 0.7,
+      "evidence": [
+        "반려동물이 카메라 렌즈 가까이 다가오는 모습",
+        "명확한 행동이나 상호작용은 관찰되지 않음"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 28.0,
+          "object_labels": [
+            "cat"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 30.0,
+          "object_labels": [
+            "cat"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 32.0,
+          "object_labels": [
+            "cat"
+          ]
+        }
+      ]
+    },
+    {
+      "video_id": "smartbench_0747",
+      "start_time": 8.0,
+      "end_time": 10.0,
+      "subject": "반려동물",
+      "action": "반려동물이 무엇을 하는 것으로 보임",
+      "target_object": null,
+      "summary": "반려동물이 특정 장소에서 놀고 있는 것으로 보임",
+      "duration": 2.0,
+      "repeat_count": 1,
+      "confidence": 0.7,
+      "interestingness": 0.7,
+      "evidence": [
+        "반려동물이 어떤 물체에 다가간 후 돌아서는 모습이 관찰됨",
+        "반복적인 행동이 없는 단일 이벤트로 확인됨"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 8.0,
+          "object_labels": [
+            "cat"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 10.0,
+          "object_labels": [
+            "cat"
+          ]
+        }
+      ]
+    },
+    {
+      "video_id": "smartbench_0747",
+      "start_time": 44.0,
+      "end_time": 46.0,
+      "subject": "반려동물",
+      "action": "반려동물이 주변 소리에 반응하는 것으로 보임",
+      "target_object": null,
+      "summary": "반려동물이 무엇인가를 듣고 반응하는 듯한 모습.",
+      "duration": 2.0,
+      "repeat_count": 1,
+      "confidence": 0.7,
+      "interestingness": 0.7,
+      "evidence": [
+        "반려동물이 소리를 듣는 듯 고개를 기울임",
+        "주변의 시각적 변화에 반응하는 것처럼 보임"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 44.0,
+          "object_labels": [
+            "cat"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 46.0,
+          "object_labels": [
+            "cat"
+          ]
+        }
+      ]
+    },
+    {
+      "video_id": "smartbench_0747",
+      "start_time": 2.0,
+      "end_time": 4.0,
+      "subject": "반려동물",
+      "action": "반려동물이 무엇을 하는 것으로 보임",
+      "target_object": null,
+      "summary": "반려동물이 특정 물체에 관심을 보이는 것으로 보임",
+      "duration": 2.0,
+      "repeat_count": 1,
+      "confidence": 0.7,
+      "interestingness": 0.6,
+      "evidence": [
+        "반려동물이 물체에 가까이 다가가는 모습이 관찰됨",
+        "동작의 연속성 있는 행동이 확인됨"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 2.0,
+          "object_labels": [
+            "cat"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 4.0,
+          "object_labels": [
+            "cat"
+          ]
+        }
+      ]
+    },
+    {
+      "video_id": "smartbench_0747",
+      "start_time": 40.0,
+      "end_time": 42.0,
+      "subject": "반려동물",
+      "action": "반려동물이 나무 위에서 이동하는 것으로 보임",
+      "target_object": null,
+      "summary": "반려동물이 나무 위에서 뭔가를 하며 이동하는 듯 보임.",
+      "duration": 2.0,
+      "repeat_count": 1,
+      "confidence": 0.7,
+      "interestingness": 0.6,
+      "evidence": [
+        "반려동물이 나무 가지에 위치함",
+        "반려동물이 움직임"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 40.0,
+          "object_labels": [
+            "cat"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 42.0,
+          "object_labels": [
+            "cat"
+          ]
+        }
+      ]
+    },
+    {
+      "video_id": "smartbench_0747",
+      "start_time": 42.0,
+      "end_time": 44.0,
+      "subject": "반려동물",
+      "action": "반려동물이 주변을 바라보는 것으로 보임",
+      "target_object": null,
+      "summary": "반려동물이 주변을 관찰하는 듯한 행동을 보임.",
+      "duration": 2.0,
+      "repeat_count": 1,
+      "confidence": 0.6,
+      "interestingness": 0.5,
+      "evidence": [
+        "반려동물이 고개를 돌리는 동작",
+        "주변 환경을 확인하는 모습"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 42.0,
+          "object_labels": [
+            "cat"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 44.0,
+          "object_labels": [
+            "cat"
+          ]
+        }
+      ]
+    }
+  ]
+}

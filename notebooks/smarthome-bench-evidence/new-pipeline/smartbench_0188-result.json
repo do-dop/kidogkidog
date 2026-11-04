@@ -1,0 +1,647 @@
+{
+  "confirmed_count": 0,
+  "uncertain_count": 0,
+  "confirmed": [],
+  "uncertain": [],
+  "rejected": [
+    {
+      "candidate_time": 12.75,
+      "subject_id": "하얀 강아지",
+      "start_time": 11.5,
+      "end_time": 14.25,
+      "before_time": 11.5,
+      "after_time": null,
+      "reset_time": null,
+      "reason": "The dog's body never fully transitioned onto the fence; only the front paws are on the fence, not all four.",
+      "model_status": "rejected"
+    },
+    {
+      "candidate_time": 28.25,
+      "subject_id": "white dog",
+      "start_time": 27.0,
+      "end_time": 29.75,
+      "before_time": 27.0,
+      "after_time": null,
+      "reset_time": null,
+      "reason": "The dog never reaches a state where all four legs are on the fence; it only approaches the fence with its front paws.",
+      "model_status": "rejected"
+    },
+    {
+      "candidate_time": 31.75,
+      "subject_id": "white dog",
+      "start_time": 30.5,
+      "end_time": 31.75,
+      "before_time": 30.5,
+      "after_time": 31.75,
+      "reset_time": null,
+      "reason": "The white dog is initially on the ground and completes a transition to have all four paws on top of the fence by 31.750 seconds.",
+      "model_status": "rejected"
+    },
+    {
+      "candidate_time": 32.0,
+      "subject_id": "흰색 강아지",
+      "start_time": null,
+      "end_time": 32.0,
+      "before_time": null,
+      "after_time": 31.75,
+      "reset_time": null,
+      "reason": "The dog is not visibly in the after_state with all four legs on top of the fence. Only partial movement and no full completion of the specified action is observed.",
+      "model_status": "rejected"
+    }
+  ],
+  "duplicates": [],
+  "video": "/Users/taehee/Documents/jolup_project/data/videos/smartbench_0188.mp4",
+  "query": "강아지가 울타리에 몇 번 올라탔어?",
+  "intent": {
+    "subject": "강아지",
+    "action": "올라탔다",
+    "target": "울타리",
+    "before_state": "한 강아지의 네 발 모두가 땅에 있음",
+    "after_state": "그 강아지의 네 발 모두가 울타리 위에 있음",
+    "exclusion": "앞발만 올리거나 발을 울타리에 가까이 두는 것"
+  },
+  "candidates": [
+    {
+      "time": 12.75,
+      "subject": "하얀 강아지",
+      "reason": "The dog's paws are visible above the fence, indicating it is midway through the transition of climbing onto the fence.",
+      "window": 2
+    },
+    {
+      "time": 28.25,
+      "subject": "white dog",
+      "reason": "The dog is midway through jumping over the fence with all four legs off the ground, transitioning to being on top of the fence.",
+      "window": 6
+    },
+    {
+      "time": 31.75,
+      "subject": "강아지",
+      "reason": "The dog is visibly midway over the fence, indicating a transition to being fully on top.",
+      "window": 7
+    },
+    {
+      "time": 32.0,
+      "subject": "흰색 강아지",
+      "reason": "The dog's four legs are visibly on top of the fence after jumping over it.",
+      "window": 8
+    }
+  ],
+  "scan_log": [
+    {
+      "window": {
+        "core_start": 0.0,
+        "core_end": 4.0,
+        "start": 0.0,
+        "end": 4.75
+      },
+      "response": {
+        "candidates": []
+      },
+      "frame_times": [
+        0.0,
+        0.5,
+        1.0,
+        1.5,
+        2.0,
+        2.5,
+        3.0,
+        3.5,
+        4.0,
+        4.5,
+        4.75
+      ]
+    },
+    {
+      "window": {
+        "core_start": 4.0,
+        "core_end": 8.0,
+        "start": 3.25,
+        "end": 8.75
+      },
+      "response": {
+        "candidates": []
+      },
+      "frame_times": [
+        3.25,
+        3.75,
+        4.25,
+        4.75,
+        5.25,
+        5.75,
+        6.25,
+        6.75,
+        7.25,
+        7.75,
+        8.25,
+        8.75
+      ]
+    },
+    {
+      "window": {
+        "core_start": 8.0,
+        "core_end": 12.0,
+        "start": 7.25,
+        "end": 12.75
+      },
+      "response": {
+        "candidates": [
+          {
+            "time": 12.75,
+            "subject": "하얀 강아지",
+            "reason": "The dog's paws are visible above the fence, indicating it is midway through the transition of climbing onto the fence."
+          }
+        ]
+      },
+      "frame_times": [
+        7.25,
+        7.75,
+        8.25,
+        8.75,
+        9.25,
+        9.75,
+        10.25,
+        10.75,
+        11.25,
+        11.75,
+        12.25,
+        12.75
+      ]
+    },
+    {
+      "window": {
+        "core_start": 12.0,
+        "core_end": 16.0,
+        "start": 11.25,
+        "end": 16.75
+      },
+      "response": {
+        "candidates": []
+      },
+      "frame_times": [
+        11.25,
+        11.75,
+        12.25,
+        12.75,
+        13.25,
+        13.75,
+        14.25,
+        14.75,
+        15.25,
+        15.75,
+        16.25,
+        16.75
+      ]
+    },
+    {
+      "window": {
+        "core_start": 16.0,
+        "core_end": 20.0,
+        "start": 15.25,
+        "end": 20.75
+      },
+      "response": {
+        "candidates": []
+      },
+      "frame_times": [
+        15.25,
+        15.75,
+        16.25,
+        16.75,
+        17.25,
+        17.75,
+        18.25,
+        18.75,
+        19.25,
+        19.75,
+        20.25,
+        20.75
+      ]
+    },
+    {
+      "window": {
+        "core_start": 20.0,
+        "core_end": 24.0,
+        "start": 19.25,
+        "end": 24.75
+      },
+      "response": {
+        "candidates": []
+      },
+      "frame_times": [
+        19.25,
+        19.75,
+        20.25,
+        20.75,
+        21.25,
+        21.75,
+        22.25,
+        22.75,
+        23.25,
+        23.75,
+        24.25,
+        24.75
+      ]
+    },
+    {
+      "window": {
+        "core_start": 24.0,
+        "core_end": 28.0,
+        "start": 23.25,
+        "end": 28.75
+      },
+      "response": {
+        "candidates": [
+          {
+            "time": 28.25,
+            "subject": "white dog",
+            "reason": "The dog is midway through jumping over the fence with all four legs off the ground, transitioning to being on top of the fence."
+          }
+        ]
+      },
+      "frame_times": [
+        23.25,
+        23.75,
+        24.25,
+        24.75,
+        25.25,
+        25.75,
+        26.25,
+        26.75,
+        27.25,
+        27.75,
+        28.25,
+        28.75
+      ]
+    },
+    {
+      "window": {
+        "core_start": 28.0,
+        "core_end": 32.0,
+        "start": 27.25,
+        "end": 32.75
+      },
+      "response": {
+        "candidates": [
+          {
+            "time": 31.75,
+            "subject": "강아지",
+            "reason": "The dog is visibly midway over the fence, indicating a transition to being fully on top."
+          }
+        ]
+      },
+      "frame_times": [
+        27.25,
+        27.75,
+        28.25,
+        28.75,
+        29.25,
+        29.75,
+        30.25,
+        30.75,
+        31.25,
+        31.75,
+        32.25,
+        32.75
+      ]
+    },
+    {
+      "window": {
+        "core_start": 32.0,
+        "core_end": 36.0,
+        "start": 31.25,
+        "end": 36.75
+      },
+      "response": {
+        "candidates": [
+          {
+            "time": 32.0,
+            "subject": "흰색 강아지",
+            "reason": "The dog's four legs are visibly on top of the fence after jumping over it."
+          }
+        ]
+      },
+      "frame_times": [
+        31.25,
+        31.75,
+        32.25,
+        32.75,
+        33.25,
+        33.75,
+        34.25,
+        34.75,
+        35.25,
+        35.75,
+        36.25,
+        36.75
+      ]
+    },
+    {
+      "window": {
+        "core_start": 36.0,
+        "core_end": 40.0,
+        "start": 35.25,
+        "end": 40.75
+      },
+      "response": {
+        "candidates": []
+      },
+      "frame_times": [
+        35.25,
+        35.75,
+        36.25,
+        36.75,
+        37.25,
+        37.75,
+        38.25,
+        38.75,
+        39.25,
+        39.75,
+        40.25,
+        40.75
+      ]
+    },
+    {
+      "window": {
+        "core_start": 40.0,
+        "core_end": 44.0,
+        "start": 39.25,
+        "end": 44.75
+      },
+      "response": {
+        "candidates": []
+      },
+      "frame_times": [
+        39.25,
+        39.75,
+        40.25,
+        40.75,
+        41.25,
+        41.75,
+        42.25,
+        42.75,
+        43.25,
+        43.75,
+        44.25,
+        44.75
+      ]
+    },
+    {
+      "window": {
+        "core_start": 44.0,
+        "core_end": 48.0,
+        "start": 43.25,
+        "end": 48.75
+      },
+      "response": {
+        "candidates": []
+      },
+      "frame_times": [
+        43.25,
+        43.75,
+        44.25,
+        44.75,
+        45.25,
+        45.75,
+        46.25,
+        46.75,
+        47.25,
+        47.75,
+        48.25,
+        48.75
+      ]
+    },
+    {
+      "window": {
+        "core_start": 48.0,
+        "core_end": 52.0,
+        "start": 47.25,
+        "end": 52.75
+      },
+      "response": {
+        "candidates": []
+      },
+      "frame_times": [
+        47.25,
+        47.75,
+        48.25,
+        48.75,
+        49.25,
+        49.75,
+        50.25,
+        50.75,
+        51.25,
+        51.75,
+        52.25,
+        52.75
+      ]
+    },
+    {
+      "window": {
+        "core_start": 52.0,
+        "core_end": 56.0,
+        "start": 51.25,
+        "end": 56.26454166666666
+      },
+      "response": {
+        "candidates": []
+      },
+      "frame_times": [
+        51.25,
+        51.75,
+        52.25,
+        52.75,
+        53.25,
+        53.75,
+        54.25,
+        54.75,
+        55.25,
+        55.75
+      ]
+    },
+    {
+      "window": {
+        "core_start": 56.0,
+        "core_end": 56.26454166666666,
+        "start": 55.25,
+        "end": 56.26454166666666
+      },
+      "response": {
+        "candidates": []
+      },
+      "frame_times": [
+        55.25,
+        55.75
+      ]
+    }
+  ],
+  "verifications": [
+    {
+      "candidate": {
+        "time": 12.75,
+        "subject": "하얀 강아지",
+        "reason": "The dog's paws are visible above the fence, indicating it is midway through the transition of climbing onto the fence.",
+        "window": 2
+      },
+      "frame_times": [
+        11.5,
+        11.75,
+        12.0,
+        12.25,
+        12.5,
+        12.75,
+        13.0,
+        13.25,
+        13.5,
+        13.75,
+        14.0,
+        14.25
+      ],
+      "observation": {
+        "subject_id": "하얀 강아지",
+        "start_time": 11.5,
+        "end_time": 14.25,
+        "before_time": 11.5,
+        "after_time": null,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "The dog's body never fully transitioned onto the fence; only the front paws are on the fence, not all four."
+      },
+      "clip": [
+        11.5,
+        14.25
+      ]
+    },
+    {
+      "candidate": {
+        "time": 28.25,
+        "subject": "white dog",
+        "reason": "The dog is midway through jumping over the fence with all four legs off the ground, transitioning to being on top of the fence.",
+        "window": 6
+      },
+      "frame_times": [
+        27.0,
+        27.25,
+        27.5,
+        27.75,
+        28.0,
+        28.25,
+        28.5,
+        28.75,
+        29.0,
+        29.25,
+        29.5,
+        29.75
+      ],
+      "observation": {
+        "subject_id": "white dog",
+        "start_time": 27.0,
+        "end_time": 29.75,
+        "before_time": 27.0,
+        "after_time": null,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "The dog never reaches a state where all four legs are on the fence; it only approaches the fence with its front paws."
+      },
+      "clip": [
+        27.0,
+        29.75
+      ]
+    },
+    {
+      "candidate": {
+        "time": 31.75,
+        "subject": "강아지",
+        "reason": "The dog is visibly midway over the fence, indicating a transition to being fully on top.",
+        "window": 7
+      },
+      "frame_times": [
+        30.5,
+        30.75,
+        31.0,
+        31.25,
+        31.5,
+        31.75,
+        32.0,
+        32.25,
+        32.5,
+        32.75,
+        33.0,
+        33.25
+      ],
+      "observation": {
+        "subject_id": "white dog",
+        "start_time": 30.5,
+        "end_time": 31.75,
+        "before_time": 30.5,
+        "after_time": 31.75,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "The white dog is initially on the ground and completes a transition to have all four paws on top of the fence by 31.750 seconds.",
+        "evidence_check_reason": "First frame is already in the process of climbing, failing before state visibility. Second frame does not show clear after state with four paws on the fence."
+      },
+      "clip": [
+        30.5,
+        33.25
+      ],
+      "evidence_check": {
+        "status": "rejected",
+        "before_state_visible": false,
+        "after_state_visible": false,
+        "same_subject_visible": false,
+        "subject_id": null,
+        "reason": "First frame is already in the process of climbing, failing before state visibility. Second frame does not show clear after state with four paws on the fence."
+      },
+      "repair": {
+        "subject_id": null,
+        "start_time": null,
+        "end_time": null,
+        "before_time": null,
+        "after_time": null,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "No visible frame shows the designated before state where the dog's four paws are all on the ground or the complete after state with all four paws on the fence."
+      }
+    },
+    {
+      "candidate": {
+        "time": 32.0,
+        "subject": "흰색 강아지",
+        "reason": "The dog's four legs are visibly on top of the fence after jumping over it.",
+        "window": 8
+      },
+      "frame_times": [
+        30.75,
+        31.0,
+        31.25,
+        31.5,
+        31.75,
+        32.0,
+        32.25,
+        32.5,
+        32.75,
+        33.0,
+        33.25,
+        33.5
+      ],
+      "observation": {
+        "subject_id": "흰색 강아지",
+        "start_time": null,
+        "end_time": 32.0,
+        "before_time": null,
+        "after_time": 31.75,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "The dog is not visibly in the after_state with all four legs on top of the fence. Only partial movement and no full completion of the specified action is observed."
+      },
+      "clip": [
+        30.75,
+        33.5
+      ]
+    }
+  ],
+  "models": {
+    "scan_and_intent": "gpt-4o",
+    "verify": "gpt-4o"
+  },
+  "coverage_note": "All timeline windows scanned at coarse_step; brief actions may still be missed."
+}

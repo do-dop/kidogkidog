@@ -1,0 +1,214 @@
+{
+  "video": "data/videos/smartbench_0037.mp4",
+  "action": "반려동물 앞발이 문에 실제로 닿아 있는 상태. 문 가까이 서 있기만 하는 경우는 제외한다",
+  "step": 0.5,
+  "window": 4.0,
+  "model": "gpt-4o-mini",
+  "results": [
+    {
+      "window": [
+        0.0,
+        3.5
+      ],
+      "states": [
+        {
+          "t": 0.0,
+          "state": "inactive"
+        },
+        {
+          "t": 0.5,
+          "state": "inactive"
+        },
+        {
+          "t": 1.0,
+          "state": "active"
+        },
+        {
+          "t": 1.5,
+          "state": "active"
+        },
+        {
+          "t": 2.0,
+          "state": "active"
+        },
+        {
+          "t": 2.5,
+          "state": "inactive"
+        },
+        {
+          "t": 3.0,
+          "state": "inactive"
+        },
+        {
+          "t": 3.5,
+          "state": "inactive"
+        },
+        {
+          "t": 3.0,
+          "state": "inactive"
+        }
+      ],
+      "raw": null
+    },
+    {
+      "window": [
+        4.0,
+        7.5
+      ],
+      "states": [
+        {
+          "t": 4.0,
+          "state": "active"
+        },
+        {
+          "t": 4.5,
+          "state": "active"
+        },
+        {
+          "t": 5.0,
+          "state": "active"
+        },
+        {
+          "t": 5.5,
+          "state": "inactive"
+        },
+        {
+          "t": 6.0,
+          "state": "inactive"
+        },
+        {
+          "t": 6.5,
+          "state": "inactive"
+        },
+        {
+          "t": 7.0,
+          "state": "inactive"
+        },
+        {
+          "t": 7.5,
+          "state": "inactive"
+        },
+        {
+          "t": 7.5,
+          "state": "active"
+        }
+      ],
+      "raw": null
+    },
+    {
+      "window": [
+        8.0,
+        11.5
+      ],
+      "states": [
+        {
+          "t": 0.0,
+          "state": "active"
+        },
+        {
+          "t": 8.5,
+          "state": "active"
+        },
+        {
+          "t": 9.0,
+          "state": "active"
+        },
+        {
+          "t": 9.5,
+          "state": "active"
+        },
+        {
+          "t": 10.0,
+          "state": "active"
+        },
+        {
+          "t": 10.5,
+          "state": "active"
+        },
+        {
+          "t": 11.0,
+          "state": "active"
+        },
+        {
+          "t": 11.5,
+          "state": "unclear"
+        }
+      ],
+      "raw": null
+    },
+    {
+      "window": [
+        12.0,
+        15.5
+      ],
+      "states": [
+        {
+          "t": 12.0,
+          "state": "inactive"
+        },
+        {
+          "t": 12.5,
+          "state": "inactive"
+        },
+        {
+          "t": 13.0,
+          "state": "inactive"
+        },
+        {
+          "t": 13.5,
+          "state": "inactive"
+        },
+        {
+          "t": 14.0,
+          "state": "inactive"
+        },
+        {
+          "t": 14.5,
+          "state": "inactive"
+        },
+        {
+          "t": 15.0,
+          "state": "inactive"
+        },
+        {
+          "t": 15.5,
+          "state": "inactive"
+        }
+      ],
+      "raw": null
+    },
+    {
+      "window": [
+        16.0,
+        18.5
+      ],
+      "states": [
+        {
+          "t": 16.0,
+          "state": "inactive"
+        },
+        {
+          "t": 16.5,
+          "state": "inactive"
+        },
+        {
+          "t": 17.0,
+          "state": "inactive"
+        },
+        {
+          "t": 17.5,
+          "state": "inactive"
+        },
+        {
+          "t": 18.0,
+          "state": "inactive"
+        },
+        {
+          "t": 18.5,
+          "state": "inactive"
+        }
+      ],
+      "raw": null
+    }
+  ]
+}

@@ -1,0 +1,186 @@
+{
+  "video_id": "smartbench_0065",
+  "fps": 0.5,
+  "events": [
+    {
+      "video_id": "smartbench_0065",
+      "start_time": 18.0,
+      "end_time": 22.0,
+      "subject": "반려동물",
+      "action": "반려동물이 소파에서 나오는 것으로 보임",
+      "target_object": null,
+      "summary": "반려동물이 소파에서 내려오고 있다.",
+      "duration": 4.0,
+      "repeat_count": 1,
+      "confidence": 0.9,
+      "interestingness": 0.8,
+      "evidence": [
+        "반려동물이 소파 가장자리를 넘는 모습이 보임",
+        "반려동물이 소파에서 사용 가능한 공간으로 이동하고 있음"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 18.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 20.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 22.0,
+          "object_labels": [
+            "dog"
+          ]
+        }
+      ]
+    },
+    {
+      "video_id": "smartbench_0065",
+      "start_time": 10.0,
+      "end_time": 18.0,
+      "subject": "반려동물",
+      "action": "반려동물이 빠르게 움직이는 것으로 보임",
+      "target_object": null,
+      "summary": "반려동물이 장면에서 빠르게 움직이고 있다.",
+      "duration": 8.0,
+      "repeat_count": 1,
+      "confidence": 0.8,
+      "interestingness": 0.7,
+      "evidence": [
+        "반려동물이 소파 위에서 빠르게 이동하고 있음",
+        "장면 변화에 따른 반려동물의 위치 변화"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 10.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 12.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 14.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 18.0,
+          "object_labels": [
+            "dog"
+          ]
+        }
+      ]
+    },
+    {
+      "video_id": "smartbench_0065",
+      "start_time": 20.0,
+      "end_time": 22.0,
+      "subject": "반려동물",
+      "action": "반려동물이 소파 위로 올라가고 있는 것으로 보임",
+      "target_object": null,
+      "summary": "반려동물이 소파 위로 올라가는 행동을 하고 있습니다.",
+      "duration": 2.0,
+      "repeat_count": 1,
+      "confidence": 0.8,
+      "interestingness": 0.7,
+      "evidence": [
+        "반려동물이 소파를 이용해 이동하고 있음",
+        "소파에 올라가는 자세가 관찰됨"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 20.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 22.0,
+          "object_labels": [
+            "dog"
+          ]
+        }
+      ]
+    },
+    {
+      "video_id": "smartbench_0065",
+      "start_time": 4.0,
+      "end_time": 12.0,
+      "subject": "반려동물",
+      "action": "반려동물이 방 안에서 이동하는 것으로 보임",
+      "target_object": null,
+      "summary": "반려동물이 방 안에서 움직이고 있는 모습입니다.",
+      "duration": 8.0,
+      "repeat_count": 1,
+      "confidence": 0.7,
+      "interestingness": 0.7,
+      "evidence": [
+        "반려동물이 프레임 중앙에서 이동하고 있는 모습",
+        "주변 환경이 변화하는 모습이 관찰됨"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 4.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 8.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 10.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 12.0,
+          "object_labels": [
+            "dog"
+          ]
+        }
+      ]
+    }
+  ]
+}

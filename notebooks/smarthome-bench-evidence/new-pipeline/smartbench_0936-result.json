@@ -1,0 +1,605 @@
+{
+  "confirmed_count": 3,
+  "uncertain_count": 2,
+  "confirmed": [
+    {
+      "candidate_time": 4.75,
+      "subject_id": "black and white puppy",
+      "start_time": 4.75,
+      "end_time": 5.0,
+      "before_time": 3.5,
+      "after_time": 4.75,
+      "reset_time": null,
+      "reason": "The black and white puppy's front paw is seen lifted off the floor by 4.75s.",
+      "model_status": "confirmed"
+    },
+    {
+      "candidate_time": 9.25,
+      "subject_id": "black and white dog",
+      "start_time": 8.0,
+      "end_time": 10.0,
+      "before_time": 8.0,
+      "after_time": 9.25,
+      "reset_time": null,
+      "reason": "The dog's front paw is seen touching the floor at the start and lifted off the floor by 9.250s.",
+      "model_status": "confirmed"
+    },
+    {
+      "candidate_time": 19.25,
+      "subject_id": "puppy_1",
+      "start_time": 16.75,
+      "end_time": 21.5,
+      "before_time": 18.0,
+      "after_time": 19.25,
+      "reset_time": 19.75,
+      "reason": "The same puppy is visible with a front paw touching the floor at 18.000s and the same paw lifted at 19.250s.",
+      "model_status": "confirmed"
+    }
+  ],
+  "uncertain": [
+    {
+      "candidate_time": 7.75,
+      "subject_id": "black and white puppy",
+      "start_time": 6.5,
+      "end_time": 9.25,
+      "before_time": 7.0,
+      "after_time": 7.75,
+      "reset_time": null,
+      "reason": "The puppy's front paw was initially touching the floor and is fully lifted off the floor by 7.75 seconds.",
+      "model_status": "confirmed",
+      "review_reason": "같은 개체의 새로운 진입 전 이탈/리셋 근거 없음"
+    },
+    {
+      "candidate_time": 15.75,
+      "subject_id": "black and white dog",
+      "start_time": 14.5,
+      "end_time": 16.0,
+      "before_time": 14.5,
+      "after_time": 15.5,
+      "reset_time": null,
+      "reason": "Front paw observed lifted off the floor starting at 15.5s",
+      "model_status": "confirmed",
+      "review_reason": "같은 개체의 새로운 진입 전 이탈/리셋 근거 없음"
+    }
+  ],
+  "rejected": [
+    {
+      "candidate_time": 6.25,
+      "subject_id": "black and white puppy",
+      "start_time": 5.0,
+      "end_time": 7.5,
+      "before_time": 5.0,
+      "after_time": 6.25,
+      "reset_time": null,
+      "reason": "The black and white puppy's front paw was observed touching the floor at 5.0 seconds, and is visibly off the floor by 6.25 seconds.",
+      "model_status": "rejected"
+    }
+  ],
+  "duplicates": [],
+  "video": "/Users/taehee/Documents/jolup_project/data/videos/smartbench_0936.mp4",
+  "query": "강아지가 유리문 앞에서 앞발을 몇 번 들었다 내렸어? 뒷발이 바닥에 남아도 포함해.",
+  "intent": {
+    "subject": "puppy",
+    "action": "lift and lower",
+    "target": "front paw",
+    "before_state": "one puppy's front paw touching floor",
+    "after_state": "that same puppy's front paw off floor",
+    "exclusion": "hind paw remaining on floor is included"
+  },
+  "candidates": [
+    {
+      "time": 4.75,
+      "subject": "black and white puppy",
+      "reason": "Paw lifted off the floor visible through the window.",
+      "window": 1
+    },
+    {
+      "time": 6.25,
+      "subject": "black and white puppy",
+      "reason": "Front paw lifted off the floor while looking outside.",
+      "window": 1
+    },
+    {
+      "time": 7.75,
+      "subject": "black and white puppy",
+      "reason": "Paw lifted and body balanced on hind legs.",
+      "window": 1
+    },
+    {
+      "time": 9.25,
+      "subject": "black and white dog",
+      "reason": "front paw lifted",
+      "window": 2
+    },
+    {
+      "time": 15.75,
+      "subject": "black and white dog",
+      "reason": "front paw lifted off the floor",
+      "window": 3
+    },
+    {
+      "time": 19.25,
+      "subject": "black and white dog",
+      "reason": "front paw visibly off the floor",
+      "window": 4
+    }
+  ],
+  "scan_log": [
+    {
+      "window": {
+        "core_start": 0.0,
+        "core_end": 4.0,
+        "start": 0.0,
+        "end": 4.75
+      },
+      "response": {
+        "candidates": []
+      },
+      "frame_times": [
+        0.0,
+        0.5,
+        1.0,
+        1.5,
+        2.0,
+        2.5,
+        3.0,
+        3.5,
+        4.0,
+        4.5,
+        4.75
+      ]
+    },
+    {
+      "window": {
+        "core_start": 4.0,
+        "core_end": 8.0,
+        "start": 3.25,
+        "end": 8.75
+      },
+      "response": {
+        "candidates": [
+          {
+            "time": 4.75,
+            "subject": "black and white puppy",
+            "reason": "Paw lifted off the floor visible through the window."
+          },
+          {
+            "time": 6.25,
+            "subject": "black and white puppy",
+            "reason": "Front paw lifted off the floor while looking outside."
+          },
+          {
+            "time": 7.75,
+            "subject": "black and white puppy",
+            "reason": "Paw lifted and body balanced on hind legs."
+          }
+        ]
+      },
+      "frame_times": [
+        3.25,
+        3.75,
+        4.25,
+        4.75,
+        5.25,
+        5.75,
+        6.25,
+        6.75,
+        7.25,
+        7.75,
+        8.25,
+        8.75
+      ]
+    },
+    {
+      "window": {
+        "core_start": 8.0,
+        "core_end": 12.0,
+        "start": 7.25,
+        "end": 12.75
+      },
+      "response": {
+        "candidates": [
+          {
+            "time": 9.25,
+            "subject": "black and white dog",
+            "reason": "front paw lifted"
+          }
+        ]
+      },
+      "frame_times": [
+        7.25,
+        7.75,
+        8.25,
+        8.75,
+        9.25,
+        9.75,
+        10.25,
+        10.75,
+        11.25,
+        11.75,
+        12.25,
+        12.75
+      ]
+    },
+    {
+      "window": {
+        "core_start": 12.0,
+        "core_end": 16.0,
+        "start": 11.25,
+        "end": 16.75
+      },
+      "response": {
+        "candidates": [
+          {
+            "time": 15.75,
+            "subject": "black and white dog",
+            "reason": "front paw lifted off the floor"
+          }
+        ]
+      },
+      "frame_times": [
+        11.25,
+        11.75,
+        12.25,
+        12.75,
+        13.25,
+        13.75,
+        14.25,
+        14.75,
+        15.25,
+        15.75,
+        16.25,
+        16.75
+      ]
+    },
+    {
+      "window": {
+        "core_start": 16.0,
+        "core_end": 20.0,
+        "start": 15.25,
+        "end": 20.75
+      },
+      "response": {
+        "candidates": [
+          {
+            "time": 19.25,
+            "subject": "black and white dog",
+            "reason": "front paw visibly off the floor"
+          }
+        ]
+      },
+      "frame_times": [
+        15.25,
+        15.75,
+        16.25,
+        16.75,
+        17.25,
+        17.75,
+        18.25,
+        18.75,
+        19.25,
+        19.75,
+        20.25,
+        20.75
+      ]
+    },
+    {
+      "window": {
+        "core_start": 20.0,
+        "core_end": 21.76167076167076,
+        "start": 19.25,
+        "end": 21.76167076167076
+      },
+      "response": {
+        "candidates": []
+      },
+      "frame_times": [
+        19.25,
+        19.75,
+        20.25,
+        20.75,
+        21.25
+      ]
+    }
+  ],
+  "verifications": [
+    {
+      "candidate": {
+        "time": 4.75,
+        "subject": "black and white puppy",
+        "reason": "Paw lifted off the floor visible through the window.",
+        "window": 1
+      },
+      "frame_times": [
+        3.5,
+        3.75,
+        4.0,
+        4.25,
+        4.5,
+        4.75,
+        5.0,
+        5.25,
+        5.5,
+        5.75,
+        6.0,
+        6.25
+      ],
+      "observation": {
+        "subject_id": "black and white puppy",
+        "start_time": 4.75,
+        "end_time": 5,
+        "before_time": 3.5,
+        "after_time": 4.75,
+        "reset_time": null,
+        "status": "confirmed",
+        "reason": "The black and white puppy's front paw is seen lifted off the floor by 4.75s."
+      },
+      "clip": [
+        3.5,
+        6.25
+      ],
+      "evidence_check": {
+        "status": "confirmed",
+        "before_state_visible": true,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": "black and white puppy",
+        "reason": "The same puppy is visible in both frames. In the first frame, its front paw is on the floor, and in the second frame, it is off the floor."
+      }
+    },
+    {
+      "candidate": {
+        "time": 6.25,
+        "subject": "black and white puppy",
+        "reason": "Front paw lifted off the floor while looking outside.",
+        "window": 1
+      },
+      "frame_times": [
+        5.0,
+        5.25,
+        5.5,
+        5.75,
+        6.0,
+        6.25,
+        6.5,
+        6.75,
+        7.0,
+        7.25,
+        7.5,
+        7.75
+      ],
+      "observation": {
+        "subject_id": "black and white puppy",
+        "start_time": 5.0,
+        "end_time": 7.5,
+        "before_time": 5.0,
+        "after_time": 6.25,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "The black and white puppy's front paw was observed touching the floor at 5.0 seconds, and is visibly off the floor by 6.25 seconds.",
+        "evidence_check_reason": "The 'after state' is not met as the visible action is both front paws not touching the ground, suggesting a jump or paw-raise rather than lifting a single front paw with the hind paws remaining on the floor."
+      },
+      "clip": [
+        5.0,
+        7.75
+      ],
+      "evidence_check": {
+        "status": "rejected",
+        "before_state_visible": true,
+        "after_state_visible": false,
+        "same_subject_visible": true,
+        "subject_id": "unknown",
+        "reason": "The 'after state' is not met as the visible action is both front paws not touching the ground, suggesting a jump or paw-raise rather than lifting a single front paw with the hind paws remaining on the floor."
+      },
+      "repair": {
+        "subject_id": "unknown",
+        "start_time": null,
+        "end_time": null,
+        "before_time": null,
+        "after_time": null,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "The 'after state' is not observed. The visible actions show both front paws lifted, suggesting a jump instead of a single front paw lift with the hind paws remaining on the floor."
+      }
+    },
+    {
+      "candidate": {
+        "time": 7.75,
+        "subject": "black and white puppy",
+        "reason": "Paw lifted and body balanced on hind legs.",
+        "window": 1
+      },
+      "frame_times": [
+        6.5,
+        6.75,
+        7.0,
+        7.25,
+        7.5,
+        7.75,
+        8.0,
+        8.25,
+        8.5,
+        8.75,
+        9.0,
+        9.25
+      ],
+      "observation": {
+        "subject_id": "black and white puppy",
+        "start_time": 6.5,
+        "end_time": 9.25,
+        "before_time": 7.0,
+        "after_time": 7.75,
+        "reset_time": null,
+        "status": "confirmed",
+        "reason": "The puppy's front paw was initially touching the floor and is fully lifted off the floor by 7.75 seconds."
+      },
+      "clip": [
+        6.5,
+        9.25
+      ],
+      "evidence_check": {
+        "status": "confirmed",
+        "before_state_visible": true,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": "puppy",
+        "reason": "The same puppy is visible in both frames, with the front paw on the floor in the first frame and lifted in the second frame, confirming the event."
+      }
+    },
+    {
+      "candidate": {
+        "time": 9.25,
+        "subject": "black and white dog",
+        "reason": "front paw lifted",
+        "window": 2
+      },
+      "frame_times": [
+        8.0,
+        8.25,
+        8.5,
+        8.75,
+        9.0,
+        9.25,
+        9.5,
+        9.75,
+        10.0,
+        10.25,
+        10.5,
+        10.75
+      ],
+      "observation": {
+        "subject_id": "black and white dog",
+        "start_time": 8.0,
+        "end_time": 10.0,
+        "before_time": 8.0,
+        "after_time": 9.25,
+        "reset_time": null,
+        "status": "confirmed",
+        "reason": "The dog's front paw is seen touching the floor at the start and lifted off the floor by 9.250s."
+      },
+      "clip": [
+        8.0,
+        10.75
+      ],
+      "evidence_check": {
+        "status": "confirmed",
+        "before_state_visible": true,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": "black and white dog",
+        "reason": "The black and white dog is visible in both frames. In the first frame, one front paw is touching the floor. In the second frame, the same front paw is off the floor."
+      }
+    },
+    {
+      "candidate": {
+        "time": 15.75,
+        "subject": "black and white dog",
+        "reason": "front paw lifted off the floor",
+        "window": 3
+      },
+      "frame_times": [
+        14.5,
+        14.75,
+        15.0,
+        15.25,
+        15.5,
+        15.75,
+        16.0,
+        16.25,
+        16.5,
+        16.75,
+        17.0,
+        17.25
+      ],
+      "observation": {
+        "subject_id": "black and white dog",
+        "start_time": 14.5,
+        "end_time": 16.0,
+        "before_time": 14.5,
+        "after_time": 15.5,
+        "reset_time": null,
+        "status": "confirmed",
+        "reason": "Front paw observed lifted off the floor starting at 15.5s"
+      },
+      "clip": [
+        14.5,
+        17.25
+      ],
+      "evidence_check": {
+        "status": "confirmed",
+        "before_state_visible": true,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": "puppy",
+        "reason": "The same puppy is visible in both frames with the front paw first touching the floor and then off the floor, confirming the lift action."
+      }
+    },
+    {
+      "candidate": {
+        "time": 19.25,
+        "subject": "black and white dog",
+        "reason": "front paw visibly off the floor",
+        "window": 4
+      },
+      "frame_times": [
+        18.0,
+        18.25,
+        18.5,
+        18.75,
+        19.0,
+        19.25,
+        19.5,
+        19.75,
+        20.0,
+        20.25,
+        20.5,
+        20.75
+      ],
+      "observation": {
+        "subject_id": "puppy_1",
+        "start_time": 16.75,
+        "end_time": 21.5,
+        "before_time": 18.0,
+        "after_time": 19.25,
+        "reset_time": 19.75,
+        "status": "confirmed",
+        "reason": "The same puppy is visible with a front paw touching the floor at 18.000s and the same paw lifted at 19.250s."
+      },
+      "clip": [
+        16.75,
+        21.75
+      ],
+      "evidence_check": {
+        "status": "uncertain",
+        "before_state_visible": true,
+        "after_state_visible": true,
+        "same_subject_visible": false,
+        "subject_id": "unknown",
+        "reason": "Unable to confirm if the same individual is in both frames due to indistinguishable features."
+      },
+      "repair": {
+        "subject_id": "puppy_1",
+        "start_time": 16.75,
+        "end_time": 21.5,
+        "before_time": 18.0,
+        "after_time": 19.25,
+        "reset_time": 19.75,
+        "status": "confirmed",
+        "reason": "The same puppy is visible with a front paw touching the floor at 18.000s and the same paw lifted at 19.250s."
+      },
+      "repair_evidence_check": {
+        "status": "confirmed",
+        "before_state_visible": true,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": "puppy_1",
+        "reason": "The same puppy is visible in both frames, initially with a front paw touching the floor, and then with it off the floor."
+      }
+    }
+  ],
+  "models": {
+    "scan_and_intent": "gpt-4o",
+    "verify": "gpt-4o"
+  },
+  "coverage_note": "All timeline windows scanned at coarse_step; brief actions may still be missed."
+}

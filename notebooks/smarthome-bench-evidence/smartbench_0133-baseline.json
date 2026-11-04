@@ -1,0 +1,178 @@
+{
+  "video_id": "smartbench_0133",
+  "fps": 0.5,
+  "events": [
+    {
+      "video_id": "smartbench_0133",
+      "start_time": 14.0,
+      "end_time": 16.0,
+      "subject": "반려동물",
+      "action": "반려동물이 빠르게 움직이는 것으로 보임",
+      "target_object": null,
+      "summary": "반려동물이 빠르게 이동하며 다른 방향으로 향하고 있습니다.",
+      "duration": 2.0,
+      "repeat_count": 1,
+      "confidence": 0.7,
+      "interestingness": 0.8,
+      "evidence": [
+        "반려동물이 빠른 속도로 움직이고 있는 모습이 관찰됨",
+        "새로운 위치로 이동하고 있는 것으로 보임"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 14.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 16.0,
+          "object_labels": [
+            "dog"
+          ]
+        }
+      ]
+    },
+    {
+      "video_id": "smartbench_0133",
+      "start_time": 12.0,
+      "end_time": 14.0,
+      "subject": "반려동물",
+      "action": "반려동물이 이동하는 것으로 보임",
+      "target_object": null,
+      "summary": "반려동물이 주변을 탐색하며 이동하고 있습니다.",
+      "duration": 2.0,
+      "repeat_count": 1,
+      "confidence": 0.7,
+      "interestingness": 0.7,
+      "evidence": [
+        "반려동물이 행동하는 방향으로 움직이고 있는 모습이 보임",
+        "주변에 대한 탐색 행동이 감지됨"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 12.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 14.0,
+          "object_labels": [
+            "dog"
+          ]
+        }
+      ]
+    },
+    {
+      "video_id": "smartbench_0133",
+      "start_time": 0.0,
+      "end_time": 12.0,
+      "subject": "반려동물",
+      "action": "반려동물이 주변을 배회하는 것으로 보임",
+      "target_object": null,
+      "summary": "반려동물이 집안에서 움직이며 주위를 둘러보고 있습니다.",
+      "duration": 12.0,
+      "repeat_count": 1,
+      "confidence": 0.7,
+      "interestingness": 0.6,
+      "evidence": [
+        "반려동물이 여러 번 카메라 앞을 지나다님",
+        "정지된 모습이나 특정 행동이 관찰되지 않음"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 0.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 2.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 4.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 8.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 10.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 12.0,
+          "object_labels": [
+            "dog"
+          ]
+        }
+      ]
+    },
+    {
+      "video_id": "smartbench_0133",
+      "start_time": 10.0,
+      "end_time": 12.0,
+      "subject": "반려동물",
+      "action": "반려동물이 특정 방향으로 돌아서는 것으로 보임",
+      "target_object": null,
+      "summary": "반려동물이 특정 방향으로 움직이며 돌아서고 있습니다.",
+      "duration": 2.0,
+      "repeat_count": 1,
+      "confidence": 0.7,
+      "interestingness": 0.6,
+      "evidence": [
+        "반려동물이 몸을 돌리고 있는 모습이 관찰됨",
+        "행동 지속 시간이 짧음"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 10.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 12.0,
+          "object_labels": [
+            "dog"
+          ]
+        }
+      ]
+    }
+  ]
+}

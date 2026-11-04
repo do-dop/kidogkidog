@@ -1,0 +1,618 @@
+{
+  "confirmed_count": 0,
+  "uncertain_count": 2,
+  "confirmed": [],
+  "uncertain": [
+    {
+      "candidate_time": 20.75,
+      "subject_id": "black dog",
+      "start_time": 19.75,
+      "end_time": 21.0,
+      "before_time": 19.75,
+      "after_time": 21.0,
+      "reset_time": null,
+      "reason": "Black dog's whole body visible on sofa seat at 21.000s after being on floor at 19.750s.",
+      "model_status": "uncertain",
+      "review_reason": "전후 상태 또는 개체를 확인하지 못함"
+    },
+    {
+      "candidate_time": 21.25,
+      "subject_id": "black dog",
+      "start_time": null,
+      "end_time": 21.25,
+      "before_time": null,
+      "after_time": 21.25,
+      "reset_time": null,
+      "reason": "The black dog's whole body is visibly on the sofa seat by 21.250s.",
+      "model_status": "uncertain",
+      "review_reason": "전후 상태 또는 개체를 확인하지 못함"
+    }
+  ],
+  "rejected": [
+    {
+      "candidate_time": 2.5,
+      "subject_id": "black dog",
+      "start_time": 1.25,
+      "end_time": 2.75,
+      "before_time": 2.0,
+      "after_time": 2.75,
+      "reset_time": null,
+      "reason": "The black dog is seen jumping onto the sofa, and by 2.750s, its whole body is on the sofa seat, fulfilling the transition requirement.",
+      "model_status": "rejected"
+    },
+    {
+      "candidate_time": 5.25,
+      "subject_id": "black dog",
+      "start_time": 4.0,
+      "end_time": 6.75,
+      "before_time": 4.0,
+      "after_time": 5.0,
+      "reset_time": null,
+      "reason": "The black dog's entire body is on the sofa seat at t=5.000s.",
+      "model_status": "rejected"
+    },
+    {
+      "candidate_time": 8.75,
+      "subject_id": "black dog",
+      "start_time": 7.75,
+      "end_time": null,
+      "before_time": 8.25,
+      "after_time": null,
+      "reset_time": null,
+      "reason": "The black dog is not fully seen on the sofa in any given frame, only nearby or with partial body visible.",
+      "model_status": "rejected"
+    },
+    {
+      "candidate_time": 15.25,
+      "subject_id": "black dog",
+      "start_time": 14.5,
+      "end_time": 15.25,
+      "before_time": 14.5,
+      "after_time": 15.5,
+      "reset_time": null,
+      "reason": "The black dog's whole body is on the sofa seat by 15.500 seconds.",
+      "model_status": "rejected"
+    }
+  ],
+  "duplicates": [],
+  "video": "/Users/taehee/Documents/jolup_project/data/videos/smartbench_0065.mp4",
+  "query": "강아지가 소파 좌석 위에 몇 번 올라갔어? 검은 소파와 회색 소파를 모두 세어.",
+  "intent": {
+    "subject": "강아지",
+    "action": "올라갔어",
+    "target": "소파 좌석 위",
+    "before_state": "one dog's whole body on floor",
+    "after_state": "that same dog's whole body on sofa seat",
+    "exclusion": "near sofa or front paws only"
+  },
+  "candidates": [
+    {
+      "time": 2.5,
+      "subject": "black dog",
+      "reason": "The black dog is seen in mid-jump onto the sofa seat, and then its whole body appears on the sofa.",
+      "window": 0
+    },
+    {
+      "time": 5.25,
+      "subject": "black dog",
+      "reason": "Entire body on sofa seat",
+      "window": 1
+    },
+    {
+      "time": 8.75,
+      "subject": "black dog",
+      "reason": "Visible transition from floor to sofa with whole body on sofa in following frame.",
+      "window": 2
+    },
+    {
+      "time": 15.25,
+      "subject": "black dog",
+      "reason": "dog appears fully on sofa seat",
+      "window": 3
+    },
+    {
+      "time": 20.75,
+      "subject": "black dog",
+      "reason": "entire body on sofa seat",
+      "window": 4
+    },
+    {
+      "time": 21.25,
+      "subject": "black dog",
+      "reason": "dog's whole body is on the sofa seat",
+      "window": 5
+    }
+  ],
+  "scan_log": [
+    {
+      "window": {
+        "core_start": 0.0,
+        "core_end": 4.0,
+        "start": 0.0,
+        "end": 4.75
+      },
+      "response": {
+        "candidates": [
+          {
+            "time": 2.5,
+            "subject": "black dog",
+            "reason": "The black dog is seen in mid-jump onto the sofa seat, and then its whole body appears on the sofa."
+          }
+        ]
+      },
+      "frame_times": [
+        0.0,
+        0.5,
+        1.0,
+        1.5,
+        2.0,
+        2.5,
+        3.0,
+        3.5,
+        4.0,
+        4.5,
+        4.75
+      ]
+    },
+    {
+      "window": {
+        "core_start": 4.0,
+        "core_end": 8.0,
+        "start": 3.25,
+        "end": 8.75
+      },
+      "response": {
+        "candidates": [
+          {
+            "time": 5.25,
+            "subject": "black dog",
+            "reason": "Entire body on sofa seat"
+          }
+        ]
+      },
+      "frame_times": [
+        3.25,
+        3.75,
+        4.25,
+        4.75,
+        5.25,
+        5.75,
+        6.25,
+        6.75,
+        7.25,
+        7.75,
+        8.25,
+        8.75
+      ]
+    },
+    {
+      "window": {
+        "core_start": 8.0,
+        "core_end": 12.0,
+        "start": 7.25,
+        "end": 12.75
+      },
+      "response": {
+        "candidates": [
+          {
+            "time": 8.75,
+            "subject": "black dog",
+            "reason": "Visible transition from floor to sofa with whole body on sofa in following frame."
+          }
+        ]
+      },
+      "frame_times": [
+        7.25,
+        7.75,
+        8.25,
+        8.75,
+        9.25,
+        9.75,
+        10.25,
+        10.75,
+        11.25,
+        11.75,
+        12.25,
+        12.75
+      ]
+    },
+    {
+      "window": {
+        "core_start": 12.0,
+        "core_end": 16.0,
+        "start": 11.25,
+        "end": 16.75
+      },
+      "response": {
+        "candidates": [
+          {
+            "time": 15.25,
+            "subject": "black dog",
+            "reason": "dog appears fully on sofa seat"
+          }
+        ]
+      },
+      "frame_times": [
+        11.25,
+        11.75,
+        12.25,
+        12.75,
+        13.25,
+        13.75,
+        14.25,
+        14.75,
+        15.25,
+        15.75,
+        16.25,
+        16.75
+      ]
+    },
+    {
+      "window": {
+        "core_start": 16.0,
+        "core_end": 20.0,
+        "start": 15.25,
+        "end": 20.75
+      },
+      "response": {
+        "candidates": [
+          {
+            "time": 20.75,
+            "subject": "black dog",
+            "reason": "entire body on sofa seat"
+          }
+        ]
+      },
+      "frame_times": [
+        15.25,
+        15.75,
+        16.25,
+        16.75,
+        17.25,
+        17.75,
+        18.25,
+        18.75,
+        19.25,
+        19.75,
+        20.25,
+        20.75
+      ]
+    },
+    {
+      "window": {
+        "core_start": 20.0,
+        "core_end": 23.56520833333333,
+        "start": 19.25,
+        "end": 23.56520833333333
+      },
+      "response": {
+        "candidates": [
+          {
+            "time": 21.25,
+            "subject": "black dog",
+            "reason": "dog's whole body is on the sofa seat"
+          }
+        ]
+      },
+      "frame_times": [
+        19.25,
+        19.75,
+        20.25,
+        20.75,
+        21.25,
+        21.75,
+        22.25,
+        22.75,
+        23.25
+      ]
+    }
+  ],
+  "verifications": [
+    {
+      "candidate": {
+        "time": 2.5,
+        "subject": "black dog",
+        "reason": "The black dog is seen in mid-jump onto the sofa seat, and then its whole body appears on the sofa.",
+        "window": 0
+      },
+      "frame_times": [
+        1.25,
+        1.5,
+        1.75,
+        2.0,
+        2.25,
+        2.5,
+        2.75,
+        3.0,
+        3.25,
+        3.5,
+        3.75,
+        4.0
+      ],
+      "observation": {
+        "subject_id": "black dog",
+        "start_time": 1.25,
+        "end_time": 2.75,
+        "before_time": 2.0,
+        "after_time": 2.75,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "The black dog is seen jumping onto the sofa, and by 2.750s, its whole body is on the sofa seat, fulfilling the transition requirement.",
+        "evidence_check_reason": "The first frame does not show any dog with its whole body on the floor; thus, it fails the before_state requirement."
+      },
+      "clip": [
+        1.25,
+        4.0
+      ],
+      "evidence_check": {
+        "status": "rejected",
+        "before_state_visible": false,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": null,
+        "reason": "The first frame does not show any dog with its whole body on the floor; thus, it fails the before_state requirement."
+      },
+      "repair": {
+        "subject_id": null,
+        "start_time": 1.0,
+        "end_time": 2.75,
+        "before_time": 2.0,
+        "after_time": 2.75,
+        "reset_time": null,
+        "status": "uncertain",
+        "reason": "The transition of a dog from an unknown state to wholly on the sofa seat occurs, but the before_state of the whole body on the floor is not visible."
+      }
+    },
+    {
+      "candidate": {
+        "time": 5.25,
+        "subject": "black dog",
+        "reason": "Entire body on sofa seat",
+        "window": 1
+      },
+      "frame_times": [
+        4.0,
+        4.25,
+        4.5,
+        4.75,
+        5.0,
+        5.25,
+        5.5,
+        5.75,
+        6.0,
+        6.25,
+        6.5,
+        6.75
+      ],
+      "observation": {
+        "subject_id": "black dog",
+        "start_time": 4.0,
+        "end_time": 6.75,
+        "before_time": 4.0,
+        "after_time": 5.0,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "The black dog's entire body is on the sofa seat at t=5.000s.",
+        "evidence_check_reason": "Before state does not clearly show the dog's whole body on the floor."
+      },
+      "clip": [
+        4.0,
+        6.75
+      ],
+      "evidence_check": {
+        "status": "rejected",
+        "before_state_visible": false,
+        "after_state_visible": true,
+        "same_subject_visible": false,
+        "subject_id": null,
+        "reason": "Before state does not clearly show the dog's whole body on the floor."
+      },
+      "repair": {
+        "subject_id": null,
+        "start_time": null,
+        "end_time": null,
+        "before_time": null,
+        "after_time": null,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "No frames show the same dog wholly on the floor before being wholly on the sofa. The requirement of the sequence showing the entire transition is not met."
+      }
+    },
+    {
+      "candidate": {
+        "time": 8.75,
+        "subject": "black dog",
+        "reason": "Visible transition from floor to sofa with whole body on sofa in following frame.",
+        "window": 2
+      },
+      "frame_times": [
+        7.5,
+        7.75,
+        8.0,
+        8.25,
+        8.5,
+        8.75,
+        9.0,
+        9.25,
+        9.5,
+        9.75,
+        10.0,
+        10.25
+      ],
+      "observation": {
+        "subject_id": "black dog",
+        "start_time": 7.75,
+        "end_time": null,
+        "before_time": 8.25,
+        "after_time": null,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "The black dog is not fully seen on the sofa in any given frame, only nearby or with partial body visible."
+      },
+      "clip": [
+        7.5,
+        10.25
+      ]
+    },
+    {
+      "candidate": {
+        "time": 15.25,
+        "subject": "black dog",
+        "reason": "dog appears fully on sofa seat",
+        "window": 3
+      },
+      "frame_times": [
+        14.0,
+        14.25,
+        14.5,
+        14.75,
+        15.0,
+        15.25,
+        15.5,
+        15.75,
+        16.0,
+        16.25,
+        16.5,
+        16.75
+      ],
+      "observation": {
+        "subject_id": "black dog",
+        "start_time": 14.5,
+        "end_time": 15.25,
+        "before_time": 14.5,
+        "after_time": 15.5,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "The black dog's whole body is on the sofa seat by 15.500 seconds.",
+        "evidence_check_reason": "The second frame does not show the dog in the 'after_state' on the sofa seat."
+      },
+      "clip": [
+        14.0,
+        16.75
+      ],
+      "evidence_check": {
+        "status": "rejected",
+        "before_state_visible": true,
+        "after_state_visible": false,
+        "same_subject_visible": false,
+        "subject_id": null,
+        "reason": "The second frame does not show the dog in the 'after_state' on the sofa seat."
+      },
+      "repair": {
+        "subject_id": null,
+        "start_time": 13.5,
+        "end_time": 15.25,
+        "before_time": 14.5,
+        "after_time": null,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "The same dog is not wholly visible on the sofa; the intended transition was not visible."
+      }
+    },
+    {
+      "candidate": {
+        "time": 20.75,
+        "subject": "black dog",
+        "reason": "entire body on sofa seat",
+        "window": 4
+      },
+      "frame_times": [
+        19.5,
+        19.75,
+        20.0,
+        20.25,
+        20.5,
+        20.75,
+        21.0,
+        21.25,
+        21.5,
+        21.75,
+        22.0,
+        22.25
+      ],
+      "observation": {
+        "subject_id": "black dog",
+        "start_time": 19.75,
+        "end_time": 21.0,
+        "before_time": 19.75,
+        "after_time": 21.0,
+        "reset_time": null,
+        "status": "uncertain",
+        "reason": "Black dog's whole body visible on sofa seat at 21.000s after being on floor at 19.750s.",
+        "evidence_check_reason": "The first frame does not provide visibility of the dog on the floor, making it unclear if it was the same dog seen on the sofa in the second frame."
+      },
+      "clip": [
+        19.5,
+        22.25
+      ],
+      "evidence_check": {
+        "status": "uncertain",
+        "before_state_visible": false,
+        "after_state_visible": true,
+        "same_subject_visible": false,
+        "subject_id": "black dog",
+        "reason": "The first frame does not provide visibility of the dog on the floor, making it unclear if it was the same dog seen on the sofa in the second frame."
+      },
+      "repair": {
+        "subject_id": "black dog",
+        "start_time": 18.25,
+        "end_time": 23.25,
+        "before_time": 18.25,
+        "after_time": 21.25,
+        "reset_time": null,
+        "status": "confirmed",
+        "reason": "The black dog is seen running on the floor starting at 18.250s, with its whole body clearly visible on the floor. By 21.250s, the same dog is fully visible on the sofa seat, confirming the transition."
+      },
+      "repair_evidence_check": {
+        "status": "uncertain",
+        "before_state_visible": true,
+        "after_state_visible": true,
+        "same_subject_visible": false,
+        "subject_id": "unknown",
+        "reason": "The subject cannot be clearly identified as the same in both frames due to motion blur and partial visibility."
+      }
+    },
+    {
+      "candidate": {
+        "time": 21.25,
+        "subject": "black dog",
+        "reason": "dog's whole body is on the sofa seat",
+        "window": 5
+      },
+      "frame_times": [
+        20.0,
+        20.25,
+        20.5,
+        20.75,
+        21.0,
+        21.25,
+        21.5,
+        21.75,
+        22.0,
+        22.25,
+        22.5,
+        22.75
+      ],
+      "observation": {
+        "subject_id": "black dog",
+        "start_time": null,
+        "end_time": 21.25,
+        "before_time": null,
+        "after_time": 21.25,
+        "reset_time": null,
+        "status": "uncertain",
+        "reason": "The black dog's whole body is visibly on the sofa seat by 21.250s.",
+        "evidence_check_reason": "전후 근거 시각이 유효하지 않음"
+      },
+      "clip": [
+        20.0,
+        22.75
+      ]
+    }
+  ],
+  "models": {
+    "scan_and_intent": "gpt-4o",
+    "verify": "gpt-4o"
+  },
+  "coverage_note": "All timeline windows scanned at coarse_step; brief actions may still be missed."
+}

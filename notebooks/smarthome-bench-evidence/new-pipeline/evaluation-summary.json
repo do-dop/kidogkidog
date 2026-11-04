@@ -1,0 +1,177 @@
+{
+  "method": "Human/provisional reference labels were recorded before the new pipeline run. Per-event times for 0065 are unavailable, so only its total can be compared. Matching uses temporal overlap, not visual identity, and is an evaluation aid rather than ground truth for model calls.",
+  "cases": [
+    {
+      "video_id": "smartbench_0518",
+      "reference_kind": "assistant_frame_review_provisional",
+      "reference_confirmed": 2,
+      "reference_uncertain": 0,
+      "pipeline_confirmed": 2,
+      "pipeline_uncertain_candidates": 0,
+      "pipeline_rejected": 4,
+      "pipeline_duplicates": 0,
+      "track_status": "not_run_api_quota_exhausted",
+      "time_only_matches": {
+        "matches": [
+          {
+            "prediction_index": 0,
+            "reference_index": 1
+          },
+          {
+            "prediction_index": 1,
+            "reference_index": 0
+          }
+        ],
+        "unmatched_prediction_indices": [],
+        "missed_reference_indices": []
+      },
+      "warning": "Time match does not prove animal identity; unresolved model aliases can make a matching total misleading."
+    },
+    {
+      "video_id": "smartbench_0642",
+      "reference_kind": "assistant_frame_review_provisional",
+      "reference_confirmed": 2,
+      "reference_uncertain": 0,
+      "pipeline_confirmed": 1,
+      "pipeline_uncertain_candidates": 1,
+      "pipeline_rejected": 2,
+      "pipeline_duplicates": 0,
+      "track_status": "not_run_api_quota_exhausted",
+      "time_only_matches": {
+        "matches": [
+          {
+            "prediction_index": 0,
+            "reference_index": 0
+          }
+        ],
+        "unmatched_prediction_indices": [],
+        "missed_reference_indices": [
+          1
+        ]
+      },
+      "warning": "Time match does not prove animal identity; unresolved model aliases can make a matching total misleading."
+    },
+    {
+      "video_id": "smartbench_0608",
+      "reference_kind": "assistant_frame_review_provisional",
+      "reference_confirmed": 2,
+      "reference_uncertain": 0,
+      "pipeline_confirmed": 2,
+      "pipeline_uncertain_candidates": 1,
+      "pipeline_rejected": 1,
+      "pipeline_duplicates": 1,
+      "track_status": "not_run_api_quota_exhausted",
+      "time_only_matches": {
+        "matches": [
+          {
+            "prediction_index": 1,
+            "reference_index": 1
+          },
+          {
+            "prediction_index": 0,
+            "reference_index": 0
+          }
+        ],
+        "unmatched_prediction_indices": [],
+        "missed_reference_indices": []
+      },
+      "warning": "Time match does not prove animal identity; unresolved model aliases can make a matching total misleading."
+    },
+    {
+      "video_id": "smartbench_0142",
+      "reference_kind": "assistant_frame_review_provisional",
+      "reference_confirmed": 2,
+      "reference_uncertain": 0,
+      "pipeline_confirmed": 2,
+      "pipeline_uncertain_candidates": 2,
+      "pipeline_rejected": 1,
+      "pipeline_duplicates": 0,
+      "track_status": "not_run_api_quota_exhausted",
+      "time_only_matches": {
+        "matches": [
+          {
+            "prediction_index": 0,
+            "reference_index": 0
+          }
+        ],
+        "unmatched_prediction_indices": [
+          1
+        ],
+        "missed_reference_indices": [
+          1
+        ]
+      },
+      "warning": "Time match does not prove animal identity; unresolved model aliases can make a matching total misleading."
+    },
+    {
+      "video_id": "smartbench_0936",
+      "reference_kind": "user_count_and_provisional_frame_times",
+      "reference_confirmed": 8,
+      "reference_uncertain": 0,
+      "pipeline_confirmed": 3,
+      "pipeline_uncertain_candidates": 2,
+      "pipeline_rejected": 1,
+      "pipeline_duplicates": 0,
+      "track_status": "not_run_api_quota_exhausted",
+      "time_only_matches": {
+        "matches": [
+          {
+            "prediction_index": 1,
+            "reference_index": 5
+          },
+          {
+            "prediction_index": 2,
+            "reference_index": 7
+          },
+          {
+            "prediction_index": 0,
+            "reference_index": 2
+          }
+        ],
+        "unmatched_prediction_indices": [],
+        "missed_reference_indices": [
+          0,
+          1,
+          3,
+          4,
+          6
+        ]
+      },
+      "warning": "Time match does not prove animal identity; unresolved model aliases can make a matching total misleading."
+    },
+    {
+      "video_id": "smartbench_0065",
+      "reference_kind": "user_total_only",
+      "reference_confirmed": 4,
+      "reference_uncertain": 1,
+      "pipeline_confirmed": 0,
+      "pipeline_uncertain_candidates": 2,
+      "pipeline_rejected": 4,
+      "pipeline_duplicates": 0,
+      "track_status": "not_run_api_quota_exhausted",
+      "time_only_matches": null,
+      "warning": "Time match does not prove animal identity; unresolved model aliases can make a matching total misleading."
+    },
+    {
+      "video_id": "smartbench_0188",
+      "reference_kind": "user_reviewed_original_dog_escape_duplicate",
+      "reference_confirmed": 2,
+      "reference_uncertain": 0,
+      "pipeline_confirmed": 0,
+      "pipeline_uncertain_candidates": 0,
+      "pipeline_rejected": 4,
+      "pipeline_duplicates": 0,
+      "track_status": "not_run_api_quota_exhausted",
+      "time_only_matches": {
+        "matches": [],
+        "unmatched_prediction_indices": [],
+        "missed_reference_indices": [
+          0,
+          1
+        ]
+      },
+      "warning": "Time match does not prove animal identity; unresolved model aliases can make a matching total misleading."
+    }
+  ],
+  "pipeline_note": "These are cached model outputs before successful cross-window identity resolution. The final identity-linking API call was blocked by exhausted account credits."
+}

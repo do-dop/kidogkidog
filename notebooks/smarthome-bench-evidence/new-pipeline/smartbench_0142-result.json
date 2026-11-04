@@ -1,0 +1,597 @@
+{
+  "confirmed_count": 2,
+  "uncertain_count": 2,
+  "confirmed": [
+    {
+      "candidate_time": 10.25,
+      "subject_id": "black cat",
+      "start_time": 10.25,
+      "end_time": 11.0,
+      "before_time": 9.0,
+      "after_time": 10.25,
+      "reset_time": null,
+      "reason": "The black cat's head is raised away from the food bowl at 10.25s, completing the transition from the head lowered near the bowl at 9.0s.",
+      "model_status": "confirmed"
+    },
+    {
+      "candidate_time": 15.75,
+      "subject_id": "black and white cat",
+      "start_time": 14.5,
+      "end_time": 16.25,
+      "before_time": 14.5,
+      "after_time": 16.25,
+      "reset_time": null,
+      "reason": "The cat's head moved from a position near the food bowl to being raised and away from it.",
+      "model_status": "confirmed"
+    }
+  ],
+  "uncertain": [
+    {
+      "candidate_time": 24.25,
+      "subject_id": "black cat",
+      "start_time": 23.0,
+      "end_time": 25.0,
+      "before_time": 23.0,
+      "after_time": 25.0,
+      "reset_time": null,
+      "reason": "The black cat's head is raised and away from the food bowl.",
+      "model_status": "confirmed",
+      "review_reason": "같은 개체의 새로운 진입 전 이탈/리셋 근거 없음"
+    },
+    {
+      "candidate_time": 24.75,
+      "subject_id": "black and white cat",
+      "start_time": 23.5,
+      "end_time": 26.25,
+      "before_time": 23.5,
+      "after_time": 24.75,
+      "reset_time": null,
+      "reason": "The cat's head is visibly raised and away from the food bowl at 24.750s.",
+      "model_status": "confirmed",
+      "review_reason": "같은 개체의 새로운 진입 전 이탈/리셋 근거 없음"
+    }
+  ],
+  "rejected": [
+    {
+      "candidate_time": 16.25,
+      "subject_id": "black and white cat",
+      "start_time": 15.0,
+      "end_time": 16.25,
+      "before_time": 15.0,
+      "after_time": 16.25,
+      "reset_time": null,
+      "reason": "Head clearly lifted and turned away from food bowl by frame at 16.25s.",
+      "model_status": "rejected"
+    }
+  ],
+  "duplicates": [],
+  "video": "/Users/taehee/Documents/jolup_project/data/videos/smartbench_0142.mp4",
+  "query": "고양이가 밥을 먹다가 고개를 몇 번 들었어?",
+  "intent": {
+    "subject": "a cat",
+    "action": "lift",
+    "target": "head",
+    "before_state": "head lowered, near food bowl",
+    "after_state": "head raised, away from food bowl",
+    "exclusion": "limbs or body postures"
+  },
+  "candidates": [
+    {
+      "time": 10.25,
+      "subject": "black cat",
+      "reason": "head is raised away from the food bowl",
+      "window": 2
+    },
+    {
+      "time": 15.75,
+      "subject": "black and white cat",
+      "reason": "head raised, away from food bowl",
+      "window": 3
+    },
+    {
+      "time": 16.25,
+      "subject": "black and white cat",
+      "reason": "head lifted and turned away from food bowl",
+      "window": 4
+    },
+    {
+      "time": 24.25,
+      "subject": "black cat",
+      "reason": "head raised, away from food bowl",
+      "window": 5
+    },
+    {
+      "time": 24.75,
+      "subject": "black and white cat",
+      "reason": "head raised, away from food bowl",
+      "window": 6
+    }
+  ],
+  "scan_log": [
+    {
+      "window": {
+        "core_start": 0.0,
+        "core_end": 4.0,
+        "start": 0.0,
+        "end": 4.75
+      },
+      "response": {
+        "candidates": []
+      },
+      "frame_times": [
+        0.0,
+        0.5,
+        1.0,
+        1.5,
+        2.0,
+        2.5,
+        3.0,
+        3.5,
+        4.0,
+        4.5,
+        4.75
+      ]
+    },
+    {
+      "window": {
+        "core_start": 4.0,
+        "core_end": 8.0,
+        "start": 3.25,
+        "end": 8.75
+      },
+      "response": {
+        "candidates": []
+      },
+      "frame_times": [
+        3.25,
+        3.75,
+        4.25,
+        4.75,
+        5.25,
+        5.75,
+        6.25,
+        6.75,
+        7.25,
+        7.75,
+        8.25,
+        8.75
+      ]
+    },
+    {
+      "window": {
+        "core_start": 8.0,
+        "core_end": 12.0,
+        "start": 7.25,
+        "end": 12.75
+      },
+      "response": {
+        "candidates": [
+          {
+            "time": 10.25,
+            "subject": "black cat",
+            "reason": "head is raised away from the food bowl"
+          }
+        ]
+      },
+      "frame_times": [
+        7.25,
+        7.75,
+        8.25,
+        8.75,
+        9.25,
+        9.75,
+        10.25,
+        10.75,
+        11.25,
+        11.75,
+        12.25,
+        12.75
+      ]
+    },
+    {
+      "window": {
+        "core_start": 12.0,
+        "core_end": 16.0,
+        "start": 11.25,
+        "end": 16.75
+      },
+      "response": {
+        "candidates": [
+          {
+            "time": 15.75,
+            "subject": "black and white cat",
+            "reason": "head raised, away from food bowl"
+          }
+        ]
+      },
+      "frame_times": [
+        11.25,
+        11.75,
+        12.25,
+        12.75,
+        13.25,
+        13.75,
+        14.25,
+        14.75,
+        15.25,
+        15.75,
+        16.25,
+        16.75
+      ]
+    },
+    {
+      "window": {
+        "core_start": 16.0,
+        "core_end": 20.0,
+        "start": 15.25,
+        "end": 20.75
+      },
+      "response": {
+        "candidates": [
+          {
+            "time": 16.25,
+            "subject": "black and white cat",
+            "reason": "head lifted and turned away from food bowl"
+          }
+        ]
+      },
+      "frame_times": [
+        15.25,
+        15.75,
+        16.25,
+        16.75,
+        17.25,
+        17.75,
+        18.25,
+        18.75,
+        19.25,
+        19.75,
+        20.25,
+        20.75
+      ]
+    },
+    {
+      "window": {
+        "core_start": 20.0,
+        "core_end": 24.0,
+        "start": 19.25,
+        "end": 24.75
+      },
+      "response": {
+        "candidates": [
+          {
+            "time": 24.25,
+            "subject": "black cat",
+            "reason": "head raised, away from food bowl"
+          }
+        ]
+      },
+      "frame_times": [
+        19.25,
+        19.75,
+        20.25,
+        20.75,
+        21.25,
+        21.75,
+        22.25,
+        22.75,
+        23.25,
+        23.75,
+        24.25,
+        24.75
+      ]
+    },
+    {
+      "window": {
+        "core_start": 24.0,
+        "core_end": 28.0,
+        "start": 23.25,
+        "end": 28.75
+      },
+      "response": {
+        "candidates": [
+          {
+            "time": 24.75,
+            "subject": "black and white cat",
+            "reason": "head raised, away from food bowl"
+          }
+        ]
+      },
+      "frame_times": [
+        23.25,
+        23.75,
+        24.25,
+        24.75,
+        25.25,
+        25.75,
+        26.25,
+        26.75,
+        27.25,
+        27.75,
+        28.25,
+        28.75
+      ]
+    },
+    {
+      "window": {
+        "core_start": 28.0,
+        "core_end": 32.0,
+        "start": 27.25,
+        "end": 32.75
+      },
+      "response": {
+        "candidates": []
+      },
+      "frame_times": [
+        27.25,
+        27.75,
+        28.25,
+        28.75,
+        29.25,
+        29.75,
+        30.25,
+        30.75,
+        31.25,
+        31.75,
+        32.25,
+        32.75
+      ]
+    },
+    {
+      "window": {
+        "core_start": 32.0,
+        "core_end": 33.5335,
+        "start": 31.25,
+        "end": 33.5335
+      },
+      "response": {
+        "candidates": []
+      },
+      "frame_times": [
+        31.25,
+        31.75,
+        32.25,
+        32.75,
+        33.25
+      ]
+    }
+  ],
+  "verifications": [
+    {
+      "candidate": {
+        "time": 10.25,
+        "subject": "black cat",
+        "reason": "head is raised away from the food bowl",
+        "window": 2
+      },
+      "frame_times": [
+        9.0,
+        9.25,
+        9.5,
+        9.75,
+        10.0,
+        10.25,
+        10.5,
+        10.75,
+        11.0,
+        11.25,
+        11.5,
+        11.75
+      ],
+      "observation": {
+        "subject_id": "black cat",
+        "start_time": 10.25,
+        "end_time": 11.0,
+        "before_time": 9.0,
+        "after_time": 10.25,
+        "reset_time": null,
+        "status": "confirmed",
+        "reason": "The black cat's head is raised away from the food bowl at 10.25s, completing the transition from the head lowered near the bowl at 9.0s."
+      },
+      "clip": [
+        9.0,
+        11.75
+      ],
+      "evidence_check": {
+        "status": "confirmed",
+        "before_state_visible": true,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": "black_cat",
+        "reason": "The cat's head is lowered near the food bowl in the first frame and raised away in the second frame, confirming the 'lift' action."
+      }
+    },
+    {
+      "candidate": {
+        "time": 15.75,
+        "subject": "black and white cat",
+        "reason": "head raised, away from food bowl",
+        "window": 3
+      },
+      "frame_times": [
+        14.5,
+        14.75,
+        15.0,
+        15.25,
+        15.5,
+        15.75,
+        16.0,
+        16.25,
+        16.5,
+        16.75,
+        17.0,
+        17.25
+      ],
+      "observation": {
+        "subject_id": "black and white cat",
+        "start_time": 14.5,
+        "end_time": 16.25,
+        "before_time": 14.5,
+        "after_time": 16.25,
+        "reset_time": null,
+        "status": "confirmed",
+        "reason": "The cat's head moved from a position near the food bowl to being raised and away from it."
+      },
+      "clip": [
+        14.5,
+        17.25
+      ],
+      "evidence_check": {
+        "status": "confirmed",
+        "before_state_visible": true,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": "cat_1",
+        "reason": "The same cat appears in both frames. In the first frame, the head is near the food bowl, and in the second, it is raised and away, completing the defined action."
+      }
+    },
+    {
+      "candidate": {
+        "time": 16.25,
+        "subject": "black and white cat",
+        "reason": "head lifted and turned away from food bowl",
+        "window": 4
+      },
+      "frame_times": [
+        15.0,
+        15.25,
+        15.5,
+        15.75,
+        16.0,
+        16.25,
+        16.5,
+        16.75,
+        17.0,
+        17.25,
+        17.5,
+        17.75
+      ],
+      "observation": {
+        "subject_id": "black and white cat",
+        "start_time": 15.0,
+        "end_time": 16.25,
+        "before_time": 15.0,
+        "after_time": 16.25,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "Head clearly lifted and turned away from food bowl by frame at 16.25s.",
+        "evidence_check_reason": "Second keyframe does not clearly show the after_state with the head raised away from the bowl."
+      },
+      "clip": [
+        15.0,
+        17.75
+      ],
+      "evidence_check": {
+        "status": "rejected",
+        "before_state_visible": true,
+        "after_state_visible": false,
+        "same_subject_visible": false,
+        "subject_id": null,
+        "reason": "Second keyframe does not clearly show the after_state with the head raised away from the bowl."
+      },
+      "repair": {
+        "subject_id": null,
+        "start_time": null,
+        "end_time": null,
+        "before_time": null,
+        "after_time": null,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "No visible transition of a cat lifting its head from the bowl as described."
+      }
+    },
+    {
+      "candidate": {
+        "time": 24.25,
+        "subject": "black cat",
+        "reason": "head raised, away from food bowl",
+        "window": 5
+      },
+      "frame_times": [
+        23.0,
+        23.25,
+        23.5,
+        23.75,
+        24.0,
+        24.25,
+        24.5,
+        24.75,
+        25.0,
+        25.25,
+        25.5,
+        25.75
+      ],
+      "observation": {
+        "subject_id": "black cat",
+        "start_time": 23.0,
+        "end_time": 25.0,
+        "before_time": 23.0,
+        "after_time": 25.0,
+        "reset_time": null,
+        "status": "confirmed",
+        "reason": "The black cat's head is raised and away from the food bowl."
+      },
+      "clip": [
+        23.0,
+        25.75
+      ],
+      "evidence_check": {
+        "status": "confirmed",
+        "before_state_visible": true,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": "unknown",
+        "reason": "The same cat is visible in both frames with head lowered near the food bowl in the first frame and head raised away from the food bowl in the second frame."
+      }
+    },
+    {
+      "candidate": {
+        "time": 24.75,
+        "subject": "black and white cat",
+        "reason": "head raised, away from food bowl",
+        "window": 6
+      },
+      "frame_times": [
+        23.5,
+        23.75,
+        24.0,
+        24.25,
+        24.5,
+        24.75,
+        25.0,
+        25.25,
+        25.5,
+        25.75,
+        26.0,
+        26.25
+      ],
+      "observation": {
+        "subject_id": "black and white cat",
+        "start_time": 23.5,
+        "end_time": 26.25,
+        "before_time": 23.5,
+        "after_time": 24.75,
+        "reset_time": null,
+        "status": "confirmed",
+        "reason": "The cat's head is visibly raised and away from the food bowl at 24.750s."
+      },
+      "clip": [
+        23.5,
+        26.25
+      ],
+      "evidence_check": {
+        "status": "confirmed",
+        "before_state_visible": true,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": "black and white cat",
+        "reason": "The subject is visibly the same cat in both frames. The first frame shows the cat with its head lowered near a food bowl, and the second frame shows the cat with its head raised, away from the food bowl."
+      }
+    }
+  ],
+  "models": {
+    "scan_and_intent": "gpt-4o",
+    "verify": "gpt-4o"
+  },
+  "coverage_note": "All timeline windows scanned at coarse_step; brief actions may still be missed."
+}
