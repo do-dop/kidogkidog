@@ -30,6 +30,8 @@ def _extract_frames_with_ffmpeg(video_path, output_dir, frame_prefix, fps):
             "motion_start": 0.0,
             "motion_end": round(max(0, (len(extracted_paths) - 1) * interval), 2),
             "segment_id": 0,
+            # 움직임이 확인된 구간이 아니라 청크 전체를 뽑은 프레임이다.
+            "motion_detected": False,
         }
         for index, frame_path in enumerate(extracted_paths)
     ]
@@ -51,7 +53,8 @@ def extract_frames(video_path, output_dir="pipeline/frames", fps=0.5, frame_pref
                 "timestamp": ...,
                 "motion_start": ...,
                 "motion_end": ...,
-                "segment_id": ...
+                "segment_id": ...,
+                "motion_detected": True,  # 청크 전체 대체 추출이면 False
             },
             ...
         ]
@@ -109,6 +112,7 @@ def extract_frames(video_path, output_dir="pipeline/frames", fps=0.5, frame_pref
                 "motion_start": round(start, 2),
                 "motion_end": round(end, 2),
                 "segment_id": segment_id,
+                "motion_detected": True,
             })
 
             t += (1.0 / fps)

@@ -129,8 +129,10 @@ def extract_behavior_events(
                 model=model,
             )
             # 움직임이 감지된 구간인데 모델이 빈 결과를 주면 행동을 놓쳤을 수 있어 몇 번 더 확인한다.
+            # 움직임 감지 없이 청크 전체를 뽑은 프레임은 빈 결과가 정상이라 재시도하지 않는다.
             # 호출 실패(None)는 아래 fallback이 처리하므로 재시도하지 않는다.
-            for _ in range(EMPTY_WINDOW_RETRIES):
+            motion_based = any(frame.get("motion_detected") is True for frame in group)
+            for _ in range(EMPTY_WINDOW_RETRIES if motion_based else 0):
                 if analyzed_events != []:
                     break
                 analyzed_events = _analyze_segment_with_vlm(

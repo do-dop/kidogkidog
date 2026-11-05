@@ -94,11 +94,11 @@ class BehaviorEventWindowingTests(unittest.TestCase):
             reviewed,
         )
 
-    def _extract_with_responses(self, responses):
+    def _extract_with_responses(self, responses, motion_detected=True):
         calls = []
-        # 10초짜리 움직임 구간 하나(분석 창 하나)만 만든다.
+        # 10초짜리 구간 하나(분석 창 하나)만 만든다.
         frames = [
-            {**f, "motion_end": 10.0}
+            {**f, "motion_end": 10.0, "motion_detected": motion_detected}
             for f in self.frames if f["timestamp"] <= 10.0
         ]
 
@@ -123,6 +123,28 @@ class BehaviorEventWindowingTests(unittest.TestCase):
         events, calls = self._extract_with_responses([[]])
         self.assertEqual(len(calls), 1 + EMPTY_WINDOW_RETRIES)
         self.assertEqual(events, [])
+
+    def test_whole_chunk_frames_without_motion_are_not_retried(self):
+        # 움직임 감지 없이 청크 전체를 뽑은 구간은 빈 결과가 정상이라 한 번만 호출한다.
+        events, calls = self._extract_with_responses([[]], motion_detected=False)
+        self.assertEqual(len(calls), 1)
+        self.assertEqual(events, [])
+
+    def test_frames_without_motion_flag_are_not_retried(self):
+        frames = [
+            {**{k: v for k, v in f.items() if k != "motion_detected"}, "motion_end": 10.0}
+            for f in self.frames if f["timestamp"] <= 10.0
+        ]
+        calls = []
+
+        def fake_analyze(**kwargs):
+            calls.append(kwargs)
+            return []
+
+        with patch("pipeline.events.behavior_event_extractor._can_use_vlm", return_value=True), \
+             patch("pipeline.events.behavior_event_extractor._analyze_segment_with_vlm", side_effect=fake_analyze):
+            extract_behavior_events(indexed_frames=frames, video_id="dog_escape")
+        self.assertEqual(len(calls), 1)
 
     def test_failed_call_uses_fallback_without_retry(self):
         events, calls = self._extract_with_responses([None])
