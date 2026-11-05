@@ -1,0 +1,22 @@
+{
+  "frame_times": [
+    2.0,
+    4.0,
+    4.5,
+    5.0,
+    5.25
+  ],
+  "crop_xyxy": [
+    300,
+    300,
+    1120,
+    720
+  ],
+  "response": {
+    "same_animal": false,
+    "certain": true,
+    "two_animals_simultaneously_visible_at_4s": true,
+    "later_dog_path": "Moves from the near-right rocks into water",
+    "evidence": "At 4.0s, two dogs are clearly visible, one in the pond and one on the rocks. The dog on the rocks enters the pond at 5.0s, while the other remains in the water throughout."
+  }
+}

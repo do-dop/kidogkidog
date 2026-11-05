@@ -1,0 +1,8 @@
+{
+  "subject": "puppy",
+  "action": "enter",
+  "target": "fountain water",
+  "before_state": "one puppy's whole body outside water",
+  "after_state": "that same puppy's whole body inside water",
+  "exclusion": "front paws only in water"
+}

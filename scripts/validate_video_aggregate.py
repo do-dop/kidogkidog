@@ -78,12 +78,21 @@ def main():
     parser.add_argument("--recheck-existing", action="store_true",
                         help="Reuse stored scan/verification output; rerun only exact-frame evidence checks")
     parser.add_argument("--output", type=Path, default=PROJECT / "notebooks/smarthome-bench-evidence/new-pipeline")
+    parser.add_argument("--cache-dir", type=Path,
+                        help="Reuse model replies from another run without overwriting its result JSON")
+    parser.add_argument("--intent-file", type=Path,
+                        help="Use one fixed state-transition definition for a single video ID")
     args = parser.parse_args()
     from dotenv import load_dotenv
 
     load_dotenv(PROJECT / ".env")
     args.output.mkdir(parents=True, exist_ok=True)
-    vision = CachedVision(args.output / "api-cache", args.scan_model, args.verify_model)
+    if args.intent_file and (len(args.ids) != 1 or args.recheck_existing):
+        parser.error("--intent-file requires one ID and a fresh run")
+    intent_override = (json.loads(args.intent_file.read_text(encoding="utf-8"))
+                       if args.intent_file else None)
+    vision = CachedVision(args.cache_dir or args.output / "api-cache",
+                          args.scan_model, args.verify_model)
     for video_id in args.ids:
         path = PROJECT / "data/videos" / f"smartbench_{video_id}.mp4"
         if not path.exists():
@@ -112,7 +121,10 @@ def main():
         else:
             result = analyze_video_count(path, QUESTIONS[video_id], vision,
                                          coarse_step=args.coarse_step, fine_step=args.fine_step,
-                                         resolve_tracks=not args.skip_track)
+                                         resolve_tracks=not args.skip_track,
+                                         intent_override=intent_override)
+            result["intent_source"] = str(args.intent_file) if args.intent_file else "model"
+        result["video"] = str(path.relative_to(PROJECT))
         output.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         print(f"{video_id}: confirmed={result['confirmed_count']}, uncertain={result['uncertain_count']}, "
               f"candidates={len(result['candidates'])}; saved {output}", flush=True)

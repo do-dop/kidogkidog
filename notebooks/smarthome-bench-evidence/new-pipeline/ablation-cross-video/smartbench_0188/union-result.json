@@ -1,0 +1,1438 @@
+{
+  "confirmed_count": 2,
+  "uncertain_count": 7,
+  "confirmed": [
+    {
+      "candidate_time": 4.5,
+      "subject_id": "animal_1",
+      "start_time": 3.25,
+      "end_time": 5.25,
+      "before_time": 3.25,
+      "after_time": 5.25,
+      "reset_time": null,
+      "reason": "The white dog’s front paws and upper body are visibly supported on the fence.",
+      "model_status": "confirmed",
+      "model_subject_id": "white dog"
+    },
+    {
+      "candidate_time": 22.75,
+      "subject_id": "animal_1",
+      "start_time": 22.25,
+      "end_time": 23.75,
+      "before_time": 22.0,
+      "after_time": 23.5,
+      "reset_time": 16.766,
+      "reason": "The white dog is seen on the ground at 22.00s, and its front paws and upper body are supported on the fence by 23.50s.",
+      "model_status": "confirmed",
+      "model_subject_id": "white dog"
+    }
+  ],
+  "uncertain": [
+    {
+      "candidate_time": 8.0,
+      "subject_id": "animal_1",
+      "start_time": null,
+      "end_time": 8.5,
+      "before_time": null,
+      "after_time": 8.5,
+      "reset_time": null,
+      "reason": "The white dog's front paws and upper body are visibly supported on the fence at 8.500s.",
+      "model_status": "uncertain",
+      "model_subject_id": "white dog",
+      "review_reason": "전후 상태 또는 개체를 확인하지 못함"
+    },
+    {
+      "candidate_time": 12.25,
+      "subject_id": "animal_1",
+      "start_time": 11.0,
+      "end_time": 12.25,
+      "before_time": 11.0,
+      "after_time": 12.25,
+      "reset_time": null,
+      "reason": "The white dog's front paws and upper body are supported on the fence by 12.250s.",
+      "model_status": "uncertain",
+      "model_subject_id": "white dog",
+      "review_reason": "전후 상태 또는 개체를 확인하지 못함"
+    },
+    {
+      "candidate_time": 16.0,
+      "subject_id": "animal_1",
+      "start_time": 14.75,
+      "end_time": 16.25,
+      "before_time": 14.75,
+      "after_time": 16.0,
+      "reset_time": null,
+      "reason": "The white dog's front paws and upper body are supported on the fence at 16.000s.",
+      "model_status": "uncertain",
+      "model_subject_id": "white dog",
+      "review_reason": "전후 상태 또는 개체를 확인하지 못함"
+    },
+    {
+      "candidate_time": 26.75,
+      "subject_id": "animal_1",
+      "start_time": 25.5,
+      "end_time": 28.25,
+      "before_time": null,
+      "after_time": 25.5,
+      "reset_time": null,
+      "reason": "White dog confirmed with front paws and upper body supported on fence at 25.500 seconds.",
+      "model_status": "uncertain",
+      "model_subject_id": "white dog",
+      "review_reason": "전후 상태 또는 개체를 확인하지 못함"
+    },
+    {
+      "candidate_time": 26.75,
+      "subject_id": "animal_1",
+      "start_time": 25.5,
+      "end_time": 28.25,
+      "before_time": null,
+      "after_time": 25.5,
+      "reset_time": null,
+      "reason": "White dog confirmed with front paws and upper body supported on fence at 25.500 seconds.",
+      "model_status": "uncertain",
+      "model_subject_id": "white dog",
+      "review_reason": "전후 상태 또는 개체를 확인하지 못함"
+    },
+    {
+      "candidate_time": 30.25,
+      "subject_id": "animal_1",
+      "start_time": 29.0,
+      "end_time": 31.5,
+      "before_time": 29.0,
+      "after_time": 29.0,
+      "reset_time": null,
+      "reason": "The white dog's front paws and upper body are supported on the fence at 29.000s.",
+      "model_status": "uncertain",
+      "model_subject_id": "white dog",
+      "review_reason": "전후 상태 또는 개체를 확인하지 못함"
+    },
+    {
+      "candidate_time": 32.0,
+      "subject_id": "animal_1",
+      "start_time": 30.75,
+      "end_time": 32.0,
+      "before_time": null,
+      "after_time": 32.0,
+      "reset_time": null,
+      "reason": "The white dog's front paws and upper body are clearly supported on the fence by 32.000s.",
+      "model_status": "uncertain",
+      "model_subject_id": "white dog",
+      "review_reason": "전후 상태 또는 개체를 확인하지 못함"
+    }
+  ],
+  "rejected": [
+    {
+      "candidate_time": 8.25,
+      "subject_id": "white dog",
+      "start_time": 7.0,
+      "end_time": 9.75,
+      "before_time": 7.0,
+      "after_time": 8.25,
+      "reset_time": null,
+      "reason": "The white dog's front paws and upper body are clearly supported on the fence by time 8.250s.",
+      "model_status": "rejected",
+      "model_subject_id": "white dog"
+    },
+    {
+      "candidate_time": 12.0,
+      "subject_id": "white dog",
+      "start_time": 10.75,
+      "end_time": 13.5,
+      "before_time": 10.75,
+      "after_time": 12.0,
+      "reset_time": null,
+      "reason": "The white dog's front paws and upper body are supported on the fence at 12.000s, confirming the after_state.",
+      "model_status": "rejected",
+      "model_subject_id": "white dog"
+    },
+    {
+      "candidate_time": 16.25,
+      "subject_id": "white dog",
+      "start_time": 15.0,
+      "end_time": 16.0,
+      "before_time": 15.0,
+      "after_time": 16.0,
+      "reset_time": null,
+      "reason": "The white dog's front paws and upper body are supported on the fence at 16.0s.",
+      "model_status": "rejected",
+      "model_subject_id": "white dog"
+    },
+    {
+      "candidate_time": 28.25,
+      "subject_id": "white dog",
+      "start_time": 27.0,
+      "end_time": 28.75,
+      "before_time": 27.0,
+      "after_time": 28.75,
+      "reset_time": null,
+      "reason": "Front paws and upper body supported on fence at 28.750s.",
+      "model_status": "rejected",
+      "model_subject_id": "white dog"
+    },
+    {
+      "candidate_time": 32.25,
+      "subject_id": "white dog",
+      "start_time": 31.0,
+      "end_time": 31.75,
+      "before_time": 31.0,
+      "after_time": 31.75,
+      "reset_time": null,
+      "reason": "The white dog's front paws and upper body are visibly supported on the fence, confirming the after_state.",
+      "model_status": "rejected",
+      "model_subject_id": "white dog"
+    },
+    {
+      "candidate_time": 36.75,
+      "subject_id": "brown dog",
+      "start_time": 36.25,
+      "end_time": 38.25,
+      "before_time": 36.25,
+      "after_time": 36.75,
+      "reset_time": null,
+      "reason": "The brown dog's front paws and upper body are visibly supported on the fence at 36.750s.",
+      "model_status": "rejected",
+      "model_subject_id": "brown dog"
+    },
+    {
+      "candidate_time": 36.75,
+      "subject_id": "brown dog",
+      "start_time": 36.25,
+      "end_time": 36.75,
+      "before_time": 36.25,
+      "after_time": 36.75,
+      "reset_time": null,
+      "reason": "The brown dog is fully supporting its front paws and upper body on the fence at 36.75s.",
+      "model_status": "rejected",
+      "model_subject_id": "brown dog"
+    }
+  ],
+  "duplicates": [
+    {
+      "candidate_time": 4.5,
+      "subject_id": "animal_1",
+      "start_time": 3.25,
+      "end_time": 5.25,
+      "before_time": 3.25,
+      "after_time": 5.25,
+      "reset_time": null,
+      "reason": "The white dog’s front paws and upper body are visibly supported on the fence.",
+      "model_status": "confirmed",
+      "model_subject_id": "white dog",
+      "review_reason": "같은 개체의 기존 구간과 겹침"
+    },
+    {
+      "candidate_time": 4.75,
+      "subject_id": "animal_1",
+      "start_time": 4.25,
+      "end_time": 4.75,
+      "before_time": 2.25,
+      "after_time": 4.75,
+      "reset_time": null,
+      "reason": "The same dog is observed initially with all four paws on the ground. Later, the front paws and upper body are supported on the fence, consistent with the transition description.",
+      "model_status": "confirmed",
+      "model_subject_id": "small dog",
+      "review_reason": "같은 개체의 기존 구간과 겹침"
+    },
+    {
+      "candidate_time": 22.75,
+      "subject_id": "animal_1",
+      "start_time": 22.0,
+      "end_time": 23.75,
+      "before_time": 22.0,
+      "after_time": 23.75,
+      "reset_time": null,
+      "reason": "The white dog is initially fully on the ground at 22.000s and has its front paws and upper body supported on the fence by 23.750s.",
+      "model_status": "confirmed",
+      "model_subject_id": "white dog",
+      "review_reason": "같은 개체의 기존 구간과 겹침"
+    }
+  ],
+  "video": "data/videos/smartbench_0188.mp4",
+  "query": "강아지가 울타리에 몇 번 올라탔어?",
+  "intent": {
+    "subject": "dog",
+    "action": "climb",
+    "target": "fence",
+    "before_state": "one dog's whole body on ground",
+    "after_state": "that same dog's front paws and upper body supported on fence",
+    "exclusion": "all four paws on top of fence"
+  },
+  "candidate_sources": {
+    "0.5": "notebooks/smarthome-bench-evidence/new-pipeline/smartbench_0188-result.json",
+    "0.25": "notebooks/smarthome-bench-evidence/new-pipeline/ablation-cross-video/smartbench_0188/step025/smartbench_0188-result.json"
+  },
+  "candidates": [
+    {
+      "time": 4.5,
+      "subject": "white dog",
+      "reason": "front paws and upper body supported on fence",
+      "window": 0,
+      "source_step": "0.5"
+    },
+    {
+      "time": 4.5,
+      "subject": "white dog",
+      "reason": "front paws and upper body supported on fence",
+      "window": 0,
+      "source_step": "0.25"
+    },
+    {
+      "time": 4.75,
+      "subject": "white dog",
+      "reason": "front paws and upper body supported on fence",
+      "window": 1,
+      "source_step": "0.5"
+    },
+    {
+      "time": 8.0,
+      "subject": "white dog",
+      "reason": "front paws and upper body on fence",
+      "window": 2,
+      "source_step": "0.25"
+    },
+    {
+      "time": 8.25,
+      "subject": "white dog",
+      "reason": "front paws and upper body supported on fence",
+      "window": 2,
+      "source_step": "0.5"
+    },
+    {
+      "time": 12.0,
+      "subject": "white dog",
+      "reason": "front paws and upper body on fence",
+      "window": 2,
+      "source_step": "0.25"
+    },
+    {
+      "time": 12.25,
+      "subject": "white dog",
+      "reason": "front paws and upper body supported on fence",
+      "window": 3,
+      "source_step": "0.5"
+    },
+    {
+      "time": 16.0,
+      "subject": "white dog",
+      "reason": "front paws and upper body supported on fence",
+      "window": 4,
+      "source_step": "0.25"
+    },
+    {
+      "time": 16.25,
+      "subject": "white dog",
+      "reason": "front paws and upper body supported on fence",
+      "window": 4,
+      "source_step": "0.5"
+    },
+    {
+      "time": 22.75,
+      "subject": "white dog",
+      "reason": "dog's front paws and upper body are supported on the fence",
+      "window": 5,
+      "source_step": "0.5"
+    },
+    {
+      "time": 22.75,
+      "subject": "white dog",
+      "reason": "Front paws and upper body supported on fence",
+      "window": 5,
+      "source_step": "0.25"
+    },
+    {
+      "time": 26.75,
+      "subject": "white dog",
+      "reason": "front paws and upper body supported on fence",
+      "window": 6,
+      "source_step": "0.5"
+    },
+    {
+      "time": 26.75,
+      "subject": "white dog",
+      "reason": "front paws and upper body supported on fence",
+      "window": 6,
+      "source_step": "0.25"
+    },
+    {
+      "time": 28.25,
+      "subject": "white dog",
+      "reason": "front paws and upper body supported on fence",
+      "window": 7,
+      "source_step": "0.25"
+    },
+    {
+      "time": 30.25,
+      "subject": "white dog",
+      "reason": "Front paws and upper body supported on fence.",
+      "window": 7,
+      "source_step": "0.5"
+    },
+    {
+      "time": 32.0,
+      "subject": "white dog",
+      "reason": "Front paws and upper body supported on fence",
+      "window": 8,
+      "source_step": "0.25"
+    },
+    {
+      "time": 32.25,
+      "subject": "white dog",
+      "reason": "Front paws and upper body supported on fence, midway through climbing action",
+      "window": 8,
+      "source_step": "0.5"
+    },
+    {
+      "time": 36.75,
+      "subject": "brown dog",
+      "reason": "Front paws and upper body supported on the door, resembling climbing action",
+      "window": 9,
+      "source_step": "0.5"
+    },
+    {
+      "time": 36.75,
+      "subject": "brown dog",
+      "reason": "front paws and upper body supported on fence",
+      "window": 9,
+      "source_step": "0.25"
+    }
+  ],
+  "verifications": [
+    {
+      "candidate": {
+        "time": 4.5,
+        "subject": "white dog",
+        "reason": "front paws and upper body supported on fence",
+        "window": 0,
+        "source_step": "0.5"
+      },
+      "frame_times": [
+        3.25,
+        3.5,
+        3.75,
+        4.0,
+        4.25,
+        4.5,
+        4.75,
+        5.0,
+        5.25,
+        5.5,
+        5.75,
+        6.0
+      ],
+      "observation": {
+        "subject_id": "white dog",
+        "start_time": 3.25,
+        "end_time": 5.25,
+        "before_time": 3.25,
+        "after_time": 5.25,
+        "reset_time": null,
+        "status": "confirmed",
+        "reason": "The white dog’s front paws and upper body are visibly supported on the fence.",
+        "track_id": "animal_1"
+      },
+      "clip": [
+        3.25,
+        6.0
+      ],
+      "evidence_check": {
+        "status": "confirmed",
+        "before_state_visible": true,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": "unknown",
+        "reason": "The same white dog is visible on the ground in the first frame and with its front paws and upper body supported on the fence in the second frame."
+      },
+      "track_resolution": {
+        "index": 0,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "First appearance and similar description as next image."
+      }
+    },
+    {
+      "candidate": {
+        "time": 4.5,
+        "subject": "white dog",
+        "reason": "front paws and upper body supported on fence",
+        "window": 0,
+        "source_step": "0.25"
+      },
+      "frame_times": [
+        3.25,
+        3.5,
+        3.75,
+        4.0,
+        4.25,
+        4.5,
+        4.75,
+        5.0,
+        5.25,
+        5.5,
+        5.75,
+        6.0
+      ],
+      "observation": {
+        "subject_id": "white dog",
+        "start_time": 3.25,
+        "end_time": 5.25,
+        "before_time": 3.25,
+        "after_time": 5.25,
+        "reset_time": null,
+        "status": "confirmed",
+        "reason": "The white dog’s front paws and upper body are visibly supported on the fence.",
+        "track_id": "animal_1"
+      },
+      "clip": [
+        3.25,
+        6.0
+      ],
+      "evidence_check": {
+        "status": "confirmed",
+        "before_state_visible": true,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": "unknown",
+        "reason": "The same white dog is visible on the ground in the first frame and with its front paws and upper body supported on the fence in the second frame."
+      },
+      "track_resolution": {
+        "index": 1,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "Same time and appearance as previous."
+      }
+    },
+    {
+      "candidate": {
+        "time": 4.75,
+        "subject": "white dog",
+        "reason": "front paws and upper body supported on fence",
+        "window": 1,
+        "source_step": "0.5"
+      },
+      "frame_times": [
+        3.5,
+        3.75,
+        4.0,
+        4.25,
+        4.5,
+        4.75,
+        5.0,
+        5.25,
+        5.5,
+        5.75,
+        6.0,
+        6.25
+      ],
+      "observation": {
+        "subject_id": "small dog",
+        "start_time": 4.25,
+        "end_time": 4.75,
+        "before_time": 2.25,
+        "after_time": 4.75,
+        "reset_time": null,
+        "status": "confirmed",
+        "reason": "The same dog is observed initially with all four paws on the ground. Later, the front paws and upper body are supported on the fence, consistent with the transition description.",
+        "track_id": "animal_1"
+      },
+      "clip": [
+        2.25,
+        7.25
+      ],
+      "evidence_check": {
+        "status": "uncertain",
+        "before_state_visible": true,
+        "after_state_visible": true,
+        "same_subject_visible": false,
+        "subject_id": "white dog",
+        "reason": "It's unclear if the same dog is present in both keyframes and performing the claimed action."
+      },
+      "repair": {
+        "subject_id": "small dog",
+        "start_time": 4.25,
+        "end_time": 4.75,
+        "before_time": 2.25,
+        "after_time": 4.75,
+        "reset_time": null,
+        "status": "confirmed",
+        "reason": "The same dog is observed initially with all four paws on the ground. Later, the front paws and upper body are supported on the fence, consistent with the transition description.",
+        "track_id": "animal_1"
+      },
+      "repair_evidence_check": {
+        "status": "confirmed",
+        "before_state_visible": true,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": "dog_1",
+        "reason": "The same dog is visible in both frames: first completely on the ground, then with front paws and upper body supported on the fence, which matches the claimed event."
+      },
+      "track_resolution": {
+        "index": 2,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "Continuation of same animal, noted as small dog but same appearance."
+      }
+    },
+    {
+      "candidate": {
+        "time": 8.0,
+        "subject": "white dog",
+        "reason": "front paws and upper body on fence",
+        "window": 2,
+        "source_step": "0.25"
+      },
+      "frame_times": [
+        6.75,
+        7.0,
+        7.25,
+        7.5,
+        7.75,
+        8.0,
+        8.25,
+        8.5,
+        8.75,
+        9.0,
+        9.25,
+        9.5
+      ],
+      "observation": {
+        "subject_id": "white dog",
+        "start_time": null,
+        "end_time": 8.5,
+        "before_time": null,
+        "after_time": 8.5,
+        "reset_time": null,
+        "status": "uncertain",
+        "reason": "The white dog's front paws and upper body are visibly supported on the fence at 8.500s.",
+        "evidence_check_reason": "전후 근거 시각이 유효하지 않음",
+        "track_id": "animal_1"
+      },
+      "clip": [
+        6.75,
+        9.5
+      ],
+      "track_resolution": {
+        "index": 3,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "Consistent appearance and time progression."
+      }
+    },
+    {
+      "candidate": {
+        "time": 8.25,
+        "subject": "white dog",
+        "reason": "front paws and upper body supported on fence",
+        "window": 2,
+        "source_step": "0.5"
+      },
+      "frame_times": [
+        7.0,
+        7.25,
+        7.5,
+        7.75,
+        8.0,
+        8.25,
+        8.5,
+        8.75,
+        9.0,
+        9.25,
+        9.5,
+        9.75
+      ],
+      "observation": {
+        "subject_id": "white dog",
+        "start_time": 7.0,
+        "end_time": 9.75,
+        "before_time": 7.0,
+        "after_time": 8.25,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "The white dog's front paws and upper body are clearly supported on the fence by time 8.250s.",
+        "evidence_check_reason": "The first frame does not clearly show the before state required for 'climb', as the dog's whole body should be on the ground. Both frames show the dog in a similar position with upper body elevated, suggesting the after_state condition is not achieved as per the definition."
+      },
+      "clip": [
+        7.0,
+        9.75
+      ],
+      "evidence_check": {
+        "status": "rejected",
+        "before_state_visible": false,
+        "after_state_visible": false,
+        "same_subject_visible": false,
+        "subject_id": "dog",
+        "reason": "The first frame does not clearly show the before state required for 'climb', as the dog's whole body should be on the ground. Both frames show the dog in a similar position with upper body elevated, suggesting the after_state condition is not achieved as per the definition."
+      },
+      "repair": {
+        "subject_id": "dog",
+        "start_time": null,
+        "end_time": null,
+        "before_time": null,
+        "after_time": null,
+        "reset_time": null,
+        "status": "uncertain",
+        "reason": "The sequence does not show the dog's whole body on the ground at any point, which is required for the 'before_state.' The dog is consistently in a position with the upper body elevated on the fence, not clearly transitioning from a grounded position to the after_state."
+      }
+    },
+    {
+      "candidate": {
+        "time": 12.0,
+        "subject": "white dog",
+        "reason": "front paws and upper body on fence",
+        "window": 2,
+        "source_step": "0.25"
+      },
+      "frame_times": [
+        10.75,
+        11.0,
+        11.25,
+        11.5,
+        11.75,
+        12.0,
+        12.25,
+        12.5,
+        12.75,
+        13.0,
+        13.25,
+        13.5
+      ],
+      "observation": {
+        "subject_id": "white dog",
+        "start_time": 10.75,
+        "end_time": 13.5,
+        "before_time": 10.75,
+        "after_time": 12.0,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "The white dog's front paws and upper body are supported on the fence at 12.000s, confirming the after_state.",
+        "evidence_check_reason": "The first frame shows the dog already supported on the fence, not with the whole body on the ground."
+      },
+      "clip": [
+        10.75,
+        13.5
+      ],
+      "evidence_check": {
+        "status": "rejected",
+        "before_state_visible": false,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": null,
+        "reason": "The first frame shows the dog already supported on the fence, not with the whole body on the ground."
+      },
+      "repair": {
+        "subject_id": null,
+        "start_time": null,
+        "end_time": null,
+        "before_time": null,
+        "after_time": null,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "The clip does not show the same dog wholly on the ground before having its front paws and upper body supported on the fence."
+      }
+    },
+    {
+      "candidate": {
+        "time": 12.25,
+        "subject": "white dog",
+        "reason": "front paws and upper body supported on fence",
+        "window": 3,
+        "source_step": "0.5"
+      },
+      "frame_times": [
+        11.0,
+        11.25,
+        11.5,
+        11.75,
+        12.0,
+        12.25,
+        12.5,
+        12.75,
+        13.0,
+        13.25,
+        13.5,
+        13.75
+      ],
+      "observation": {
+        "subject_id": "white dog",
+        "start_time": 11.0,
+        "end_time": 12.25,
+        "before_time": 11.0,
+        "after_time": 12.25,
+        "reset_time": null,
+        "status": "uncertain",
+        "reason": "The white dog's front paws and upper body are supported on the fence by 12.250s.",
+        "evidence_check_reason": "The first frame does not show the dog's whole body on the ground, indicating it may already be in the after state.",
+        "track_id": "animal_1"
+      },
+      "clip": [
+        11.0,
+        13.75
+      ],
+      "evidence_check": {
+        "status": "reject",
+        "before_state_visible": false,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": "dog",
+        "reason": "The first frame does not show the dog's whole body on the ground, indicating it may already be in the after state."
+      },
+      "repair": {
+        "subject_id": "dog",
+        "start_time": null,
+        "end_time": null,
+        "before_time": null,
+        "after_time": null,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "The before state of the dog's whole body on the ground is not visible at any point in the provided frames, only the after state is visible."
+      },
+      "track_resolution": {
+        "index": 6,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "Same description and progresses from earlier."
+      }
+    },
+    {
+      "candidate": {
+        "time": 16.0,
+        "subject": "white dog",
+        "reason": "front paws and upper body supported on fence",
+        "window": 4,
+        "source_step": "0.25"
+      },
+      "frame_times": [
+        14.75,
+        15.0,
+        15.25,
+        15.5,
+        15.75,
+        16.0,
+        16.25,
+        16.5,
+        16.75,
+        17.0,
+        17.25,
+        17.5
+      ],
+      "observation": {
+        "subject_id": "white dog",
+        "start_time": 14.75,
+        "end_time": 16.25,
+        "before_time": 14.75,
+        "after_time": 16.0,
+        "reset_time": null,
+        "status": "uncertain",
+        "reason": "The white dog's front paws and upper body are supported on the fence at 16.000s.",
+        "evidence_check_reason": "The first frame does not show the dog with its whole body on the ground, which is required for the before_state. After_state visibility is unclear.",
+        "track_id": "animal_1"
+      },
+      "clip": [
+        14.75,
+        17.5
+      ],
+      "evidence_check": {
+        "status": "reject",
+        "before_state_visible": false,
+        "after_state_visible": false,
+        "same_subject_visible": true,
+        "subject_id": "white_dog",
+        "reason": "The first frame does not show the dog with its whole body on the ground, which is required for the before_state. After_state visibility is unclear."
+      },
+      "repair": {
+        "subject_id": "white_dog",
+        "start_time": null,
+        "end_time": null,
+        "before_time": null,
+        "after_time": null,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "The sequence does not show a clear transition of the dog from having its whole body on the ground to having its front paws and upper body supported on the fence. The dog is only seen climbing partway up the fence without a clear before state in the sequence."
+      },
+      "track_resolution": {
+        "index": 7,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "Continuation of same animal, consistent position in pen."
+      }
+    },
+    {
+      "candidate": {
+        "time": 16.25,
+        "subject": "white dog",
+        "reason": "front paws and upper body supported on fence",
+        "window": 4,
+        "source_step": "0.5"
+      },
+      "frame_times": [
+        15.0,
+        15.25,
+        15.5,
+        15.75,
+        16.0,
+        16.25,
+        16.5,
+        16.75,
+        17.0,
+        17.25,
+        17.5,
+        17.75
+      ],
+      "observation": {
+        "subject_id": "white dog",
+        "start_time": 15.0,
+        "end_time": 16.0,
+        "before_time": 15.0,
+        "after_time": 16.0,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "The white dog's front paws and upper body are supported on the fence at 16.0s.",
+        "evidence_check_reason": "The first frame does not show the before state with the dog's whole body on the ground."
+      },
+      "clip": [
+        15.0,
+        17.75
+      ],
+      "evidence_check": {
+        "status": "rejected",
+        "before_state_visible": false,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": "white_dog",
+        "reason": "The first frame does not show the before state with the dog's whole body on the ground."
+      },
+      "repair": {
+        "subject_id": "white_dog",
+        "start_time": null,
+        "end_time": null,
+        "before_time": null,
+        "after_time": 16.25,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "The before state of the dog's whole body on the ground is not visible in the available frames."
+      }
+    },
+    {
+      "candidate": {
+        "time": 22.75,
+        "subject": "white dog",
+        "reason": "dog's front paws and upper body are supported on the fence",
+        "window": 5,
+        "source_step": "0.5"
+      },
+      "frame_times": [
+        21.5,
+        21.75,
+        22.0,
+        22.25,
+        22.5,
+        22.75,
+        23.0,
+        23.25,
+        23.5,
+        23.75,
+        24.0,
+        24.25
+      ],
+      "observation": {
+        "subject_id": "white dog",
+        "start_time": 22.25,
+        "end_time": 23.75,
+        "before_time": 22.0,
+        "after_time": 23.5,
+        "reset_time": 16.766,
+        "status": "confirmed",
+        "reason": "The white dog is seen on the ground at 22.00s, and its front paws and upper body are supported on the fence by 23.50s.",
+        "track_id": "animal_1"
+      },
+      "clip": [
+        21.5,
+        24.25
+      ],
+      "evidence_check": {
+        "status": "confirmed",
+        "before_state_visible": true,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": "white dog",
+        "reason": "The dog is on the ground in the first frame and has climbed with front paws and upper body supported on the fence in the second frame."
+      },
+      "track_resolution": {
+        "index": 9,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "Same description and consistent pen context."
+      },
+      "reset_check": {
+        "reset_visible": true,
+        "reset_time": 16.766,
+        "same_subject": true,
+        "reason": "The same dog visible with its whole body on the ground before the next climb attempt."
+      }
+    },
+    {
+      "candidate": {
+        "time": 22.75,
+        "subject": "white dog",
+        "reason": "Front paws and upper body supported on fence",
+        "window": 5,
+        "source_step": "0.25"
+      },
+      "frame_times": [
+        21.5,
+        21.75,
+        22.0,
+        22.25,
+        22.5,
+        22.75,
+        23.0,
+        23.25,
+        23.5,
+        23.75,
+        24.0,
+        24.25
+      ],
+      "observation": {
+        "subject_id": "white dog",
+        "start_time": 22.0,
+        "end_time": 23.75,
+        "before_time": 22.0,
+        "after_time": 23.75,
+        "reset_time": null,
+        "status": "confirmed",
+        "reason": "The white dog is initially fully on the ground at 22.000s and has its front paws and upper body supported on the fence by 23.750s.",
+        "track_id": "animal_1"
+      },
+      "clip": [
+        21.5,
+        24.25
+      ],
+      "evidence_check": {
+        "status": "confirmed",
+        "before_state_visible": true,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": "white dog",
+        "reason": "The white dog's whole body is on the ground in the first frame, and its front paws and upper body are supported on the fence in the second frame. No paws are on top of the fence."
+      },
+      "track_resolution": {
+        "index": 10,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "Continuation from previous snapshot."
+      },
+      "reset_check": {
+        "reset_visible": true,
+        "reset_time": 16.766,
+        "same_subject": true,
+        "reason": "The same dog visible with its whole body on the ground before the next climb attempt."
+      }
+    },
+    {
+      "candidate": {
+        "time": 26.75,
+        "subject": "white dog",
+        "reason": "front paws and upper body supported on fence",
+        "window": 6,
+        "source_step": "0.5"
+      },
+      "frame_times": [
+        25.5,
+        25.75,
+        26.0,
+        26.25,
+        26.5,
+        26.75,
+        27.0,
+        27.25,
+        27.5,
+        27.75,
+        28.0,
+        28.25
+      ],
+      "observation": {
+        "subject_id": "white dog",
+        "start_time": 25.5,
+        "end_time": 28.25,
+        "before_time": null,
+        "after_time": 25.5,
+        "reset_time": null,
+        "status": "uncertain",
+        "reason": "White dog confirmed with front paws and upper body supported on fence at 25.500 seconds.",
+        "evidence_check_reason": "전후 근거 시각이 유효하지 않음",
+        "track_id": "animal_1"
+      },
+      "clip": [
+        25.5,
+        28.25
+      ],
+      "track_resolution": {
+        "index": 11,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "Ongoing sequence; appearance in pen is consistent."
+      }
+    },
+    {
+      "candidate": {
+        "time": 26.75,
+        "subject": "white dog",
+        "reason": "front paws and upper body supported on fence",
+        "window": 6,
+        "source_step": "0.25"
+      },
+      "frame_times": [
+        25.5,
+        25.75,
+        26.0,
+        26.25,
+        26.5,
+        26.75,
+        27.0,
+        27.25,
+        27.5,
+        27.75,
+        28.0,
+        28.25
+      ],
+      "observation": {
+        "subject_id": "white dog",
+        "start_time": 25.5,
+        "end_time": 28.25,
+        "before_time": null,
+        "after_time": 25.5,
+        "reset_time": null,
+        "status": "uncertain",
+        "reason": "White dog confirmed with front paws and upper body supported on fence at 25.500 seconds.",
+        "evidence_check_reason": "전후 근거 시각이 유효하지 않음",
+        "track_id": "animal_1"
+      },
+      "clip": [
+        25.5,
+        28.25
+      ],
+      "track_resolution": {
+        "index": 12,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "Same timeframe and position as previous image."
+      }
+    },
+    {
+      "candidate": {
+        "time": 28.25,
+        "subject": "white dog",
+        "reason": "front paws and upper body supported on fence",
+        "window": 7,
+        "source_step": "0.25"
+      },
+      "frame_times": [
+        27.0,
+        27.25,
+        27.5,
+        27.75,
+        28.0,
+        28.25,
+        28.5,
+        28.75,
+        29.0,
+        29.25,
+        29.5,
+        29.75
+      ],
+      "observation": {
+        "subject_id": "white dog",
+        "start_time": 27.0,
+        "end_time": 28.75,
+        "before_time": 27.0,
+        "after_time": 28.75,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "Front paws and upper body supported on fence at 28.750s.",
+        "evidence_check_reason": "The initial frame already shows the dog with front paws on the fence, thus not representing a before_state. The proposed change of state cannot be confirmed."
+      },
+      "clip": [
+        27.0,
+        29.75
+      ],
+      "evidence_check": {
+        "status": "rejected",
+        "before_state_visible": false,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": "white dog",
+        "reason": "The initial frame already shows the dog with front paws on the fence, thus not representing a before_state. The proposed change of state cannot be confirmed."
+      },
+      "repair": {
+        "subject_id": "white dog",
+        "start_time": null,
+        "end_time": null,
+        "before_time": null,
+        "after_time": null,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "The before_state of the dog's whole body on the ground is not visible in any frames preceding the candidate time. The dog is already partially supported on the fence from the earliest visible frames, so the transition cannot be confirmed."
+      }
+    },
+    {
+      "candidate": {
+        "time": 30.25,
+        "subject": "white dog",
+        "reason": "Front paws and upper body supported on fence.",
+        "window": 7,
+        "source_step": "0.5"
+      },
+      "frame_times": [
+        29.0,
+        29.25,
+        29.5,
+        29.75,
+        30.0,
+        30.25,
+        30.5,
+        30.75,
+        31.0,
+        31.25,
+        31.5,
+        31.75
+      ],
+      "observation": {
+        "subject_id": "white dog",
+        "start_time": 29.0,
+        "end_time": 31.5,
+        "before_time": 29.0,
+        "after_time": 29.0,
+        "reset_time": null,
+        "status": "uncertain",
+        "reason": "The white dog's front paws and upper body are supported on the fence at 29.000s.",
+        "evidence_check_reason": "전후 근거 시각이 유효하지 않음",
+        "track_id": "animal_1"
+      },
+      "clip": [
+        29.0,
+        31.75
+      ],
+      "track_resolution": {
+        "index": 14,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "Consistent dog position and description."
+      }
+    },
+    {
+      "candidate": {
+        "time": 32.0,
+        "subject": "white dog",
+        "reason": "Front paws and upper body supported on fence",
+        "window": 8,
+        "source_step": "0.25"
+      },
+      "frame_times": [
+        30.75,
+        31.0,
+        31.25,
+        31.5,
+        31.75,
+        32.0,
+        32.25,
+        32.5,
+        32.75,
+        33.0,
+        33.25,
+        33.5
+      ],
+      "observation": {
+        "subject_id": "white dog",
+        "start_time": 30.75,
+        "end_time": 32.0,
+        "before_time": null,
+        "after_time": 32.0,
+        "reset_time": null,
+        "status": "uncertain",
+        "reason": "The white dog's front paws and upper body are clearly supported on the fence by 32.000s.",
+        "evidence_check_reason": "전후 근거 시각이 유효하지 않음",
+        "track_id": "animal_1"
+      },
+      "clip": [
+        30.75,
+        33.5
+      ],
+      "track_resolution": {
+        "index": 15,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "Final appearance consistent with earlier snapshots."
+      }
+    },
+    {
+      "candidate": {
+        "time": 32.25,
+        "subject": "white dog",
+        "reason": "Front paws and upper body supported on fence, midway through climbing action",
+        "window": 8,
+        "source_step": "0.5"
+      },
+      "frame_times": [
+        31.0,
+        31.25,
+        31.5,
+        31.75,
+        32.0,
+        32.25,
+        32.5,
+        32.75,
+        33.0,
+        33.25,
+        33.5,
+        33.75
+      ],
+      "observation": {
+        "subject_id": "white dog",
+        "start_time": 31.0,
+        "end_time": 31.75,
+        "before_time": 31.0,
+        "after_time": 31.75,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "The white dog's front paws and upper body are visibly supported on the fence, confirming the after_state.",
+        "evidence_check_reason": "The first frame already depicts the dog in a climbing position with part of its body on the fence, failing the before_state requirement. The second frame does not clearly show the after_state condition as described or maintain clear visibility of the subject in the necessary poses."
+      },
+      "clip": [
+        31.0,
+        33.75
+      ],
+      "evidence_check": {
+        "status": "rejected",
+        "before_state_visible": false,
+        "after_state_visible": false,
+        "same_subject_visible": false,
+        "subject_id": "white dog",
+        "reason": "The first frame already depicts the dog in a climbing position with part of its body on the fence, failing the before_state requirement. The second frame does not clearly show the after_state condition as described or maintain clear visibility of the subject in the necessary poses."
+      },
+      "repair": {
+        "subject_id": "dog",
+        "start_time": null,
+        "end_time": null,
+        "before_time": null,
+        "after_time": null,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "No frames depict the dog wholly on the ground before climbing, and the sequence does not clearly show only the dog's front paws and upper body supported on the fence. The images primarily show the dog in a climbing or top-of-fence position, failing both the before and after state requirements."
+      }
+    },
+    {
+      "candidate": {
+        "time": 36.75,
+        "subject": "brown dog",
+        "reason": "Front paws and upper body supported on the door, resembling climbing action",
+        "window": 9,
+        "source_step": "0.5"
+      },
+      "frame_times": [
+        35.5,
+        35.75,
+        36.0,
+        36.25,
+        36.5,
+        36.75,
+        37.0,
+        37.25,
+        37.5,
+        37.75,
+        38.0,
+        38.25
+      ],
+      "observation": {
+        "subject_id": "brown dog",
+        "start_time": 36.25,
+        "end_time": 38.25,
+        "before_time": 36.25,
+        "after_time": 36.75,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "The brown dog's front paws and upper body are visibly supported on the fence at 36.750s.",
+        "evidence_check_reason": "The second frame does not clearly show the dog's front paws and upper body supported on the fence."
+      },
+      "clip": [
+        35.5,
+        38.25
+      ],
+      "evidence_check": {
+        "status": "rejected",
+        "before_state_visible": true,
+        "after_state_visible": false,
+        "same_subject_visible": true,
+        "subject_id": "dog",
+        "reason": "The second frame does not clearly show the dog's front paws and upper body supported on the fence."
+      },
+      "repair": {
+        "subject_id": "dog",
+        "start_time": null,
+        "end_time": null,
+        "before_time": 36.25,
+        "after_time": null,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "The sequence does not clearly show the dog's front paws and upper body supported on the fence after being fully on the ground previously."
+      }
+    },
+    {
+      "candidate": {
+        "time": 36.75,
+        "subject": "brown dog",
+        "reason": "front paws and upper body supported on fence",
+        "window": 9,
+        "source_step": "0.25"
+      },
+      "frame_times": [
+        35.5,
+        35.75,
+        36.0,
+        36.25,
+        36.5,
+        36.75,
+        37.0,
+        37.25,
+        37.5,
+        37.75,
+        38.0,
+        38.25
+      ],
+      "observation": {
+        "subject_id": "brown dog",
+        "start_time": 36.25,
+        "end_time": 36.75,
+        "before_time": 36.25,
+        "after_time": 36.75,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "The brown dog is fully supporting its front paws and upper body on the fence at 36.75s.",
+        "evidence_check_reason": "The second frame does not clearly show the dog's front paws and upper body supported on the fence."
+      },
+      "clip": [
+        35.5,
+        38.25
+      ],
+      "evidence_check": {
+        "status": "rejected",
+        "before_state_visible": true,
+        "after_state_visible": false,
+        "same_subject_visible": true,
+        "subject_id": "dog",
+        "reason": "The second frame does not clearly show the dog's front paws and upper body supported on the fence."
+      },
+      "repair": {
+        "subject_id": "dog",
+        "start_time": null,
+        "end_time": null,
+        "before_time": 36.25,
+        "after_time": null,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "The sequence does not clearly show the dog's front paws and upper body supported on the fence after being fully on the ground previously."
+      }
+    }
+  ],
+  "model": "gpt-4o",
+  "track_status": "model_resolved",
+  "method_note": "Previously verified scene evidence reused; animal identity and resets checked across runs."
+}

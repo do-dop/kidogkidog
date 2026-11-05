@@ -1,0 +1,930 @@
+{
+  "confirmed_count": 1,
+  "uncertain_count": 7,
+  "confirmed": [
+    {
+      "candidate_time": 2.0,
+      "subject_id": "animal_1",
+      "start_time": 0.75,
+      "end_time": 3.5,
+      "before_time": 0.75,
+      "after_time": 2.5,
+      "reset_time": null,
+      "reason": "The black puppy's whole body is inside the water at 2.500s.",
+      "model_status": "confirmed",
+      "model_subject_id": "black puppy"
+    }
+  ],
+  "uncertain": [
+    {
+      "candidate_time": 1.25,
+      "subject_id": "small black puppy",
+      "start_time": 0.0,
+      "end_time": 2.0,
+      "before_time": 0.0,
+      "after_time": 2.0,
+      "reset_time": null,
+      "reason": "The small black puppy is visible with the whole body outside the water at 0.000s and then with the whole body inside the water at 2.000s.",
+      "model_status": "rejected",
+      "model_subject_id": "small black puppy",
+      "review_reason": "영상 시작 경계에서 이전 상태를 확인할 수 없음"
+    },
+    {
+      "candidate_time": 6.5,
+      "subject_id": "unknown",
+      "start_time": 4.0,
+      "end_time": 9.0,
+      "before_time": 4.0,
+      "after_time": 5.25,
+      "reset_time": null,
+      "reason": "The same puppy is visible fully outside the water at 4.000s and fully inside the water at 5.250s.",
+      "model_status": "confirmed",
+      "model_subject_id": null,
+      "review_reason": "전후 상태 또는 개체를 확인하지 못함"
+    },
+    {
+      "candidate_time": 8.0,
+      "subject_id": "animal_1",
+      "start_time": 6.75,
+      "end_time": 8.0,
+      "before_time": 6.75,
+      "after_time": 8.0,
+      "reset_time": null,
+      "reason": "The black puppy's whole body is inside the water by 8.0s, verifying the transition from outside to inside the water.",
+      "model_status": "uncertain",
+      "model_subject_id": "black puppy",
+      "review_reason": "전후 상태 또는 개체를 확인하지 못함"
+    },
+    {
+      "candidate_time": 8.25,
+      "subject_id": "animal_1",
+      "start_time": 7.0,
+      "end_time": 9.75,
+      "before_time": 7.0,
+      "after_time": 7.0,
+      "reset_time": null,
+      "reason": "Whole body of black puppy is inside the water as early as 7.0s",
+      "model_status": "uncertain",
+      "model_subject_id": "black puppy",
+      "review_reason": "전후 상태 또는 개체를 확인하지 못함"
+    },
+    {
+      "candidate_time": 12.0,
+      "subject_id": "animal_1",
+      "start_time": null,
+      "end_time": 13.0,
+      "before_time": null,
+      "after_time": 13.0,
+      "reset_time": null,
+      "reason": "The black puppy's full body is visibly inside the water at 13.0s.",
+      "model_status": "uncertain",
+      "model_subject_id": "black puppy",
+      "review_reason": "전후 상태 또는 개체를 확인하지 못함"
+    },
+    {
+      "candidate_time": 12.25,
+      "subject_id": "animal_1",
+      "start_time": 11.0,
+      "end_time": 12.5,
+      "before_time": 11.0,
+      "after_time": 12.5,
+      "reset_time": null,
+      "reason": "The black puppy's full body is clearly inside the water by 12.5 seconds.",
+      "model_status": "uncertain",
+      "model_subject_id": "black puppy",
+      "review_reason": "전후 상태 또는 개체를 확인하지 못함"
+    },
+    {
+      "candidate_time": 13.0,
+      "subject_id": "animal_1",
+      "start_time": null,
+      "end_time": 12.0,
+      "before_time": null,
+      "after_time": 12.0,
+      "reset_time": null,
+      "reason": "The black puppy's whole body is inside the water from 12.000s onwards.",
+      "model_status": "uncertain",
+      "model_subject_id": "black puppy",
+      "review_reason": "전후 상태 또는 개체를 확인하지 못함"
+    }
+  ],
+  "rejected": [
+    {
+      "candidate_time": 6.25,
+      "subject_id": "black puppy",
+      "start_time": 5.25,
+      "end_time": 6.0,
+      "before_time": 5.0,
+      "after_time": 6.25,
+      "reset_time": null,
+      "reason": "The entire body of the black puppy is inside the water at 6.250s, confirming the transition.",
+      "model_status": "rejected",
+      "model_subject_id": "black puppy"
+    },
+    {
+      "candidate_time": 12.75,
+      "subject_id": "black puppy",
+      "start_time": 11.5,
+      "end_time": 12.75,
+      "before_time": 11.5,
+      "after_time": 12.75,
+      "reset_time": null,
+      "reason": "The black puppy's whole body is visibly inside the water at 12.750s.",
+      "model_status": "rejected",
+      "model_subject_id": "black puppy"
+    },
+    {
+      "candidate_time": 13.75,
+      "subject_id": "black puppy",
+      "start_time": 12.75,
+      "end_time": 13.75,
+      "before_time": 12.5,
+      "after_time": 13.75,
+      "reset_time": null,
+      "reason": "The puppy is fully inside the water by 13.750s.",
+      "model_status": "rejected",
+      "model_subject_id": "black puppy"
+    },
+    {
+      "candidate_time": 14.5,
+      "subject_id": "black puppy",
+      "start_time": 13.25,
+      "end_time": 14.25,
+      "before_time": 13.25,
+      "after_time": 13.5,
+      "reset_time": null,
+      "reason": "The black puppy is initially outside the water at 13.250s and fully inside the water by 13.500s.",
+      "model_status": "rejected",
+      "model_subject_id": "black puppy"
+    }
+  ],
+  "duplicates": [],
+  "video": "data/videos/smartbench_0642.mp4",
+  "query": "강아지들이 분수 물속에 몇 번 들어갔어? 개별 강아지를 각각 세어.",
+  "intent": {
+    "subject": "puppy",
+    "action": "enter",
+    "target": "fountain water",
+    "before_state": "one puppy's whole body outside water",
+    "after_state": "that same puppy's whole body inside water",
+    "exclusion": "front paws only in water"
+  },
+  "candidate_sources": {
+    "0.5": "notebooks/smarthome-bench-evidence/new-pipeline/smartbench_0642-result.json",
+    "0.25": "notebooks/smarthome-bench-evidence/new-pipeline/ablation-cross-video/smartbench_0642/step025/smartbench_0642-result.json"
+  },
+  "candidates": [
+    {
+      "time": 1.25,
+      "subject": "small black puppy",
+      "reason": "puppy seen with whole body inside water",
+      "window": 0,
+      "source_step": "0.25"
+    },
+    {
+      "time": 2.0,
+      "subject": "black puppy",
+      "reason": "whole body inside water",
+      "window": 0,
+      "source_step": "0.5"
+    },
+    {
+      "time": 6.25,
+      "subject": "black puppy",
+      "reason": "whole body inside fountain water",
+      "window": 1,
+      "source_step": "0.5"
+    },
+    {
+      "time": 6.5,
+      "subject": "black puppy",
+      "reason": "Entire puppy visible in water after leaping in",
+      "window": 1,
+      "source_step": "0.25"
+    },
+    {
+      "time": 8.0,
+      "subject": "black puppy",
+      "reason": "Whole body is inside the water by this frame.",
+      "window": 2,
+      "source_step": "0.25"
+    },
+    {
+      "time": 8.25,
+      "subject": "black puppy",
+      "reason": "whole body in water",
+      "window": 2,
+      "source_step": "0.5"
+    },
+    {
+      "time": 12.0,
+      "subject": "black puppy",
+      "reason": "full body entering water",
+      "window": 3,
+      "source_step": "0.25"
+    },
+    {
+      "time": 12.25,
+      "subject": "black puppy",
+      "reason": "full body clearly inside water",
+      "window": 3,
+      "source_step": "0.25"
+    },
+    {
+      "time": 12.75,
+      "subject": "black puppy",
+      "reason": "whole body visibly in water",
+      "window": 3,
+      "source_step": "0.5"
+    },
+    {
+      "time": 13.0,
+      "subject": "black puppy",
+      "reason": "remains fully inside water",
+      "window": 3,
+      "source_step": "0.25"
+    },
+    {
+      "time": 13.75,
+      "subject": "black puppy",
+      "reason": "clearly visible inside water",
+      "window": 3,
+      "source_step": "0.25"
+    },
+    {
+      "time": 14.5,
+      "subject": "black puppy",
+      "reason": "immersed in water, showing continued occupancy",
+      "window": 3,
+      "source_step": "0.25"
+    }
+  ],
+  "verifications": [
+    {
+      "candidate": {
+        "time": 1.25,
+        "subject": "small black puppy",
+        "reason": "puppy seen with whole body inside water",
+        "window": 0,
+        "source_step": "0.25"
+      },
+      "frame_times": [
+        0.0,
+        0.25,
+        0.5,
+        0.75,
+        1.0,
+        1.25,
+        1.5,
+        1.75,
+        2.0,
+        2.25,
+        2.5,
+        2.75
+      ],
+      "observation": {
+        "subject_id": "small black puppy",
+        "start_time": 0.0,
+        "end_time": 2.0,
+        "before_time": 0.0,
+        "after_time": 2.0,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "The small black puppy is visible with the whole body outside the water at 0.000s and then with the whole body inside the water at 2.000s.",
+        "evidence_check_reason": "The second frame does not clearly show the entire body of the puppy inside the water, failing the after_state requirement."
+      },
+      "clip": [
+        0.0,
+        2.75
+      ],
+      "evidence_check": {
+        "status": "rejected",
+        "before_state_visible": true,
+        "after_state_visible": false,
+        "same_subject_visible": true,
+        "subject_id": "small_black_puppy",
+        "reason": "The second frame does not clearly show the entire body of the puppy inside the water, failing the after_state requirement."
+      },
+      "repair": {
+        "subject_id": "small_black_puppy",
+        "start_time": 0.0,
+        "end_time": 3.0,
+        "before_time": 0.0,
+        "after_time": 3.0,
+        "reset_time": null,
+        "status": "confirmed",
+        "reason": "The puppy is wholly outside the water at 0.000s and wholly inside the water at 3.000s, meeting the before and after state requirements."
+      },
+      "repair_evidence_check": {
+        "status": "uncertain",
+        "before_state_visible": false,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": "small_black_puppy",
+        "reason": "In the first frame, it is unclear whether the puppy's whole body is outside the water, hence the before_state cannot be confirmed."
+      }
+    },
+    {
+      "candidate": {
+        "time": 2.0,
+        "subject": "black puppy",
+        "reason": "whole body inside water",
+        "window": 0,
+        "source_step": "0.5"
+      },
+      "frame_times": [
+        0.75,
+        1.0,
+        1.25,
+        1.5,
+        1.75,
+        2.0,
+        2.25,
+        2.5,
+        2.75,
+        3.0,
+        3.25,
+        3.5
+      ],
+      "observation": {
+        "subject_id": "black puppy",
+        "start_time": 0.75,
+        "end_time": 3.5,
+        "before_time": 0.75,
+        "after_time": 2.5,
+        "reset_time": null,
+        "status": "confirmed",
+        "reason": "The black puppy's whole body is inside the water at 2.500s.",
+        "track_id": "animal_1"
+      },
+      "clip": [
+        0.75,
+        3.5
+      ],
+      "evidence_check": {
+        "status": "confirmed",
+        "before_state_visible": true,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": "black_puppy",
+        "reason": "The same black puppy is visible outside the water at 0.750s and inside the water at 2.500s."
+      },
+      "track_resolution": {
+        "index": 1,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "Black puppy at specific location by the pond."
+      }
+    },
+    {
+      "candidate": {
+        "time": 6.25,
+        "subject": "black puppy",
+        "reason": "whole body inside fountain water",
+        "window": 1,
+        "source_step": "0.5"
+      },
+      "frame_times": [
+        5.0,
+        5.25,
+        5.5,
+        5.75,
+        6.0,
+        6.25,
+        6.5,
+        6.75,
+        7.0,
+        7.25,
+        7.5,
+        7.75
+      ],
+      "observation": {
+        "subject_id": "black puppy",
+        "start_time": 5.25,
+        "end_time": 6.0,
+        "before_time": 5.0,
+        "after_time": 6.25,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "The entire body of the black puppy is inside the water at 6.250s, confirming the transition.",
+        "evidence_check_reason": "The first frame already shows the puppy partially in the water, not fully outside as required by the before state."
+      },
+      "clip": [
+        5.0,
+        7.75
+      ],
+      "evidence_check": {
+        "status": "rejected",
+        "before_state_visible": false,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": null,
+        "reason": "The first frame already shows the puppy partially in the water, not fully outside as required by the before state."
+      },
+      "repair": {
+        "subject_id": null,
+        "start_time": null,
+        "end_time": null,
+        "before_time": null,
+        "after_time": null,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "No clear transition of one puppy from whole body outside water to whole body inside water was observed in the frames provided."
+      }
+    },
+    {
+      "candidate": {
+        "time": 6.5,
+        "subject": "black puppy",
+        "reason": "Entire puppy visible in water after leaping in",
+        "window": 1,
+        "source_step": "0.25"
+      },
+      "frame_times": [
+        5.25,
+        5.5,
+        5.75,
+        6.0,
+        6.25,
+        6.5,
+        6.75,
+        7.0,
+        7.25,
+        7.5,
+        7.75,
+        8.0
+      ],
+      "observation": {
+        "subject_id": null,
+        "start_time": 4.0,
+        "end_time": 9.0,
+        "before_time": 4.0,
+        "after_time": 5.25,
+        "reset_time": null,
+        "status": "confirmed",
+        "reason": "The same puppy is visible fully outside the water at 4.000s and fully inside the water at 5.250s.",
+        "track_id": "unknown"
+      },
+      "clip": [
+        4.0,
+        9.0
+      ],
+      "evidence_check": {
+        "status": "rejected",
+        "before_state_visible": true,
+        "after_state_visible": false,
+        "same_subject_visible": false,
+        "subject_id": null,
+        "reason": "The second keyframe does not clearly show the same puppy fully inside the water."
+      },
+      "repair": {
+        "subject_id": null,
+        "start_time": 4.0,
+        "end_time": 9.0,
+        "before_time": 4.0,
+        "after_time": 5.25,
+        "reset_time": null,
+        "status": "confirmed",
+        "reason": "The same puppy is visible fully outside the water at 4.000s and fully inside the water at 5.250s.",
+        "track_id": "animal_1"
+      },
+      "repair_evidence_check": {
+        "status": "confirmed",
+        "before_state_visible": true,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": "unknown",
+        "reason": "The same animal is visibly outside the water in the first frame and inside the water in the second frame."
+      },
+      "track_resolution": {
+        "index": 3,
+        "track_id": "animal_1",
+        "certain": false,
+        "reason": "Black animal possibly same as index 1 based on time and location."
+      }
+    },
+    {
+      "candidate": {
+        "time": 8.0,
+        "subject": "black puppy",
+        "reason": "Whole body is inside the water by this frame.",
+        "window": 2,
+        "source_step": "0.25"
+      },
+      "frame_times": [
+        6.75,
+        7.0,
+        7.25,
+        7.5,
+        7.75,
+        8.0,
+        8.25,
+        8.5,
+        8.75,
+        9.0,
+        9.25,
+        9.5
+      ],
+      "observation": {
+        "subject_id": "black puppy",
+        "start_time": 6.75,
+        "end_time": 8.0,
+        "before_time": 6.75,
+        "after_time": 8.0,
+        "reset_time": null,
+        "status": "uncertain",
+        "reason": "The black puppy's whole body is inside the water by 8.0s, verifying the transition from outside to inside the water.",
+        "evidence_check_reason": "The first frame does not clearly show the puppy outside the water. The second frame suggests a puppy is in the water, but identity cannot be confirmed.",
+        "track_id": "animal_1"
+      },
+      "clip": [
+        6.75,
+        9.5
+      ],
+      "evidence_check": {
+        "status": "uncertain",
+        "before_state_visible": false,
+        "after_state_visible": true,
+        "same_subject_visible": false,
+        "subject_id": "unidentified",
+        "reason": "The first frame does not clearly show the puppy outside the water. The second frame suggests a puppy is in the water, but identity cannot be confirmed."
+      },
+      "repair": {
+        "subject_id": "unknown",
+        "start_time": null,
+        "end_time": null,
+        "before_time": null,
+        "after_time": null,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "No clear transition of the same puppy from outside to inside the water without exclusions visible in the frames."
+      },
+      "track_resolution": {
+        "index": 4,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "Black puppy in the pond; consistent with previous sightings."
+      }
+    },
+    {
+      "candidate": {
+        "time": 8.25,
+        "subject": "black puppy",
+        "reason": "whole body in water",
+        "window": 2,
+        "source_step": "0.5"
+      },
+      "frame_times": [
+        7.0,
+        7.25,
+        7.5,
+        7.75,
+        8.0,
+        8.25,
+        8.5,
+        8.75,
+        9.0,
+        9.25,
+        9.5,
+        9.75
+      ],
+      "observation": {
+        "subject_id": "black puppy",
+        "start_time": 7.0,
+        "end_time": 9.75,
+        "before_time": 7.0,
+        "after_time": 7.0,
+        "reset_time": null,
+        "status": "uncertain",
+        "reason": "Whole body of black puppy is inside the water as early as 7.0s",
+        "evidence_check_reason": "전후 근거 시각이 유효하지 않음",
+        "track_id": "animal_1"
+      },
+      "clip": [
+        7.0,
+        9.75
+      ],
+      "track_resolution": {
+        "index": 5,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "Black puppy consistent with previous view, same time frame."
+      }
+    },
+    {
+      "candidate": {
+        "time": 12.0,
+        "subject": "black puppy",
+        "reason": "full body entering water",
+        "window": 3,
+        "source_step": "0.25"
+      },
+      "frame_times": [
+        10.75,
+        11.0,
+        11.25,
+        11.5,
+        11.75,
+        12.0,
+        12.25,
+        12.5,
+        12.75,
+        13.0,
+        13.25,
+        13.5
+      ],
+      "observation": {
+        "subject_id": "black puppy",
+        "start_time": null,
+        "end_time": 13.0,
+        "before_time": null,
+        "after_time": 13.0,
+        "reset_time": null,
+        "status": "uncertain",
+        "reason": "The black puppy's full body is visibly inside the water at 13.0s.",
+        "evidence_check_reason": "전후 근거 시각이 유효하지 않음",
+        "track_id": "animal_1"
+      },
+      "clip": [
+        10.75,
+        13.5
+      ],
+      "track_resolution": {
+        "index": 6,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "Black puppy in the pond likely same as previous, same location."
+      }
+    },
+    {
+      "candidate": {
+        "time": 12.25,
+        "subject": "black puppy",
+        "reason": "full body clearly inside water",
+        "window": 3,
+        "source_step": "0.25"
+      },
+      "frame_times": [
+        11.0,
+        11.25,
+        11.5,
+        11.75,
+        12.0,
+        12.25,
+        12.5,
+        12.75,
+        13.0,
+        13.25,
+        13.5,
+        13.75
+      ],
+      "observation": {
+        "subject_id": "black puppy",
+        "start_time": 11.0,
+        "end_time": 12.5,
+        "before_time": 11.0,
+        "after_time": 12.5,
+        "reset_time": null,
+        "status": "uncertain",
+        "reason": "The black puppy's full body is clearly inside the water by 12.5 seconds.",
+        "evidence_check_reason": "The same individual is visible but the before state cannot be confirmed from the first frame.",
+        "track_id": "animal_1"
+      },
+      "clip": [
+        11.0,
+        13.75
+      ],
+      "evidence_check": {
+        "status": "uncertain",
+        "before_state_visible": false,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": "black_puppy",
+        "reason": "The same individual is visible but the before state cannot be confirmed from the first frame."
+      },
+      "repair": {
+        "subject_id": "black_puppy",
+        "start_time": null,
+        "end_time": 12.25,
+        "before_time": null,
+        "after_time": 12.25,
+        "reset_time": null,
+        "status": "uncertain",
+        "reason": "The same puppy is visible in the water, but the before state cannot be confirmed from the available frames."
+      },
+      "track_resolution": {
+        "index": 7,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "Black puppy in similar location, consistent description."
+      }
+    },
+    {
+      "candidate": {
+        "time": 12.75,
+        "subject": "black puppy",
+        "reason": "whole body visibly in water",
+        "window": 3,
+        "source_step": "0.5"
+      },
+      "frame_times": [
+        11.5,
+        11.75,
+        12.0,
+        12.25,
+        12.5,
+        12.75,
+        13.0,
+        13.25,
+        13.5,
+        13.75,
+        14.0,
+        14.25
+      ],
+      "observation": {
+        "subject_id": "black puppy",
+        "start_time": 11.5,
+        "end_time": 12.75,
+        "before_time": 11.5,
+        "after_time": 12.75,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "The black puppy's whole body is visibly inside the water at 12.750s.",
+        "evidence_check_reason": "The first frame already shows the puppy in the water, not outside as required by the 'before_state'."
+      },
+      "clip": [
+        11.5,
+        14.25
+      ],
+      "evidence_check": {
+        "status": "rejected",
+        "before_state_visible": false,
+        "after_state_visible": true,
+        "same_subject_visible": false,
+        "subject_id": null,
+        "reason": "The first frame already shows the puppy in the water, not outside as required by the 'before_state'."
+      },
+      "repair": {
+        "subject_id": null,
+        "start_time": null,
+        "end_time": null,
+        "before_time": null,
+        "after_time": null,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "No visible transition found where the same puppy is wholly outside and later wholly inside the water."
+      }
+    },
+    {
+      "candidate": {
+        "time": 13.0,
+        "subject": "black puppy",
+        "reason": "remains fully inside water",
+        "window": 3,
+        "source_step": "0.25"
+      },
+      "frame_times": [
+        11.75,
+        12.0,
+        12.25,
+        12.5,
+        12.75,
+        13.0,
+        13.25,
+        13.5,
+        13.75,
+        14.0,
+        14.25,
+        14.5
+      ],
+      "observation": {
+        "subject_id": "black puppy",
+        "start_time": null,
+        "end_time": 12.0,
+        "before_time": null,
+        "after_time": 12.0,
+        "reset_time": null,
+        "status": "uncertain",
+        "reason": "The black puppy's whole body is inside the water from 12.000s onwards.",
+        "evidence_check_reason": "전후 근거 시각이 유효하지 않음",
+        "track_id": "animal_1"
+      },
+      "clip": [
+        11.75,
+        14.5
+      ],
+      "track_resolution": {
+        "index": 9,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "Black puppy in the pond, tracking remains consistent."
+      }
+    },
+    {
+      "candidate": {
+        "time": 13.75,
+        "subject": "black puppy",
+        "reason": "clearly visible inside water",
+        "window": 3,
+        "source_step": "0.25"
+      },
+      "frame_times": [
+        12.5,
+        12.75,
+        13.0,
+        13.25,
+        13.5,
+        13.75,
+        14.0,
+        14.25,
+        14.5
+      ],
+      "observation": {
+        "subject_id": "black puppy",
+        "start_time": 12.75,
+        "end_time": 13.75,
+        "before_time": 12.5,
+        "after_time": 13.75,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "The puppy is fully inside the water by 13.750s.",
+        "evidence_check_reason": "The first frame appears to already show the after_state with the subject in water."
+      },
+      "clip": [
+        12.5,
+        14.556208333333332
+      ],
+      "evidence_check": {
+        "status": "rejected",
+        "before_state_visible": false,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": "unknown",
+        "reason": "The first frame appears to already show the after_state with the subject in water."
+      },
+      "repair": {
+        "subject_id": null,
+        "start_time": null,
+        "end_time": null,
+        "before_time": null,
+        "after_time": null,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "No clear transition from before_state to after_state for the subject as intended, the subject appears to never be fully outside the water throughout the provided images."
+      }
+    },
+    {
+      "candidate": {
+        "time": 14.5,
+        "subject": "black puppy",
+        "reason": "immersed in water, showing continued occupancy",
+        "window": 3,
+        "source_step": "0.25"
+      },
+      "frame_times": [
+        13.25,
+        13.5,
+        13.75,
+        14.0,
+        14.25,
+        14.5
+      ],
+      "observation": {
+        "subject_id": "black puppy",
+        "start_time": 13.25,
+        "end_time": 14.25,
+        "before_time": 13.25,
+        "after_time": 13.5,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "The black puppy is initially outside the water at 13.250s and fully inside the water by 13.500s.",
+        "evidence_check_reason": "The first frame already shows the puppy in the after_state with its whole body inside the water, so cannot confirm a transitional event."
+      },
+      "clip": [
+        13.25,
+        14.556208333333332
+      ],
+      "evidence_check": {
+        "status": "rejected",
+        "before_state_visible": false,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": null,
+        "reason": "The first frame already shows the puppy in the after_state with its whole body inside the water, so cannot confirm a transitional event."
+      },
+      "repair": {
+        "subject_id": null,
+        "start_time": null,
+        "end_time": null,
+        "before_time": null,
+        "after_time": null,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "No clear transition of one puppy from outside to inside the water is visible in the frames provided. All frames show the puppies already in the water."
+      }
+    }
+  ],
+  "model": "gpt-4o",
+  "track_status": "model_resolved",
+  "method_note": "Previously verified scene evidence reused; animal identity and resets checked across runs."
+}

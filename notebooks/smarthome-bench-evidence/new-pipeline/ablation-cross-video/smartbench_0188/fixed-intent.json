@@ -1,0 +1,8 @@
+{
+  "subject": "dog",
+  "action": "climb",
+  "target": "fence",
+  "before_state": "one dog's whole body on ground",
+  "after_state": "that same dog's front paws and upper body supported on fence",
+  "exclusion": "all four paws on top of fence"
+}

@@ -2,7 +2,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from pipeline.search.video_aggregate import parse_count_intent, reduce_transitions, timeline_windows, verify_resets
+from pipeline.search.video_aggregate import analyze_video_count, parse_count_intent, reduce_transitions, timeline_windows, verify_resets
 
 
 def item(time, subject, before, after, *, reset=None, start=None, end=None, status="confirmed"):
@@ -22,6 +22,19 @@ def item(time, subject, before, after, *, reset=None, start=None, end=None, stat
 
 
 class VideoAggregateTests(unittest.TestCase):
+    def test_fixed_intent_skips_stochastic_question_parsing(self):
+        intent = {key: key for key in (
+            "subject", "action", "target", "before_state", "after_state", "exclusion")}
+        with patch("pipeline.search.video_aggregate.parse_count_intent",
+                   side_effect=AssertionError("must use fixed intent")), \
+             patch("pipeline.search.video_aggregate.collect_candidates", return_value=([], [])), \
+             patch("pipeline.search.video_aggregate.verify_candidates", return_value=[]), \
+             patch("pipeline.search.video_aggregate.check_claimed_evidence", return_value=[]), \
+             patch("pipeline.search.video_aggregate.repair_failed_claims", return_value=[]):
+            result = analyze_video_count(Path("unused.mp4"), "question", lambda *_: {},
+                                         resolve_tracks=False, intent_override=intent)
+        self.assertEqual(result["intent"], intent)
+
     def test_question_maps_to_observable_states(self):
         def fake_model(prompt, frames):
             self.assertIn("소파", prompt)
@@ -49,10 +62,17 @@ class VideoAggregateTests(unittest.TestCase):
         result = reduce_transitions([
             item(1.5, "black dog", 1.0, 2.0, start=1.5, end=3.0),
             item(5.0, "black dog", 4.75, 5.25, start=5.0, end=5.5),
-            item(9.0, "black dog", 8.25, 9.25, reset=8.5, start=9.0, end=9.5),
+            item(9.0, "black dog", 8.25, 9.25, reset=8.0, start=9.0, end=9.5),
         ])
         self.assertEqual(result["confirmed_count"], 2)
         self.assertEqual(result["uncertain_count"], 1)
+
+    def test_verified_reset_outweighs_overlong_model_episode_span(self):
+        result = reduce_transitions([
+            item(4.5, "dog", 3.25, 4.5, start=3.25, end=6.0),
+            item(6.25, "dog", 5.0, 6.25, reset=5.0, start=5.0, end=7.75),
+        ])
+        self.assertEqual(result["confirmed_count"], 2)
 
     def test_overlap_is_duplicate_but_missing_before_state_is_uncertain(self):
         result = reduce_transitions([
@@ -109,6 +129,28 @@ class VideoAggregateTests(unittest.TestCase):
         result = reduce_transitions(verified)
         self.assertEqual(result["confirmed_count"], 1)
         self.assertEqual(result["uncertain_count"], 1)
+
+    def test_unchecked_reset_claim_is_cleared_before_cross_event_check(self):
+        first = item(4.5, "dog", 3.25, 4.5)
+        second = item(4.75, "dog", 3.5, 4.75, reset=4.6)
+        for event in (first, second):
+            event["observation"]["track_id"] = "animal_1"
+        with patch("pipeline.search.video_aggregate.video_duration", return_value=12.0):
+            verify_resets(Path("unused.mp4"), {}, [first, second],
+                          lambda prompt, frames: self.fail("overlapping events need no reset API call"))
+        self.assertIsNone(second["observation"]["reset_time"])
+        self.assertEqual(reduce_transitions([first, second])["confirmed_count"], 1)
+
+    def test_clip_starting_in_after_state_is_unresolved_not_zero_events(self):
+        boundary = item(0.375, "dog", 0.0, 0.25, status="rejected")
+        boundary["clip"] = [0.0, 1.875]
+        boundary["evidence_check"] = {"status": "rejected",
+                                      "before_state_visible": False,
+                                      "after_state_visible": True}
+        result = reduce_transitions([boundary])
+        self.assertEqual(result["confirmed_count"], 0)
+        self.assertEqual(result["uncertain_count"], 1)
+        self.assertFalse(result["rejected"])
 
 
 if __name__ == "__main__":

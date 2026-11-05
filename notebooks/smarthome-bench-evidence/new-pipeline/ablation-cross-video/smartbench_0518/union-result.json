@@ -1,0 +1,673 @@
+{
+  "confirmed_count": 2,
+  "uncertain_count": 0,
+  "confirmed": [
+    {
+      "candidate_time": 19.75,
+      "subject_id": "animal_1",
+      "start_time": 18.5,
+      "end_time": 20.0,
+      "before_time": 19.5,
+      "after_time": 20.0,
+      "reset_time": null,
+      "reason": "The black dog transitions from having its whole body on the floor at 19.500s to having its whole body on the sofa seat at 20.000s.",
+      "model_status": "confirmed",
+      "model_subject_id": "black dog"
+    },
+    {
+      "candidate_time": 20.75,
+      "subject_id": "animal_2",
+      "start_time": 20.75,
+      "end_time": 21.75,
+      "before_time": 20.5,
+      "after_time": 21.0,
+      "reset_time": null,
+      "reason": "whole body on sofa seat",
+      "model_status": "confirmed",
+      "model_subject_id": "white dog"
+    }
+  ],
+  "uncertain": [],
+  "rejected": [
+    {
+      "candidate_time": 3.0,
+      "subject_id": "unknown",
+      "start_time": 1.75,
+      "end_time": null,
+      "before_time": 1.75,
+      "after_time": null,
+      "reset_time": null,
+      "reason": "The puppy does not visibly transition to the sofa seat in the frames provided.",
+      "model_status": "rejected",
+      "model_subject_id": "unknown"
+    },
+    {
+      "candidate_time": 3.0,
+      "subject_id": "unknown",
+      "start_time": 1.75,
+      "end_time": 4.5,
+      "before_time": 1.75,
+      "after_time": null,
+      "reset_time": null,
+      "reason": "No puppy's whole body on sofa seat.",
+      "model_status": "rejected",
+      "model_subject_id": "unknown"
+    },
+    {
+      "candidate_time": 9.25,
+      "subject_id": "black dog",
+      "start_time": 8.0,
+      "end_time": 10.75,
+      "before_time": 8.0,
+      "after_time": null,
+      "reset_time": null,
+      "reason": "The black dog did not achieve the after state of having its whole body on the sofa seat during the clip.",
+      "model_status": "rejected",
+      "model_subject_id": "black dog"
+    },
+    {
+      "candidate_time": 11.5,
+      "subject_id": "white dog",
+      "start_time": 11.5,
+      "end_time": 11.75,
+      "before_time": 11.5,
+      "after_time": 11.75,
+      "reset_time": null,
+      "reason": "The white dog's whole body was on the sofa seat at time 11.750s.",
+      "model_status": "rejected",
+      "model_subject_id": "white dog"
+    },
+    {
+      "candidate_time": 12.25,
+      "subject_id": "white dog",
+      "start_time": 11.5,
+      "end_time": null,
+      "before_time": 11.75,
+      "after_time": null,
+      "reset_time": null,
+      "reason": "The white dog is not seen fully on the sofa at any point during the clip.",
+      "model_status": "rejected",
+      "model_subject_id": "white dog"
+    },
+    {
+      "candidate_time": 12.75,
+      "subject_id": "white dog",
+      "start_time": 11.5,
+      "end_time": 14.25,
+      "before_time": 11.5,
+      "after_time": null,
+      "reset_time": null,
+      "reason": "No transition to after_state; dog remains on the floor.",
+      "model_status": "rejected",
+      "model_subject_id": "white dog"
+    }
+  ],
+  "duplicates": [
+    {
+      "candidate_time": 19.75,
+      "subject_id": "animal_1",
+      "start_time": 18.5,
+      "end_time": 20.0,
+      "before_time": 19.5,
+      "after_time": 20.0,
+      "reset_time": null,
+      "reason": "The black dog transitions from having its whole body on the floor at 19.500s to having its whole body on the sofa seat at 20.000s.",
+      "model_status": "confirmed",
+      "model_subject_id": "black dog",
+      "review_reason": "같은 개체의 기존 구간과 겹침"
+    },
+    {
+      "candidate_time": 21.0,
+      "subject_id": "animal_2",
+      "start_time": 19.75,
+      "end_time": 22.25,
+      "before_time": 19.75,
+      "after_time": 21.0,
+      "reset_time": null,
+      "reason": "The white dog is initially fully on the floor at 19.75s and is completely on the sofa seat by 21.0s, meeting the criteria for the transition.",
+      "model_status": "confirmed",
+      "model_subject_id": "white dog",
+      "review_reason": "같은 개체의 기존 구간과 겹침"
+    }
+  ],
+  "video": "data/videos/smartbench_0518.mp4",
+  "query": "강아지들이 소파 좌석 위에 몇 번 올라갔어? 개별 강아지를 각각 세어.",
+  "intent": {
+    "subject": "one puppy",
+    "action": "climb",
+    "target": "onto sofa seat",
+    "before_state": "one puppy's whole body on floor",
+    "after_state": "that same puppy's whole body on sofa seat",
+    "exclusion": "near sofa or front paws only"
+  },
+  "candidate_sources": {
+    "0.5": "notebooks/smarthome-bench-evidence/new-pipeline/smartbench_0518-result.json",
+    "0.25": "notebooks/smarthome-bench-evidence/new-pipeline/ablation-cross-video/smartbench_0518/step025/smartbench_0518-result.json"
+  },
+  "candidates": [
+    {
+      "time": 3.0,
+      "subject": "brown puppy",
+      "reason": "puppy is seen on the sofa seat",
+      "window": 0,
+      "source_step": "0.5"
+    },
+    {
+      "time": 3.0,
+      "subject": "brown puppy",
+      "reason": "whole body on sofa seat",
+      "window": 0,
+      "source_step": "0.25"
+    },
+    {
+      "time": 9.25,
+      "subject": "black dog",
+      "reason": "black dog fully on the sofa",
+      "window": 2,
+      "source_step": "0.5"
+    },
+    {
+      "time": 11.5,
+      "subject": "white dog",
+      "reason": "the white dog's body is on the sofa seat",
+      "window": 2,
+      "source_step": "0.25"
+    },
+    {
+      "time": 12.25,
+      "subject": "white dog",
+      "reason": "white dog fully on the sofa",
+      "window": 2,
+      "source_step": "0.5"
+    },
+    {
+      "time": 12.75,
+      "subject": "white dog",
+      "reason": "appears on sofa",
+      "window": 3,
+      "source_step": "0.5"
+    },
+    {
+      "time": 19.75,
+      "subject": "black dog",
+      "reason": "whole body on sofa seat",
+      "window": 4,
+      "source_step": "0.5"
+    },
+    {
+      "time": 19.75,
+      "subject": "black dog",
+      "reason": "whole body on sofa seat",
+      "window": 4,
+      "source_step": "0.25"
+    },
+    {
+      "time": 20.75,
+      "subject": "white dog",
+      "reason": "whole body on sofa seat",
+      "window": 4,
+      "source_step": "0.5"
+    },
+    {
+      "time": 21.0,
+      "subject": "white dog",
+      "reason": "transition onto sofa seat with whole body visible after landing",
+      "window": 5,
+      "source_step": "0.25"
+    }
+  ],
+  "verifications": [
+    {
+      "candidate": {
+        "time": 3.0,
+        "subject": "brown puppy",
+        "reason": "puppy is seen on the sofa seat",
+        "window": 0,
+        "source_step": "0.5"
+      },
+      "frame_times": [
+        1.75,
+        2.0,
+        2.25,
+        2.5,
+        2.75,
+        3.0,
+        3.25,
+        3.5,
+        3.75,
+        4.0,
+        4.25,
+        4.5
+      ],
+      "observation": {
+        "subject_id": "unknown",
+        "start_time": 1.75,
+        "end_time": null,
+        "before_time": 1.75,
+        "after_time": null,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "The puppy does not visibly transition to the sofa seat in the frames provided."
+      },
+      "clip": [
+        1.75,
+        4.5
+      ]
+    },
+    {
+      "candidate": {
+        "time": 3.0,
+        "subject": "brown puppy",
+        "reason": "whole body on sofa seat",
+        "window": 0,
+        "source_step": "0.25"
+      },
+      "frame_times": [
+        1.75,
+        2.0,
+        2.25,
+        2.5,
+        2.75,
+        3.0,
+        3.25,
+        3.5,
+        3.75,
+        4.0,
+        4.25,
+        4.5
+      ],
+      "observation": {
+        "subject_id": "unknown",
+        "start_time": 1.75,
+        "end_time": 4.5,
+        "before_time": 1.75,
+        "after_time": null,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "No puppy's whole body on sofa seat."
+      },
+      "clip": [
+        1.75,
+        4.5
+      ]
+    },
+    {
+      "candidate": {
+        "time": 9.25,
+        "subject": "black dog",
+        "reason": "black dog fully on the sofa",
+        "window": 2,
+        "source_step": "0.5"
+      },
+      "frame_times": [
+        8.0,
+        8.25,
+        8.5,
+        8.75,
+        9.0,
+        9.25,
+        9.5,
+        9.75,
+        10.0,
+        10.25,
+        10.5,
+        10.75
+      ],
+      "observation": {
+        "subject_id": "black dog",
+        "start_time": 8,
+        "end_time": 10.75,
+        "before_time": 8,
+        "after_time": null,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "The black dog did not achieve the after state of having its whole body on the sofa seat during the clip."
+      },
+      "clip": [
+        8.0,
+        10.75
+      ]
+    },
+    {
+      "candidate": {
+        "time": 11.5,
+        "subject": "white dog",
+        "reason": "the white dog's body is on the sofa seat",
+        "window": 2,
+        "source_step": "0.25"
+      },
+      "frame_times": [
+        10.25,
+        10.5,
+        10.75,
+        11.0,
+        11.25,
+        11.5,
+        11.75,
+        12.0,
+        12.25,
+        12.5,
+        12.75,
+        13.0
+      ],
+      "observation": {
+        "subject_id": "white dog",
+        "start_time": 11.5,
+        "end_time": 11.75,
+        "before_time": 11.5,
+        "after_time": 11.75,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "The white dog's whole body was on the sofa seat at time 11.750s.",
+        "evidence_check_reason": "The second keyframe does not show the puppy's whole body on the sofa seat."
+      },
+      "clip": [
+        10.25,
+        13.0
+      ],
+      "evidence_check": {
+        "status": "rejected",
+        "before_state_visible": true,
+        "after_state_visible": false,
+        "same_subject_visible": true,
+        "subject_id": "white dog",
+        "reason": "The second keyframe does not show the puppy's whole body on the sofa seat."
+      },
+      "repair": {
+        "subject_id": "white puppy",
+        "start_time": 9.0,
+        "end_time": 14.0,
+        "before_time": 11.75,
+        "after_time": null,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "The second keyframe does not show the puppy's whole body on the sofa seat."
+      }
+    },
+    {
+      "candidate": {
+        "time": 12.25,
+        "subject": "white dog",
+        "reason": "white dog fully on the sofa",
+        "window": 2,
+        "source_step": "0.5"
+      },
+      "frame_times": [
+        11.0,
+        11.25,
+        11.5,
+        11.75,
+        12.0,
+        12.25,
+        12.5,
+        12.75,
+        13.0,
+        13.25,
+        13.5,
+        13.75
+      ],
+      "observation": {
+        "subject_id": "white dog",
+        "start_time": 11.5,
+        "end_time": null,
+        "before_time": 11.75,
+        "after_time": null,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "The white dog is not seen fully on the sofa at any point during the clip."
+      },
+      "clip": [
+        11.0,
+        13.75
+      ]
+    },
+    {
+      "candidate": {
+        "time": 12.75,
+        "subject": "white dog",
+        "reason": "appears on sofa",
+        "window": 3,
+        "source_step": "0.5"
+      },
+      "frame_times": [
+        11.5,
+        11.75,
+        12.0,
+        12.25,
+        12.5,
+        12.75,
+        13.0,
+        13.25,
+        13.5,
+        13.75,
+        14.0,
+        14.25
+      ],
+      "observation": {
+        "subject_id": "white dog",
+        "start_time": 11.5,
+        "end_time": 14.25,
+        "before_time": 11.5,
+        "after_time": null,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "No transition to after_state; dog remains on the floor."
+      },
+      "clip": [
+        11.5,
+        14.25
+      ]
+    },
+    {
+      "candidate": {
+        "time": 19.75,
+        "subject": "black dog",
+        "reason": "whole body on sofa seat",
+        "window": 4,
+        "source_step": "0.5"
+      },
+      "frame_times": [
+        18.5,
+        18.75,
+        19.0,
+        19.25,
+        19.5,
+        19.75,
+        20.0,
+        20.25,
+        20.5,
+        20.75,
+        21.0,
+        21.25
+      ],
+      "observation": {
+        "subject_id": "black dog",
+        "start_time": 18.5,
+        "end_time": 20.0,
+        "before_time": 19.5,
+        "after_time": 20.0,
+        "reset_time": null,
+        "status": "confirmed",
+        "reason": "The black dog transitions from having its whole body on the floor at 19.500s to having its whole body on the sofa seat at 20.000s.",
+        "track_id": "animal_1"
+      },
+      "clip": [
+        18.5,
+        21.25
+      ],
+      "evidence_check": {
+        "status": "confirmed",
+        "before_state_visible": true,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": "black_puppy",
+        "reason": "The black puppy is visibly on the floor in the first frame and fully on the sofa seat in the second frame."
+      },
+      "track_resolution": {
+        "index": 6,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "Black dog on the couch; consistent with image 7."
+      }
+    },
+    {
+      "candidate": {
+        "time": 19.75,
+        "subject": "black dog",
+        "reason": "whole body on sofa seat",
+        "window": 4,
+        "source_step": "0.25"
+      },
+      "frame_times": [
+        18.5,
+        18.75,
+        19.0,
+        19.25,
+        19.5,
+        19.75,
+        20.0,
+        20.25,
+        20.5,
+        20.75,
+        21.0,
+        21.25
+      ],
+      "observation": {
+        "subject_id": "black dog",
+        "start_time": 18.5,
+        "end_time": 20.0,
+        "before_time": 19.5,
+        "after_time": 20.0,
+        "reset_time": null,
+        "status": "confirmed",
+        "reason": "The black dog transitions from having its whole body on the floor at 19.500s to having its whole body on the sofa seat at 20.000s.",
+        "track_id": "animal_1"
+      },
+      "clip": [
+        18.5,
+        21.25
+      ],
+      "evidence_check": {
+        "status": "confirmed",
+        "before_state_visible": true,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": "black_puppy",
+        "reason": "The black puppy is visibly on the floor in the first frame and fully on the sofa seat in the second frame."
+      },
+      "track_resolution": {
+        "index": 7,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "Black dog on the couch; consistent with image 6."
+      }
+    },
+    {
+      "candidate": {
+        "time": 20.75,
+        "subject": "white dog",
+        "reason": "whole body on sofa seat",
+        "window": 4,
+        "source_step": "0.5"
+      },
+      "frame_times": [
+        19.5,
+        19.75,
+        20.0,
+        20.25,
+        20.5,
+        20.75,
+        21.0,
+        21.25,
+        21.5,
+        21.75,
+        22.0,
+        22.25
+      ],
+      "observation": {
+        "subject_id": "white dog",
+        "start_time": 20.75,
+        "end_time": 21.75,
+        "before_time": 20.5,
+        "after_time": 21.0,
+        "reset_time": null,
+        "status": "confirmed",
+        "reason": "whole body on sofa seat",
+        "track_id": "animal_2"
+      },
+      "clip": [
+        19.5,
+        22.25
+      ],
+      "evidence_check": {
+        "status": "confirmed",
+        "before_state_visible": true,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": "white_puppy",
+        "reason": "The white puppy is completely on the floor in the first frame and fully on the sofa in the second frame, showing clear progression."
+      },
+      "track_resolution": {
+        "index": 8,
+        "track_id": "animal_2",
+        "certain": true,
+        "reason": "White dog entering the room; same as in image 9."
+      }
+    },
+    {
+      "candidate": {
+        "time": 21.0,
+        "subject": "white dog",
+        "reason": "transition onto sofa seat with whole body visible after landing",
+        "window": 5,
+        "source_step": "0.25"
+      },
+      "frame_times": [
+        19.75,
+        20.0,
+        20.25,
+        20.5,
+        20.75,
+        21.0,
+        21.25,
+        21.5,
+        21.75,
+        22.0,
+        22.25,
+        22.5
+      ],
+      "observation": {
+        "subject_id": "white dog",
+        "start_time": 19.75,
+        "end_time": 22.25,
+        "before_time": 19.75,
+        "after_time": 21.0,
+        "reset_time": null,
+        "status": "confirmed",
+        "reason": "The white dog is initially fully on the floor at 19.75s and is completely on the sofa seat by 21.0s, meeting the criteria for the transition.",
+        "track_id": "animal_2"
+      },
+      "clip": [
+        19.75,
+        22.5
+      ],
+      "evidence_check": {
+        "status": "confirmed",
+        "before_state_visible": true,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": "white dog",
+        "reason": "The white dog's whole body is on the floor in the first frame, and in the second frame, the same white dog is fully on the sofa seat."
+      },
+      "track_resolution": {
+        "index": 9,
+        "track_id": "animal_2",
+        "certain": true,
+        "reason": "White dog interacting with black dog; consistent with image 8."
+      }
+    }
+  ],
+  "model": "gpt-4o",
+  "track_status": "model_resolved",
+  "method_note": "Previously verified scene evidence reused; animal identity and resets checked across runs."
+}

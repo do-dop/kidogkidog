@@ -1,0 +1,8 @@
+{
+  "subject": "the same dog at the glass door",
+  "action": "raise both front paws toward the glass door, then lower them",
+  "target": "glass door",
+  "before_state": "that dog's two front paws are down on or near the floor, not raised toward the glass door",
+  "after_state": "that dog's two front paws are visibly raised together toward the glass door; the hind paws may stay on the floor or leave it",
+  "exclusion": "walking near the door, a single stepping paw, and continued front-paws-up pose are not new events; a new count requires a visible return to front-paws-down first"
+}
