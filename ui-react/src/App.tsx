@@ -1620,6 +1620,45 @@ export default function App() {
                       </button>
                     </form>
                   </div>
+                  <div className="search-filters" role="group" aria-label="검색 범위">
+                    <div className="filter-item">
+                      <span className="filter-label"><Icon>calendar_today</Icon>날짜</span>
+                      <div className="date-scope">
+                        <button
+                          type="button"
+                          className={`date-all-toggle${searchAllDates ? " on" : ""}`}
+                          aria-pressed={searchAllDates}
+                          onClick={() => setSearchAllDates((value) => !value)}
+                        >
+                          전체 날짜
+                        </button>
+                        {/* 전체 날짜일 때 날짜를 고르려고 누르면 자동으로 날짜 지정으로 바뀐다. */}
+                        <div className={`date-picker-slot${searchAllDates ? " dimmed" : ""}`} onClickCapture={() => setSearchAllDates(false)}>
+                          <DateFilter selectedYear={selectedYear} setSelectedYear={setSelectedYear} selectedMonth={selectedMonth} setSelectedMonth={setSelectedMonth} selectedDay={selectedDay} setSelectedDay={setSelectedDay} compact />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="filter-item">
+                      <span className="filter-label"><Icon>videocam</Icon>영상</span>
+                      <select className="video-select" aria-label="검색할 영상" value={selectedSearchVideoId} onChange={(event) => setSelectedSearchVideoId(event.target.value)}>
+                        <option value="">전체 영상</option>
+                        {searchVideoOptions.map((videoId) => (
+                          <option value={videoId} key={videoId}>{videoId}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="filter-item filter-time">
+                      <span className="filter-label"><Icon>schedule</Icon>시간대</span>
+                      <TimeRangeBar
+                        startHour={searchStartHour}
+                        endHour={searchEndHour}
+                        onChange={(start, end) => {
+                          setSearchStartHour(start);
+                          setSearchEndHour(end);
+                        }}
+                      />
+                    </div>
+                  </div>
                   <div className="suggestions">
                     <span><Icon>auto_awesome</Icon>추천</span>
                     {selectedSearchVideoId && indexedFrameCount === 0 ? (
@@ -1706,59 +1745,6 @@ export default function App() {
               </div>
 
               <div className="search-page-inner">
-                <div className="section-title-block">
-                  <div className="section-kicker-pill">
-                    <Icon filled>auto_awesome</Icon>
-                    <span>SMART FILTER & CONTROLS</span>
-                  </div>
-                  <h2>어떤 날짜와 시간의 영상을 찾으시나요?</h2>
-                  <p>필터를 선택하고 위 검색창에서 {petName}의 순간을 검색해보세요.</p>
-                </div>
-
-                <div className="search-toolbar">
-                  <div className="toolbar-field">
-                    <span><Icon>calendar_today</Icon>날짜</span>
-                    <div className="date-scope">
-                      <button
-                        type="button"
-                        className={`date-all-toggle${searchAllDates ? " on" : ""}`}
-                        aria-pressed={searchAllDates}
-                        onClick={() => setSearchAllDates((value) => !value)}
-                      >
-                        전체 날짜
-                      </button>
-                      {/* 전체 날짜일 때 날짜를 고르려고 누르면 자동으로 날짜 지정으로 바뀐다. */}
-                      <div className={`date-picker-slot${searchAllDates ? " dimmed" : ""}`} onClickCapture={() => setSearchAllDates(false)}>
-                        <DateFilter selectedYear={selectedYear} setSelectedYear={setSelectedYear} selectedMonth={selectedMonth} setSelectedMonth={setSelectedMonth} selectedDay={selectedDay} setSelectedDay={setSelectedDay} compact />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="toolbar-field">
-                    <span><Icon>videocam</Icon>검색할 영상</span>
-                    <select className="video-select" value={selectedSearchVideoId} onChange={(event) => setSelectedSearchVideoId(event.target.value)}>
-                      <option value="">전체 영상</option>
-                      {searchVideoOptions.map((videoId) => (
-                        <option value={videoId} key={videoId}>{videoId}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="toolbar-field wide">
-                    <span><Icon>schedule</Icon>시간대</span>
-                    <TimeRangeBar
-                      startHour={searchStartHour}
-                      endHour={searchEndHour}
-                      onChange={(start, end) => {
-                        setSearchStartHour(start);
-                        setSearchEndHour(end);
-                      }}
-                    />
-                  </div>
-                </div>
-                <p className="toolbar-summary">
-                  <Icon>tune</Icon>
-                  선택 범위 · {selectedSearchVideoId || "전체 영상"} · {searchAllDates ? "전체 날짜" : `${selectedYear}년 ${selectedMonth}월 ${selectedDay}일`} · {formatHourRange(searchStartHour, searchEndHour)}
-                </p>
-
                 <div ref={resultsRef} className="results-anchor" aria-hidden="true" />
                 {loading ? (
                   <div className="search-loading-card">

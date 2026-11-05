@@ -933,44 +933,6 @@ button {
   padding: 0 60px 80px;
 }
 
-.search-toolbar {
-  display: grid;
-  grid-template-columns: auto auto 1fr;
-  gap: 20px;
-  align-items: center;
-  padding: 20px 24px;
-  border-radius: var(--r-lg);
-  background: var(--surface);
-  border: 1px solid var(--border-strong);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  box-shadow: var(--shadow-float);
-  /* backdrop-filter가 stacking context를 만들어 캘린더 팝오버의 z-index가 툴바 안에 갇힌다.
-     툴바 자체를 뒤따르는 glass 카드(empty-state 등)보다 위에 올린다. */
-  position: relative;
-  z-index: 20;
-}
-
-.toolbar-field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.toolbar-field span {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  font-weight: 800;
-  color: var(--text-2);
-}
-
-.toolbar-field span .material-symbols-rounded {
-  font-size: 16px;
-  color: var(--accent);
-}
-
 .video-select {
   padding: 10px 16px;
   border-radius: 12px;
@@ -987,21 +949,6 @@ button {
 .video-select:hover,
 .video-select:focus {
   border-color: var(--accent);
-}
-
-.toolbar-summary {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: -12px 0 0 4px;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text-2);
-}
-
-.toolbar-summary .material-symbols-rounded {
-  color: var(--accent);
-  font-size: 18px;
 }
 
 /* Search Loading & AI Answer Card */
@@ -2298,10 +2245,6 @@ button {
   .search-hero-inner h2 {
     font-size: 38px;
   }
-
-  .search-toolbar {
-    grid-template-columns: 1fr;
-  }
 }
 
 @media (max-width: 768px) {
@@ -3070,4 +3013,144 @@ button {
   font-size: 13px;
   line-height: 1.6;
   color: var(--text-2);
+}
+
+/* 검색창 바로 아래의 컴팩트 필터 막대 */
+.search-filters {
+  /* 히어로의 어두운 글래스 위에 놓이므로 테마와 무관하게 밝은 글자색을 쓴다. */
+  --text: #f9f5ef;
+  --text-2: #e6d6c2;
+  --text-3: #b8a792;
+  --surface-2: rgba(255, 255, 255, 0.08);
+  --surface-solid: #1d1611;
+  --surface-hover: rgba(255, 255, 255, 0.14);
+  --border: rgba(255, 255, 255, 0.12);
+  --border-strong: rgba(255, 175, 95, 0.34);
+  color-scheme: dark;
+  /* 달력 팝오버가 아래의 추천 칩보다 위에 보이도록 한다. */
+  position: relative;
+  z-index: 30;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px 20px;
+  width: 100%;
+  max-width: 920px;
+  margin: -8px auto 0;
+  padding: 8px 18px;
+  border-radius: 18px;
+  background: rgba(16, 12, 9, 0.62);
+  border: 1px solid rgba(255, 175, 95, 0.26);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  text-align: left;
+}
+
+.search-filters .filter-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.search-filters .filter-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text-2);
+  white-space: nowrap;
+}
+
+.search-filters .filter-label .material-symbols-rounded {
+  font-size: 16px;
+  color: var(--accent);
+}
+
+.search-filters .date-scope {
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  width: auto;
+}
+
+.search-filters .date-all-toggle {
+  height: 28px;
+  padding: 0 12px;
+  font-size: 12px;
+}
+
+.search-filters .date-picker-slot {
+  width: auto;
+}
+
+.search-filters .date-label {
+  padding: 5px 12px;
+  border-radius: 999px;
+  gap: 6px;
+  font-size: 12px;
+}
+
+/* 어두운 막대 안에서 열리는 달력의 제목이 상속 글자색 때문에 묻히지 않게 한다. */
+.search-filters .calendar-popover {
+  color: var(--text);
+}
+
+.search-filters .video-select {
+  max-width: 170px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background-color: #1d1611;
+  color: #f9f5ef;
+  font-size: 12px;
+}
+
+.search-filters .video-select option {
+  background: #1d1611;
+  color: #f9f5ef;
+}
+
+.search-filters .filter-time {
+  flex: 1 1 220px;
+}
+
+.search-filters .time-range {
+  gap: 0;
+}
+
+/* 막대 높이를 줄이려고 양끝 시각과 눈금은 숨기고 선택한 범위만 가운데에 보여준다. */
+.search-filters .time-range-labels {
+  justify-content: center;
+  font-size: 11px;
+}
+
+.search-filters .time-range-labels strong,
+.search-filters .time-range-scale {
+  display: none;
+}
+
+.search-filters .range-slider {
+  height: 18px;
+}
+
+.search-filters .range-track {
+  inset: 6px 0;
+}
+
+.search-filters .range-fill {
+  top: 6px;
+  bottom: 6px;
+}
+
+@media (max-width: 768px) {
+  .search-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-filters .filter-item {
+    justify-content: space-between;
+  }
 }
