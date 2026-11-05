@@ -11,7 +11,7 @@ from db.behavior_events import (
     get_top_behavior_events,
     get_behavior_events_overlapping,
 )
-from pipeline.search.aggregate_query import count_episodes, event_matches_action, parse_count_action
+from pipeline.search.aggregate_query import ACTION_PATTERNS, count_episodes, event_matches_action, parse_count_action
 from pipeline.search.question_router import QuestionType, classify_with_rules
 from pipeline.search.sequence_query import is_sequence_query, run_sequence_query
 
@@ -78,6 +78,16 @@ def run_rag_query(
             recording_date=recording_date,
             time_range=time_range,
         )
+
+    gate_scene_result = _run_gate_climb_scene_query(
+        query=query,
+        video_id=video_id or (source_event or {}).get("video_id"),
+        top_k=top_k,
+        recording_date=recording_date,
+        time_range=time_range,
+    )
+    if gate_scene_result is not None:
+        return gate_scene_result
 
     if source_event:
         return _run_event_grounded_query(
@@ -214,6 +224,81 @@ def run_rag_query(
         "evidence_items": retrieved_frames,
         "behavior_events": behavior_events,
         "used_llm": used_llm,
+    }
+
+
+def _run_gate_climb_scene_query(
+    query: str,
+    video_id: str | None,
+    top_k: int,
+    recording_date: str | None,
+    time_range: dict[str, int] | None,
+) -> dict[str, Any] | None:
+    """Use extracted behavior records for a gate-climbing scene question.
+
+    CLIP object labels can call a small dog a cat. They must not override a
+    matching behavior record or support a claim that the scene is absent.
+    """
+    if (
+        not video_id
+        or _has_datetime_filter(recording_date, time_range)
+        or not re.search(ACTION_PATTERNS["gate_climb"][0], query, re.I)
+    ):
+        return None
+
+    try:
+        timeline = get_behavior_events_for_aggregation(video_id=video_id)
+    except Exception as exc:
+        print(f"울타리 행동 이벤트 조회 실패: {exc}", flush=True)
+        return {
+            "query": query,
+            "video_id": video_id,
+            "answer": "행동 기록을 조회하지 못해 울타리 장면을 확인할 수 없어요. 잠시 후 다시 시도해 주세요.",
+            "results": [],
+            "evidence_items": [],
+            "behavior_events": [],
+            "used_llm": False,
+        }
+
+    matched = [event for event in timeline if event_matches_action(event, "gate_climb")]
+    episodes = count_episodes(matched)
+    if not episodes:
+        return {
+            "query": query,
+            "video_id": video_id,
+            "answer": "울타리 올라타기를 확인할 행동 기록이 아직 없어요. 원본 영상을 확인해 주세요.",
+            "results": [],
+            "evidence_items": [],
+            "behavior_events": [],
+            "used_llm": False,
+        }
+
+    evidence = []
+    for episode in episodes[:max(1, top_k)]:
+        event = episode["events"][0]
+        frames = _frames_from_behavior_events([event], video_id=video_id, limit=1)
+        if frames:
+            frame = _attach_event_window_to_frames(frames, event)[0]
+            # YOLO labels are independent frame guesses, not proof of the action.
+            frame["object_labels"] = ""
+            evidence.append(frame)
+
+    times = ", ".join(
+        f"{episode['start_time']:.1f}~{episode['end_time']:.1f}초"
+        for episode in episodes[:max(1, top_k)]
+    )
+    answer = (
+        f"울타리를 올라가거나 넘는 것으로 분석된 장면이 {times}에 있어요. "
+        "실제 동작은 영상을 재생해 확인해 주세요."
+    )
+    return {
+        "query": query,
+        "video_id": video_id,
+        "answer": answer,
+        "results": evidence,
+        "evidence_items": evidence,
+        "behavior_events": matched,
+        "used_llm": False,
     }
 
 
@@ -785,6 +870,8 @@ def _behavior_query_score(query: str, event: dict[str, Any]) -> float:
     keyword_groups = [
         ["횟수", "몇번", "몇회", "반복"],
         ["그릇", "사료", "밥", "먹", "물", "마시", "bowl", "cup", "bottle"],
+        ["울타리", "펜스", "gate", "fence"],
+        ["올라", "올랐", "타고", "넘", "기어", "climb"],
         ["공", "스포츠공", "sportsball", "ball"],
         ["불안", "서성", "돌아다니", "배회"],
         ["사람", "person"],
