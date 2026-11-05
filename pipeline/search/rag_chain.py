@@ -15,6 +15,8 @@ from pipeline.search.aggregate_query import count_episodes, event_matches_action
 from pipeline.search.question_router import QuestionType, classify_with_rules
 from pipeline.search.sequence_query import is_sequence_query, run_sequence_query
 
+SEQUENCE_MIN_RESULTS = 10
+
 
 DEFAULT_FALLBACK_MESSAGE = (
     "현재 OPENAI_API_KEY가 설정되어 있지 않아 LLM 답변은 생성하지 못했습니다. "
@@ -71,10 +73,11 @@ def run_rag_query(
         )
 
     if is_sequence_query(query):
+        # 순서 질문은 흐름이 끊기지 않게 요청한 개수와 상관없이 타임라인을 충분히 보여준다.
         return run_sequence_query(
             query=query,
             video_id=video_id,
-            top_k=top_k,
+            top_k=max(top_k, SEQUENCE_MIN_RESULTS),
             recording_date=recording_date,
             time_range=time_range,
         )

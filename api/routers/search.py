@@ -83,6 +83,8 @@ def query(request: QueryRequest, background_tasks: BackgroundTasks):
         "used_llm": rag_result["used_llm"],
         "query_type": rag_result.get("query_type", "search"),
         "total_event_count": rag_result.get("total_event_count"),
+        "excluded_event_count": rag_result.get("excluded_event_count", 0),
+        "sequence_intent": rag_result.get("sequence_intent"),
         "truncated": rag_result.get("truncated", False),
     }
 
