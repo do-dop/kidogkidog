@@ -51,27 +51,61 @@ def main() -> None:
             "step050_confirmed": baseline["confirmed_count"],
             "step050_uncertain": baseline["uncertain_count"],
             "step050_time_matches": len(final_match["matches"]),
-            "step025_status": "not_run_api_quota_exhausted",
+            "step025_status": "not_run",
+            "union_status": "not_run",
         }
-        scan_only = folder / "step025-scan-only.json"
-        if scan_only.exists():
-            partial = json.loads(scan_only.read_text(encoding="utf-8"))
-            if partial["intent"] != baseline["intent"]:
+        finer_path = folder / "step025" / f"smartbench_{video_id}-result.json"
+        if finer_path.exists():
+            finer = json.loads(finer_path.read_text(encoding="utf-8"))
+            if finer["intent"] != baseline["intent"]:
                 raise ValueError(f"질문 해석이 다른 탐색 결과: {video_id}")
-            case["step025_status"] = "scan_only_api_quota_exhausted"
-            case["step025_scan"] = describe_candidates(partial["candidates"], label["events"])
+            finer.update(reduce_transitions(finer["verifications"]))
+            finer_match = match_events(finer["confirmed"], label["events"])
+            case.update({
+                "step025_status": "complete",
+                "step025_scan": describe_candidates(finer["candidates"], label["events"]),
+                "step025_confirmed": finer["confirmed_count"],
+                "step025_uncertain": finer["uncertain_count"],
+                "step025_time_matches": len(finer_match["matches"]),
+            })
+        else:
+            scan_only = folder / "step025-scan-only.json"
+            if scan_only.exists():
+                partial = json.loads(scan_only.read_text(encoding="utf-8"))
+                if partial["intent"] != baseline["intent"]:
+                    raise ValueError(f"질문 해석이 다른 탐색 결과: {video_id}")
+                case["step025_status"] = "scan_only_api_quota_exhausted"
+                case["step025_scan"] = describe_candidates(partial["candidates"], label["events"])
+        union_path = folder / "union-result.json"
+        if union_path.exists():
+            union = json.loads(union_path.read_text(encoding="utf-8"))
+            if union["intent"] != baseline["intent"]:
+                raise ValueError(f"질문 해석이 다른 합집합 결과: {video_id}")
+            union.update(reduce_transitions(union["verifications"]))
+            union_match = match_events(union["confirmed"], label["events"])
+            case.update({
+                "union_status": "complete",
+                "union_candidate_proposals": len(union["candidates"]),
+                "union_confirmed": union["confirmed_count"],
+                "union_uncertain": union["uncertain_count"],
+                "union_time_matches": len(union_match["matches"]),
+            })
+        if video_id == "0642":
+            identity_path = folder / "identity-check-cropped.json"
+            if identity_path.exists():
+                case["cropped_identity_check"] = json.loads(identity_path.read_text(encoding="utf-8"))
         cases.append(case)
     report = {
         "method": "One-to-one candidate-time matching within reviewed interval ±0.75s. It is a recall aid, not proof of a physical transition or animal identity.",
-        "quota_note": "OpenAI returned 429 credit_balance_exhausted during 0642 verification. No new 0.25s scan for 0188/0518 or final 0.25s/union count is available.",
+        "run_note": "All three 0.25s and union runs completed after API credits were replenished. The 0642 cropped identity check used a manually selected region and is separate from automatic union counts.",
         "cases": cases,
     }
     OUTPUT.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     for case in cases:
         print(case["video_id"], "0.5 candidate coverage",
               f"{case['step050_scan']['reference_events_with_candidate']}/{case['reference_count']}",
-              "confirmed", case["step050_confirmed"],
-              "0.25", case["step025_status"])
+              "counts", case["step050_confirmed"],
+              case.get("step025_confirmed"), case.get("union_confirmed"))
     print(OUTPUT)
 
 
