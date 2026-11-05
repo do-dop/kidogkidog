@@ -2543,3 +2543,46 @@ button {
 .app-shell {
   overflow-x: clip;
 }
+
+/* 검색 화면의 "전체 날짜" 토글 */
+.date-scope {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+}
+
+.date-all-toggle {
+  height: 32px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong, rgba(0, 0, 0, 0.15));
+  background: transparent;
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.date-all-toggle.on {
+  background: var(--accent-gradient);
+  border-color: transparent;
+  color: var(--accent-ink);
+}
+
+.date-picker-slot {
+  width: 100%;
+  transition: opacity 0.2s;
+}
+
+.date-picker-slot.dimmed {
+  opacity: 0.5;
+}
+
+.slow-hint {
+  margin: 10px 0 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-2);
+}
