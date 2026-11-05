@@ -1,0 +1,8 @@
+{
+  "subject": "one puppy",
+  "action": "climb",
+  "target": "onto sofa seat",
+  "before_state": "one puppy's whole body on floor",
+  "after_state": "that same puppy's whole body on sofa seat",
+  "exclusion": "near sofa or front paws only"
+}

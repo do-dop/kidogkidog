@@ -1,0 +1,129 @@
+{
+  "method": "One-to-one candidate-time matching within reviewed interval ±0.75s. It is a recall aid, not proof of a physical transition or animal identity.",
+  "quota_note": "OpenAI returned 429 credit_balance_exhausted during 0642 verification. No new 0.25s scan for 0188/0518 or final 0.25s/union count is available.",
+  "cases": [
+    {
+      "video_id": "smartbench_0188",
+      "reference_kind": "user_reviewed_original_dog_escape_duplicate",
+      "reference_count": 2,
+      "step050_scan": {
+        "proposal_count": 10,
+        "reference_events_with_candidate": 2,
+        "unmatched_proposals": 8,
+        "matched_times": [
+          {
+            "reference_index": 0,
+            "candidate_time": 4.5
+          },
+          {
+            "reference_index": 1,
+            "candidate_time": 22.75
+          }
+        ],
+        "candidate_times": [
+          4.5,
+          4.75,
+          8.25,
+          12.25,
+          16.25,
+          22.75,
+          26.75,
+          30.25,
+          32.25,
+          36.75
+        ]
+      },
+      "step050_confirmed": 2,
+      "step050_uncertain": 3,
+      "step050_time_matches": 2,
+      "step025_status": "not_run_api_quota_exhausted"
+    },
+    {
+      "video_id": "smartbench_0518",
+      "reference_kind": "assistant_frame_review_provisional",
+      "reference_count": 2,
+      "step050_scan": {
+        "proposal_count": 6,
+        "reference_events_with_candidate": 2,
+        "unmatched_proposals": 4,
+        "matched_times": [
+          {
+            "reference_index": 1,
+            "candidate_time": 20.75
+          },
+          {
+            "reference_index": 0,
+            "candidate_time": 19.75
+          }
+        ],
+        "candidate_times": [
+          3.0,
+          9.25,
+          12.25,
+          12.75,
+          19.75,
+          20.75
+        ]
+      },
+      "step050_confirmed": 2,
+      "step050_uncertain": 0,
+      "step050_time_matches": 2,
+      "step025_status": "not_run_api_quota_exhausted"
+    },
+    {
+      "video_id": "smartbench_0642",
+      "reference_kind": "assistant_frame_review_provisional",
+      "reference_count": 2,
+      "step050_scan": {
+        "proposal_count": 4,
+        "reference_events_with_candidate": 2,
+        "unmatched_proposals": 2,
+        "matched_times": [
+          {
+            "reference_index": 0,
+            "candidate_time": 2.0
+          },
+          {
+            "reference_index": 1,
+            "candidate_time": 6.25
+          }
+        ],
+        "candidate_times": [
+          2.0,
+          6.25,
+          8.25,
+          12.75
+        ]
+      },
+      "step050_confirmed": 1,
+      "step050_uncertain": 1,
+      "step050_time_matches": 1,
+      "step025_status": "scan_only_api_quota_exhausted",
+      "step025_scan": {
+        "proposal_count": 8,
+        "reference_events_with_candidate": 2,
+        "unmatched_proposals": 6,
+        "matched_times": [
+          {
+            "reference_index": 0,
+            "candidate_time": 1.25
+          },
+          {
+            "reference_index": 1,
+            "candidate_time": 6.5
+          }
+        ],
+        "candidate_times": [
+          1.25,
+          6.5,
+          8.0,
+          12.0,
+          12.25,
+          13.0,
+          13.75,
+          14.5
+        ]
+      }
+    }
+  ]
+}

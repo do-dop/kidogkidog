@@ -1,0 +1,241 @@
+{
+  "video_id": "smartbench_0642",
+  "intent": {
+    "subject": "puppy",
+    "action": "enter",
+    "target": "fountain water",
+    "before_state": "one puppy's whole body outside water",
+    "after_state": "that same puppy's whole body inside water",
+    "exclusion": "front paws only in water"
+  },
+  "coarse_step": 0.25,
+  "candidates": [
+    {
+      "time": 1.25,
+      "subject": "small black puppy",
+      "reason": "puppy seen with whole body inside water",
+      "window": 0
+    },
+    {
+      "time": 6.5,
+      "subject": "black puppy",
+      "reason": "Entire puppy visible in water after leaping in",
+      "window": 1
+    },
+    {
+      "time": 8.0,
+      "subject": "black puppy",
+      "reason": "Whole body is inside the water by this frame.",
+      "window": 2
+    },
+    {
+      "time": 12.0,
+      "subject": "black puppy",
+      "reason": "full body entering water",
+      "window": 3
+    },
+    {
+      "time": 12.25,
+      "subject": "black puppy",
+      "reason": "full body clearly inside water",
+      "window": 3
+    },
+    {
+      "time": 13.0,
+      "subject": "black puppy",
+      "reason": "remains fully inside water",
+      "window": 3
+    },
+    {
+      "time": 13.75,
+      "subject": "black puppy",
+      "reason": "clearly visible inside water",
+      "window": 3
+    },
+    {
+      "time": 14.5,
+      "subject": "black puppy",
+      "reason": "immersed in water, showing continued occupancy",
+      "window": 3
+    }
+  ],
+  "scan_log": [
+    {
+      "window": {
+        "core_start": 0.0,
+        "core_end": 4.0,
+        "start": 0.0,
+        "end": 4.75
+      },
+      "response": {
+        "candidates": [
+          {
+            "time": 1.25,
+            "subject": "small black puppy",
+            "reason": "puppy seen with whole body inside water"
+          }
+        ]
+      },
+      "frame_times": [
+        0.0,
+        0.25,
+        0.5,
+        0.75,
+        1.0,
+        1.25,
+        1.5,
+        1.75,
+        2.0,
+        2.25,
+        2.5,
+        2.75,
+        3.0,
+        3.25,
+        3.5,
+        3.75,
+        4.0,
+        4.25,
+        4.5,
+        4.75
+      ]
+    },
+    {
+      "window": {
+        "core_start": 4.0,
+        "core_end": 8.0,
+        "start": 3.25,
+        "end": 8.75
+      },
+      "response": {
+        "candidates": [
+          {
+            "time": 6.5,
+            "subject": "black puppy",
+            "reason": "Entire puppy visible in water after leaping in"
+          }
+        ]
+      },
+      "frame_times": [
+        3.25,
+        3.5,
+        3.75,
+        4.0,
+        4.25,
+        4.5,
+        4.75,
+        5.0,
+        5.25,
+        5.5,
+        5.75,
+        6.0,
+        6.25,
+        6.5,
+        6.75,
+        7.0,
+        7.25,
+        7.5,
+        7.75,
+        8.0,
+        8.25,
+        8.5,
+        8.75
+      ]
+    },
+    {
+      "window": {
+        "core_start": 8.0,
+        "core_end": 12.0,
+        "start": 7.25,
+        "end": 12.75
+      },
+      "response": {
+        "candidates": [
+          {
+            "time": 8.0,
+            "subject": "black puppy",
+            "reason": "Whole body is inside the water by this frame."
+          }
+        ]
+      },
+      "frame_times": [
+        7.25,
+        7.5,
+        7.75,
+        8.0,
+        8.25,
+        8.5,
+        8.75,
+        9.0,
+        9.25,
+        9.5,
+        9.75,
+        10.0,
+        10.25,
+        10.5,
+        10.75,
+        11.0,
+        11.25,
+        11.5,
+        11.75,
+        12.0,
+        12.25,
+        12.5,
+        12.75
+      ]
+    },
+    {
+      "window": {
+        "core_start": 12.0,
+        "core_end": 14.556208333333332,
+        "start": 11.25,
+        "end": 14.556208333333332
+      },
+      "response": {
+        "candidates": [
+          {
+            "time": 12.0,
+            "subject": "black puppy",
+            "reason": "full body entering water"
+          },
+          {
+            "time": 12.25,
+            "subject": "black puppy",
+            "reason": "full body clearly inside water"
+          },
+          {
+            "time": 13.0,
+            "subject": "black puppy",
+            "reason": "remains fully inside water"
+          },
+          {
+            "time": 13.75,
+            "subject": "black puppy",
+            "reason": "clearly visible inside water"
+          },
+          {
+            "time": 14.5,
+            "subject": "black puppy",
+            "reason": "immersed in water, showing continued occupancy"
+          }
+        ]
+      },
+      "frame_times": [
+        11.25,
+        11.5,
+        11.75,
+        12.0,
+        12.25,
+        12.5,
+        12.75,
+        13.0,
+        13.25,
+        13.5,
+        13.75,
+        14.0,
+        14.25,
+        14.5
+      ]
+    }
+  ],
+  "status": "scan_only_api_quota_exhausted"
+}
