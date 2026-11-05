@@ -1,0 +1,22 @@
+video_id,event_id,representative_second,verdict,observed_frame,reason
+funny_moments,41,2,partial,목 보호대를 착용한 허스키와 뒤의 사람,침대와 사람은 보이나 놀이 동작은 확인되지 않음
+funny_moments,42,62,unsupported,소파에 홀로 있는 허스키,사람과 가까이 놀거나 교감하는 장면이 아님
+funny_moments,43,122,unverifiable,카메라 가까이에 있는 개,소리와 주인을 향한 의도는 프레임만으로 검증 불가
+funny_moments,47,182,unsupported,차 안에서 마주한 두 개,장난감 관찰과 무관한 장면
+funny_moments,44,242,partial,수영장 가장자리에 선 개와 사람,같은 청크에 물 장면은 있으나 근거 시점에는 수영 중이 아님
+funny_moments,59,302,supported,문 아래 출입구로 몸을 내미는 개,문을 통해 나가는 행동이 화면에 보임
+funny_moments,60,362,unsupported,소파에서 봉제 인형과 함께 있는 개,물이 튀는 장치가 보이지 않음
+funny_moments,61,422,unverifiable,종이 조각이 흩어진 바닥의 허스키,소리 여부와 활발한 움직임은 단일 프레임으로 검증 불가
+funny_moments,62,480,unsupported,동물이 없는 빨간 종료 카드,주변 탐색은 명백한 오탐
+funny_moments2,63,2,unsupported,소 화면을 보는 고양이,주변 환경 탐색 동작은 확인되지 않음
+funny_moments2,64,62,unsupported,그릇에 얼굴을 댄 고양이,의자 근처 활동과 주변 탐색이 아님
+funny_moments2,65,122,partial,수영장 옆의 사람과 개,가까이 있기는 하나 주인 관계와 주의 집중은 불명확
+funny_moments2,66,182,supported,숲길에서 사람을 따라 걷는 개,사람과 함께 걷는 장면이 보임
+funny_moments2,67,242,partial,침대 위의 고양이 두 마리,가구 위에 있으나 올라가는 동작이나 탐색은 확인되지 않음
+funny_moments2,68,302,supported,마주 보는 고양이 두 마리,다른 동물에게 시선을 두는 장면이 보임
+funny_moments2,69,362,unsupported,문 앞에 누운 개,쓰레기통이 보이지 않음
+funny_moments2,70,422,supported,사람에게 얼굴을 가까이 대는 개,사람과 가까이 교감하는 장면이 보임
+funny_moments2,71,482,unsupported,수영장 가장자리의 개들,사료를 먹는 장면이 아님
+funny_moments2,72,542,unsupported,그릇에 앉은 고양이를 보는 개,물속으로 뛰어들려는 행동이 아님
+funny_moments2,74,602,partial,의자 등받이에 앉아 앞을 보는 고양이,앞을 보지만 특정 대상에 집중하는지는 불명확
+funny_moments2,73,604.5,unsupported,같은 의자 등받이에 앉은 고양이,불안 또는 호기심이라는 감정 해석은 근거가 없음
