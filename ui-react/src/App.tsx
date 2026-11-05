@@ -55,6 +55,14 @@ type SearchResult = {
   eventStart?: number;
   eventEnd?: number;
   representativeTimestamp?: number;
+  summary?: string;
+  mergedCount?: number;
+  stepFrames?: StepFrame[];
+};
+
+type StepFrame = {
+  url: string;
+  timestamp: number;
 };
 
 type PlaybackSegment = {
@@ -66,11 +74,12 @@ type PlaybackSegment = {
 type ApiQueryResult = {
   answer?: string;
   query_type?: "sequence" | "search";
+  sequence_intent?: "timeline" | "first" | "last" | "before" | "after";
   results?: Array<{
     video_id?: string;
     timestamp?: number;
     score?: number;
-    object_labels?: string;
+    object_labels?: string | string[];
     frame_id?: string;
     frame_path?: string;
     s3_key?: string;
@@ -81,8 +90,13 @@ type ApiQueryResult = {
     playback_start?: number;
     playback_end?: number;
     merged_frame_count?: number;
+    summary?: string;
+    merged_count?: number;
+    step_frames?: Array<{ s3_key?: string; timestamp?: number }>;
   }>;
   evidence_items?: ApiQueryResult["results"];
+  total_event_count?: number;
+  excluded_event_count?: number;
   behavior_events?: BehaviorEvent[];
   used_llm?: boolean;
 };
@@ -324,10 +338,10 @@ function formatHourRange(startHour: number, endHour: number) {
   return `${formatHour(startHour)} - ${formatHour(endHour)}`;
 }
 
-function labelsToTags(labels?: string): Tag[] {
+function labelsToTags(labels?: string | string[]): Tag[] {
   if (!labels) return [{ icon: "🐶", label: "scene" }];
-  return labels
-    .split(",")
+  const values = Array.isArray(labels) ? labels : labels.split(",");
+  return values
     .map((label) => label.trim())
     .filter(Boolean)
     .slice(0, 3)
@@ -361,7 +375,16 @@ function mapApiResults(payload: ApiQueryResult, items: Recording[] = []): Search
     const playbackStart = Number(result.playback_start ?? seconds);
     const playbackEnd = result.playback_end !== undefined ? Number(result.playback_end) : undefined;
     const recording = findRecordingForFrame(result, items);
-    const frameThumbnailUrl = result.s3_key ? mediaUrl(`/media/s3?key=${encodeURIComponent(result.s3_key)}`) : undefined;
+    const frameImageUrl = (s3Key?: string) => s3Key ? mediaUrl(`/media/s3?key=${encodeURIComponent(s3Key)}`) : undefined;
+    const frameThumbnailUrl = frameImageUrl(result.s3_key);
+    const stepFrames: StepFrame[] = (result.step_frames ?? []).flatMap((frame) => {
+      const url = frameImageUrl(frame.s3_key);
+      return url ? [{ url, timestamp: Number(frame.timestamp ?? 0) }] : [];
+    });
+    // 시퀀스 답변은 청크 대표 썸네일이 모든 단계에 똑같이 나오지 않도록 해당 구간의 프레임을 우선 쓴다.
+    const thumbnailUrl = payload.query_type === "sequence"
+      ? frameThumbnailUrl || recording?.thumbnailUrl
+      : recording?.thumbnailUrl || frameThumbnailUrl;
     const dateTime = resultDateTime(recording, seconds);
     const recordingDurationSeconds = durationToSeconds(recording?.duration);
     const playbackIsChunkRelative = Boolean(recording && recordingDurationSeconds && playbackStart <= recordingDurationSeconds + 1);
@@ -403,7 +426,10 @@ function mapApiResults(payload: ApiQueryResult, items: Recording[] = []): Search
       seekEndSeconds: playbackEnd,
       videoId: result.video_id,
       videoUrl: recording?.videoUrl,
-      thumbnailUrl: recording?.thumbnailUrl || frameThumbnailUrl,
+      thumbnailUrl,
+      summary: result.summary,
+      mergedCount: result.merged_count,
+      stepFrames,
       s3Key: result.s3_key,
       framePath: result.frame_path,
       eventStart,
@@ -696,6 +722,10 @@ export default function App() {
   const [selectedSearchVideoId, setSelectedSearchVideoId] = useState("");
   const previousSearchVideoId = useRef("");
   const [query, setQuery] = useState("");
+  const [submittedQuery, setSubmittedQuery] = useState("");
+  const [resultQueryType, setResultQueryType] = useState<"sequence" | "search">("search");
+  const [excludedEventCount, setExcludedEventCount] = useState(0);
+  const [resultSequenceIntent, setResultSequenceIntent] = useState<ApiQueryResult["sequence_intent"]>("timeline");
   const [answer, setAnswer] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [submitted, setSubmitted] = useState(false);
@@ -719,10 +749,43 @@ export default function App() {
   const [behaviorNotice, setBehaviorNotice] = useState("");
   const [apiNotice, setApiNotice] = useState("");
   const [activeResult, setActiveResult] = useState<SearchResult | null>(null);
+  const [playbackRevision, setPlaybackRevision] = useState(0);
   const [activeRecording, setActiveRecording] = useState<Recording>(recordings[0]);
   const didDefaultSearchVideoRef = useRef(false);
   const recordingsRef = useRef<HTMLDivElement | null>(null);
+  const searchResultsRef = useRef<HTMLDivElement | null>(null);
   const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    if (!loading || !submitted) return;
+    searchResultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [loading, submitted]);
+
+  // 화면 전환을 브라우저 히스토리에 연결해 뒤로가기/앞으로가기가 동작하게 한다.
+  const screenRef = useRef<Screen>(screen);
+  const scrollByScreen = useRef<Partial<Record<Screen, number>>>({});
+  screenRef.current = screen;
+
+  useEffect(() => {
+    if ("scrollRestoration" in window.history) window.history.scrollRestoration = "manual";
+    window.history.replaceState({ screen: screenRef.current }, "");
+
+    function handlePopState(event: PopStateEvent) {
+      const target = (event.state as { screen?: Screen } | null)?.screen ?? "search";
+      scrollByScreen.current[screenRef.current] = window.scrollY;
+      setScreen(target);
+    }
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
+  useEffect(() => {
+    const state = window.history.state as { screen?: Screen } | null;
+    if (state?.screen !== screen) window.history.pushState({ screen }, "");
+    const savedScroll = scrollByScreen.current[screen] ?? 0;
+    window.requestAnimationFrame(() => window.scrollTo(0, savedScroll));
+  }, [screen]);
 
   useEffect(() => {
     function handleScroll() {
@@ -1046,13 +1109,22 @@ export default function App() {
       setProfileNotice("");
     }
 
+    scrollByScreen.current[screen] = window.scrollY;
     setScreen(nextScreen);
     setMenuOpen(false);
   }
 
   function openResult(result: SearchResult) {
     setActiveResult(result);
+    setPlaybackRevision((revision) => revision + 1);
+    scrollByScreen.current[screen] = window.scrollY;
+    delete scrollByScreen.current.searchPlayback;
     setScreen("searchPlayback");
+  }
+
+  function selectResult(result: SearchResult) {
+    setActiveResult(result);
+    setPlaybackRevision((revision) => revision + 1);
   }
 
   function openRecording(recording: Recording, event?: BehaviorEvent) {
@@ -1064,14 +1136,18 @@ export default function App() {
       ...recording,
       playbackStartSeconds,
     });
+    scrollByScreen.current[screen] = window.scrollY;
+    delete scrollByScreen.current.chunkPlayback;
     setScreen("chunkPlayback");
   }
 
   async function runSearch(searchText: string) {
     const nextQuery = searchText.trim();
     if (!nextQuery) return;
+    const sourceForQuery = suggestionSources[nextQuery] === activeSuggestionSource ? activeSuggestionSource : null;
 
     setQuery(nextQuery);
+    setSubmittedQuery(nextQuery);
     setSubmitted(true);
     setLoading(true);
     setApiNotice("");
@@ -1090,9 +1166,9 @@ export default function App() {
           recording_date: `${selectedYear}-${String(selectedMonth).padStart(2, "0")}-${String(selectedDay).padStart(2, "0")}`,
           top_k: 3,
           user_id: userId,
-          source_event_id: activeSuggestionSource?.source_event_id ?? undefined,
-          event_start: activeSuggestionSource?.event_start ?? undefined,
-          event_end: activeSuggestionSource?.event_end ?? undefined,
+          source_event_id: sourceForQuery?.source_event_id ?? undefined,
+          event_start: sourceForQuery?.event_start ?? undefined,
+          event_end: sourceForQuery?.event_end ?? undefined,
           time_range: {
             start_hour: searchStartHour,
             end_hour: searchEndHour,
@@ -1107,6 +1183,9 @@ export default function App() {
       const rankedResults = payload.query_type === "sequence" ? mappedResults : pickRelevantResults(mappedResults);
       const nextResults = await clampResultsToMediaDuration(rankedResults, recordingItems);
       setAnswer(payload.answer || `${nextQuery}와 관련된 장면을 찾았어요.`);
+      setResultQueryType(payload.query_type === "sequence" ? "sequence" : "search");
+      setExcludedEventCount(payload.excluded_event_count ?? 0);
+      setResultSequenceIntent(payload.sequence_intent ?? "timeline");
       setResults(nextResults);
       setActiveResult(nextResults[0] ?? null);
 
@@ -1122,7 +1201,8 @@ export default function App() {
           });
         });
       }
-    } catch {
+    } catch (error) {
+      console.error("검색 결과 처리 실패", error);
       setAnswer(`"${nextQuery}" 검색 중 문제가 발생했습니다. 백엔드와 인덱스 상태를 확인해주세요.`);
       setResults([]);
       setActiveResult(null);
@@ -1243,7 +1323,7 @@ export default function App() {
 
     const index = Math.max(0, visibleResults.findIndex((item) => item.id === activeResult.id));
     const nextIndex = Math.min(visibleResults.length - 1, Math.max(0, index + delta));
-    setActiveResult(visibleResults[nextIndex]);
+    selectResult(visibleResults[nextIndex]);
   }
 
   function stepRecording(delta: number) {
@@ -1646,6 +1726,7 @@ export default function App() {
                   선택 범위 · {selectedSearchVideoId || "전체 영상"} · {selectedYear}년 {selectedMonth}월 {selectedDay}일 · {formatHourRange(searchStartHour, searchEndHour)}
                 </p>
 
+                <div className="search-results-anchor" ref={searchResultsRef} />
                 {loading ? (
                   <div className="search-loading-card">
                     <span className="search-spinner" />
@@ -1655,10 +1736,11 @@ export default function App() {
                 ) : submitted ? (
                   <div className="search-results stack">
                     {apiNotice && <p className="notice">{apiNotice}</p>}
-                    <div className="answer-card">
+                    {resultQueryType !== "sequence" && <div className="answer-card">
                       <div className="brand-mark answer-mark"><PawMark /></div>
                       <div>
                         <span>검색 답변</span>
+                        {submittedQuery && <p className="answer-question">질문 · {submittedQuery}</p>}
                         {loading ? (
                           <p className="answer-loading">
                             <span className="loading-mark"><Icon filled>auto_awesome</Icon></span>
@@ -1668,18 +1750,31 @@ export default function App() {
                           <p>{answer}</p>
                         )}
                       </div>
-                    </div>
+                    </div>}
                     {!loading && (
                       <>
-                        <div className="result-header">
-                          <strong>관련 장면 {visibleResults.length}개</strong>
-                          <span>유사도 순</span>
-                        </div>
-                        <div className="result-grid">
-                          {visibleResults.map((result) => (
-                            <ResultCard key={result.id} result={result} onOpen={() => openResult(result)} />
-                          ))}
-                        </div>
+                        {resultQueryType === "sequence" ? (
+                          <SequencePanel
+                            answer={answer}
+                            question={submittedQuery}
+                            results={visibleResults}
+                            activeId={activeResult?.id}
+                            excludedCount={excludedEventCount}
+                            onOpen={openResult}
+                          />
+                        ) : (
+                          <>
+                            <div className="result-header">
+                              <strong>관련 장면 {visibleResults.length}개</strong>
+                              <span>유사도 순</span>
+                            </div>
+                            <div className="result-grid">
+                              {visibleResults.map((result) => (
+                                <ResultCard key={result.id} result={result} onOpen={() => openResult(result)} />
+                              ))}
+                            </div>
+                          </>
+                        )}
                       </>
                     )}
                   </div>
@@ -1869,7 +1964,7 @@ export default function App() {
               <div className="playback-grid">
                 <div className="stack">
                   <VideoPanel
-                    key={activeResult.id}
+                    key={`${activeResult.id}-${playbackRevision}`}
                     label="검색 결과 구간 재생"
                     camera={activeResult.note}
                     time={activeResult.displayDateTime || activeResult.time}
@@ -1878,24 +1973,33 @@ export default function App() {
                     playbackSegments={searchPlaybackSegments(activeResult, recordingItems)}
                     wide
                   />
-                  <Timeline activeResult={activeResult} results={visibleResults} onSelect={setActiveResult} />
+                  {resultQueryType === "sequence" ? (
+                    <SequenceNowCard result={activeResult} index={Math.max(0, visibleResults.findIndex((item) => item.id === activeResult.id))} total={visibleResults.length} />
+                  ) : (
+                    <Timeline activeResult={activeResult} results={visibleResults} onSelect={selectResult} />
+                  )}
                   <div className="button-row">
-                    <button className="secondary-button" onClick={() => stepResult(-1)}><Icon>skip_previous</Icon>이전 결과</button>
-                    <button className="primary-button" onClick={() => stepResult(1)}>다음 결과<Icon>skip_next</Icon></button>
+                    <button className="secondary-button" onClick={() => stepResult(-1)}><Icon>skip_previous</Icon>{resultQueryType === "sequence" ? "이전 단계" : "이전 결과"}</button>
+                    <button className="secondary-button" onClick={() => setPlaybackRevision((revision) => revision + 1)}><Icon>replay</Icon>이 구간 다시 재생</button>
+                    <button className="primary-button" onClick={() => stepResult(1)}>{resultQueryType === "sequence" ? "다음 단계" : "다음 결과"}<Icon>skip_next</Icon></button>
                   </div>
                 </div>
+                {resultQueryType === "sequence" ? (
+                  <SequenceSide results={visibleResults} activeId={activeResult.id} question={submittedQuery} answer={answer} onSelect={selectResult} />
+                ) : (
                 <aside className="side-panel">
                   <div className="answer-card compact">
                     <div className="brand-mark answer-mark"><PawMark /></div>
                     <div>
                       <span>검색 답변</span>
+                      {submittedQuery && <p className="answer-question">질문 · {submittedQuery}</p>}
                       <p>{answer || `${activeResult.displayDateTime || activeResult.time} 시각에서 ${activeResult.note}이 확인됐어요.`}</p>
                     </div>
                   </div>
                   <p className="section-kicker">검색된 장면 {visibleResults.length}개</p>
                   <div className="side-results">
                     {visibleResults.map((result) => (
-                      <button className={result.id === activeResult.id ? "side-result active" : "side-result"} key={result.id} onClick={() => setActiveResult(result)}>
+                      <button className={result.id === activeResult.id ? "side-result active" : "side-result"} key={result.id} onClick={() => selectResult(result)}>
                         <div style={result.thumbnailUrl ? { backgroundImage: `url(${result.thumbnailUrl})` } : { background: gradients[result.thumb] }} />
                         <span>{result.displayDateTime || result.time}</span>
                         <strong>{result.note}</strong>
@@ -1903,6 +2007,7 @@ export default function App() {
                     ))}
                   </div>
                 </aside>
+                )}
               </div>
             </section>
           )}
@@ -1958,12 +2063,12 @@ function VideoPanel({
     if (!video || !currentVideoUrl) return;
 
     const seek = () => {
-      if (safeStartAtSeconds <= 0) return;
-
       try {
-        const canSeek = !Number.isFinite(video.duration) || safeStartAtSeconds < video.duration;
-        if (!canSeek) return;
-        video.currentTime = safeStartAtSeconds;
+        if (safeStartAtSeconds > 0) {
+          const canSeek = !Number.isFinite(video.duration) || safeStartAtSeconds < video.duration;
+          if (!canSeek) return;
+          video.currentTime = safeStartAtSeconds;
+        }
         void video.play().catch(() => undefined);
       } catch {
         // Keep the player visible even if the browser cannot seek this media URL.
@@ -1995,6 +2100,14 @@ function VideoPanel({
           onTimeUpdate={(event) => {
             if (segment && event.currentTarget.currentTime >= segment.endAtSeconds - 0.08) {
               finishSegment(event.currentTarget);
+            }
+          }}
+          onPlay={(event) => {
+            if (!segment || event.currentTarget.currentTime < segment.endAtSeconds - 0.08) return;
+            if (segmentIndex > 0) {
+              setSegmentIndex(0);
+            } else {
+              event.currentTarget.currentTime = segment.startAtSeconds;
             }
           }}
           onEnded={(event) => finishSegment(event.currentTarget)}
@@ -2411,6 +2524,160 @@ function ResultCard({ result, onOpen }: { result: SearchResult; onOpen: () => vo
         <div className="tag-row">{tagList(result.objects)}</div>
       </div>
     </button>
+  );
+}
+
+function SequencePanel({
+  answer,
+  question,
+  results,
+  activeId,
+  excludedCount,
+  onOpen,
+}: {
+  answer: string;
+  question: string;
+  results: SearchResult[];
+  activeId?: string;
+  excludedCount: number;
+  onOpen: (result: SearchResult) => void;
+}) {
+  return (
+    <section className="seq-panel">
+      <header className="seq-head">
+        <div>
+          <span className="seq-eyebrow">SEARCH RESULTS</span>
+          <h3>행동 검색 결과</h3>
+          <p>영상에서 확인된 행동을 시간순으로 정리했어요.</p>
+        </div>
+        <span className="seq-count">{results.length}개 장면</span>
+      </header>
+
+      <div className="seq-summary">
+        <div className="seq-summary-title"><Icon filled>auto_awesome</Icon>AI 검색 요약</div>
+        {question && <small className="seq-question">질문 · {question}</small>}
+        <p>{answer}</p>
+        <small>확인된 {results.length}개 장면{excludedCount > 0 ? ` · 제외된 ${excludedCount}개 이벤트` : ""}</small>
+      </div>
+
+      <div className="seq-tl-head">
+        <h4>행동 타임라인</h4>
+        <span><Icon>south</Icon>시간순</span>
+      </div>
+      <ol className="seq-steps">
+        {results.map((result, index) => {
+          const frames = result.stepFrames ?? [];
+          const firstTimestamp = frames[0]?.timestamp ?? 0;
+
+          return (
+            <li className={result.id === activeId ? "seq-step active" : "seq-step"} key={result.id}>
+              <span className="seq-no">{index + 1}</span>
+              <button className="seq-card" type="button" onClick={() => onOpen(result)} aria-label={`${index + 1}단계 구간 재생`}>
+                <div
+                  className="seq-hero"
+                  style={result.thumbnailUrl ? { backgroundImage: `url(${result.thumbnailUrl})` } : { background: gradients[result.thumb] }}
+                >
+                  <span className="seq-hero-play"><Icon filled>play_arrow</Icon></span>
+                </div>
+                <div className="seq-info">
+                  <strong>{result.summary || result.note}</strong>
+                  <span className="seq-time">
+                    <Icon>schedule</Icon>
+                    {[result.dateLabel, result.clockTime || result.time].filter(Boolean).join(" · ")}
+                    {(result.mergedCount ?? 1) > 1 && <em className="seq-merged">비슷한 장면 {result.mergedCount}개 이어짐</em>}
+                  </span>
+                  {frames.length > 1 && (
+                    <div className="seq-frames" aria-label="구간 프레임">
+                      {frames.map((frame, frameIndex) => (
+                        <figure key={frame.url}>
+                          <div style={{ backgroundImage: `url(${frame.url})` }} />
+                          <figcaption>{frameIndex === 0 ? "시작" : `+${Math.round(frame.timestamp - firstTimestamp)}초`}</figcaption>
+                        </figure>
+                      ))}
+                    </div>
+                  )}
+                  <span className="seq-play-link"><Icon filled>play_circle</Icon>영상 구간 재생</span>
+                </div>
+              </button>
+            </li>
+          );
+        })}
+      </ol>
+    </section>
+  );
+}
+
+function SequenceNowCard({ result, index, total }: { result: SearchResult; index: number; total: number }) {
+  const frames = result.stepFrames ?? [];
+  const firstTimestamp = frames[0]?.timestamp ?? 0;
+
+  return (
+    <div className="seq-now">
+      <div className="seq-now-main">
+        <span className="seq-now-step">{index + 1} / {total}단계</span>
+        <strong>{result.summary || result.note}</strong>
+        <span className="seq-time">
+          <Icon>schedule</Icon>
+          {[result.dateLabel, result.clockTime || result.time].filter(Boolean).join(" · ")}
+          {(result.mergedCount ?? 1) > 1 && <em className="seq-merged">비슷한 장면 {result.mergedCount}개 이어짐</em>}
+        </span>
+      </div>
+      {frames.length > 1 && (
+        <div className="seq-frames">
+          {frames.map((frame, frameIndex) => (
+            <figure key={frame.url}>
+              <div style={{ backgroundImage: `url(${frame.url})` }} />
+              <figcaption>{frameIndex === 0 ? "시작" : `+${Math.round(frame.timestamp - firstTimestamp)}초`}</figcaption>
+            </figure>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SequenceSide({
+  results,
+  activeId,
+  question,
+  answer,
+  onSelect,
+}: {
+  results: SearchResult[];
+  activeId: string;
+  question: string;
+  answer: string;
+  onSelect: (result: SearchResult) => void;
+}) {
+  return (
+    <aside className="side-panel seq-side">
+      <div className="seq-side-head">
+        <strong>행동 타임라인</strong>
+        <span>{results.length}단계 · 시간순</span>
+      </div>
+      <ol className="seq-side-list">
+        {results.map((result, index) => (
+          <li key={result.id}>
+            <button className={result.id === activeId ? "seq-side-item active" : "seq-side-item"} type="button" onClick={() => onSelect(result)}>
+              <span className="seq-side-no">{index + 1}</span>
+              <div
+                className="seq-side-thumb"
+                style={result.thumbnailUrl ? { backgroundImage: `url(${result.thumbnailUrl})` } : { background: gradients[result.thumb] }}
+              />
+              <span className="seq-side-text">
+                <strong>{result.summary || result.note}</strong>
+                <small>{result.clockTime || result.time}{(result.mergedCount ?? 1) > 1 ? ` · 비슷한 장면 ${result.mergedCount}개` : ""}</small>
+              </span>
+            </button>
+          </li>
+        ))}
+      </ol>
+      <details className="seq-side-summary">
+        <summary><Icon filled>auto_awesome</Icon>AI 요약 보기</summary>
+        {question && <small>질문 · {question}</small>}
+        <p>{answer}</p>
+      </details>
+    </aside>
   );
 }
 
