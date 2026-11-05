@@ -1,0 +1,117 @@
+{
+  "dataset": "violetcliff/SmartHome-Bench",
+  "run_date": "2026-11-04",
+  "videos": [
+    {
+      "video_id": "smartbench_0936",
+      "source_url": "https://www.youtube.com/shorts/G6jUprbgHig",
+      "local_video": "data/videos/smartbench_0936.mp4",
+      "action": "앞발을 유리문 쪽으로 들었다 내리기",
+      "human_count": 8,
+      "human_source": "사용자가 영상에서 총 8회 확인; 6회 확실한 점프와 약 6.2초·7.5초의 앞발 동작 2회 포함",
+      "pipeline_observation": "일반 추출기 점프 명시 0건",
+      "direct_count": 19,
+      "state_candidates": 9,
+      "state_false_positive": "13.0~13.25초",
+      "verification_accepted": 8,
+      "verification_error": "13초 거짓 후보 수락, 19초 참 후보 거절"
+    },
+    {
+      "video_id": "smartbench_0608",
+      "source_url": "https://www.youtube.com/shorts/6Xg7-HnQgaU",
+      "local_video": "data/videos/smartbench_0608.mp4",
+      "action": "수영장에 들어가기",
+      "human_count": 2,
+      "human_source": "0.25초 프레임 육안 검토: 약 1.5초와 20.5초에 입수",
+      "pipeline_observation": "일반 추출기 입수 명시 1건(20~22초); 첫 입수는 수영으로만 표현",
+      "state_candidates": 3,
+      "state_false_positive": "11.5~13.0초: 개가 수영장 밖 타일 위에서 이동"
+    },
+    {
+      "video_id": "smartbench_0037",
+      "source_url": "https://www.youtube.com/watch?v=dZU47xjMPfc",
+      "local_video": "data/videos/smartbench_0037.mp4",
+      "action": "문 또는 카메라 쪽으로 앞발 들기",
+      "human_count": null,
+      "human_source": "접촉과 접근이 섞이고 가림이 있어 정확한 횟수 미확정",
+      "pipeline_observation": "일반 추출기는 문 앞 접근/관찰만 표현하고 앞발 동작을 명시하지 않음",
+      "state_candidates": null,
+      "state_false_positive": "0.5초 샘플에서 창 경계 시각 오류와 긴 자세 유지가 나타나 정확한 횟수 비교 보류"
+    },
+    {
+      "video_id": "smartbench_0142",
+      "source_url": "https://www.youtube.com/watch?v=17_N3EJXNwg",
+      "local_video": "data/videos/smartbench_0142.mp4",
+      "action": "먹던 고양이가 고개 들기",
+      "human_count": 2,
+      "human_source": "영상 프레임 육안 검토: 약 11~18초, 25~28초. 데이터셋 설명도 두 번이라고 기록",
+      "pipeline_observation": "일반 추출기 먹기 이벤트 5건, 고개 들기 명시 0건",
+      "state_candidates": 2,
+      "state_intervals": [
+        [
+          10.5,
+          18.5
+        ],
+        [
+          24.5,
+          27.5
+        ]
+      ]
+    },
+    {
+      "video_id": "smartbench_0949",
+      "source_url": "https://www.youtube.com/shorts/B8Wn_iyEDLQ",
+      "local_video": "data/videos/smartbench_0949.mp4",
+      "action": "목줄 당기기",
+      "human_count": null,
+      "human_source": "여러 번 당기지만 작은 장력 변화와 화면 전환 때문에 개별 당김 횟수 미확정",
+      "pipeline_observation": "일반 추출기 7건 중 목줄 당기기 명시 0건",
+      "state_candidates": null
+    },
+    {
+      "video_id": "smartbench_0747",
+      "source_url": "https://www.youtube.com/watch?v=NxN-rVk7J-E",
+      "local_video": "data/videos/smartbench_0747.mp4",
+      "action": "고양이가 문초인종 쪽을 앞발로 건드리기",
+      "human_count": null,
+      "human_source": "앞발과 초인종이 렌즈 가까이에서 가려져 정확한 접촉 횟수 미확정; 48초 이후 다른 장면 편집",
+      "pipeline_observation": "처음 48초의 일반 추출기 9건 중 앞발로 건드리기 명시 0건",
+      "state_candidates": null
+    },
+    {
+      "video_id": "smartbench_0133",
+      "source_url": "https://www.youtube.com/watch?v=jR4r4-sV5sU",
+      "local_video": "data/videos/smartbench_0133.mp4",
+      "action": "짖기",
+      "human_count": null,
+      "human_source": "데이터셋 설명은 두 번 후 두 번 더 짖는다고 기술하지만 오디오를 직접 검증하지 않아 정답으로 채택하지 않음",
+      "pipeline_observation": "프레임 전용 일반 추출기 4건 중 짖기 명시 0건",
+      "state_candidates": null
+    },
+    {
+      "video_id": "smartbench_0065",
+      "source_url": "https://www.youtube.com/watch?v=ewRg_VpmtRI",
+      "local_video": "data/videos/smartbench_0065.mp4",
+      "action": "소파에 올라가기",
+      "human_count": 5,
+      "human_source": "사용자 검토: 검정 소파 3회(그중 1회 애매), 회색 소파 2회",
+      "human_count_excluding_ambiguous": 4,
+      "human_by_sofa": {
+        "black_including_ambiguous": 3,
+        "black_excluding_ambiguous": 2,
+        "gray": 2
+      },
+      "pipeline_observation": "기본 2초 간격 추출기 4개 이벤트 중 소파에 올라가기 명시 1건(20~22초)",
+      "targeted_model": "gpt-4o",
+      "targeted_frame_interval_seconds": 0.25,
+      "targeted_raw_event_rows": 8,
+      "targeted_unique_time_candidates": 7,
+      "targeted_by_sofa": {
+        "black": 6,
+        "gray": 1
+      },
+      "targeted_note": "겹치는 15.5초 행을 합침. 4.75초와 7.0초는 이미 소파 위인 자세를 새 올라가기처럼 세는 중복 후보로 보임. 8.75초는 빠른 출입이 겹쳐 애매하므로 오탐이라고 확정하지 않음. 사용자에게 개별 구간 시각 라벨은 받지 않음."
+    }
+  ],
+  "scope": "로컬 실험. 기존 DB 및 worker 미변경. 영상 원본은 Git에 넣지 않음."
+}

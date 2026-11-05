@@ -12,5 +12,5 @@ def get_s3_video_thumbnail(key: str):
 
 
 @router.get("/s3")
-def get_s3_media(key: str, request: Request):
-    return build_s3_media_response(key, request)
+def get_s3_media(key: str, request: Request, w: int | None = None):
+    return build_s3_media_response(key, request, width=w)

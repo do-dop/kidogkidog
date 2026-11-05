@@ -1,0 +1,93 @@
+{
+  "video_id": "smartbench_0936",
+  "source_review": "smarthome-bench-0936-review.json",
+  "models_tested": ["gpt-4o-mini", "gpt-4o"],
+  "run_date": "2026-11-04",
+  "database_written": false,
+  "trials": [
+    {
+      "name": "current_pipeline_default",
+      "frame_interval_seconds": 2.0,
+      "window_seconds": 12.0,
+      "frame_count": 11,
+      "returned_events": 7,
+      "events_explicitly_describing_jumps": 0,
+      "observation": "접근, 창가에 서 있음, 앞발로 짚기 등 넓은 설명만 반환했다."
+    },
+    {
+      "name": "current_pipeline_dense_windows",
+      "frame_interval_seconds": 0.5,
+      "window_seconds": 2.75,
+      "frame_count": 44,
+      "returned_events": 9,
+      "events_explicitly_describing_jumps": 0,
+      "observation": "시간 해상도를 높이고 8개 창으로 나눴지만 점프 이벤트를 반환하지 않았다."
+    },
+    {
+      "name": "targeted_prompt_first_5_seconds",
+      "frame_interval_seconds": 0.25,
+      "time_range_seconds": [0.0, 5.0],
+      "human_confirmed_jumps": 3,
+      "model_confirmed_jumps": 2,
+      "model_ambiguous": 0,
+      "observation": "약 4.5초의 확실한 점프를 놓쳤다."
+    },
+    {
+      "name": "targeted_prompt_ambiguous_window",
+      "frame_interval_seconds": 0.25,
+      "time_range_seconds": [5.5, 8.25],
+      "human_confirmed_jumps": 0,
+      "human_ambiguous": 2,
+      "model_confirmed_jumps": 3,
+      "model_ambiguous": 1,
+      "model_event_rows": 3,
+      "observation": "앞발만 든 동작을 점프로 잘못 분류했고, 모델의 횟수 필드와 이벤트 행 수도 일치하지 않았다."
+    },
+    {
+      "name": "cropped_ambiguous_window",
+      "model": "gpt-4o-mini",
+      "frame_interval_seconds": 0.25,
+      "time_range_seconds": [5.5, 8.25],
+      "human_confirmed_jumps": 0,
+      "human_ambiguous": 2,
+      "model_confirmed_jumps": 5,
+      "model_ambiguous": 0,
+      "observation": "뒷발을 크게 보이게 잘라도 연속 프레임을 별도 점프로 과대계산했다."
+    },
+    {
+      "name": "larger_model_ambiguous_window",
+      "model": "gpt-4o",
+      "frame_interval_seconds": 0.25,
+      "time_range_seconds": [5.5, 8.25],
+      "human_confirmed_jumps": 0,
+      "human_ambiguous": 2,
+      "model_confirmed_jumps": 2,
+      "model_ambiguous": 1,
+      "observation": "더 큰 모델도 사용자가 앞발만 든 동작으로 확인한 약 6.2초와 7.5초를 확실한 점프로 분류했다."
+    },
+    {
+      "name": "targeted_broad_full_video",
+      "model": "gpt-4o-mini",
+      "frame_interval_seconds": 0.25,
+      "question_rule": "앞발을 들었다 내린 한 동작을 1회로 세며 뒷발 접지 여부와 관계없이 포함",
+      "human_total": 8,
+      "model_total": 19,
+      "windows": [
+        {"time_range_seconds": [0.0, 3.5], "human_count": 2, "model_count": 3},
+        {"time_range_seconds": [3.5, 7.0], "human_count": 2, "model_count": 3},
+        {"time_range_seconds": [7.0, 10.5], "human_count": 2, "model_count": 4},
+        {"time_range_seconds": [10.5, 14.0], "human_count": 0, "model_count": 3},
+        {"time_range_seconds": [14.0, 17.5], "human_count": 1, "model_count": 3},
+        {"time_range_seconds": [17.5, 21.75], "human_count": 1, "model_count": 3}
+      ],
+      "observation": "한 동작의 연속 프레임을 여러 회로 중복 계산했고, 실제 동작이 없는 10.5~14초 구간에도 3회를 생성했다."
+    }
+  ],
+  "local_yolo_check": {
+    "model": "yolov8s.pt",
+    "sampled_frames": 87,
+    "frames_with_dog_detection": 19,
+    "observation": "대부분의 프레임에서 개를 놓쳐 바운딩 박스만으로 점프를 세기 어렵다."
+  },
+  "conclusion": "현재 일반 행동 이벤트 추출기와 시험한 두 VLM만으로 이 영상의 확실한 점프 6회를 신뢰성 있게 계산할 수 없다. 영상의 짧은 반복 동작과 뒷발 접지 여부를 다루는 별도 시간 분석이 필요하다."
+}

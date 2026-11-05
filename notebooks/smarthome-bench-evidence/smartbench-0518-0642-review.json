@@ -1,0 +1,64 @@
+{
+  "dataset": "violetcliff/SmartHome-Bench",
+  "review_date": "2026-11-04",
+  "review_status": "frame_based_provisional; user_has_not_independently_confirmed_event_times",
+  "videos": [
+    {
+      "video_id": "smartbench_0518",
+      "source_url": "https://www.youtube.com/watch?v=SUkBjtTMdNk",
+      "local_video": "data/videos/smartbench_0518.mp4",
+      "question": "강아지들이 소파에 몇 번 올라갔어?",
+      "counting_rule": "몸이 바닥에서 소파 좌석 위로 올라가 착지한 때 1회. 이미 소파 위에 있거나 앞발만 댄 상태는 제외. 개별 강아지를 별도 사건으로 셈.",
+      "provisional_count": 2,
+      "intervals": [
+        {
+          "subject": "black_dog",
+          "start_time": 19.0,
+          "end_time": 20.25
+        },
+        {
+          "subject": "white_dog",
+          "start_time": 20.5,
+          "end_time": 22.0
+        }
+      ],
+      "review_basis": "영상 0~18초 1초 프레임, 18~26초 0.5초 프레임 육안 검토. 시작과 끝은 프레임 간격에 따른 근사치."
+    },
+    {
+      "video_id": "smartbench_0642",
+      "source_url": "https://www.youtube.com/watch?v=fd5SqdflhbE",
+      "local_video": "data/videos/smartbench_0642.mp4",
+      "question": "강아지들이 분수 물속에 몇 번 들어갔어?",
+      "counting_rule": "몸이 분수 바깥 돌/바닥에서 물속으로 들어간 때 1회. 가장자리 접근과 물속 수영은 제외. 개별 강아지를 별도 사건으로 셈.",
+      "provisional_count": 2,
+      "intervals": [
+        {
+          "subject": "first_black_dog",
+          "start_time": 1.25,
+          "end_time": 3.0
+        },
+        {
+          "subject": "second_black_dog",
+          "start_time": 4.0,
+          "end_time": 6.0
+        }
+      ],
+      "review_basis": "0~6.25초 0.25초 프레임 육안 검토. 두 번째 입수는 모델이 3.5~4.5초와 5.0~5.5초로 중복 기술함."
+    }
+  ],
+  "pipeline_result": {
+    "smartbench_0518": {
+      "generic_explicit_entries": 1,
+      "targeted_raw_events": 2,
+      "targeted_after_temporal_merge": 2
+    },
+    "smartbench_0642": {
+      "generic_explicit_entries": 0,
+      "targeted_raw_events": 3,
+      "targeted_after_temporal_merge": 2
+    }
+  },
+  "merge_note": "0.75초 이내 인접 후보는 이 두 영상에서 한 행동으로 합쳤다. 이 기준만으로 일반 영상의 서로 다른 빠른 행동을 안전하게 구분할 수는 없다. 동일 동물의 완료/초기 상태 확인이 필요하다.",
+  "database_written": false,
+  "worker_changed": false
+}

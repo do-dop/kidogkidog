@@ -58,6 +58,9 @@ type SearchResult = {
   summary?: string;
   mergedCount?: number;
   stepFrames?: StepFrame[];
+  timelineSeconds?: number;
+  matchedSceneCount?: number;
+  relatedScenes?: SearchResult[];
 };
 
 type StepFrame = {
@@ -71,11 +74,7 @@ type PlaybackSegment = {
   endAtSeconds: number;
 };
 
-type ApiQueryResult = {
-  answer?: string;
-  query_type?: "sequence" | "search";
-  sequence_intent?: "timeline" | "first" | "last" | "before" | "after";
-  results?: Array<{
+type ApiSearchFrame = {
     video_id?: string;
     timestamp?: number;
     score?: number;
@@ -93,7 +92,15 @@ type ApiQueryResult = {
     summary?: string;
     merged_count?: number;
     step_frames?: Array<{ s3_key?: string; timestamp?: number }>;
-  }>;
+    matched_scene_count?: number;
+    related_scenes?: ApiSearchFrame[];
+};
+
+type ApiQueryResult = {
+  answer?: string;
+  query_type?: "sequence" | "search";
+  sequence_intent?: "timeline" | "first" | "last" | "before" | "after";
+  results?: ApiSearchFrame[];
   evidence_items?: ApiQueryResult["results"];
   total_event_count?: number;
   excluded_event_count?: number;
@@ -212,13 +219,6 @@ const recordings: Recording[] = [
   { id: "demo-1945", time: "19:45", duration: "5:00", period: "저녁", thumb: 4, motion: "높음", recordingDate: "2026-06-16", tags: [{ icon: "🐶", label: "dog" }, { icon: "🧍", label: "person" }, { icon: "🥣", label: "bowl" }] },
   { id: "demo-2130", time: "21:30", duration: "5:00", period: "야간", thumb: 5, motion: "낮음", recordingDate: "2026-06-16", tags: [{ icon: "🐶", label: "dog" }, { icon: "🛋️", label: "couch" }] },
   { id: "demo-2310", time: "23:10", duration: "5:00", period: "야간", thumb: 3, motion: "낮음", recordingDate: "2026-06-16", tags: [{ icon: "🐶", label: "dog" }, { icon: "🛏️", label: "bed" }] },
-];
-
-const liveEvents = [
-  { icon: "pets", text: "소파 근처에 있어요", time: "방금", tags: ["dog", "couch"] },
-  { icon: "restaurant", text: "밥그릇 앞에서 식사 중이에요", time: "2분 전", tags: ["dog", "bowl"] },
-  { icon: "directions_walk", text: "거실을 돌아다니고 있어요", time: "8분 전", tags: ["dog", "floor"] },
-  { icon: "bedtime", text: "방석 위에서 쉬고 있어요", time: "15분 전", tags: ["dog", "bed"] },
 ];
 
 const demoUserId = "kidog-demo";
@@ -348,7 +348,7 @@ function labelsToTags(labels?: string | string[]): Tag[] {
     .map((label) => ({ icon: label.toLowerCase().includes("dog") ? "🐶" : "•", label }));
 }
 
-function findRecordingForFrame(result: NonNullable<ApiQueryResult["results"]>[number], items: Recording[]) {
+function findRecordingForFrame(result: ApiSearchFrame, items: Recording[]) {
   const s3Key = result.s3_key || "";
   const frameId = result.frame_id || "";
 
@@ -375,7 +375,7 @@ function mapApiResults(payload: ApiQueryResult, items: Recording[] = []): Search
     const playbackStart = Number(result.playback_start ?? seconds);
     const playbackEnd = result.playback_end !== undefined ? Number(result.playback_end) : undefined;
     const recording = findRecordingForFrame(result, items);
-    const frameImageUrl = (s3Key?: string) => s3Key ? mediaUrl(`/media/s3?key=${encodeURIComponent(s3Key)}`) : undefined;
+    const frameImageUrl = (s3Key?: string) => s3Key ? mediaUrl(`/media/s3?key=${encodeURIComponent(s3Key)}&w=${THUMBNAIL_WIDTH}`) : undefined;
     const frameThumbnailUrl = frameImageUrl(result.s3_key);
     const stepFrames: StepFrame[] = (result.step_frames ?? []).flatMap((frame) => {
       const url = frameImageUrl(frame.s3_key);
@@ -404,6 +404,14 @@ function mapApiResults(payload: ApiQueryResult, items: Recording[] = []): Search
     if (Number(result.merged_frame_count) > 1) {
       noteParts.push(`인접 프레임 ${result.merged_frame_count}개 통합`);
     }
+    if (Number(result.matched_scene_count) > 1) {
+      noteParts.push(`같은 영상의 관련 장면 ${result.matched_scene_count}개`);
+    }
+
+    const relatedScenes = result.related_scenes?.map((scene, sceneIndex) => {
+      const sceneResult = mapApiResults({ results: [{ ...scene, related_scenes: undefined }] }, items)[0];
+      return { ...sceneResult, id: scene.frame_id ?? `${result.frame_id ?? `api-result-${index}`}-scene-${sceneIndex}` };
+    });
 
     return {
       id: result.frame_id ?? `api-result-${index}`,
@@ -435,6 +443,9 @@ function mapApiResults(payload: ApiQueryResult, items: Recording[] = []): Search
       eventStart,
       eventEnd,
       representativeTimestamp: seconds,
+      timelineSeconds: (recording?.startSeconds ?? 0) + playbackStartSeconds,
+      matchedSceneCount: result.matched_scene_count,
+      relatedScenes,
     };
   });
 }
@@ -478,17 +489,20 @@ function loadRecordingDuration(recording: Recording): Promise<number | undefined
   return durationPromise;
 }
 
-async function clampResultsToMediaDuration(results: SearchResult[], items: Recording[]) {
+async function clampResultsToMediaDuration(results: SearchResult[], items: Recording[]): Promise<SearchResult[]> {
   return Promise.all(results.map(async (result) => {
+    const relatedScenes: SearchResult[] | undefined = result.relatedScenes
+      ? await clampResultsToMediaDuration(result.relatedScenes, items)
+      : undefined;
     const recording = items.find((item) => item.id === result.recordingId);
-    if (!recording || result.playbackEndSeconds === undefined) return result;
+    if (!recording || result.playbackEndSeconds === undefined) return { ...result, relatedScenes };
 
     const mediaDuration = await loadRecordingDuration(recording);
-    if (mediaDuration === undefined) return result;
+    if (mediaDuration === undefined) return { ...result, relatedScenes };
 
     const playbackStart = result.playbackStartSeconds ?? 0;
     const playbackEnd = Math.min(result.playbackEndSeconds, mediaDuration);
-    if (playbackEnd >= result.playbackEndSeconds) return result;
+    if (playbackEnd >= result.playbackEndSeconds) return { ...result, relatedScenes };
 
     const updatedNote = result.note.replace(
       /재생 구간: [^·]+/,
@@ -499,6 +513,7 @@ async function clampResultsToMediaDuration(results: SearchResult[], items: Recor
       note: updatedNote,
       duration: formatDuration(Math.max(0, playbackEnd - playbackStart)),
       playbackEndSeconds: playbackEnd,
+      relatedScenes,
     };
   }));
 }
@@ -568,6 +583,14 @@ function mediaUrl(mediaPath?: string | null, fallbackUrl?: string | null) {
   return fallbackUrl || undefined;
 }
 
+// 카드 썸네일은 원본(1920px, 약 650KB) 대신 서버에서 줄인 이미지를 받는다.
+const THUMBNAIL_WIDTH = 640;
+
+function resizedThumbnailUrl(url?: string) {
+  if (!url || !url.includes("/media/s3?key=") || url.includes("&w=")) return url;
+  return `${url}&w=${THUMBNAIL_WIDTH}`;
+}
+
 function dateKey(year: number, month: number, day: number) {
   return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 }
@@ -620,7 +643,7 @@ function mapApiChunks(payload: ApiChunksResult): Recording[] {
     startSeconds: chunk.start_seconds,
     videoId: chunk.video_id,
     videoUrl: mediaUrl(chunk.media_path, chunk.url),
-    thumbnailUrl: mediaUrl(chunk.thumbnail_media_path, chunk.thumbnail_url),
+    thumbnailUrl: resizedThumbnailUrl(mediaUrl(chunk.thumbnail_media_path, chunk.thumbnail_url)),
   }));
 }
 
@@ -729,6 +752,9 @@ export default function App() {
   const [answer, setAnswer] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [submitted, setSubmitted] = useState(false);
+  // 기본은 전체 날짜. 날짜 하나로 고정하면 다른 날짜의 영상이 검색에서 보이지 않는다.
+  const [searchAllDates, setSearchAllDates] = useState(true);
+  const [slowSearch, setSlowSearch] = useState(false);
   const [loading, setLoading] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [suggestionSources, setSuggestionSources] = useState<Record<string, SuggestedQuestion>>({});
@@ -750,16 +776,28 @@ export default function App() {
   const [apiNotice, setApiNotice] = useState("");
   const [activeResult, setActiveResult] = useState<SearchResult | null>(null);
   const [playbackRevision, setPlaybackRevision] = useState(0);
+  const [activeScene, setActiveScene] = useState<SearchResult | null>(null);
   const [activeRecording, setActiveRecording] = useState<Recording>(recordings[0]);
-  const didDefaultSearchVideoRef = useRef(false);
   const recordingsRef = useRef<HTMLDivElement | null>(null);
-  const searchResultsRef = useRef<HTMLDivElement | null>(null);
-  const [scrolled, setScrolled] = useState(false);
+  const resultsRef = useRef<HTMLDivElement | null>(null);
+  const [searchRunId, setSearchRunId] = useState(0);
 
   useEffect(() => {
-    if (!loading || !submitted) return;
-    searchResultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, [loading, submitted]);
+    // 서버가 쉬고 있다 깨어날 때는 첫 검색이 수십 초 걸린다. 멈춘 것으로 보이지 않게 알려 준다.
+    if (!loading) {
+      setSlowSearch(false);
+      return;
+    }
+    const timer = window.setTimeout(() => setSlowSearch(true), 8000);
+    return () => window.clearTimeout(timer);
+  }, [loading]);
+
+  useEffect(() => {
+    // 검색 결과는 검색창 아래 한참 떨어져 있어서, 검색을 시작하면 그 영역으로 이동한다.
+    if (searchRunId === 0) return;
+    resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [searchRunId]);
+  const [scrolled, setScrolled] = useState(false);
 
   // 화면 전환을 브라우저 히스토리에 연결해 뒤로가기/앞으로가기가 동작하게 한다.
   const screenRef = useRef<Screen>(screen);
@@ -891,24 +929,6 @@ export default function App() {
   const selectedDate = dateKey(selectedYear, selectedMonth, selectedDay);
 
   useEffect(() => {
-    if (didDefaultSearchVideoRef.current || selectedSearchVideoId || s3Recordings.length === 0) return;
-
-    const latestRecording = [...s3Recordings]
-      .filter((recording) => recording.videoId)
-      .sort((a, b) => {
-        const aTime = a.recordedAt || `${a.recordingDate || ""}T${a.time}`;
-        const bTime = b.recordedAt || `${b.recordingDate || ""}T${b.time}`;
-        return aTime.localeCompare(bTime);
-      })
-      .at(-1);
-
-    if (latestRecording?.videoId) {
-      didDefaultSearchVideoRef.current = true;
-      setSelectedSearchVideoId(latestRecording.videoId);
-    }
-  }, [s3Recordings, selectedSearchVideoId]);
-
-  useEffect(() => {
     let ignore = false;
     let retryTimer: number | undefined;
 
@@ -996,6 +1016,7 @@ export default function App() {
       setAnswer("");
       setResults([]);
       setActiveResult(null);
+      setActiveScene(null);
       setActiveSuggestionSource(null);
       setApiNotice("");
     }
@@ -1041,11 +1062,12 @@ export default function App() {
 
   const filteredRecordings = useMemo(
     () => recordingItems.filter((recording) => {
-      const matchesDate = !recording.recordingDate || recording.recordingDate === selectedDate;
+      const ignoreDate = screen === "search" && searchAllDates;
+      const matchesDate = ignoreDate || !recording.recordingDate || recording.recordingDate === selectedDate;
       const matchesTime = timeFilter === "all" || recording.period === timeFilter;
       return matchesDate && matchesTime;
     }),
-    [recordingItems, selectedDate, timeFilter],
+    [recordingItems, selectedDate, timeFilter, screen, searchAllDates],
   );
 
   const highlightedBehaviors = useMemo(
@@ -1069,23 +1091,23 @@ export default function App() {
     [activeRecording.videoId, behaviorEvents],
   );
 
-  const livePreviewRecording = useMemo(() => {
-    const items = s3Recordings.filter((recording) => recording.videoId === "IMG_8472");
-    return [...items].sort((a, b) => {
+  const liveDetectionItems = highlightedBehaviors.slice(0, 4);
+
+  // 가장 눈에 띄는 감지가 있으면 그 녹화를, 없으면 가장 최근 녹화를 보여준다.
+  const latestRecording = useMemo(
+    () => [...s3Recordings].sort((a, b) => {
       const aTime = a.recordedAt || `${a.recordingDate || ""}T${a.time}`;
       const bTime = b.recordedAt || `${b.recordingDate || ""}T${b.time}`;
       return bTime.localeCompare(aTime);
-    })[0];
-  }, [s3Recordings]);
-
-  const livePreviewEvents = useMemo(
-    () => livePreviewRecording ? eventsForRecording(livePreviewRecording, behaviorEvents) : [],
-    [behaviorEvents, livePreviewRecording],
+    })[0],
+    [s3Recordings],
   );
-
-  const liveDetectionItems = highlightedBehaviors.slice(0, 4);
+  const liveRecording = liveDetectionItems[0]?.recording ?? latestRecording;
+  const liveEvent = liveDetectionItems[0]?.event
+    ?? (liveRecording ? eventsForRecording(liveRecording, behaviorEvents)[0] : undefined);
 
   const visibleResults = results;
+  const playbackResult = activeScene ?? activeResult;
   const currentVideoRecordings = recordingItems.filter(
     (recording) => recording.videoId && activeRecording.videoId
       ? recording.videoId === activeRecording.videoId
@@ -1093,7 +1115,7 @@ export default function App() {
   );
 
   const topTitle = {
-    live: ["실시간 라이브", `${petName}의 거실을 실시간으로 지켜보고 있어요`],
+    live: ["최근 감지", `${petName}의 최근 녹화에서 분석된 행동을 확인하세요`],
     recordings: ["녹화 영상", "GCS에 업로드된 1분 단위 청크를 둘러보세요"],
     search: ["AI 검색", "자연어로 물어보면 관련 장면을 찾아드려요"],
     chunkPlayback: ["녹화 영상 재생", "GCS 청크를 원본 흐름대로 확인합니다"],
@@ -1115,8 +1137,7 @@ export default function App() {
   }
 
   function openResult(result: SearchResult) {
-    setActiveResult(result);
-    setPlaybackRevision((revision) => revision + 1);
+    selectResult(result);
     scrollByScreen.current[screen] = window.scrollY;
     delete scrollByScreen.current.searchPlayback;
     setScreen("searchPlayback");
@@ -1125,6 +1146,7 @@ export default function App() {
   function selectResult(result: SearchResult) {
     setActiveResult(result);
     setPlaybackRevision((revision) => revision + 1);
+    setActiveScene(result.relatedScenes?.[0] ?? result);
   }
 
   function openRecording(recording: Recording, event?: BehaviorEvent) {
@@ -1149,11 +1171,13 @@ export default function App() {
     setQuery(nextQuery);
     setSubmittedQuery(nextQuery);
     setSubmitted(true);
+    setSearchRunId((id) => id + 1);
     setLoading(true);
     setApiNotice("");
     setAnswer("");
     setResults([]);
     setActiveResult(null);
+    setActiveScene(null);
     setActiveSuggestionSource(null);
 
     try {
@@ -1163,7 +1187,7 @@ export default function App() {
         body: JSON.stringify({
           query: nextQuery,
           video_id: selectedSearchVideoId || undefined,
-          recording_date: `${selectedYear}-${String(selectedMonth).padStart(2, "0")}-${String(selectedDay).padStart(2, "0")}`,
+          recording_date: searchAllDates ? undefined : dateKey(selectedYear, selectedMonth, selectedDay),
           top_k: 3,
           user_id: userId,
           source_event_id: sourceForQuery?.source_event_id ?? undefined,
@@ -1187,7 +1211,7 @@ export default function App() {
       setExcludedEventCount(payload.excluded_event_count ?? 0);
       setResultSequenceIntent(payload.sequence_intent ?? "timeline");
       setResults(nextResults);
-      setActiveResult(nextResults[0] ?? null);
+      if (nextResults[0]) selectResult(nextResults[0]);
 
       if (payload.behavior_events?.length) {
         setBehaviorEvents((current) => {
@@ -1206,6 +1230,7 @@ export default function App() {
       setAnswer(`"${nextQuery}" 검색 중 문제가 발생했습니다. 백엔드와 인덱스 상태를 확인해주세요.`);
       setResults([]);
       setActiveResult(null);
+      setActiveScene(null);
       setApiNotice("FastAPI 서버 또는 검색 인덱스에 연결하지 못했습니다.");
     } finally {
       setLoading(false);
@@ -1224,6 +1249,7 @@ export default function App() {
     setAnswer("");
     setResults([]);
     setActiveResult(null);
+    setActiveScene(null);
     setApiNotice("");
   }
 
@@ -1353,7 +1379,7 @@ export default function App() {
 
         <p className="nav-label">메뉴</p>
         {[
-          { key: "live" as const, icon: "sensors", label: "라이브" },
+          { key: "live" as const, icon: "history", label: "최근 감지" },
           { key: "recordings" as const, icon: "grid_view", label: "녹화 영상" },
           { key: "search" as const, icon: "search", label: "AI 검색" },
         ].map((item) => {
@@ -1441,7 +1467,7 @@ export default function App() {
             {[
               { key: "search" as const, label: "AI 검색" },
               { key: "recordings" as const, label: "녹화 영상" },
-              { key: "live" as const, label: "라이브" },
+              { key: "live" as const, label: "최근 감지" },
             ].map((item) => {
               const activeScreen = screen === "chunkPlayback" ? "recordings" : screen === "searchPlayback" ? "search" : screen;
               const active = activeScreen === item.key;
@@ -1497,53 +1523,47 @@ export default function App() {
             <section className="live-grid">
               <div className="stack">
                 <VideoPanel
-                  label="LIVE"
+                  label="최근 녹화"
                   camera=""
-                  time={formatLiveDateTime(now)}
-                  videoUrl={livePreviewRecording?.videoUrl}
+                  time={liveRecording ? `${liveRecording.recordingDate ?? ""} ${liveRecording.time}`.trim() : ""}
+                  videoUrl={liveRecording?.videoUrl}
                   showControls={false}
                   loop
                 />
                 <div className="metric-row">
-                  <Metric icon="pets" label="현재 상태" value={livePreviewEvents[0]?.summary || "최근 수신 청크를 분석 중"} />
-                  <Metric icon="schedule" label="오늘 수신 영상" value={`${s3Recordings.length || recordingItems.length}개 청크 · ${livePreviewRecording?.videoId || "데모"}`} />
+                  <Metric icon="pets" label="가장 최근 감지" value={liveEvent?.summary || "분석된 행동 기록이 아직 없어요"} />
+                  <Metric icon="schedule" label="수신 영상" value={`${s3Recordings.length || recordingItems.length}개 청크${liveRecording?.videoId ? ` · ${liveRecording.videoId}` : ""}`} />
                 </div>
               </div>
               <aside className="side-panel">
                 <div className="panel-title">
                   <Icon filled>auto_awesome</Icon>
-                  <strong>AI 실시간 감지</strong>
-                  <span className="analyzing"><span />분석 중</span>
+                  <strong>최근 감지</strong>
                 </div>
                 <div className="moment-card">
-                  <span>지금 이 순간</span>
-                  <strong>{livePreviewEvents[0]?.summary || `${petName}의 최근 녹화 청크를 확인 중이에요`}</strong>
-                  <div className="tag-row">
-                    {livePreviewRecording ? tagList(livePreviewRecording.tags) : <span className="tag">🎬 demo</span>}
-                    <span className="confidence">{Math.round(((livePreviewEvents[0]?.confidence ?? 0.84) * 100))}%</span>
-                  </div>
+                  <span>가장 최근 감지</span>
+                  <strong>{liveEvent?.summary || "아직 분석된 감지 기록이 없어요"}</strong>
+                  {liveEvent && (
+                    <div className="tag-row">
+                      {liveRecording && tagList(liveRecording.tags)}
+                      <span className="confidence">{scoreBehavior(liveEvent)}%</span>
+                    </div>
+                  )}
                 </div>
                 <p className="section-kicker">최근 감지 기록</p>
                 <div className="event-list">
-                  {(liveDetectionItems.length > 0 ? liveDetectionItems : liveEvents).map((item) => (
-                    "event" in item ? (
-                      <button className="event-item live-event-button" key={`${item.event.id}-${item.recording.id}`} onClick={() => openRecording(item.recording, item.event)}>
-                        <div className="event-icon"><Icon filled>auto_awesome</Icon></div>
-                        <div>
-                          <strong>{behaviorTitle(item.event)}</strong>
-                          <p>{item.event.summary || `${petName}의 행동 변화가 감지된 구간입니다.`}</p>
-                          <span>{behaviorTimeLabel(item.event, item.recording)} · {scoreBehavior(item.event)}%</span>
-                        </div>
-                      </button>
-                    ) : (
-                    <div className="event-item" key={item.text}>
-                      <div className="event-icon"><Icon>{item.icon}</Icon></div>
+                  {liveDetectionItems.length === 0 && (
+                    <p className="empty-note">분석이 끝난 영상이 올라오면 여기에 행동 기록이 표시돼요.</p>
+                  )}
+                  {liveDetectionItems.map((item) => (
+                    <button className="event-item live-event-button" key={`${item.event.id}-${item.recording.id}`} onClick={() => openRecording(item.recording, item.event)}>
+                      <div className="event-icon"><Icon filled>auto_awesome</Icon></div>
                       <div>
-                        <strong>{item.text}</strong>
-                        <p>{item.tags.join(" · ")} <span>{item.time}</span></p>
+                        <strong>{behaviorTitle(item.event)}</strong>
+                        <p>{item.event.summary || `${petName}의 행동 변화가 감지된 구간입니다.`}</p>
+                        <span>{behaviorTimeLabel(item.event, item.recording)} · {scoreBehavior(item.event)}%</span>
                       </div>
-                    </div>
-                    )
+                    </button>
                   ))}
                 </div>
                 <button className="primary-button" onClick={() => go("search")}>
@@ -1646,29 +1666,29 @@ export default function App() {
                     <div className="feature-matrix-card">
                       <div className="feature-matrix-icon">🤖</div>
                       <div>
-                        <strong>AI 3D Vision</strong>
-                        <p>12가지 행동 패턴 자동 감지</p>
+                        <strong>행동 이벤트 분석</strong>
+                        <p>움직임이 있는 구간의 행동을 자동으로 요약</p>
                       </div>
                     </div>
                     <div className="feature-matrix-card">
                       <div className="feature-matrix-icon">⚡</div>
                       <div>
-                        <strong>Smart Pipeline</strong>
-                        <p>GCS 5분 단편 클립 분할 인덱싱</p>
+                        <strong>자동 인덱싱</strong>
+                        <p>짧은 클립을 장면 단위로 분석해 저장</p>
                       </div>
                     </div>
                     <div className="feature-matrix-card">
                       <div className="feature-matrix-icon">🔍</div>
                       <div>
-                        <strong>Natural LLM Query</strong>
-                        <p>자연어로 3초 만에 장면 탐색</p>
+                        <strong>자연어 검색</strong>
+                        <p>질문하면 해당 장면과 시점을 찾아줘요</p>
                       </div>
                     </div>
                     <div className="feature-matrix-card">
-                      <div className="feature-matrix-icon">🔔</div>
+                      <div className="feature-matrix-icon">▶️</div>
                       <div>
-                        <strong>Realtime Care</strong>
-                        <p>이상 행동 감지 및 맞춤 알림</p>
+                        <strong>구간 재생</strong>
+                        <p>검색 결과에서 해당 시점부터 바로 재생</p>
                       </div>
                     </div>
                   </div>
@@ -1698,7 +1718,20 @@ export default function App() {
                 <div className="search-toolbar">
                   <div className="toolbar-field">
                     <span><Icon>calendar_today</Icon>날짜</span>
-                    <DateFilter selectedYear={selectedYear} setSelectedYear={setSelectedYear} selectedMonth={selectedMonth} setSelectedMonth={setSelectedMonth} selectedDay={selectedDay} setSelectedDay={setSelectedDay} compact />
+                    <div className="date-scope">
+                      <button
+                        type="button"
+                        className={`date-all-toggle${searchAllDates ? " on" : ""}`}
+                        aria-pressed={searchAllDates}
+                        onClick={() => setSearchAllDates((value) => !value)}
+                      >
+                        전체 날짜
+                      </button>
+                      {/* 전체 날짜일 때 날짜를 고르려고 누르면 자동으로 날짜 지정으로 바뀐다. */}
+                      <div className={`date-picker-slot${searchAllDates ? " dimmed" : ""}`} onClickCapture={() => setSearchAllDates(false)}>
+                        <DateFilter selectedYear={selectedYear} setSelectedYear={setSelectedYear} selectedMonth={selectedMonth} setSelectedMonth={setSelectedMonth} selectedDay={selectedDay} setSelectedDay={setSelectedDay} compact />
+                      </div>
+                    </div>
                   </div>
                   <div className="toolbar-field">
                     <span><Icon>videocam</Icon>검색할 영상</span>
@@ -1723,15 +1756,18 @@ export default function App() {
                 </div>
                 <p className="toolbar-summary">
                   <Icon>tune</Icon>
-                  선택 범위 · {selectedSearchVideoId || "전체 영상"} · {selectedYear}년 {selectedMonth}월 {selectedDay}일 · {formatHourRange(searchStartHour, searchEndHour)}
+                  선택 범위 · {selectedSearchVideoId || "전체 영상"} · {searchAllDates ? "전체 날짜" : `${selectedYear}년 ${selectedMonth}월 ${selectedDay}일`} · {formatHourRange(searchStartHour, searchEndHour)}
                 </p>
 
-                <div className="search-results-anchor" ref={searchResultsRef} />
+                <div ref={resultsRef} className="results-anchor" aria-hidden="true" />
                 {loading ? (
                   <div className="search-loading-card">
                     <span className="search-spinner" />
                     <strong>AI가 영상을 검색하고 있어요</strong>
                     <p>선택한 영상과 시간대에서 비슷한 장면을 찾는 중입니다.</p>
+                    {slowSearch && (
+                      <p className="slow-hint">서버가 쉬고 있다가 깨어나는 중이라 처음 한 번은 오래 걸릴 수 있어요. 잠시만 기다려 주세요.</p>
+                    )}
                   </div>
                 ) : submitted ? (
                   <div className="search-results stack">
@@ -1751,7 +1787,7 @@ export default function App() {
                         )}
                       </div>
                     </div>}
-                    {!loading && (
+                    {!loading && (resultQueryType === "sequence" || visibleResults.length > 0) && (
                       <>
                         {resultQueryType === "sequence" ? (
                           <SequencePanel
@@ -1765,7 +1801,7 @@ export default function App() {
                         ) : (
                           <>
                             <div className="result-header">
-                              <strong>관련 장면 {visibleResults.length}개</strong>
+                              <strong>관련 영상 {visibleResults.length}개</strong>
                               <span>유사도 순</span>
                             </div>
                             <div className="result-grid">
@@ -1792,8 +1828,8 @@ export default function App() {
                       <Icon filled>smart_display</Icon>
                       <span>SMART CLIPS & BEHAVIORS</span>
                     </div>
-                    <h2>오늘 포착된 녹화 청크 & 주요 행동</h2>
-                    <p>{selectedYear}년 {selectedMonth}월 {selectedDay}일 · 총 {filteredRecordings.length}개 5분 클립 기록</p>
+                    <h2>포착된 녹화 청크 & 주요 행동</h2>
+                    <p>{searchAllDates ? "전체 날짜" : `${selectedYear}년 ${selectedMonth}월 ${selectedDay}일`} · 총 {filteredRecordings.length}개 클립 기록</p>
                   </div>
 
                   <div className="home-recordings-head">
@@ -1952,7 +1988,7 @@ export default function App() {
             </section>
           )}
 
-          {screen === "searchPlayback" && activeResult && (
+          {screen === "searchPlayback" && activeResult && playbackResult && (
             <section className="playback-page stack">
               <div className="playback-head">
                 <button className="secondary-button" onClick={() => go("search")}>
@@ -1964,19 +2000,23 @@ export default function App() {
               <div className="playback-grid">
                 <div className="stack">
                   <VideoPanel
-                    key={`${activeResult.id}-${playbackRevision}`}
+                    key={`${playbackResult.id}-${playbackRevision}`}
                     label="검색 결과 구간 재생"
-                    camera={activeResult.note}
-                    time={activeResult.displayDateTime || activeResult.time}
-                    videoUrl={activeResult.videoUrl}
-                    startAtSeconds={activeResult.playbackStartSeconds ?? activeResult.seekStartSeconds}
-                    playbackSegments={searchPlaybackSegments(activeResult, recordingItems)}
+                    camera={playbackResult.note}
+                    time={playbackResult.displayDateTime || playbackResult.time}
+                    videoUrl={playbackResult.videoUrl}
+                    startAtSeconds={playbackResult.playbackStartSeconds ?? playbackResult.seekStartSeconds}
+                    playbackSegments={searchPlaybackSegments(playbackResult, recordingItems)}
                     wide
                   />
                   {resultQueryType === "sequence" ? (
                     <SequenceNowCard result={activeResult} index={Math.max(0, visibleResults.findIndex((item) => item.id === activeResult.id))} total={visibleResults.length} />
                   ) : (
-                    <Timeline activeResult={activeResult} results={visibleResults} onSelect={selectResult} />
+                    <Timeline
+                      activeResult={playbackResult}
+                      results={activeResult.relatedScenes?.length ? activeResult.relatedScenes : [activeResult]}
+                      onSelect={setActiveScene}
+                    />
                   )}
                   <div className="button-row">
                     <button className="secondary-button" onClick={() => stepResult(-1)}><Icon>skip_previous</Icon>{resultQueryType === "sequence" ? "이전 단계" : "이전 결과"}</button>
@@ -1991,12 +2031,12 @@ export default function App() {
                   <div className="answer-card compact">
                     <div className="brand-mark answer-mark"><PawMark /></div>
                     <div>
-                      <span>검색 답변</span>
+                      <span>AI 답변</span>
                       {submittedQuery && <p className="answer-question">질문 · {submittedQuery}</p>}
-                      <p>{answer || `${activeResult.displayDateTime || activeResult.time} 시각에서 ${activeResult.note}이 확인됐어요.`}</p>
+                      <p>{answer || `${playbackResult.displayDateTime || playbackResult.time} 시각에서 ${playbackResult.note}이 확인됐어요.`}</p>
                     </div>
                   </div>
-                  <p className="section-kicker">검색된 장면 {visibleResults.length}개</p>
+                  <p className="section-kicker">검색된 영상 {visibleResults.length}개</p>
                   <div className="side-results">
                     {visibleResults.map((result) => (
                       <button className={result.id === activeResult.id ? "side-result active" : "side-result"} key={result.id} onClick={() => selectResult(result)}>
@@ -2691,15 +2731,15 @@ function Timeline({
   onSelect: (result: SearchResult) => void;
 }) {
   const sameVideoResults = results.filter((result) => {
-    if (activeResult.videoUrl && result.videoUrl) return result.videoUrl === activeResult.videoUrl;
     if (activeResult.videoId && result.videoId) return result.videoId === activeResult.videoId;
+    if (activeResult.videoUrl && result.videoUrl) return result.videoUrl === activeResult.videoUrl;
     return true;
   });
 
   const maxResultSecond = Math.max(
     60,
-    ...sameVideoResults.map((result) => result.playbackStartSeconds ?? result.startSeconds ?? 0),
-    activeResult.playbackStartSeconds ?? activeResult.startSeconds ?? 0,
+    ...sameVideoResults.map((result) => result.timelineSeconds ?? result.playbackStartSeconds ?? result.startSeconds ?? 0),
+    activeResult.timelineSeconds ?? activeResult.playbackStartSeconds ?? activeResult.startSeconds ?? 0,
   );
   const timelineDuration = Math.ceil(maxResultSecond / 15) * 15;
   const tickStep = timelineDuration <= 60 ? 15 : timelineDuration <= 180 ? 30 : 60;
@@ -2709,7 +2749,7 @@ function Timeline({
   );
 
   const timelinePercent = (result: SearchResult) => {
-    const second = result.playbackStartSeconds ?? result.startSeconds ?? 0;
+    const second = result.timelineSeconds ?? result.playbackStartSeconds ?? result.startSeconds ?? 0;
     return Math.min(100, Math.max(0, (second / timelineDuration) * 100));
   };
 

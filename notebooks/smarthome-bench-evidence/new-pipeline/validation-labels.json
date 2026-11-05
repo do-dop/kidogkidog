@@ -1,0 +1,12 @@
+{
+  "note": "Human/provisional reference labels were recorded before the new pipeline run. Per-event times for 0065 are unavailable, so only its total can be compared. Matching uses temporal overlap, not visual identity, and is an evaluation aid rather than ground truth for model calls.",
+  "cases": [
+    {"video_id": "smartbench_0518", "reference_kind": "assistant_frame_review_provisional", "confirmed_total": 2, "uncertain_total": 0, "events": [{"start": 19.0, "end": 20.25, "subject": "black dog"}, {"start": 20.5, "end": 22.0, "subject": "white dog"}]},
+    {"video_id": "smartbench_0642", "reference_kind": "assistant_frame_review_provisional", "confirmed_total": 2, "uncertain_total": 0, "events": [{"start": 1.25, "end": 3.0, "subject": "first black dog"}, {"start": 4.0, "end": 6.0, "subject": "second black dog"}]},
+    {"video_id": "smartbench_0608", "reference_kind": "assistant_frame_review_provisional", "confirmed_total": 2, "uncertain_total": 0, "events": [{"start": 1.5, "end": 3.0, "subject": "dog"}, {"start": 20.0, "end": 21.0, "subject": "dog"}]},
+    {"video_id": "smartbench_0142", "reference_kind": "assistant_frame_review_provisional", "confirmed_total": 2, "uncertain_total": 0, "events": [{"start": 10.5, "end": 18.5, "subject": "cat"}, {"start": 24.5, "end": 27.5, "subject": "cat"}]},
+    {"video_id": "smartbench_0936", "reference_kind": "user_count_and_provisional_frame_times", "confirmed_total": 8, "uncertain_total": 0, "events": [{"start": 0.25, "end": 0.85, "subject": "dog"}, {"start": 1.5, "end": 2.25, "subject": "dog"}, {"start": 4.25, "end": 4.9, "subject": "dog"}, {"start": 6.0, "end": 6.75, "subject": "dog"}, {"start": 7.4, "end": 8.0, "subject": "dog"}, {"start": 9.0, "end": 10.0, "subject": "dog"}, {"start": 15.25, "end": 16.0, "subject": "dog"}, {"start": 19.0, "end": 19.75, "subject": "dog"}]},
+    {"video_id": "smartbench_0065", "reference_kind": "user_total_only", "confirmed_total": 4, "uncertain_total": 1, "events": []},
+    {"video_id": "smartbench_0188", "reference_kind": "user_reviewed_original_dog_escape_duplicate", "confirmed_total": 2, "uncertain_total": 0, "events": [{"start": 4.0, "end": 16.0, "subject": "dog"}, {"start": 22.0, "end": 31.0, "subject": "dog"}]}
+  ]
+}

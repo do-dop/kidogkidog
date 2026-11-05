@@ -1,0 +1,286 @@
+{
+  "video_id": "smartbench_0608",
+  "fps": 0.5,
+  "events": [
+    {
+      "video_id": "smartbench_0608",
+      "start_time": 20.0,
+      "end_time": 22.0,
+      "subject": "반려동물",
+      "action": "반려동물이 수영장에 뛰어드는 것으로 보임",
+      "target_object": null,
+      "summary": "반려동물이 수영장에서 수영하고 있음.",
+      "duration": 2.0,
+      "repeat_count": 1,
+      "confidence": 0.9,
+      "interestingness": 0.9,
+      "evidence": [
+        "장난감을 물고 수영장으로 향하는 모습이 확인됨",
+        "물속에서 헤엄치는 모습이 관찰됨"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 20.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 22.0,
+          "object_labels": [
+            "dog"
+          ]
+        }
+      ]
+    },
+    {
+      "video_id": "smartbench_0608",
+      "start_time": 20.0,
+      "end_time": 22.0,
+      "subject": "반려동물",
+      "action": "반려동물이 물속에서 수영하는 것으로 보임",
+      "target_object": null,
+      "summary": "반려동물이 물속에서 활발히 수영하고 있다.",
+      "duration": 2.0,
+      "repeat_count": 1,
+      "confidence": 0.9,
+      "interestingness": 0.9,
+      "evidence": [
+        "반려동물이 수영장으로 달려가 물속에 들어감",
+        "반려동물이 수면 위에서 물을 튕기며 수영함"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 20.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 22.0,
+          "object_labels": [
+            "dog"
+          ]
+        }
+      ]
+    },
+    {
+      "video_id": "smartbench_0608",
+      "start_time": 2.0,
+      "end_time": 4.0,
+      "subject": "반려동물",
+      "action": "반려동물이 수영장에서 헤엄치는 것으로 보임",
+      "target_object": "수영장",
+      "summary": "반려동물이 수영장에서 수영을 하고 있는 모습입니다.",
+      "duration": 2.0,
+      "repeat_count": 1,
+      "confidence": 0.8,
+      "interestingness": 0.9,
+      "evidence": [
+        "반려동물이 물속에서 헤엄치고 있음",
+        "수영장의 위치와 반려동물의 움직임이 확인됨"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 2.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 4.0,
+          "object_labels": [
+            "dog"
+          ]
+        }
+      ]
+    },
+    {
+      "video_id": "smartbench_0608",
+      "start_time": 18.0,
+      "end_time": 20.0,
+      "subject": "반려동물",
+      "action": "반려동물이 장난감을 물고 뛰어오르는 것으로 보임",
+      "target_object": "장난감",
+      "summary": "반려동물이 장난감을 가지고 놀며 활발하게 움직이고 있음.",
+      "duration": 2.0,
+      "repeat_count": 1,
+      "confidence": 0.8,
+      "interestingness": 0.9,
+      "evidence": [
+        "반려동물이 장난감을 꽉 물고 뛰어가는 모습이 관찰됨",
+        "활동적인 행동으로 보아 즐거운 상태에 있음"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 18.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 20.0,
+          "object_labels": [
+            "dog"
+          ]
+        }
+      ]
+    },
+    {
+      "video_id": "smartbench_0608",
+      "start_time": 22.0,
+      "end_time": 24.0,
+      "subject": "반려동물",
+      "action": "반려동물이 물속에서 계속 수영하는 것으로 보임",
+      "target_object": null,
+      "summary": "반려동물이 물속에서 계속해서 수영을 즐기고 있다.",
+      "duration": 2.0,
+      "repeat_count": 1,
+      "confidence": 0.8,
+      "interestingness": 0.8,
+      "evidence": [
+        "반려동물이 그 이전 모습과 이어져 계속해서 물속에 있음",
+        "반려동물이 수영하는 모습이 지속됨"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 22.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 24.0,
+          "object_labels": [
+            "dog"
+          ]
+        }
+      ]
+    },
+    {
+      "video_id": "smartbench_0608",
+      "start_time": 8.0,
+      "end_time": 10.0,
+      "subject": "반려동물",
+      "action": "반려동물이 수영장에서 나오는 것으로 보임",
+      "target_object": "수영장",
+      "summary": "반려동물이 수영장에서 나오는 모습입니다.",
+      "duration": 2.0,
+      "repeat_count": 1,
+      "confidence": 0.7,
+      "interestingness": 0.8,
+      "evidence": [
+        "반려동물이 수영장 가장자리로 방향을 바꾸고 있음",
+        "물에 젖은 상태에서 지면으로 나오는 모습이 관찰됨"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 8.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 10.0,
+          "object_labels": [
+            "dog"
+          ]
+        }
+      ]
+    },
+    {
+      "video_id": "smartbench_0608",
+      "start_time": 12.0,
+      "end_time": 14.0,
+      "subject": "반려동물",
+      "action": "반려동물이 수영장 가장자리에서 주저하는 것으로 보임",
+      "target_object": null,
+      "summary": "반려동물이 수영장에 들어가기를 망설이고 있음.",
+      "duration": 2.0,
+      "repeat_count": 1,
+      "confidence": 0.6,
+      "interestingness": 0.8,
+      "evidence": [
+        "수영장에 발을 들여놓기 전 멈춰서 있는 모습이 포착됨",
+        "주저하는 행동으로 보아 물에 대한 불확실성이 있을 수 있음"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 12.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 14.0,
+          "object_labels": [
+            "dog"
+          ]
+        }
+      ]
+    },
+    {
+      "video_id": "smartbench_0608",
+      "start_time": 10.0,
+      "end_time": 12.0,
+      "subject": "반려동물",
+      "action": "반려동물이 수영장 근처에서 이동하는 것으로 보임",
+      "target_object": null,
+      "summary": "반려동물이 수영장 주변을 탐색하고 있음.",
+      "duration": 2.0,
+      "repeat_count": 1,
+      "confidence": 0.7,
+      "interestingness": 0.7,
+      "evidence": [
+        "반려동물이 수영장 가장자리를 따라 이동하는 모습이 관찰됨",
+        "주변 물체와의 거리로 보아 탐색하는 행동으로 해석됨"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 10.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 12.0,
+          "object_labels": [
+            "dog"
+          ]
+        }
+      ]
+    }
+  ]
+}

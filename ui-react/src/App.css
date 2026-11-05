@@ -16,7 +16,7 @@
 
 body {
   margin: 0;
-  min-width: 1120px;
+  min-width: 768px; /* 폰 레이아웃은 아직 없다. 태블릿 세로(768px)까지만 맞춘다. */
   min-height: 100vh;
   background-color: #120e0a;
 }
@@ -2520,11 +2520,6 @@ button {
   opacity: 0.9;
 }
 
-/* 검색 시작 시 결과 영역으로 스크롤할 때 고정 헤더에 가리지 않도록 */
-.search-results-anchor {
-  scroll-margin-top: 96px;
-}
-
 /* 시퀀스 답변: 요약 + 행동 타임라인 (대표 썸네일 + 구간 프레임) */
 .seq-panel {
   display: flex;
@@ -2606,6 +2601,18 @@ button {
 }
 
 .seq-summary small {
+  font-size: 13px;
+  color: var(--text-3);
+}
+
+/* 검색 시작 시 스크롤 목적지. 고정 상단바에 가려지지 않게 여백을 둔다. */
+.results-anchor {
+  scroll-margin-top: 88px;
+}
+
+.empty-note {
+  margin: 0;
+  padding: 12px 4px;
   font-size: 13px;
   color: var(--text-3);
 }
@@ -2820,6 +2827,19 @@ button {
   }
 }
 
+/* 아래의 .feature-matrix-grid 기본 규칙이 파일 앞쪽의 미디어 쿼리를 덮어쓰므로 여기서 다시 지정한다. */
+@media (max-width: 1024px) {
+  .feature-matrix-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .feature-matrix-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* 시퀀스 재생 화면: 현재 단계 카드 + 읽기 쉬운 단계 목록 */
 .seq-now {
   display: flex;
@@ -3002,4 +3022,52 @@ button {
   font-style: normal;
   font-size: 12px;
   font-weight: 700;
+}
+
+/* 아이콘 폰트가 늦게 불러와질 때 생기는 가로 스크롤 방지 (스크롤 컨테이너를 만들지 않는 clip) */
+.app-shell {
+  overflow-x: clip;
+}
+
+/* 검색 화면의 "전체 날짜" 토글 */
+.date-scope {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+}
+
+.date-all-toggle {
+  height: 32px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong, rgba(0, 0, 0, 0.15));
+  background: transparent;
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.date-all-toggle.on {
+  background: var(--accent-gradient);
+  border-color: transparent;
+  color: var(--accent-ink);
+}
+
+.date-picker-slot {
+  width: 100%;
+  transition: opacity 0.2s;
+}
+
+.date-picker-slot.dimmed {
+  opacity: 0.5;
+}
+
+.slow-hint {
+  margin: 10px 0 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-2);
 }

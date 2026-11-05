@@ -1,0 +1,197 @@
+{
+  "video_id": "smartbench_0037",
+  "fps": 0.5,
+  "events": [
+    {
+      "video_id": "smartbench_0037",
+      "start_time": 4.0,
+      "end_time": 12.0,
+      "subject": "반려동물",
+      "action": "반려동물이 장면을 관찰하는 것으로 보임",
+      "target_object": null,
+      "summary": "반려동물이 주변을 주의 깊게 살펴보는 모습이 관찰됨.",
+      "duration": 8.0,
+      "repeat_count": 1,
+      "confidence": 0.8,
+      "interestingness": 0.9,
+      "evidence": [
+        "반려동물이 여러 차례 시선이 이동하는 모습이 보임",
+        "주변 환경에 반응하는 듯한 안절부절하는 행동이 관찰됨"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 4.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 8.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 10.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 12.0,
+          "object_labels": [
+            "dog"
+          ]
+        }
+      ]
+    },
+    {
+      "video_id": "smartbench_0037",
+      "start_time": 10.0,
+      "end_time": 12.0,
+      "subject": "반려동물",
+      "action": "반려동물이 문 앞에 있는 것으로 보임",
+      "target_object": null,
+      "summary": "반려동물이 문 앞에 서 있는 모습으로 보인다.",
+      "duration": 2.0,
+      "repeat_count": 1,
+      "confidence": 0.8,
+      "interestingness": 0.6,
+      "evidence": [
+        "반려동물이 문에 가까이 다가가고 있음",
+        "주변 환경을 살펴보는 듯한 행동"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 10.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 12.0,
+          "object_labels": [
+            "dog"
+          ]
+        }
+      ]
+    },
+    {
+      "video_id": "smartbench_0037",
+      "start_time": 14.0,
+      "end_time": 16.0,
+      "subject": "반려동물",
+      "action": "반려동물이 문 앞으로 나아간 것으로 보임",
+      "target_object": null,
+      "summary": "반려동물이 문 앞에서 이동하는 모습으로 보인다.",
+      "duration": 2.0,
+      "repeat_count": 1,
+      "confidence": 0.7,
+      "interestingness": 0.6,
+      "evidence": [
+        "반려동물이 문 바로 앞에서 나가고 있음",
+        "이동하는 모습이 확인됨"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 14.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 16.0,
+          "object_labels": [
+            "dog"
+          ]
+        }
+      ]
+    },
+    {
+      "video_id": "smartbench_0037",
+      "start_time": 12.0,
+      "end_time": 14.0,
+      "subject": "반려동물",
+      "action": "반려동물이 문에 가까이 있는 것으로 보임",
+      "target_object": null,
+      "summary": "반려동물이 여전히 문 앞에 서 있는 모습으로 보인다.",
+      "duration": 2.0,
+      "repeat_count": 1,
+      "confidence": 0.8,
+      "interestingness": 0.5,
+      "evidence": [
+        "반려동물이 여전히 문에 가까이 있음",
+        "주변을 주시하는 듯한 행동"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 12.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 14.0,
+          "object_labels": [
+            "dog"
+          ]
+        }
+      ]
+    },
+    {
+      "video_id": "smartbench_0037",
+      "start_time": 16.0,
+      "end_time": 18.0,
+      "subject": "반려동물",
+      "action": "반려동물이 문 앞에 다시 가까이 다가간 것으로 보임",
+      "target_object": null,
+      "summary": "반려동물이 문 앞에 다시 나타나는 모습으로 보인다.",
+      "duration": 2.0,
+      "repeat_count": 1,
+      "confidence": 0.7,
+      "interestingness": 0.5,
+      "evidence": [
+        "반려동인이 문 쪽으로 다시 이동함",
+        "문에 가까워지는 행동이 확인됨"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 16.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 18.0,
+          "object_labels": [
+            "dog"
+          ]
+        }
+      ]
+    }
+  ]
+}
