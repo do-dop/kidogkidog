@@ -417,17 +417,20 @@ def _get_relevant_behavior_events(
             print(f"겹치는 행동 이벤트 조회 실패: {exc}", flush=True)
 
     # 2. 영상 전체 주요 behavior_events 조회
+    # 검색된 프레임과 겹치는 이벤트가 이미 있으면 그것만 근거로 쓴다.
+    # 화면에 보이는 장면과 무관한 영상 전체 이벤트를 섞으면 답변의 시간대가 카드와 어긋난다.
     # 날짜/시간대 필터는 조회 후에 적용되므로, 필터가 있으면 후보를 넉넉히 가져온 뒤 거른다.
-    try:
-        has_filter = _has_datetime_filter(recording_date, time_range)
-        top_events = get_top_behavior_events(
-            video_id=video_id,
-            limit=200 if has_filter else 10,
-        )
-        candidates.extend(_filter_events_by_datetime(top_events, recording_date, time_range)[:10])
+    if not candidates:
+        try:
+            has_filter = _has_datetime_filter(recording_date, time_range)
+            top_events = get_top_behavior_events(
+                video_id=video_id,
+                limit=200 if has_filter else 10,
+            )
+            candidates.extend(_filter_events_by_datetime(top_events, recording_date, time_range)[:10])
 
-    except Exception as exc:
-        print(f"주요 행동 이벤트 조회 실패: {exc}", flush=True)
+        except Exception as exc:
+            print(f"주요 행동 이벤트 조회 실패: {exc}", flush=True)
 
     candidates = _deduplicate_behavior_events(candidates)
 
@@ -808,6 +811,33 @@ def _build_behavior_event_context(behavior_events: list[dict[str, Any]]) -> str:
     return "\n".join(lines)
 
 
+def _format_clock(value) -> str:
+    seconds = max(0, int(round(float(value))))
+    minutes, remaining_seconds = divmod(seconds, 60)
+    return f"{minutes:02d}:{remaining_seconds:02d}"
+
+
+def _format_scene_range(frame: dict[str, Any]) -> str:
+    """결과 카드에 표시되는 '재생 구간'과 같은 MM:SS 형식으로 장면 구간을 만든다."""
+    start = _safe_float(frame.get("playback_start"))
+    end = _safe_float(frame.get("playback_end"))
+    representative = _safe_float(frame.get("representative_timestamp"))
+    if representative is None:
+        representative = _safe_float(frame.get("timestamp"))
+
+    if start is None and representative is not None:
+        start = max(representative - 3.0, 0.0)
+    if end is None and representative is not None:
+        end = representative + 5.0
+    if start is None or end is None:
+        return "알 수 없음"
+
+    text = f"{_format_clock(start)}~{_format_clock(end)}"
+    if representative is not None:
+        text += f" (가장 비슷한 순간 {_format_clock(representative)})"
+    return text
+
+
 def _build_retrieved_context(retrieved_frames: list[dict[str, Any]]) -> str:
     """
     검색된 프레임 metadata를 LLM에게 전달하기 좋은 텍스트로 변환한다.
@@ -825,9 +855,12 @@ def _build_retrieved_context(retrieved_frames: list[dict[str, Any]]) -> str:
         score = frame.get("score")
         score_text = f"{float(score):.4f}" if score is not None else "알 수 없음"
 
+        scene_text = _format_scene_range(frame)
+
         lines.append(
             f"{idx}. video_id: {frame.get('video_id', 'unknown')}\n"
             f"   frame_id: {frame.get('frame_id', 'unknown')}\n"
+            f"   화면에 표시되는 재생 구간: {scene_text}\n"
             f"   timestamp: {timestamp_text}\n"
             f"   object_labels: {object_labels}\n"
             f"   similarity_score: {score_text}\n"
@@ -877,7 +910,12 @@ def _generate_answer_with_langchain(
 
 답변 규칙:
 - 사용자는 내부 분석 로그가 아니라 "어느 장면을 보면 되는지"를 알고 싶어 한다.
-- 첫 문장은 짧게 결론을 말한다. 예: "고양이가 보이는 장면은 00:02 근처에서 확인할 수 있어요."
+- 첫 문장은 질문에 직접 답한다. 예: "고양이가 보이는 장면은 00:02 근처에서 확인할 수 있어요."
+- 시간은 반드시 "검색된 프레임 근거"의 "화면에 표시되는 재생 구간"(MM:SS)만 사용한다. 사용자 화면의 결과 카드와 같은 구간이어야 한다.
+- 행동 이벤트의 time_range(영상 전체 길이에 걸친 넓은 구간)를 그대로 말하지 않는다. 2초~58초처럼 넓은 구간을 안내하지 않는다.
+- 질문에 나온 대상이나 행동(예: 쓰레기통, 뒤지기)이 summary, evidence, target_object, object_labels 어디에도 직접 나오지 않으면, 있다고 말하지 않는다. 이때는 "정확히 그 장면이라고 확신하긴 어렵지만 가장 비슷한 후보는 ~예요"처럼 후보라고 말한다.
+- 근거에 없는 해석(호기심, 감정, 의도 등)을 덧붙이지 않는다. 화면에 보이는 것만 말한다.
+- 후보 장면이 여러 개면 비슷한 순서대로 구간을 짧게 나열한다.
 - 중복된 구간은 반복해서 나열하지 말고 하나로 묶는다.
 - confidence, similarity_score, repeat_count, frame count, object_labels 원문, evidence 원문 같은 내부 수치는 노출하지 않는다.
 - "분석된 행동 이벤트", "프레임 기반", "metadata", "ChromaDB" 같은 기술 용어를 사용자 답변에 쓰지 않는다.
@@ -934,6 +972,35 @@ def _build_fallback_answer(
     """
     LLM을 못 쓸 때도 behavior_events와 검색 결과 기반으로 간단한 답변을 생성한다.
     """
+    if retrieved_frames:
+        # 카드에 보이는 장면과 같은 구간·순서로 안내한다. 이벤트는 장면 설명에만 쓴다.
+        top_items = []
+        for frame in retrieved_frames[:3]:
+            timestamp = _safe_float(frame.get("timestamp"))
+            matching_event = next(
+                (
+                    candidate for candidate in behavior_events
+                    if timestamp is not None
+                    and _safe_float(candidate.get("start_time")) is not None
+                    and _safe_float(candidate.get("end_time")) is not None
+                    and _safe_float(candidate["start_time"]) - 3.0 <= timestamp <= _safe_float(candidate["end_time"]) + 3.0
+                ),
+                None,
+            )
+            description = (
+                _friendly_event_summary(matching_event) if matching_event
+                else _friendly_labels(frame.get("object_labels"))
+            )
+            top_items.append(f"- {_format_scene_range(frame)}: {description}")
+
+        joined = "\n".join(top_items)
+        return (
+            f"'{query}'와 가장 비슷한 장면 순서로 보여드려요. "
+            "질문 속 대상이 정확히 나오는지는 자동으로 확정하기 어려워요.\n\n"
+            f"{joined}\n\n"
+            "결과 영상을 눌러 해당 구간을 직접 확인해보세요."
+        )
+
     if behavior_events:
         visible_events = _deduplicate_answer_events(behavior_events)[:3]
         top_items = []
