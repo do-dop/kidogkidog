@@ -354,6 +354,9 @@ def verify_resets(video_path: Path, intent: dict[str, str],
         row = item.get("observation") or {}
         if row.get("status") != "confirmed":
             continue
+        # A reset claimed inside a candidate clip is not enough for another
+        # count. Only the independent between-event check may set it again.
+        row["reset_time"] = None
         track = str(row.get("track_id") or "unknown")
         if track == "unknown":
             continue
@@ -427,7 +430,13 @@ def reduce_transitions(verified: list[dict[str, Any]]) -> dict[str, Any]:
         ):
             record["reset_time"] = None
         if status == "rejected":
-            rejected.append(record)
+            check = item.get("repair_evidence_check") or item.get("evidence_check") or {}
+            if (start == 0 and check.get("before_state_visible") is False
+                    and check.get("after_state_visible") is True):
+                record["review_reason"] = "영상 시작 경계에서 이전 상태를 확인할 수 없음"
+                uncertain.append(record)
+            else:
+                rejected.append(record)
             continue
         if status != "confirmed" or subject in ("", "unknown", "ambiguous") or before is None or after is None or before >= after:
             record["review_reason"] = "전후 상태 또는 개체를 확인하지 못함"
@@ -435,14 +444,23 @@ def reduce_transitions(verified: list[dict[str, Any]]) -> dict[str, Any]:
             continue
         previous = last_by_subject.get(subject)
         if previous:
-            if record["start_time"] is not None and previous["end_time"] is not None and record["start_time"] <= previous["end_time"]:
+            reset = record["reset_time"]
+            if before <= previous["after_time"]:
                 record["review_reason"] = "같은 개체의 기존 구간과 겹침"
                 duplicates.append(record)
                 continue
-            reset = record["reset_time"]
-            if reset is None or previous["end_time"] is None or not previous["end_time"] < reset < after:
-                record["review_reason"] = "같은 개체의 새로운 진입 전 이탈/리셋 근거 없음"
-                uncertain.append(record)
+            # Model-supplied start/end spans can cover several short actions.
+            # A separately verified down frame between two up frames is more
+            # direct evidence than overlap of those approximate spans.
+            if reset is None or not previous["after_time"] < reset <= before:
+                if (record["start_time"] is not None
+                        and previous["end_time"] is not None
+                        and record["start_time"] <= previous["end_time"]):
+                    record["review_reason"] = "같은 개체의 기존 구간과 겹침"
+                    duplicates.append(record)
+                else:
+                    record["review_reason"] = "같은 개체의 새로운 진입 전 이탈/리셋 근거 없음"
+                    uncertain.append(record)
                 continue
         confirmed.append(record)
         last_by_subject[subject] = record
@@ -457,7 +475,7 @@ class OpenAIJsonVision:
     def __init__(self, model: str = "gpt-4o", client: Any = None):
         if client is None:
             from openai import OpenAI
-            client = OpenAI()
+            client = OpenAI(timeout=60.0, max_retries=1)
         self.client = client
         self.model = model
 
@@ -477,8 +495,16 @@ class OpenAIJsonVision:
 
 def analyze_video_count(video_path: Path, query: str, ask_json: Any,
                         coarse_step: float = 0.5, fine_step: float = 0.25,
-                        resolve_tracks: bool = True) -> dict[str, Any]:
-    intent = parse_count_intent(query, ask_json)
+                        resolve_tracks: bool = True,
+                        intent_override: dict[str, str] | None = None) -> dict[str, Any]:
+    if intent_override is None:
+        intent = parse_count_intent(query, ask_json)
+    else:
+        keys = ("subject", "action", "target", "before_state", "after_state", "exclusion")
+        if any(not isinstance(intent_override.get(key), str)
+               or not intent_override[key].strip() for key in keys):
+            raise ValueError("고정한 질문 해석에 상태 전환 정보가 빠졌습니다")
+        intent = {key: intent_override[key].strip() for key in keys}
     candidates, scan_log = collect_candidates(video_path, intent, ask_json, coarse_step)
     verified = verify_candidates(video_path, intent, candidates, ask_json, fine_step)
     verified = check_claimed_evidence(video_path, intent, verified, ask_json)

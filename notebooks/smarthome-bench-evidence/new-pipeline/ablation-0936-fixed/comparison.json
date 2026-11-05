@@ -1,0 +1,630 @@
+{
+  "video_id": "smartbench_0936",
+  "reference_kind": "user_count_and_provisional_frame_times",
+  "reference_total": 8,
+  "intent": {
+    "subject": "the same dog at the glass door",
+    "action": "raise both front paws toward the glass door, then lower them",
+    "target": "glass door",
+    "before_state": "that dog's two front paws are down on or near the floor, not raised toward the glass door",
+    "after_state": "that dog's two front paws are visibly raised together toward the glass door; the hind paws may stay on the floor or leave it",
+    "exclusion": "walking near the door, a single stepping paw, and continued front-paws-up pose are not new events; a new count requires a visible return to front-paws-down first"
+  },
+  "intent_note": "Earlier exploratory 0.5s and 0.25s outputs used different parsed intents and are excluded from this controlled comparison.",
+  "matching_rule": "Candidate timestamp within reviewed interval ±0.25s; this is a time-only audit, not independent visual proof.",
+  "metrics": {
+    "0.5": {
+      "scan_frames": 64,
+      "candidate_proposals": 8,
+      "reference_events_with_candidate": 7,
+      "reference_events_verified_confirmed": 6,
+      "reference_events_final_confirmed": 6,
+      "pipeline_confirmed_count": 6,
+      "pipeline_uncertain_count": 1
+    },
+    "0.25": {
+      "scan_frames": 122,
+      "candidate_proposals": 8,
+      "reference_events_with_candidate": 7,
+      "reference_events_verified_confirmed": 6,
+      "reference_events_final_confirmed": 6,
+      "pipeline_confirmed_count": 6,
+      "pipeline_uncertain_count": 0
+    },
+    "union": {
+      "scan_frames": null,
+      "candidate_proposals": 8,
+      "reference_events_with_candidate": 8,
+      "reference_events_verified_confirmed": 7,
+      "reference_events_final_confirmed": 7,
+      "pipeline_confirmed_count": 7,
+      "pipeline_uncertain_count": 1
+    },
+    "state_timeline": {
+      "scan_frames": 87,
+      "candidate_proposals": 7,
+      "reference_events_with_candidate": 6,
+      "reference_events_verified_confirmed": 3,
+      "reference_events_final_confirmed": 3,
+      "pipeline_confirmed_count": 3,
+      "pipeline_uncertain_count": 2
+    }
+  },
+  "union_candidate_coverage": 8,
+  "events": [
+    {
+      "event_number": 1,
+      "reference_start": 0.25,
+      "reference_end": 0.85,
+      "runs": {
+        "0.5": {
+          "stage": "final_uncertain",
+          "candidate_times": [
+            0.5
+          ],
+          "details": [
+            {
+              "time": 0.5,
+              "verification_status": "uncertain",
+              "final_decision": "uncertain",
+              "review_reason": "전후 상태 또는 개체를 확인하지 못함",
+              "evidence_check_reason": "The first frame does not show the dog's front paws down on or near the floor, thus the before_state is not confirmed.",
+              "track_id": "animal_1"
+            }
+          ],
+          "verified_confirmed": false
+        },
+        "0.25": {
+          "stage": "verification_rejected",
+          "candidate_times": [
+            0.25
+          ],
+          "details": [
+            {
+              "time": 0.25,
+              "verification_status": "rejected",
+              "final_decision": "rejected",
+              "review_reason": null,
+              "evidence_check_reason": "The second keyframe does not show the front paws raised toward the glass door as required for the after_state.",
+              "track_id": null
+            }
+          ],
+          "verified_confirmed": false
+        },
+        "union": {
+          "stage": "final_uncertain",
+          "candidate_times": [
+            0.375
+          ],
+          "details": [
+            {
+              "time": 0.375,
+              "verification_status": "rejected",
+              "final_decision": "uncertain",
+              "review_reason": "영상 시작 경계에서 이전 상태를 확인할 수 없음",
+              "evidence_check_reason": "The first frame is already in the after_state with the paws raised.",
+              "track_id": null
+            }
+          ],
+          "verified_confirmed": false
+        },
+        "state_timeline": {
+          "stage": "candidate_missed",
+          "candidate_times": [],
+          "details": [],
+          "verified_confirmed": false
+        }
+      }
+    },
+    {
+      "event_number": 2,
+      "reference_start": 1.5,
+      "reference_end": 2.25,
+      "runs": {
+        "0.5": {
+          "stage": "confirmed",
+          "candidate_times": [
+            2.0
+          ],
+          "details": [
+            {
+              "time": 2.0,
+              "verification_status": "confirmed",
+              "final_decision": "confirmed",
+              "review_reason": null,
+              "evidence_check_reason": "The same black and white dog is visible in both frames. In the first frame, the front paws are on or near the floor. In the second frame, the dog's front paws are raised toward the glass door.",
+              "track_id": "animal_1"
+            }
+          ],
+          "verified_confirmed": true
+        },
+        "0.25": {
+          "stage": "candidate_missed",
+          "candidate_times": [],
+          "details": [],
+          "verified_confirmed": false
+        },
+        "union": {
+          "stage": "confirmed",
+          "candidate_times": [
+            2.0
+          ],
+          "details": [
+            {
+              "time": 2.0,
+              "verification_status": "confirmed",
+              "final_decision": "confirmed",
+              "review_reason": null,
+              "evidence_check_reason": "The same black and white dog is visible in both frames. In the first frame, the dog's front paws are near the floor (before_state). In the second frame, the dog's front paws are raised toward the glass door (after_state).",
+              "track_id": "animal_1"
+            }
+          ],
+          "verified_confirmed": true
+        },
+        "state_timeline": {
+          "stage": "confirmed",
+          "candidate_times": [
+            1.5
+          ],
+          "details": [
+            {
+              "time": 1.5,
+              "verification_status": "confirmed",
+              "final_decision": "confirmed",
+              "review_reason": null,
+              "evidence_check_reason": "In the first frame, the dog's front paws are down near the floor, and in the second frame, both front paws are raised toward the glass door, indicating a change from before_state to after_state.",
+              "track_id": "animal_1"
+            }
+          ],
+          "verified_confirmed": true
+        }
+      }
+    },
+    {
+      "event_number": 3,
+      "reference_start": 4.25,
+      "reference_end": 4.9,
+      "runs": {
+        "0.5": {
+          "stage": "confirmed",
+          "candidate_times": [
+            4.5,
+            4.75
+          ],
+          "details": [
+            {
+              "time": 4.5,
+              "verification_status": "confirmed",
+              "final_decision": "confirmed",
+              "review_reason": null,
+              "evidence_check_reason": "The same dog is visible in both frames. In the first frame, the dog's front paws are down near the floor. In the second frame, the front paws are visibly raised toward the glass door.",
+              "track_id": "animal_1"
+            },
+            {
+              "time": 4.75,
+              "verification_status": "confirmed",
+              "final_decision": "duplicates",
+              "review_reason": "같은 개체의 기존 구간과 겹침",
+              "evidence_check_reason": "The dog is initially on the floor with both front paws near the ground (before_state) in the first frame and then visibly raises both front paws together toward the glass door (after_state) in the second frame.",
+              "track_id": "animal_1"
+            }
+          ],
+          "verified_confirmed": true
+        },
+        "0.25": {
+          "stage": "confirmed",
+          "candidate_times": [
+            4.5
+          ],
+          "details": [
+            {
+              "time": 4.5,
+              "verification_status": "confirmed",
+              "final_decision": "confirmed",
+              "review_reason": null,
+              "evidence_check_reason": "The same dog is visible in both keyframes. In the first frame, the dog's front paws are down near the floor. In the second frame, the dog's front paws are visibly raised together toward the glass door.",
+              "track_id": "animal_1"
+            }
+          ],
+          "verified_confirmed": true
+        },
+        "union": {
+          "stage": "confirmed",
+          "candidate_times": [
+            4.583
+          ],
+          "details": [
+            {
+              "time": 4.583,
+              "verification_status": "confirmed",
+              "final_decision": "confirmed",
+              "review_reason": null,
+              "evidence_check_reason": "The dog is clearly visible in both frames with front paws on the ground in the first and raised against the door in the second.",
+              "track_id": "animal_1"
+            }
+          ],
+          "verified_confirmed": true
+        },
+        "state_timeline": {
+          "stage": "confirmed",
+          "candidate_times": [
+            4.5
+          ],
+          "details": [
+            {
+              "time": 4.5,
+              "verification_status": "confirmed",
+              "final_decision": "confirmed",
+              "review_reason": null,
+              "evidence_check_reason": "The dog is initially seen with its front paws down near the floor and later with both front paws visibly raised toward the glass door.",
+              "track_id": "animal_1"
+            }
+          ],
+          "verified_confirmed": true
+        }
+      }
+    },
+    {
+      "event_number": 4,
+      "reference_start": 6.0,
+      "reference_end": 6.75,
+      "runs": {
+        "0.5": {
+          "stage": "confirmed",
+          "candidate_times": [
+            6.25
+          ],
+          "details": [
+            {
+              "time": 6.25,
+              "verification_status": "confirmed",
+              "final_decision": "confirmed",
+              "review_reason": null,
+              "evidence_check_reason": "The dog is visible in both frames. In the first frame, its front paws are down near the floor, and in the second frame, both front paws are raised toward the glass door.",
+              "track_id": "animal_1"
+            }
+          ],
+          "verified_confirmed": true
+        },
+        "0.25": {
+          "stage": "confirmed",
+          "candidate_times": [
+            6.25
+          ],
+          "details": [
+            {
+              "time": 6.25,
+              "verification_status": "confirmed",
+              "final_decision": "confirmed",
+              "review_reason": null,
+              "evidence_check_reason": "The dog is visible in both frames. In the first frame, its front paws are on the floor. In the second frame, its front paws are raised together toward the glass door.",
+              "track_id": "animal_1"
+            }
+          ],
+          "verified_confirmed": true
+        },
+        "union": {
+          "stage": "confirmed",
+          "candidate_times": [
+            6.25
+          ],
+          "details": [
+            {
+              "time": 6.25,
+              "verification_status": "confirmed",
+              "final_decision": "confirmed",
+              "review_reason": null,
+              "evidence_check_reason": "The dog is visible in both frames. In the first frame, its front paws are down near the floor, and in the second frame, both front paws are raised toward the glass door.",
+              "track_id": "animal_1"
+            }
+          ],
+          "verified_confirmed": true
+        },
+        "state_timeline": {
+          "stage": "confirmed",
+          "candidate_times": [
+            6.25
+          ],
+          "details": [
+            {
+              "time": 6.25,
+              "verification_status": "confirmed",
+              "final_decision": "confirmed",
+              "review_reason": null,
+              "evidence_check_reason": "The same dog is visible in both frames, with front paws down in the first frame and raised in the second frame, consistent with the proposed event.",
+              "track_id": "animal_1"
+            }
+          ],
+          "verified_confirmed": true
+        }
+      }
+    },
+    {
+      "event_number": 5,
+      "reference_start": 7.4,
+      "reference_end": 8.0,
+      "runs": {
+        "0.5": {
+          "stage": "confirmed",
+          "candidate_times": [
+            7.75
+          ],
+          "details": [
+            {
+              "time": 7.75,
+              "verification_status": "confirmed",
+              "final_decision": "confirmed",
+              "review_reason": null,
+              "evidence_check_reason": "The same black and white dog is visible in both frames. In the first frame, the dog's front paws are on or near the floor. In the second frame, the dog's front paws are raised toward the glass door.",
+              "track_id": "animal_1"
+            }
+          ],
+          "verified_confirmed": true
+        },
+        "0.25": {
+          "stage": "confirmed",
+          "candidate_times": [
+            7.5
+          ],
+          "details": [
+            {
+              "time": 7.5,
+              "verification_status": "confirmed",
+              "final_decision": "confirmed",
+              "review_reason": null,
+              "evidence_check_reason": "The same dog is visible in both keyframes with paws down in the first frame and both paws raised together toward the glass door in the second frame.",
+              "track_id": "animal_1"
+            }
+          ],
+          "verified_confirmed": true
+        },
+        "union": {
+          "stage": "confirmed",
+          "candidate_times": [
+            7.625
+          ],
+          "details": [
+            {
+              "time": 7.625,
+              "verification_status": "confirmed",
+              "final_decision": "confirmed",
+              "review_reason": null,
+              "evidence_check_reason": "The same black and white dog is visible in both keyframes. The before state shows the dog's front paws near or on the floor, and the after state shows both front paws raised toward the glass door.",
+              "track_id": "animal_1"
+            }
+          ],
+          "verified_confirmed": true
+        },
+        "state_timeline": {
+          "stage": "verification_rejected",
+          "candidate_times": [
+            7.25
+          ],
+          "details": [
+            {
+              "time": 7.25,
+              "verification_status": "rejected",
+              "final_decision": "rejected",
+              "review_reason": null,
+              "evidence_check_reason": "The second frame does not show the after state with the front paws raised.",
+              "track_id": "animal_1"
+            }
+          ],
+          "verified_confirmed": false
+        }
+      }
+    },
+    {
+      "event_number": 6,
+      "reference_start": 9.0,
+      "reference_end": 10.0,
+      "runs": {
+        "0.5": {
+          "stage": "confirmed",
+          "candidate_times": [
+            9.25
+          ],
+          "details": [
+            {
+              "time": 9.25,
+              "verification_status": "confirmed",
+              "final_decision": "confirmed",
+              "review_reason": null,
+              "evidence_check_reason": "The black and white dog is visibly the same in both frames. In the first frame, its front paws are down, meeting the before_state criteria. In the second frame, both front paws are raised toward the glass door, meeting the after_state criteria. The transition is visible between the frames, confirming the event.",
+              "track_id": "animal_1"
+            }
+          ],
+          "verified_confirmed": true
+        },
+        "0.25": {
+          "stage": "confirmed",
+          "candidate_times": [
+            9.5
+          ],
+          "details": [
+            {
+              "time": 9.5,
+              "verification_status": "confirmed",
+              "final_decision": "confirmed",
+              "review_reason": null,
+              "evidence_check_reason": "The same black and white dog is visible in both frames. In the first frame, its front paws are near the floor, and in the second frame, both front paws are raised toward the glass door.",
+              "track_id": "animal_1"
+            }
+          ],
+          "verified_confirmed": true
+        },
+        "union": {
+          "stage": "confirmed",
+          "candidate_times": [
+            9.375
+          ],
+          "details": [
+            {
+              "time": 9.375,
+              "verification_status": "confirmed",
+              "final_decision": "confirmed",
+              "review_reason": null,
+              "evidence_check_reason": "The dog is initially seen with both front paws on the floor by the glass door in the first frame, then both front paws are visibly raised together toward the glass door in the second frame.",
+              "track_id": "animal_1"
+            }
+          ],
+          "verified_confirmed": true
+        },
+        "state_timeline": {
+          "stage": "final_uncertain",
+          "candidate_times": [
+            9.25
+          ],
+          "details": [
+            {
+              "time": 9.25,
+              "verification_status": "uncertain",
+              "final_decision": "uncertain",
+              "review_reason": "전후 상태 또는 개체를 확인하지 못함",
+              "evidence_check_reason": "The two images do not allow for clear determination if the same individual is present in both states due to visual differences.",
+              "track_id": "animal_1"
+            }
+          ],
+          "verified_confirmed": false
+        }
+      }
+    },
+    {
+      "event_number": 7,
+      "reference_start": 15.25,
+      "reference_end": 16.0,
+      "runs": {
+        "0.5": {
+          "stage": "confirmed",
+          "candidate_times": [
+            15.75
+          ],
+          "details": [
+            {
+              "time": 15.75,
+              "verification_status": "confirmed",
+              "final_decision": "confirmed",
+              "review_reason": null,
+              "evidence_check_reason": "The dog is the same in both frames. In the first frame, the dog's paws are down near the floor, and in the second frame, both front paws are visibly raised toward the door.",
+              "track_id": "animal_1"
+            }
+          ],
+          "verified_confirmed": true
+        },
+        "0.25": {
+          "stage": "confirmed",
+          "candidate_times": [
+            15.5,
+            16.0
+          ],
+          "details": [
+            {
+              "time": 15.5,
+              "verification_status": "confirmed",
+              "final_decision": "confirmed",
+              "review_reason": null,
+              "evidence_check_reason": "The dog in the first frame has its front paws on or near the floor, and in the second frame, the same dog has raised both front paws toward the glass door.",
+              "track_id": "animal_1"
+            },
+            {
+              "time": 16.0,
+              "verification_status": "confirmed",
+              "final_decision": "duplicates",
+              "review_reason": "같은 개체의 기존 구간과 겹침",
+              "evidence_check_reason": "The same dog is visibly in the before_state with front paws down and in the after_state with both front paws raised toward the glass door.",
+              "track_id": "animal_1"
+            }
+          ],
+          "verified_confirmed": true
+        },
+        "union": {
+          "stage": "confirmed",
+          "candidate_times": [
+            15.75
+          ],
+          "details": [
+            {
+              "time": 15.75,
+              "verification_status": "confirmed",
+              "final_decision": "confirmed",
+              "review_reason": null,
+              "evidence_check_reason": "The black and white dog is visible in both frames. In the first frame, its front paws are near the floor. In the second frame, both front paws are raised toward the glass door, matching the before and after states.",
+              "track_id": "animal_1"
+            }
+          ],
+          "verified_confirmed": true
+        },
+        "state_timeline": {
+          "stage": "final_uncertain",
+          "candidate_times": [
+            15.25
+          ],
+          "details": [
+            {
+              "time": 15.25,
+              "verification_status": "uncertain",
+              "final_decision": "uncertain",
+              "review_reason": "전후 상태 또는 개체를 확인하지 못함",
+              "evidence_check_reason": "In the second frame, both front paws are not visibly raised together toward the glass door, making it uncertain if the after_state condition is met.",
+              "track_id": "animal_1"
+            }
+          ],
+          "verified_confirmed": false
+        }
+      }
+    },
+    {
+      "event_number": 8,
+      "reference_start": 19.0,
+      "reference_end": 19.75,
+      "runs": {
+        "0.5": {
+          "stage": "candidate_missed",
+          "candidate_times": [],
+          "details": [],
+          "verified_confirmed": false
+        },
+        "0.25": {
+          "stage": "confirmed",
+          "candidate_times": [
+            19.25
+          ],
+          "details": [
+            {
+              "time": 19.25,
+              "verification_status": "confirmed",
+              "final_decision": "confirmed",
+              "review_reason": null,
+              "evidence_check_reason": "The same dog is visible in both frames with both front paws down in the first frame and raised toward the glass door in the second frame.",
+              "track_id": "animal_1"
+            }
+          ],
+          "verified_confirmed": true
+        },
+        "union": {
+          "stage": "confirmed",
+          "candidate_times": [
+            19.25
+          ],
+          "details": [
+            {
+              "time": 19.25,
+              "verification_status": "confirmed",
+              "final_decision": "confirmed",
+              "review_reason": null,
+              "evidence_check_reason": "The same dog is visible in both frames with both front paws down in the first frame and raised toward the glass door in the second frame.",
+              "track_id": "animal_1"
+            }
+          ],
+          "verified_confirmed": true
+        },
+        "state_timeline": {
+          "stage": "candidate_missed",
+          "candidate_times": [],
+          "details": [],
+          "verified_confirmed": false
+        }
+      }
+    }
+  ]
+}

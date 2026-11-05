@@ -1,0 +1,2072 @@
+{
+  "video": "data/videos/smartbench_0936.mp4",
+  "query": "강아지가 유리문 앞에서 앞발을 몇 번 들었다 내렸어? 뒷발이 바닥에 남아도 포함해.",
+  "intent": {
+    "subject": "the same dog at the glass door",
+    "action": "raise both front paws toward the glass door, then lower them",
+    "target": "glass door",
+    "before_state": "that dog's two front paws are down on or near the floor, not raised toward the glass door",
+    "after_state": "that dog's two front paws are visibly raised together toward the glass door; the hind paws may stay on the floor or leave it",
+    "exclusion": "walking near the door, a single stepping paw, and continued front-paws-up pose are not new events; a new count requires a visible return to front-paws-down first"
+  },
+  "intent_source": "notebooks/smarthome-bench-evidence/new-pipeline/smartbench_0936-fixed-intent.json",
+  "timeline": {
+    "step": 0.25,
+    "labels": [
+      {
+        "time": 0.0,
+        "state": "after",
+        "observations": [
+          {
+            "state": "after",
+            "reason": "The dog has both front paws raised toward the glass door.",
+            "window_index": 0
+          }
+        ]
+      },
+      {
+        "time": 0.25,
+        "state": "after",
+        "observations": [
+          {
+            "state": "after",
+            "reason": "The dog has both front paws raised toward the glass door.",
+            "window_index": 0
+          }
+        ]
+      },
+      {
+        "time": 0.5,
+        "state": "after",
+        "observations": [
+          {
+            "state": "after",
+            "reason": "The dog has both front paws raised toward the glass door.",
+            "window_index": 0
+          }
+        ]
+      },
+      {
+        "time": 0.75,
+        "state": "after",
+        "observations": [
+          {
+            "state": "after",
+            "reason": "The dog has both front paws raised toward the glass door.",
+            "window_index": 0
+          }
+        ]
+      },
+      {
+        "time": 1.0,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "The dog's front paws are down on or near the floor.",
+            "window_index": 0
+          }
+        ]
+      },
+      {
+        "time": 1.25,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "The dog's front paws are down on or near the floor.",
+            "window_index": 0
+          }
+        ]
+      },
+      {
+        "time": 1.5,
+        "state": "after",
+        "observations": [
+          {
+            "state": "after",
+            "reason": "The dog has both front paws raised toward the glass door.",
+            "window_index": 0
+          }
+        ]
+      },
+      {
+        "time": 1.75,
+        "state": "after",
+        "observations": [
+          {
+            "state": "after",
+            "reason": "The dog has both front paws raised toward the glass door.",
+            "window_index": 0
+          }
+        ]
+      },
+      {
+        "time": 2.0,
+        "state": "after",
+        "observations": [
+          {
+            "state": "after",
+            "reason": "The dog has both front paws raised toward the glass door.",
+            "window_index": 0
+          }
+        ]
+      },
+      {
+        "time": 2.25,
+        "state": "after",
+        "observations": [
+          {
+            "state": "after",
+            "reason": "The dog has both front paws raised toward the glass door.",
+            "window_index": 0
+          }
+        ]
+      },
+      {
+        "time": 2.5,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "The dog's front paws are down on or near the floor.",
+            "window_index": 0
+          }
+        ]
+      },
+      {
+        "time": 2.75,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "The dog's front paws are down on or near the floor.",
+            "window_index": 0
+          }
+        ]
+      },
+      {
+        "time": 3.0,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "The dog's front paws are down on or near the floor.",
+            "window_index": 0
+          }
+        ]
+      },
+      {
+        "time": 3.25,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "The dog's front paws are down on or near the floor.",
+            "window_index": 0
+          }
+        ]
+      },
+      {
+        "time": 3.5,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "The dog's front paws are down on or near the floor.",
+            "window_index": 0
+          }
+        ]
+      },
+      {
+        "time": 3.75,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "The dog's front paws are down on or near the floor.",
+            "window_index": 0
+          }
+        ]
+      },
+      {
+        "time": 4.0,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "The dog's front paws are down on or near the floor.",
+            "window_index": 0
+          },
+          {
+            "state": "before",
+            "reason": "The dog has its front paws down on or near the floor.",
+            "window_index": 1
+          }
+        ]
+      },
+      {
+        "time": 4.25,
+        "state": "unknown",
+        "observations": [
+          {
+            "state": "unknown",
+            "reason": "The dog's position is unclear, paws are not visible.",
+            "window_index": 1
+          }
+        ]
+      },
+      {
+        "time": 4.5,
+        "state": "after",
+        "observations": [
+          {
+            "state": "after",
+            "reason": "The dog's two front paws are visibly raised toward the glass door.",
+            "window_index": 1
+          }
+        ]
+      },
+      {
+        "time": 4.75,
+        "state": "after",
+        "observations": [
+          {
+            "state": "after",
+            "reason": "The dog's two front paws remain raised toward the glass door.",
+            "window_index": 1
+          }
+        ]
+      },
+      {
+        "time": 5.0,
+        "state": "unknown",
+        "observations": [
+          {
+            "state": "unknown",
+            "reason": "The dog is standing on its hind legs but the front paws are not clearly visible.",
+            "window_index": 1
+          }
+        ]
+      },
+      {
+        "time": 5.25,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "The dog has its front paws down on or near the floor.",
+            "window_index": 1
+          }
+        ]
+      },
+      {
+        "time": 5.5,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "The dog has its front paws down on or near the floor.",
+            "window_index": 1
+          }
+        ]
+      },
+      {
+        "time": 5.75,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "The dog has its front paws down on or near the floor.",
+            "window_index": 1
+          }
+        ]
+      },
+      {
+        "time": 6.0,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "The dog has its front paws down on or near the floor.",
+            "window_index": 1
+          }
+        ]
+      },
+      {
+        "time": 6.25,
+        "state": "after",
+        "observations": [
+          {
+            "state": "after",
+            "reason": "The dog's two front paws are visibly raised toward the glass door.",
+            "window_index": 1
+          }
+        ]
+      },
+      {
+        "time": 6.5,
+        "state": "after",
+        "observations": [
+          {
+            "state": "after",
+            "reason": "The dog's two front paws are visibly raised toward the glass door.",
+            "window_index": 1
+          }
+        ]
+      },
+      {
+        "time": 6.75,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "The dog has its front paws down on or near the floor.",
+            "window_index": 1
+          }
+        ]
+      },
+      {
+        "time": 7.0,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "The dog has its front paws down on or near the floor.",
+            "window_index": 1
+          }
+        ]
+      },
+      {
+        "time": 7.25,
+        "state": "after",
+        "observations": [
+          {
+            "state": "after",
+            "reason": "The dog's two front paws are visibly raised toward the glass door.",
+            "window_index": 1
+          }
+        ]
+      },
+      {
+        "time": 7.5,
+        "state": "after",
+        "observations": [
+          {
+            "state": "after",
+            "reason": "The dog's two front paws are visibly raised toward the glass door.",
+            "window_index": 1
+          }
+        ]
+      },
+      {
+        "time": 7.75,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "The dog has its front paws down on or near the floor.",
+            "window_index": 1
+          }
+        ]
+      },
+      {
+        "time": 8.0,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "The dog has its front paws down on or near the floor.",
+            "window_index": 1
+          },
+          {
+            "state": "before",
+            "reason": "Dog's front paws are down near the floor.",
+            "window_index": 2
+          }
+        ]
+      },
+      {
+        "time": 8.25,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "Dog's front paws are down near the floor.",
+            "window_index": 2
+          }
+        ]
+      },
+      {
+        "time": 8.5,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "Dog's front paws are down near the floor.",
+            "window_index": 2
+          }
+        ]
+      },
+      {
+        "time": 8.75,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "Dog's front paws are down near the floor.",
+            "window_index": 2
+          }
+        ]
+      },
+      {
+        "time": 9.0,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "Dog is preparing to raise paws but still down.",
+            "window_index": 2
+          }
+        ]
+      },
+      {
+        "time": 9.25,
+        "state": "after",
+        "observations": [
+          {
+            "state": "after",
+            "reason": "Dog's front paws are visibly raised toward the glass door.",
+            "window_index": 2
+          }
+        ]
+      },
+      {
+        "time": 9.5,
+        "state": "after",
+        "observations": [
+          {
+            "state": "after",
+            "reason": "Dog's front paws remain raised toward the glass door.",
+            "window_index": 2
+          }
+        ]
+      },
+      {
+        "time": 9.75,
+        "state": "after",
+        "observations": [
+          {
+            "state": "after",
+            "reason": "Dog's front paws remain raised toward the glass door.",
+            "window_index": 2
+          }
+        ]
+      },
+      {
+        "time": 10.0,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "Dog's front paws are down near the floor.",
+            "window_index": 2
+          }
+        ]
+      },
+      {
+        "time": 10.25,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "Dog's front paws are down near the floor.",
+            "window_index": 2
+          }
+        ]
+      },
+      {
+        "time": 10.5,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "Dog's front paws are down near the floor.",
+            "window_index": 2
+          }
+        ]
+      },
+      {
+        "time": 10.75,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "Dog's front paws are down near the floor.",
+            "window_index": 2
+          }
+        ]
+      },
+      {
+        "time": 11.0,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "Dog's front paws are down near the floor.",
+            "window_index": 2
+          }
+        ]
+      },
+      {
+        "time": 11.25,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "Dog's front paws are down near the floor.",
+            "window_index": 2
+          }
+        ]
+      },
+      {
+        "time": 11.5,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "Dog's front paws are down near the floor.",
+            "window_index": 2
+          }
+        ]
+      },
+      {
+        "time": 11.75,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "Dog's front paws are down near the floor.",
+            "window_index": 2
+          }
+        ]
+      },
+      {
+        "time": 12.0,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "Dog's front paws are down near the floor.",
+            "window_index": 2
+          },
+          {
+            "state": "before",
+            "reason": "Dog's front paws are down.",
+            "window_index": 3
+          }
+        ]
+      },
+      {
+        "time": 12.25,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "Dog's front paws are down.",
+            "window_index": 3
+          }
+        ]
+      },
+      {
+        "time": 12.5,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "Dog's front paws are down.",
+            "window_index": 3
+          }
+        ]
+      },
+      {
+        "time": 12.75,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "Dog's front paws are down.",
+            "window_index": 3
+          }
+        ]
+      },
+      {
+        "time": 13.0,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "Dog's front paws are down.",
+            "window_index": 3
+          }
+        ]
+      },
+      {
+        "time": 13.25,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "Dog's front paws are down.",
+            "window_index": 3
+          }
+        ]
+      },
+      {
+        "time": 13.5,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "Dog's front paws are down.",
+            "window_index": 3
+          }
+        ]
+      },
+      {
+        "time": 13.75,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "Dog's front paws are down.",
+            "window_index": 3
+          }
+        ]
+      },
+      {
+        "time": 14.0,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "Dog's front paws are down.",
+            "window_index": 3
+          }
+        ]
+      },
+      {
+        "time": 14.25,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "Dog's front paws are down.",
+            "window_index": 3
+          }
+        ]
+      },
+      {
+        "time": 14.5,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "Dog's front paws are down.",
+            "window_index": 3
+          }
+        ]
+      },
+      {
+        "time": 14.75,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "Dog's front paws are down.",
+            "window_index": 3
+          }
+        ]
+      },
+      {
+        "time": 15.0,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "Dog's front paws are down.",
+            "window_index": 3
+          }
+        ]
+      },
+      {
+        "time": 15.25,
+        "state": "after",
+        "observations": [
+          {
+            "state": "after",
+            "reason": "Dog's front paws are raised toward the door.",
+            "window_index": 3
+          }
+        ]
+      },
+      {
+        "time": 15.5,
+        "state": "after",
+        "observations": [
+          {
+            "state": "after",
+            "reason": "Dog's front paws are raised toward the door.",
+            "window_index": 3
+          }
+        ]
+      },
+      {
+        "time": 15.75,
+        "state": "after",
+        "observations": [
+          {
+            "state": "after",
+            "reason": "Dog's front paws are raised toward the door.",
+            "window_index": 3
+          }
+        ]
+      },
+      {
+        "time": 16.0,
+        "state": "after",
+        "observations": [
+          {
+            "state": "after",
+            "reason": "Dog's front paws are raised toward the door.",
+            "window_index": 3
+          },
+          {
+            "state": "after",
+            "reason": "The dog's front paws are visibly raised toward the glass door.",
+            "window_index": 4
+          }
+        ]
+      },
+      {
+        "time": 16.25,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "The dog's front paws are down near the floor by the glass door.",
+            "window_index": 4
+          }
+        ]
+      },
+      {
+        "time": 16.5,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "The dog's front paws are down near the floor by the glass door.",
+            "window_index": 4
+          }
+        ]
+      },
+      {
+        "time": 16.75,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "The dog's front paws are down near the floor by the glass door.",
+            "window_index": 4
+          }
+        ]
+      },
+      {
+        "time": 17.0,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "The dog's front paws are down near the floor by the glass door.",
+            "window_index": 4
+          }
+        ]
+      },
+      {
+        "time": 17.25,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "The dog's front paws are down near the floor by the glass door.",
+            "window_index": 4
+          }
+        ]
+      },
+      {
+        "time": 17.5,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "The dog's front paws are down near the floor by the glass door.",
+            "window_index": 4
+          }
+        ]
+      },
+      {
+        "time": 17.75,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "The dog's front paws are down near the floor by the glass door.",
+            "window_index": 4
+          }
+        ]
+      },
+      {
+        "time": 18.0,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "The dog's front paws are down near the floor by the glass door.",
+            "window_index": 4
+          }
+        ]
+      },
+      {
+        "time": 18.25,
+        "state": "after",
+        "observations": [
+          {
+            "state": "after",
+            "reason": "The dog's front paws are visibly raised toward the glass door.",
+            "window_index": 4
+          }
+        ]
+      },
+      {
+        "time": 18.5,
+        "state": "after",
+        "observations": [
+          {
+            "state": "after",
+            "reason": "The dog's front paws are visibly raised toward the glass door.",
+            "window_index": 4
+          }
+        ]
+      },
+      {
+        "time": 18.75,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "The dog's front paws are down near the floor by the glass door.",
+            "window_index": 4
+          }
+        ]
+      },
+      {
+        "time": 19.0,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "The dog's front paws are down near the floor by the glass door.",
+            "window_index": 4
+          }
+        ]
+      },
+      {
+        "time": 19.25,
+        "state": "unknown",
+        "observations": [
+          {
+            "state": "unknown",
+            "reason": "The dog is not visible.",
+            "window_index": 4
+          }
+        ]
+      },
+      {
+        "time": 19.5,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "The dog's front paws are down near the floor by the glass door.",
+            "window_index": 4
+          }
+        ]
+      },
+      {
+        "time": 19.75,
+        "state": "unknown",
+        "observations": [
+          {
+            "state": "unknown",
+            "reason": "The dog is not visible.",
+            "window_index": 4
+          }
+        ]
+      },
+      {
+        "time": 20.0,
+        "state": "unknown",
+        "observations": [
+          {
+            "state": "unknown",
+            "reason": "",
+            "window_index": 4
+          },
+          {
+            "state": "before",
+            "reason": "The dog is visible and its front paws are down on the floor.",
+            "window_index": 5
+          }
+        ]
+      },
+      {
+        "time": 20.25,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "The dog is visible and its front paws are down on the floor.",
+            "window_index": 5
+          }
+        ]
+      },
+      {
+        "time": 20.5,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "The dog is visible and its front paws are down on the floor.",
+            "window_index": 5
+          }
+        ]
+      },
+      {
+        "time": 20.75,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "The dog is visible and its front paws are down on the floor.",
+            "window_index": 5
+          }
+        ]
+      },
+      {
+        "time": 21.0,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "The dog is visible and its front paws are down on the floor.",
+            "window_index": 5
+          }
+        ]
+      },
+      {
+        "time": 21.25,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "The dog is visible and its front paws are down on the floor.",
+            "window_index": 5
+          }
+        ]
+      },
+      {
+        "time": 21.5,
+        "state": "before",
+        "observations": [
+          {
+            "state": "before",
+            "reason": "The dog is visible and its front paws are down on the floor.",
+            "window_index": 5
+          }
+        ]
+      }
+    ],
+    "windows": [
+      {
+        "window": {
+          "core_start": 0.0,
+          "core_end": 4.0,
+          "start": 0.0,
+          "end": 4.0
+        },
+        "frame_times": [
+          0.0,
+          0.25,
+          0.5,
+          0.75,
+          1.0,
+          1.25,
+          1.5,
+          1.75,
+          2.0,
+          2.25,
+          2.5,
+          2.75,
+          3.0,
+          3.25,
+          3.5,
+          3.75,
+          4.0
+        ],
+        "response": {
+          "labels": [
+            {
+              "index": 0,
+              "state": "after",
+              "subject_visible": true,
+              "reason": "The dog has both front paws raised toward the glass door."
+            },
+            {
+              "index": 1,
+              "state": "after",
+              "subject_visible": true,
+              "reason": "The dog has both front paws raised toward the glass door."
+            },
+            {
+              "index": 2,
+              "state": "after",
+              "subject_visible": true,
+              "reason": "The dog has both front paws raised toward the glass door."
+            },
+            {
+              "index": 3,
+              "state": "after",
+              "subject_visible": true,
+              "reason": "The dog has both front paws raised toward the glass door."
+            },
+            {
+              "index": 4,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "The dog's front paws are down on or near the floor."
+            },
+            {
+              "index": 5,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "The dog's front paws are down on or near the floor."
+            },
+            {
+              "index": 6,
+              "state": "after",
+              "subject_visible": true,
+              "reason": "The dog has both front paws raised toward the glass door."
+            },
+            {
+              "index": 7,
+              "state": "after",
+              "subject_visible": true,
+              "reason": "The dog has both front paws raised toward the glass door."
+            },
+            {
+              "index": 8,
+              "state": "after",
+              "subject_visible": true,
+              "reason": "The dog has both front paws raised toward the glass door."
+            },
+            {
+              "index": 9,
+              "state": "after",
+              "subject_visible": true,
+              "reason": "The dog has both front paws raised toward the glass door."
+            },
+            {
+              "index": 10,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "The dog's front paws are down on or near the floor."
+            },
+            {
+              "index": 11,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "The dog's front paws are down on or near the floor."
+            },
+            {
+              "index": 12,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "The dog's front paws are down on or near the floor."
+            },
+            {
+              "index": 13,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "The dog's front paws are down on or near the floor."
+            },
+            {
+              "index": 14,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "The dog's front paws are down on or near the floor."
+            },
+            {
+              "index": 15,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "The dog's front paws are down on or near the floor."
+            },
+            {
+              "index": 16,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "The dog's front paws are down on or near the floor."
+            }
+          ]
+        }
+      },
+      {
+        "window": {
+          "core_start": 4.0,
+          "core_end": 8.0,
+          "start": 4.0,
+          "end": 8.0
+        },
+        "frame_times": [
+          4.0,
+          4.25,
+          4.5,
+          4.75,
+          5.0,
+          5.25,
+          5.5,
+          5.75,
+          6.0,
+          6.25,
+          6.5,
+          6.75,
+          7.0,
+          7.25,
+          7.5,
+          7.75,
+          8.0
+        ],
+        "response": {
+          "labels": [
+            {
+              "index": 0,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "The dog has its front paws down on or near the floor."
+            },
+            {
+              "index": 1,
+              "state": "unknown",
+              "subject_visible": true,
+              "reason": "The dog's position is unclear, paws are not visible."
+            },
+            {
+              "index": 2,
+              "state": "after",
+              "subject_visible": true,
+              "reason": "The dog's two front paws are visibly raised toward the glass door."
+            },
+            {
+              "index": 3,
+              "state": "after",
+              "subject_visible": true,
+              "reason": "The dog's two front paws remain raised toward the glass door."
+            },
+            {
+              "index": 4,
+              "state": "unknown",
+              "subject_visible": true,
+              "reason": "The dog is standing on its hind legs but the front paws are not clearly visible."
+            },
+            {
+              "index": 5,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "The dog has its front paws down on or near the floor."
+            },
+            {
+              "index": 6,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "The dog has its front paws down on or near the floor."
+            },
+            {
+              "index": 7,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "The dog has its front paws down on or near the floor."
+            },
+            {
+              "index": 8,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "The dog has its front paws down on or near the floor."
+            },
+            {
+              "index": 9,
+              "state": "after",
+              "subject_visible": true,
+              "reason": "The dog's two front paws are visibly raised toward the glass door."
+            },
+            {
+              "index": 10,
+              "state": "after",
+              "subject_visible": true,
+              "reason": "The dog's two front paws are visibly raised toward the glass door."
+            },
+            {
+              "index": 11,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "The dog has its front paws down on or near the floor."
+            },
+            {
+              "index": 12,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "The dog has its front paws down on or near the floor."
+            },
+            {
+              "index": 13,
+              "state": "after",
+              "subject_visible": true,
+              "reason": "The dog's two front paws are visibly raised toward the glass door."
+            },
+            {
+              "index": 14,
+              "state": "after",
+              "subject_visible": true,
+              "reason": "The dog's two front paws are visibly raised toward the glass door."
+            },
+            {
+              "index": 15,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "The dog has its front paws down on or near the floor."
+            },
+            {
+              "index": 16,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "The dog has its front paws down on or near the floor."
+            }
+          ]
+        }
+      },
+      {
+        "window": {
+          "core_start": 8.0,
+          "core_end": 12.0,
+          "start": 8.0,
+          "end": 12.0
+        },
+        "frame_times": [
+          8.0,
+          8.25,
+          8.5,
+          8.75,
+          9.0,
+          9.25,
+          9.5,
+          9.75,
+          10.0,
+          10.25,
+          10.5,
+          10.75,
+          11.0,
+          11.25,
+          11.5,
+          11.75,
+          12.0
+        ],
+        "response": {
+          "labels": [
+            {
+              "index": 0,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "Dog's front paws are down near the floor."
+            },
+            {
+              "index": 1,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "Dog's front paws are down near the floor."
+            },
+            {
+              "index": 2,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "Dog's front paws are down near the floor."
+            },
+            {
+              "index": 3,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "Dog's front paws are down near the floor."
+            },
+            {
+              "index": 4,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "Dog is preparing to raise paws but still down."
+            },
+            {
+              "index": 5,
+              "state": "after",
+              "subject_visible": true,
+              "reason": "Dog's front paws are visibly raised toward the glass door."
+            },
+            {
+              "index": 6,
+              "state": "after",
+              "subject_visible": true,
+              "reason": "Dog's front paws remain raised toward the glass door."
+            },
+            {
+              "index": 7,
+              "state": "after",
+              "subject_visible": true,
+              "reason": "Dog's front paws remain raised toward the glass door."
+            },
+            {
+              "index": 8,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "Dog's front paws are down near the floor."
+            },
+            {
+              "index": 9,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "Dog's front paws are down near the floor."
+            },
+            {
+              "index": 10,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "Dog's front paws are down near the floor."
+            },
+            {
+              "index": 11,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "Dog's front paws are down near the floor."
+            },
+            {
+              "index": 12,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "Dog's front paws are down near the floor."
+            },
+            {
+              "index": 13,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "Dog's front paws are down near the floor."
+            },
+            {
+              "index": 14,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "Dog's front paws are down near the floor."
+            },
+            {
+              "index": 15,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "Dog's front paws are down near the floor."
+            },
+            {
+              "index": 16,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "Dog's front paws are down near the floor."
+            }
+          ]
+        }
+      },
+      {
+        "window": {
+          "core_start": 12.0,
+          "core_end": 16.0,
+          "start": 12.0,
+          "end": 16.0
+        },
+        "frame_times": [
+          12.0,
+          12.25,
+          12.5,
+          12.75,
+          13.0,
+          13.25,
+          13.5,
+          13.75,
+          14.0,
+          14.25,
+          14.5,
+          14.75,
+          15.0,
+          15.25,
+          15.5,
+          15.75,
+          16.0
+        ],
+        "response": {
+          "labels": [
+            {
+              "index": 0,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "Dog's front paws are down."
+            },
+            {
+              "index": 1,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "Dog's front paws are down."
+            },
+            {
+              "index": 2,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "Dog's front paws are down."
+            },
+            {
+              "index": 3,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "Dog's front paws are down."
+            },
+            {
+              "index": 4,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "Dog's front paws are down."
+            },
+            {
+              "index": 5,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "Dog's front paws are down."
+            },
+            {
+              "index": 6,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "Dog's front paws are down."
+            },
+            {
+              "index": 7,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "Dog's front paws are down."
+            },
+            {
+              "index": 8,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "Dog's front paws are down."
+            },
+            {
+              "index": 9,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "Dog's front paws are down."
+            },
+            {
+              "index": 10,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "Dog's front paws are down."
+            },
+            {
+              "index": 11,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "Dog's front paws are down."
+            },
+            {
+              "index": 12,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "Dog's front paws are down."
+            },
+            {
+              "index": 13,
+              "state": "after",
+              "subject_visible": true,
+              "reason": "Dog's front paws are raised toward the door."
+            },
+            {
+              "index": 14,
+              "state": "after",
+              "subject_visible": true,
+              "reason": "Dog's front paws are raised toward the door."
+            },
+            {
+              "index": 15,
+              "state": "after",
+              "subject_visible": true,
+              "reason": "Dog's front paws are raised toward the door."
+            },
+            {
+              "index": 16,
+              "state": "after",
+              "subject_visible": true,
+              "reason": "Dog's front paws are raised toward the door."
+            }
+          ]
+        }
+      },
+      {
+        "window": {
+          "core_start": 16.0,
+          "core_end": 20.0,
+          "start": 16.0,
+          "end": 20.0
+        },
+        "frame_times": [
+          16.0,
+          16.25,
+          16.5,
+          16.75,
+          17.0,
+          17.25,
+          17.5,
+          17.75,
+          18.0,
+          18.25,
+          18.5,
+          18.75,
+          19.0,
+          19.25,
+          19.5,
+          19.75,
+          20.0
+        ],
+        "response": {
+          "labels": [
+            {
+              "index": 0,
+              "state": "after",
+              "subject_visible": true,
+              "reason": "The dog's front paws are visibly raised toward the glass door."
+            },
+            {
+              "index": 1,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "The dog's front paws are down near the floor by the glass door."
+            },
+            {
+              "index": 2,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "The dog's front paws are down near the floor by the glass door."
+            },
+            {
+              "index": 3,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "The dog's front paws are down near the floor by the glass door."
+            },
+            {
+              "index": 4,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "The dog's front paws are down near the floor by the glass door."
+            },
+            {
+              "index": 5,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "The dog's front paws are down near the floor by the glass door."
+            },
+            {
+              "index": 6,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "The dog's front paws are down near the floor by the glass door."
+            },
+            {
+              "index": 7,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "The dog's front paws are down near the floor by the glass door."
+            },
+            {
+              "index": 8,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "The dog's front paws are down near the floor by the glass door."
+            },
+            {
+              "index": 9,
+              "state": "after",
+              "subject_visible": true,
+              "reason": "The dog's front paws are visibly raised toward the glass door."
+            },
+            {
+              "index": 10,
+              "state": "after",
+              "subject_visible": true,
+              "reason": "The dog's front paws are visibly raised toward the glass door."
+            },
+            {
+              "index": 11,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "The dog's front paws are down near the floor by the glass door."
+            },
+            {
+              "index": 12,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "The dog's front paws are down near the floor by the glass door."
+            },
+            {
+              "index": 13,
+              "state": "unknown",
+              "subject_visible": false,
+              "reason": "The dog is not visible."
+            },
+            {
+              "index": 14,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "The dog's front paws are down near the floor by the glass door."
+            },
+            {
+              "index": 15,
+              "state": "unknown",
+              "subject_visible": false,
+              "reason": "The dog is not visible."
+            }
+          ]
+        }
+      },
+      {
+        "window": {
+          "core_start": 20.0,
+          "core_end": 21.76167076167076,
+          "start": 20.0,
+          "end": 21.76167076167076
+        },
+        "frame_times": [
+          20.0,
+          20.25,
+          20.5,
+          20.75,
+          21.0,
+          21.25,
+          21.5
+        ],
+        "response": {
+          "labels": [
+            {
+              "index": 0,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "The dog is visible and its front paws are down on the floor."
+            },
+            {
+              "index": 1,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "The dog is visible and its front paws are down on the floor."
+            },
+            {
+              "index": 2,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "The dog is visible and its front paws are down on the floor."
+            },
+            {
+              "index": 3,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "The dog is visible and its front paws are down on the floor."
+            },
+            {
+              "index": 4,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "The dog is visible and its front paws are down on the floor."
+            },
+            {
+              "index": 5,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "The dog is visible and its front paws are down on the floor."
+            },
+            {
+              "index": 6,
+              "state": "before",
+              "subject_visible": true,
+              "reason": "The dog is visible and its front paws are down on the floor."
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "raw_state_transitions": {
+    "events": [
+      {
+        "before_time": 1.25,
+        "after_time": 1.5,
+        "reset_time": null
+      },
+      {
+        "before_time": 4.0,
+        "after_time": 4.5,
+        "reset_time": 4.0
+      },
+      {
+        "before_time": 6.0,
+        "after_time": 6.25,
+        "reset_time": 6.0
+      },
+      {
+        "before_time": 7.0,
+        "after_time": 7.25,
+        "reset_time": 7.0
+      },
+      {
+        "before_time": 9.0,
+        "after_time": 9.25,
+        "reset_time": 9.0
+      },
+      {
+        "before_time": 15.0,
+        "after_time": 15.25,
+        "reset_time": 15.0
+      },
+      {
+        "before_time": 18.0,
+        "after_time": 18.25,
+        "reset_time": 18.0
+      }
+    ],
+    "unarmed_after_times": [
+      0.0
+    ]
+  },
+  "scope_note": "One visible dog is assumed. State labels and independent keyframe checks remain model judgments.",
+  "verifications": [
+    {
+      "candidate": {
+        "time": 1.5,
+        "subject": "dog at glass door"
+      },
+      "clip": [
+        1.25,
+        1.5
+      ],
+      "observation": {
+        "subject_id": "dog at glass door",
+        "track_id": "animal_1",
+        "before_time": 1.25,
+        "after_time": 1.5,
+        "start_time": 1.5,
+        "end_time": 1.5,
+        "reset_time": null,
+        "status": "confirmed",
+        "reason": "before→after edge in timestamped state labels"
+      },
+      "evidence_check": {
+        "status": "confirmed",
+        "before_state_visible": true,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": "dog at glass door",
+        "reason": "In the first frame, the dog's front paws are down near the floor, and in the second frame, both front paws are raised toward the glass door, indicating a change from before_state to after_state."
+      }
+    },
+    {
+      "candidate": {
+        "time": 4.5,
+        "subject": "dog at glass door"
+      },
+      "clip": [
+        4.0,
+        4.5
+      ],
+      "observation": {
+        "subject_id": "dog at glass door",
+        "track_id": "animal_1",
+        "before_time": 4.0,
+        "after_time": 4.5,
+        "start_time": 4.5,
+        "end_time": 4.5,
+        "reset_time": 4.0,
+        "status": "confirmed",
+        "reason": "before→after edge in timestamped state labels"
+      },
+      "evidence_check": {
+        "status": "confirmed",
+        "before_state_visible": true,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": "dog_at_glass_door",
+        "reason": "The dog is initially seen with its front paws down near the floor and later with both front paws visibly raised toward the glass door."
+      }
+    },
+    {
+      "candidate": {
+        "time": 6.25,
+        "subject": "dog at glass door"
+      },
+      "clip": [
+        6.0,
+        6.25
+      ],
+      "observation": {
+        "subject_id": "dog at glass door",
+        "track_id": "animal_1",
+        "before_time": 6.0,
+        "after_time": 6.25,
+        "start_time": 6.25,
+        "end_time": 6.25,
+        "reset_time": 6.0,
+        "status": "confirmed",
+        "reason": "before→after edge in timestamped state labels"
+      },
+      "evidence_check": {
+        "status": "confirmed",
+        "before_state_visible": true,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": "dog at glass door",
+        "reason": "The same dog is visible in both frames, with front paws down in the first frame and raised in the second frame, consistent with the proposed event."
+      }
+    },
+    {
+      "candidate": {
+        "time": 7.25,
+        "subject": "dog at glass door"
+      },
+      "clip": [
+        7.0,
+        7.25
+      ],
+      "observation": {
+        "subject_id": "dog at glass door",
+        "track_id": "animal_1",
+        "before_time": 7.0,
+        "after_time": 7.25,
+        "start_time": 7.25,
+        "end_time": 7.25,
+        "reset_time": 7.0,
+        "status": "rejected",
+        "reason": "before→after edge in timestamped state labels",
+        "evidence_check_reason": "The second frame does not show the after state with the front paws raised."
+      },
+      "evidence_check": {
+        "status": "rejected",
+        "before_state_visible": true,
+        "after_state_visible": false,
+        "same_subject_visible": true,
+        "subject_id": "dog at glass door",
+        "reason": "The second frame does not show the after state with the front paws raised."
+      }
+    },
+    {
+      "candidate": {
+        "time": 9.25,
+        "subject": "dog at glass door"
+      },
+      "clip": [
+        9.0,
+        9.25
+      ],
+      "observation": {
+        "subject_id": "dog at glass door",
+        "track_id": "animal_1",
+        "before_time": 9.0,
+        "after_time": 9.25,
+        "start_time": 9.25,
+        "end_time": 9.25,
+        "reset_time": 9.0,
+        "status": "uncertain",
+        "reason": "before→after edge in timestamped state labels",
+        "evidence_check_reason": "The two images do not allow for clear determination if the same individual is present in both states due to visual differences."
+      },
+      "evidence_check": {
+        "status": "uncertain",
+        "before_state_visible": true,
+        "after_state_visible": true,
+        "same_subject_visible": false,
+        "subject_id": "dog at glass door",
+        "reason": "The two images do not allow for clear determination if the same individual is present in both states due to visual differences."
+      }
+    },
+    {
+      "candidate": {
+        "time": 15.25,
+        "subject": "dog at glass door"
+      },
+      "clip": [
+        15.0,
+        15.25
+      ],
+      "observation": {
+        "subject_id": "dog at glass door",
+        "track_id": "animal_1",
+        "before_time": 15.0,
+        "after_time": 15.25,
+        "start_time": 15.25,
+        "end_time": 15.25,
+        "reset_time": 15.0,
+        "status": "uncertain",
+        "reason": "before→after edge in timestamped state labels",
+        "evidence_check_reason": "In the second frame, both front paws are not visibly raised together toward the glass door, making it uncertain if the after_state condition is met."
+      },
+      "evidence_check": {
+        "status": "uncertain",
+        "before_state_visible": true,
+        "after_state_visible": false,
+        "same_subject_visible": true,
+        "subject_id": "dog_at_glass_door",
+        "reason": "In the second frame, both front paws are not visibly raised together toward the glass door, making it uncertain if the after_state condition is met."
+      }
+    },
+    {
+      "candidate": {
+        "time": 18.25,
+        "subject": "dog at glass door"
+      },
+      "clip": [
+        18.0,
+        18.25
+      ],
+      "observation": {
+        "subject_id": "dog at glass door",
+        "track_id": "animal_1",
+        "before_time": 18.0,
+        "after_time": 18.25,
+        "start_time": 18.25,
+        "end_time": 18.25,
+        "reset_time": 18.0,
+        "status": "rejected",
+        "reason": "before→after edge in timestamped state labels",
+        "evidence_check_reason": "The dog's front paws remain on the floor in both frames; no state change is observed."
+      },
+      "evidence_check": {
+        "status": "rejected",
+        "before_state_visible": true,
+        "after_state_visible": false,
+        "same_subject_visible": true,
+        "subject_id": "dog_at_glass_door",
+        "reason": "The dog's front paws remain on the floor in both frames; no state change is observed."
+      }
+    }
+  ],
+  "confirmed_count": 3,
+  "uncertain_count": 2,
+  "confirmed": [
+    {
+      "candidate_time": 1.5,
+      "subject_id": "animal_1",
+      "start_time": 1.5,
+      "end_time": 1.5,
+      "before_time": 1.25,
+      "after_time": 1.5,
+      "reset_time": null,
+      "reason": "before→after edge in timestamped state labels",
+      "model_status": "confirmed",
+      "model_subject_id": "dog at glass door"
+    },
+    {
+      "candidate_time": 4.5,
+      "subject_id": "animal_1",
+      "start_time": 4.5,
+      "end_time": 4.5,
+      "before_time": 4.0,
+      "after_time": 4.5,
+      "reset_time": 4.0,
+      "reason": "before→after edge in timestamped state labels",
+      "model_status": "confirmed",
+      "model_subject_id": "dog at glass door"
+    },
+    {
+      "candidate_time": 6.25,
+      "subject_id": "animal_1",
+      "start_time": 6.25,
+      "end_time": 6.25,
+      "before_time": 6.0,
+      "after_time": 6.25,
+      "reset_time": 6.0,
+      "reason": "before→after edge in timestamped state labels",
+      "model_status": "confirmed",
+      "model_subject_id": "dog at glass door"
+    }
+  ],
+  "uncertain": [
+    {
+      "candidate_time": 9.25,
+      "subject_id": "animal_1",
+      "start_time": 9.25,
+      "end_time": 9.25,
+      "before_time": 9.0,
+      "after_time": 9.25,
+      "reset_time": 9.0,
+      "reason": "before→after edge in timestamped state labels",
+      "model_status": "uncertain",
+      "model_subject_id": "dog at glass door",
+      "review_reason": "전후 상태 또는 개체를 확인하지 못함"
+    },
+    {
+      "candidate_time": 15.25,
+      "subject_id": "animal_1",
+      "start_time": 15.25,
+      "end_time": 15.25,
+      "before_time": 15.0,
+      "after_time": 15.25,
+      "reset_time": 15.0,
+      "reason": "before→after edge in timestamped state labels",
+      "model_status": "uncertain",
+      "model_subject_id": "dog at glass door",
+      "review_reason": "전후 상태 또는 개체를 확인하지 못함"
+    }
+  ],
+  "rejected": [
+    {
+      "candidate_time": 7.25,
+      "subject_id": "animal_1",
+      "start_time": 7.25,
+      "end_time": 7.25,
+      "before_time": 7.0,
+      "after_time": 7.25,
+      "reset_time": 7.0,
+      "reason": "before→after edge in timestamped state labels",
+      "model_status": "rejected",
+      "model_subject_id": "dog at glass door"
+    },
+    {
+      "candidate_time": 18.25,
+      "subject_id": "animal_1",
+      "start_time": 18.25,
+      "end_time": 18.25,
+      "before_time": 18.0,
+      "after_time": 18.25,
+      "reset_time": 18.0,
+      "reason": "before→after edge in timestamped state labels",
+      "model_status": "rejected",
+      "model_subject_id": "dog at glass door"
+    }
+  ],
+  "duplicates": [],
+  "model": "gpt-4o"
+}

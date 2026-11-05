@@ -1,4 +1,4 @@
-"""Audit where each reviewed 0936 event exits two saved sampling runs.
+"""Audit fixed-intent scans, their union, and a state-timeline run.
 
 Read-only for model outputs: this script makes no API calls and does not edit
 either run. It writes a compact, reproducible comparison JSON for the notebook.
@@ -12,9 +12,14 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 EVIDENCE = ROOT / "notebooks/smarthome-bench-evidence/new-pipeline"
-BASELINE = EVIDENCE / "smartbench_0936-result.json"
-STEP025 = EVIDENCE / "ablation-0936-step025/smartbench_0936-result.json"
-OUTPUT = EVIDENCE / "ablation-0936-step025/comparison.json"
+FIXED = EVIDENCE / "ablation-0936-fixed"
+RUN_PATHS = {
+    "0.5": FIXED / "step050/smartbench_0936-result.json",
+    "0.25": FIXED / "step025/smartbench_0936-result.json",
+    "union": FIXED / "union-result.json",
+    "state_timeline": FIXED / "state-timeline-result.json",
+}
+OUTPUT = FIXED / "comparison.json"
 MATCH_TOLERANCE_SECONDS = 0.25
 
 
@@ -79,10 +84,16 @@ def main() -> None:
     labels = json.loads((EVIDENCE / "validation-labels.json").read_text(encoding="utf-8"))
     reference = next(case for case in labels["cases"]
                      if case["video_id"] == "smartbench_0936")
-    runs = {
-        "0.5": json.loads(BASELINE.read_text(encoding="utf-8")),
-        "0.25": json.loads(STEP025.read_text(encoding="utf-8")),
-    }
+    runs = {name: json.loads(path.read_text(encoding="utf-8"))
+            for name, path in RUN_PATHS.items()}
+    fixed_intent = json.loads((EVIDENCE / "smartbench_0936-fixed-intent.json").read_text(encoding="utf-8"))
+    if any(run["intent"] != fixed_intent for run in runs.values()):
+        raise ValueError("비교 실행의 질문 해석이 서로 다릅니다")
+    # State-timeline edges play the candidate role in this event-level audit.
+    runs["state_timeline"]["candidates"] = [
+        {"time": edge["after_time"]}
+        for edge in runs["state_timeline"]["raw_state_transitions"]["events"]
+    ]
     rows = []
     for index, event in enumerate(reference["events"], start=1):
         rows.append({
@@ -95,7 +106,10 @@ def main() -> None:
     for step, result in runs.items():
         audits = [row["runs"][step] for row in rows]
         metrics[step] = {
-            "scan_frames": sum(len(log["frame_times"]) for log in result["scan_log"]),
+            "scan_frames": (len(result["timeline"]["labels"])
+                            if step == "state_timeline" else
+                            sum(len(log["frame_times"]) for log in result["scan_log"])
+                            if step != "union" else None),
             "candidate_proposals": len(result["candidates"]),
             "reference_events_with_candidate": sum(bool(row["candidate_times"])
                                                    for row in audits),
@@ -110,10 +124,12 @@ def main() -> None:
         "video_id": "smartbench_0936",
         "reference_kind": reference["reference_kind"],
         "reference_total": reference["confirmed_total"],
+        "intent": fixed_intent,
+        "intent_note": "Earlier exploratory 0.5s and 0.25s outputs used different parsed intents and are excluded from this controlled comparison.",
         "matching_rule": "Candidate timestamp within reviewed interval ±0.25s; this is a time-only audit, not independent visual proof.",
         "metrics": metrics,
         "union_candidate_coverage": sum(any(row["runs"][step]["candidate_times"]
-                                            for step in runs) for row in rows),
+                                            for step in ("0.5", "0.25")) for row in rows),
         "events": rows,
     }
     OUTPUT.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n",
