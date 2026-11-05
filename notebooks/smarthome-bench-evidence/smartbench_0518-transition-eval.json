@@ -1,0 +1,118 @@
+{
+  "video_id": "0518",
+  "model": "gpt-4o",
+  "step_seconds": 0.5,
+  "window_seconds": 5.0,
+  "event_definition": "강아지가 바닥에서 소파 좌석 위로 몸을 올려 착지하는 전환. 앞발만 걸치거나 소파 근처 접근, 소파에서 내려오기는 제외",
+  "results": [
+    {
+      "core": [
+        0.0,
+        5.0
+      ],
+      "frames": [
+        0.0,
+        5.5
+      ],
+      "response": {
+        "events": []
+      }
+    },
+    {
+      "core": [
+        5.0,
+        10.0
+      ],
+      "frames": [
+        4.5,
+        10.5
+      ],
+      "response": {
+        "events": []
+      }
+    },
+    {
+      "core": [
+        10.0,
+        15.0
+      ],
+      "frames": [
+        9.5,
+        15.5
+      ],
+      "response": {
+        "events": []
+      }
+    },
+    {
+      "core": [
+        15.0,
+        20.0
+      ],
+      "frames": [
+        14.5,
+        20.5
+      ],
+      "response": {
+        "events": [
+          {
+            "start_time": 19.0,
+            "end_time": 20.0,
+            "status": "confirmed",
+            "before_evidence": "Dog approaching the sofa.",
+            "after_evidence": "Dog on the sofa seat.",
+            "subject_description": "A small black dog transitioning onto the sofa."
+          }
+        ]
+      }
+    },
+    {
+      "core": [
+        20.0,
+        25.0
+      ],
+      "frames": [
+        19.5,
+        25.5
+      ],
+      "response": {
+        "events": [
+          {
+            "start_time": 21.0,
+            "end_time": 21.5,
+            "status": "confirmed",
+            "before_evidence": "Dog on floor beside sofa.",
+            "after_evidence": "Dog fully on sofa.",
+            "subject_description": "White dog jumping onto sofa."
+          }
+        ]
+      }
+    },
+    {
+      "core": [
+        25.0,
+        30.0
+      ],
+      "frames": [
+        24.5,
+        30.5
+      ],
+      "response": {
+        "events": []
+      }
+    },
+    {
+      "core": [
+        30.0,
+        33.80043333333333
+      ],
+      "frames": [
+        29.5,
+        33.5
+      ],
+      "response": {
+        "events": []
+      }
+    }
+  ]
+}

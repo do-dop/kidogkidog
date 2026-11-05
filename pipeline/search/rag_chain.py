@@ -92,7 +92,9 @@ def run_rag_query(
 
         candidates = search_with_query_expansion(
             query=query,
-            top_k=top_k,
+            # Retrieve enough scene hits to offer different videos after the
+            # API groups all hits from each video into one result card.
+            top_k=top_k if video_id else min(30, max(12, top_k * 4)),
             video_id=video_id,
             recording_date=recording_date,
             time_range=time_range,

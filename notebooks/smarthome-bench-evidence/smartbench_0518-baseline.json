@@ -1,0 +1,248 @@
+{
+  "video_id": "smartbench_0518",
+  "fps": 0.5,
+  "events": [
+    {
+      "video_id": "smartbench_0518",
+      "start_time": 18.0,
+      "end_time": 22.0,
+      "subject": "반려동물",
+      "action": "반려동물이 소파 위에서 뛰어오르는 것으로 보임",
+      "target_object": "소파",
+      "summary": "반려동물이 소파 위로 점프하는 장면입니다.",
+      "duration": 4.0,
+      "repeat_count": 1,
+      "confidence": 0.8,
+      "interestingness": 0.9,
+      "evidence": [
+        "높이 뛰어오르는 모습이 보임",
+        "소파 위에서의 활동이 눈에 띔"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 18.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 20.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 22.0,
+          "object_labels": [
+            "dog"
+          ]
+        }
+      ]
+    },
+    {
+      "video_id": "smartbench_0518",
+      "start_time": 4.0,
+      "end_time": 12.0,
+      "subject": "반려동물",
+      "action": "반려동물이 방 안을 돌아다니는 것으로 보임",
+      "target_object": null,
+      "summary": "반려동물이 방을 탐색하며 이동하는 모습입니다.",
+      "duration": 8.0,
+      "repeat_count": 1,
+      "confidence": 0.7,
+      "interestingness": 0.8,
+      "evidence": [
+        "반려동물이 지속적으로 방 안을 이동하고 있는 모습이 관찰됨.",
+        "행동이 명확하게 확인되는 구간입니다."
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 4.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 8.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 10.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 12.0,
+          "object_labels": [
+            "dog"
+          ]
+        }
+      ]
+    },
+    {
+      "video_id": "smartbench_0518",
+      "start_time": 10.0,
+      "end_time": 14.0,
+      "subject": "반려동물",
+      "action": "반려동물이 움직이며 무엇인가를 탐색하는 것으로 보임",
+      "target_object": null,
+      "summary": "반려동물이 주변을 돌아다니고 탐색하는 모습입니다.",
+      "duration": 4.0,
+      "repeat_count": 1,
+      "confidence": 0.7,
+      "interestingness": 0.8,
+      "evidence": [
+        "움직임이 보임",
+        "주변 환경에 대한 호기심이 느껴짐"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 10.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 12.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 14.0,
+          "object_labels": [
+            "dog"
+          ]
+        }
+      ]
+    },
+    {
+      "video_id": "smartbench_0518",
+      "start_time": 20.0,
+      "end_time": 22.0,
+      "subject": "반려동물",
+      "action": "반려동물이 소파에서 뛰어내리는 것으로 보임",
+      "target_object": "소파",
+      "summary": "반려동물이 소파에서 뛰어내려 바닥으로 내려오는 모습입니다.",
+      "duration": 2.0,
+      "repeat_count": 1,
+      "confidence": 0.8,
+      "interestingness": 0.7,
+      "evidence": [
+        "소파 위에서 반려동물이 뛰어내림",
+        "뛰어내린 후 바닥으로 이동함"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 20.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 22.0,
+          "object_labels": [
+            "dog"
+          ]
+        }
+      ]
+    },
+    {
+      "video_id": "smartbench_0518",
+      "start_time": 30.0,
+      "end_time": 32.0,
+      "subject": "반려동물",
+      "action": "반려동물이 주변을 돌아다니는 것으로 보임",
+      "target_object": null,
+      "summary": "반려동물이 방 안에서 움직이며 탐색하는 모습입니다.",
+      "duration": 2.0,
+      "repeat_count": 1,
+      "confidence": 0.8,
+      "interestingness": 0.7,
+      "evidence": [
+        "반려동물이 방 안을 돌아다니며 다른 반려동물과 상호작용하는 모습이 관찰됨",
+        "행동에 변화가 없어 탐색 중으로 추정됨"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 30.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 32.0,
+          "object_labels": [
+            "dog"
+          ]
+        }
+      ]
+    },
+    {
+      "video_id": "smartbench_0518",
+      "start_time": 30.0,
+      "end_time": 32.0,
+      "subject": "반려동물",
+      "action": "반려동물이 바닥을 돌아다니는 것으로 보임",
+      "target_object": null,
+      "summary": "반려동물이 바닥에서 여기저기 돌아다니는 모습입니다.",
+      "duration": 2.0,
+      "repeat_count": 1,
+      "confidence": 0.7,
+      "interestingness": 0.6,
+      "evidence": [
+        "반려동물이 바닥에서 활발히 움직임",
+        "여러 방향으로 이동함"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 30.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 32.0,
+          "object_labels": [
+            "dog"
+          ]
+        }
+      ]
+    }
+  ]
+}

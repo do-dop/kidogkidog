@@ -1,0 +1,77 @@
+{
+  "dataset": "violetcliff/SmartHome-Bench",
+  "status": "downloaded_and_sparsely_previewed; occurrence_counts_not_yet_reviewed",
+  "videos": [
+    {
+      "video_id": "smartbench_0352",
+      "source_url": "https://www.youtube.com/watch?v=HHHiido4BF8",
+      "local_video": "data/videos/smartbench_0352.mp4",
+      "duration_seconds": 45.09,
+      "candidate_action": "작은 강아지들이 현관문을 지나 밖으로 나오는 동작",
+      "preview_note": "두 마리 강아지가 현관 안팎을 오간다. 사람과 문틀에 일부 가리므로 개체별로 세어야 한다. 끝부분에는 파란 종료 화면이 있다.",
+      "suggested_action_window_seconds": [
+        0,
+        39
+      ],
+      "count_reviewed": false
+    },
+    {
+      "video_id": "smartbench_0680",
+      "source_url": "https://www.youtube.com/watch?v=1ezGFfuSd9s",
+      "local_video": "data/videos/smartbench_0680.mp4",
+      "duration_seconds": 29.99,
+      "candidate_action": "강아지가 잔디 위의 작은 주황색 물체를 코로 밀거나 건드리는 동작",
+      "preview_note": "고정 카메라에 개와 물체가 계속 보인다. 물체가 작아 실제 코 접촉과 근처에서 냄새 맡기를 구분해야 한다.",
+      "suggested_action_window_seconds": [
+        0,
+        29.99
+      ],
+      "count_reviewed": false
+    },
+    {
+      "video_id": "smartbench_0225",
+      "source_url": "https://www.youtube.com/watch?v=O0En05vj1fY",
+      "local_video": "data/videos/smartbench_0225.mp4",
+      "duration_seconds": 30.11,
+      "candidate_action": "눈밭의 강아지가 위쪽 물체를 향해 뛰어오르는 동작",
+      "preview_note": "고정 카메라이지만 개가 화면에서 작아 촘촘한 프레임 검토가 필요하다. 약 26초부터 종료 화면이다.",
+      "suggested_action_window_seconds": [
+        0,
+        26
+      ],
+      "count_reviewed": false
+    },
+    {
+      "video_id": "smartbench_0460",
+      "source_url": "https://www.youtube.com/watch?v=6wmj8rEYc5o",
+      "local_video": "data/videos/smartbench_0460.mp4",
+      "duration_seconds": 36.49,
+      "candidate_action": "강아지가 카메라 렌즈를 코나 몸으로 건드리는 동작",
+      "preview_note": "강아지가 카메라에 반복 접근한 뒤 렌즈를 가려 정확한 접촉 횟수가 미확정이 될 수 있다. 약 30초부터 종료 화면이다.",
+      "suggested_action_window_seconds": [
+        0,
+        30
+      ],
+      "count_reviewed": false
+    }
+  ],
+  "excluded_previous_video": {
+    "video_id": "smartbench_0260",
+    "reason": "사용자가 달리기 횟수 기준이 애매하다고 판단해 집계 시험에서 제외"
+  },
+  "excluded_duplicates": [
+    {
+      "video_id": "smartbench_0162",
+      "source_url": "https://www.youtube.com/watch?v=aAZ6daNbYhw",
+      "local_video": "data/videos/smartbench_0162.mp4",
+      "reason": "기존 smartbench_0936과 같은 유리문 앞 강아지 동작을 다른 화면 비율로 담은 것으로 보여 독립적인 시험 영상에서 제외"
+    },
+    {
+      "video_id": "smartbench_0188",
+      "source_url": "https://www.youtube.com/watch?v=uUsuo2hKqnQ",
+      "local_video": "data/videos/smartbench_0188.mp4",
+      "matches_existing": "dog_escape",
+      "reason": "SmartHome-Bench CSV에 실린 영상이지만 사용자가 앞서 따로 찾은 dog_escape와 같은 원본 영상. 0~30초 대응 프레임의 평균 절대 픽셀 차이 약 2/255, 전체 길이 모두 약 56.2645초라 독립 평가에서 제외"
+    }
+  ]
+}

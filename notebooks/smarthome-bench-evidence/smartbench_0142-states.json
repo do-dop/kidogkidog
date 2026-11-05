@@ -1,0 +1,352 @@
+{
+  "video": "data/videos/smartbench_0142.mp4",
+  "action": "고양이가 먹이 그릇에서 머리를 들어 얼굴이 카메라 쪽을 향한 상태. 고개를 숙여 그릇에서 먹는 상태는 inactive",
+  "step": 0.5,
+  "window": 5.0,
+  "model": "gpt-4o-mini",
+  "results": [
+    {
+      "window": [
+        0.0,
+        4.5
+      ],
+      "states": [
+        {
+          "t": 0.0,
+          "state": "inactive"
+        },
+        {
+          "t": 0.5,
+          "state": "inactive"
+        },
+        {
+          "t": 1.0,
+          "state": "inactive"
+        },
+        {
+          "t": 1.5,
+          "state": "inactive"
+        },
+        {
+          "t": 2.0,
+          "state": "inactive"
+        },
+        {
+          "t": 2.5,
+          "state": "inactive"
+        },
+        {
+          "t": 3.0,
+          "state": "inactive"
+        },
+        {
+          "t": 3.5,
+          "state": "inactive"
+        },
+        {
+          "t": 4.0,
+          "state": "inactive"
+        },
+        {
+          "t": 4.5,
+          "state": "inactive"
+        }
+      ],
+      "raw": null
+    },
+    {
+      "window": [
+        5.0,
+        9.5
+      ],
+      "states": [
+        {
+          "t": 5.0,
+          "state": "inactive"
+        },
+        {
+          "t": 5.5,
+          "state": "inactive"
+        },
+        {
+          "t": 6.0,
+          "state": "inactive"
+        },
+        {
+          "t": 6.5,
+          "state": "inactive"
+        },
+        {
+          "t": 7.0,
+          "state": "inactive"
+        },
+        {
+          "t": 7.5,
+          "state": "inactive"
+        },
+        {
+          "t": 8.0,
+          "state": "inactive"
+        },
+        {
+          "t": 8.5,
+          "state": "inactive"
+        },
+        {
+          "t": 9.0,
+          "state": "inactive"
+        },
+        {
+          "t": 9.5,
+          "state": "inactive"
+        }
+      ],
+      "raw": null
+    },
+    {
+      "window": [
+        10.0,
+        14.5
+      ],
+      "states": [
+        {
+          "t": 10.0,
+          "state": "inactive"
+        },
+        {
+          "t": 10.5,
+          "state": "active"
+        },
+        {
+          "t": 11.0,
+          "state": "active"
+        },
+        {
+          "t": 11.5,
+          "state": "active"
+        },
+        {
+          "t": 12.0,
+          "state": "active"
+        },
+        {
+          "t": 12.5,
+          "state": "active"
+        },
+        {
+          "t": 13.0,
+          "state": "active"
+        },
+        {
+          "t": 13.5,
+          "state": "active"
+        },
+        {
+          "t": 14.0,
+          "state": "active"
+        },
+        {
+          "t": 14.5,
+          "state": "active"
+        },
+        {
+          "t": 15.0,
+          "state": "active"
+        }
+      ],
+      "raw": null
+    },
+    {
+      "window": [
+        15.0,
+        19.5
+      ],
+      "states": [
+        {
+          "t": 15.0,
+          "state": "active"
+        },
+        {
+          "t": 15.5,
+          "state": "active"
+        },
+        {
+          "t": 16.0,
+          "state": "active"
+        },
+        {
+          "t": 16.5,
+          "state": "active"
+        },
+        {
+          "t": 17.0,
+          "state": "active"
+        },
+        {
+          "t": 17.5,
+          "state": "active"
+        },
+        {
+          "t": 18.0,
+          "state": "active"
+        },
+        {
+          "t": 18.5,
+          "state": "active"
+        },
+        {
+          "t": 19.0,
+          "state": "inactive"
+        },
+        {
+          "t": 19.5,
+          "state": "inactive"
+        }
+      ],
+      "raw": null
+    },
+    {
+      "window": [
+        20.0,
+        24.5
+      ],
+      "states": [
+        {
+          "t": 20.0,
+          "state": "inactive"
+        },
+        {
+          "t": 20.5,
+          "state": "inactive"
+        },
+        {
+          "t": 21.0,
+          "state": "inactive"
+        },
+        {
+          "t": 21.5,
+          "state": "inactive"
+        },
+        {
+          "t": 22.0,
+          "state": "inactive"
+        },
+        {
+          "t": 22.5,
+          "state": "inactive"
+        },
+        {
+          "t": 23.0,
+          "state": "inactive"
+        },
+        {
+          "t": 23.5,
+          "state": "inactive"
+        },
+        {
+          "t": 24.0,
+          "state": "inactive"
+        },
+        {
+          "t": 24.5,
+          "state": "active"
+        }
+      ],
+      "raw": null
+    },
+    {
+      "window": [
+        25.0,
+        29.5
+      ],
+      "states": [
+        {
+          "t": 25.0,
+          "state": "active"
+        },
+        {
+          "t": 25.5,
+          "state": "active"
+        },
+        {
+          "t": 26.0,
+          "state": "active"
+        },
+        {
+          "t": 26.5,
+          "state": "active"
+        },
+        {
+          "t": 27.0,
+          "state": "active"
+        },
+        {
+          "t": 27.5,
+          "state": "active"
+        },
+        {
+          "t": 28.0,
+          "state": "inactive"
+        },
+        {
+          "t": 28.5,
+          "state": "inactive"
+        },
+        {
+          "t": 29.0,
+          "state": "inactive"
+        },
+        {
+          "t": 29.5,
+          "state": "inactive"
+        }
+      ],
+      "raw": null
+    },
+    {
+      "window": [
+        30.0,
+        33.5
+      ],
+      "states": [
+        {
+          "t": 30.0,
+          "state": "inactive"
+        },
+        {
+          "t": 30.5,
+          "state": "inactive"
+        },
+        {
+          "t": 31.0,
+          "state": "inactive"
+        },
+        {
+          "t": 31.5,
+          "state": "inactive"
+        },
+        {
+          "t": 32.0,
+          "state": "inactive"
+        },
+        {
+          "t": 32.5,
+          "state": "inactive"
+        },
+        {
+          "t": 33.0,
+          "state": "inactive"
+        },
+        {
+          "t": 33.5,
+          "state": "inactive"
+        },
+        {
+          "t": 34.0,
+          "state": "inactive"
+        }
+      ],
+      "raw": null
+    }
+  ]
+}

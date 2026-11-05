@@ -1,0 +1,105 @@
+{
+  "source": "/private/tmp/smartbench_0936-states.json",
+  "action": "강아지가 앞발을 유리문을 향해 들었다가 다시 내리는 한 동작. 뒷발이 바닥에 남아도 포함",
+  "results": [
+    {
+      "candidate": [
+        0.0,
+        0.75
+      ],
+      "assessment": {
+        "valid": true,
+        "evidence": "관찰된 시각과 자세 변화",
+        "confidence": 0.95
+      }
+    },
+    {
+      "candidate": [
+        1.5,
+        2.0
+      ],
+      "assessment": {
+        "valid": true,
+        "evidence": "관찰된 시각과 자세 변화",
+        "confidence": 1.0
+      }
+    },
+    {
+      "candidate": [
+        4.25,
+        4.75
+      ],
+      "assessment": {
+        "valid": true,
+        "evidence": "관찰된 시각과 자세 변화",
+        "confidence": 0.95
+      }
+    },
+    {
+      "candidate": [
+        6.25,
+        6.5
+      ],
+      "assessment": {
+        "valid": true,
+        "evidence": "관찰된 시각과 자세 변화",
+        "confidence": 0.9
+      }
+    },
+    {
+      "candidate": [
+        7.0,
+        7.75
+      ],
+      "assessment": {
+        "valid": true,
+        "evidence": "관찰된 시각과 자세 변화",
+        "confidence": 1.0
+      }
+    },
+    {
+      "candidate": [
+        9.0,
+        9.75
+      ],
+      "assessment": {
+        "valid": true,
+        "evidence": "강아지가 9.00초에서 9.75초 사이에 앞발을 유리문에 향해 들었다가 내리는 동작을 보임",
+        "confidence": 0.95
+      }
+    },
+    {
+      "candidate": [
+        13.0,
+        13.25
+      ],
+      "assessment": {
+        "valid": true,
+        "evidence": "관찰된 시각과 자세 변화",
+        "confidence": 0.9
+      }
+    },
+    {
+      "candidate": [
+        14.0,
+        17.25
+      ],
+      "assessment": {
+        "valid": true,
+        "evidence": "관찰된 시각과 자세 변화",
+        "confidence": 0.0
+      }
+    },
+    {
+      "candidate": [
+        19.0,
+        19.5
+      ],
+      "assessment": {
+        "valid": false,
+        "evidence": "강아지가 앞발을 유리문에 들었다가 다시 내리는 행동이 관찰되지 않음",
+        "confidence": 0.9
+      }
+    }
+  ]
+}

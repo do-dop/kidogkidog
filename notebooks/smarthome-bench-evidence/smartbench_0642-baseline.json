@@ -1,0 +1,100 @@
+{
+  "video_id": "smartbench_0642",
+  "fps": 0.5,
+  "events": [
+    {
+      "video_id": "smartbench_0642",
+      "start_time": 4.0,
+      "end_time": 12.0,
+      "subject": "반려동물",
+      "action": "반려동물이 물속에서 무언가를 하는 것으로 보임",
+      "target_object": null,
+      "summary": "반려동물이 물속에서 활동하는 모습이 관찰됨.",
+      "duration": 8.0,
+      "repeat_count": 1,
+      "confidence": 0.7,
+      "interestingness": 0.8,
+      "evidence": [
+        "반려동물이 물속에서 움직이는 모습이 여러 프레임에서 확인됨.",
+        "반려동물이 물에 가까이 다가가거나 일부러 빠지는 행동을 하는 것으로 보임."
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 4.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 8.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 10.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 12.0,
+          "object_labels": [
+            "dog"
+          ]
+        }
+      ]
+    },
+    {
+      "video_id": "smartbench_0642",
+      "start_time": 10.0,
+      "end_time": 14.0,
+      "subject": "반려동물",
+      "action": "반려동물이 물속에서 뭔가를 하는 것으로 보임",
+      "target_object": null,
+      "summary": "반려동물이 물속에서 활동하는 모습이 관찰됨.",
+      "duration": 4.0,
+      "repeat_count": 1,
+      "confidence": 0.7,
+      "interestingness": 0.8,
+      "evidence": [
+        "물속에서 반려동물이 움직이고 있음",
+        "프레임마다 반려동물이 보임"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 10.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 12.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 14.0,
+          "object_labels": [
+            "dog"
+          ]
+        }
+      ]
+    }
+  ]
+}

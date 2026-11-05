@@ -1,0 +1,74 @@
+{
+  "video_id": "0642",
+  "model": "gpt-4o",
+  "step_seconds": 0.5,
+  "window_seconds": 5.0,
+  "event_definition": "강아지 몸이 분수 바깥 돌/바닥에서 물속으로 들어가는 전환. 돌 가장자리 접근이나 물속 수영은 제외",
+  "results": [
+    {
+      "core": [
+        0.0,
+        5.0
+      ],
+      "frames": [
+        0.0,
+        5.5
+      ],
+      "response": {
+        "events": [
+          {
+            "start_time": 1.0,
+            "end_time": 2.0,
+            "status": "confirmed",
+            "before_evidence": "Dog approaching the edge of the pond on the rocks.",
+            "after_evidence": "Dog is in the water.",
+            "subject_description": "Large black dog."
+          },
+          {
+            "start_time": 3.5,
+            "end_time": 4.5,
+            "status": "confirmed",
+            "before_evidence": "Dog on the rocks approaching the pond.",
+            "after_evidence": "Dog is in the water.",
+            "subject_description": "Second large black dog."
+          }
+        ]
+      }
+    },
+    {
+      "core": [
+        5.0,
+        10.0
+      ],
+      "frames": [
+        4.5,
+        10.5
+      ],
+      "response": {
+        "events": [
+          {
+            "start_time": "5.00",
+            "end_time": "5.50",
+            "status": "confirmed",
+            "before_evidence": "Dog on stone surface.",
+            "after_evidence": "Dog in the water.",
+            "subject_description": "Black dog entering water."
+          }
+        ]
+      }
+    },
+    {
+      "core": [
+        10.0,
+        14.556208333333332
+      ],
+      "frames": [
+        9.5,
+        14.5
+      ],
+      "response": {
+        "events": []
+      }
+    }
+  ]
+}

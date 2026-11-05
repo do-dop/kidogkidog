@@ -1,0 +1,70 @@
+{
+  "dataset": "violetcliff/SmartHome-Bench",
+  "source_index": "https://huggingface.co/datasets/violetcliff/SmartHome-Bench/blob/main/Video_url.csv",
+  "status": "downloaded_and_frame_previewed; counts_are_provisional_until_full_playback",
+  "recommended": [
+    {
+      "video_id": "smartbench_0518",
+      "source_url": "https://www.youtube.com/watch?v=SUkBjtTMdNk",
+      "local_video": "data/videos/smartbench_0518.mp4",
+      "duration_seconds": 33.8,
+      "count_question": "강아지들이 소파에 올라간 횟수는?",
+      "preview_observation": "검은 개와 흰 개가 19~22초 사이에 차례로 소파에 올라가는 장면이 보임",
+      "provisional_visible_events": 2,
+      "limitation": "소파가 22초 무렵 뒤집히므로 그 이후 동작은 올라가기와 구별해야 함",
+      "independent_of_existing_two_dogs": true
+    },
+    {
+      "video_id": "smartbench_0642",
+      "source_url": "https://www.youtube.com/watch?v=fd5SqdflhbE",
+      "local_video": "data/videos/smartbench_0642.mp4",
+      "duration_seconds": 14.56,
+      "count_question": "강아지들이 분수 물속에 들어간 횟수는?",
+      "preview_observation": "두 검은 개가 각각 약 1.5~2.5초와 4~5.5초에 물 안으로 들어가는 장면이 보임",
+      "provisional_visible_events": 2,
+      "limitation": "서로 다른 개를 구분해서 세어야 함"
+    },
+    {
+      "video_id": "smartbench_0540",
+      "source_url": "https://www.youtube.com/watch?v=hwZoKRXMeg8",
+      "local_video": "data/videos/smartbench_0540.mp4",
+      "duration_seconds": 44.04,
+      "count_question": "강아지가 서로 다른 쿠션을 옮긴 횟수는?",
+      "preview_observation": "큰 빨간 쿠션을 옮기는 장면과, 편집된 다음 장면에서 작은 쿠션을 옮기는 장면이 구분됨",
+      "provisional_visible_events": 2,
+      "limitation": "서로 다른 물건 두 개를 센 기준이며 장면 전환이 있음. 큰 쿠션을 여러 번 끄는 세부 움직임은 한 번으로 묶어야 함"
+    },
+    {
+      "video_id": "smartbench_0045",
+      "source_url": "https://www.youtube.com/watch?v=7IwZMmTWoKM",
+      "local_video": "data/videos/smartbench_0045.mp4",
+      "duration_seconds": 12.01,
+      "count_question": "닭이 그네를 앞뒤로 왕복한 횟수는?",
+      "preview_observation": "닭이 그네에 탄 채 앞뒤로 움직이다가 내려오는 장면이 가까이서 보임",
+      "provisional_visible_events": null,
+      "limitation": "한쪽 끝에서 반대쪽 끝을 거쳐 돌아온 왕복을 1회로 정의하고 재생하며 세어야 함"
+    }
+  ],
+  "screened_out": [
+    {
+      "video_id": "smartbench_0453",
+      "reason": "기존 smartbench_0608과 같은 수영장·강아지 장면으로 보여 독립 평가 후보에서 보류"
+    },
+    {
+      "video_id": "smartbench_0871",
+      "reason": "물건을 가져오는 장면이 소파 뒤에 작게 보여 사람도 접촉 시각을 확정하기 어려움"
+    },
+    {
+      "video_id": "smartbench_0014",
+      "reason": "얼굴이 렌즈를 가려 고개 기울임 횟수를 안정적으로 세기 어려움"
+    },
+    {
+      "video_id": "smartbench_0630",
+      "reason": "빠른 달리기와 물건 찢기 동작이 섞이고 후반에 다른 영상이 붙어 있음"
+    },
+    {
+      "video_id": "smartbench_0964",
+      "reason": "토끼가 화면에서 작아 개별 도약을 확인하기 어려움"
+    }
+  ]
+}

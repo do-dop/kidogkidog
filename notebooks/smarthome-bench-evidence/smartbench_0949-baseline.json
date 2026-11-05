@@ -1,0 +1,299 @@
+{
+  "video_id": "smartbench_0949",
+  "fps": 0.5,
+  "events": [
+    {
+      "video_id": "smartbench_0949",
+      "start_time": 18.0,
+      "end_time": 22.0,
+      "subject": "반려동물",
+      "action": "반려동물이 장난감을 가지고 있는 것으로 보임",
+      "target_object": "장난감",
+      "summary": "반려동물이 장난감을 물고 주위를 탐색하고 있습니다.",
+      "duration": 4.0,
+      "repeat_count": 1,
+      "confidence": 0.8,
+      "interestingness": 0.7,
+      "evidence": [
+        "반려동물이 장난감을 물고 있음",
+        "주위 환경을 탐색하는 모습이 관찰됨"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 18.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 20.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 22.0,
+          "object_labels": [
+            "dog"
+          ]
+        }
+      ]
+    },
+    {
+      "video_id": "smartbench_0949",
+      "start_time": 20.0,
+      "end_time": 24.0,
+      "subject": "반려동물",
+      "action": "반려동물이 무언가를 가지고 놀고 있는 것으로 보임",
+      "target_object": "장난감",
+      "summary": "반려동물이 장난감을 가지고 놀고 있습니다.",
+      "duration": 4.0,
+      "repeat_count": 1,
+      "confidence": 0.8,
+      "interestingness": 0.7,
+      "evidence": [
+        "장난감을 입에 물고 있는 모습",
+        "반려동물이 장난감을 쳐내는 동작"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 20.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 22.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 24.0,
+          "object_labels": [
+            "dog"
+          ]
+        }
+      ]
+    },
+    {
+      "video_id": "smartbench_0949",
+      "start_time": 10.0,
+      "end_time": 12.0,
+      "subject": "반려동물",
+      "action": "반려동물이 장난감을 가지고 있는 것으로 보임",
+      "target_object": "장난감",
+      "summary": "반려동물이 장난감을 물고 주변을 돌아다니고 있습니다.",
+      "duration": 2.0,
+      "repeat_count": 1,
+      "confidence": 0.8,
+      "interestingness": 0.7,
+      "evidence": [
+        "반려동물이 장난감을 물고 있음",
+        "주위 환경과 상호작용하고 있음"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 10.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 12.0,
+          "object_labels": [
+            "dog"
+          ]
+        }
+      ]
+    },
+    {
+      "video_id": "smartbench_0949",
+      "start_time": 4.0,
+      "end_time": 12.0,
+      "subject": "반려동물",
+      "action": "반려동물이 특정 물체를 향해 이동하는 것으로 보임",
+      "target_object": null,
+      "summary": "반려동물이 벽 쪽의 물체로 돌아다니며 탐색하는 모습입니다.",
+      "duration": 8.0,
+      "repeat_count": 1,
+      "confidence": 0.7,
+      "interestingness": 0.7,
+      "evidence": [
+        "반려동물이 벽 쪽으로 반복해서 이동하고 있음",
+        "행동의 변화가 없음"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 4.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 8.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 10.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 12.0,
+          "object_labels": [
+            "dog"
+          ]
+        }
+      ]
+    },
+    {
+      "video_id": "smartbench_0949",
+      "start_time": 24.0,
+      "end_time": 30.0,
+      "subject": "반려동물",
+      "action": "반려동물이 바닥에 있는 것을 탐색하는 것으로 보임",
+      "target_object": null,
+      "summary": "반려동물이 바닥의 무언가를 탐색하고 있습니다.",
+      "duration": 6.0,
+      "repeat_count": 1,
+      "confidence": 0.7,
+      "interestingness": 0.6,
+      "evidence": [
+        "바닥에 머리를 숙이고 있는 모습",
+        "주변을 탐색하는 행동"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 24.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 26.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 28.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 30.0,
+          "object_labels": [
+            "dog"
+          ]
+        }
+      ]
+    },
+    {
+      "video_id": "smartbench_0949",
+      "start_time": 0.0,
+      "end_time": 2.0,
+      "subject": "반려동물",
+      "action": "반려동물이 물체를 살펴보는 것으로 보임",
+      "target_object": null,
+      "summary": "반려동물이 벽 쪽의 물체를 주의 깊게 살펴보는 모습입니다.",
+      "duration": 2.0,
+      "repeat_count": 1,
+      "confidence": 0.7,
+      "interestingness": 0.6,
+      "evidence": [
+        "반려동물이 물체 쪽으로 향하고 있음",
+        "반려동물이 관심을 보이고 있음"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 0.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 2.0,
+          "object_labels": [
+            "dog"
+          ]
+        }
+      ]
+    },
+    {
+      "video_id": "smartbench_0949",
+      "start_time": 2.0,
+      "end_time": 4.0,
+      "subject": "반려동물",
+      "action": "반려동물이 물체를 향해 다가가는 것으로 보임",
+      "target_object": null,
+      "summary": "반려동물이 물체에 더욱 가까이 다가가는 모습입니다.",
+      "duration": 2.0,
+      "repeat_count": 1,
+      "confidence": 0.7,
+      "interestingness": 0.6,
+      "evidence": [
+        "반려동물이 물체에 가까이 이동하고 있음",
+        "행동의 연속성이 있음"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 2.0,
+          "object_labels": [
+            "dog"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 4.0,
+          "object_labels": [
+            "dog"
+          ]
+        }
+      ]
+    }
+  ]
+}

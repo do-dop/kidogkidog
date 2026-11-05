@@ -1,0 +1,102 @@
+{
+  "method": "Count a visible per-animal transition into the target state once. A later count for the same animal requires a visible return to the starting state. A candidate without a visible before/after state, with an untracked animal, or at a clip boundary remains uncertain. This file is a manual audit of stored model outputs, not an automated model result.",
+  "review_date": "2026-11-05",
+  "cases": [
+    {
+      "video_id": "dog_escape",
+      "action": "dog climbs onto fence",
+      "reference": {"confirmed": 2, "uncertain": 0, "provenance": "user reviewed: 4-16s and 22-31s"},
+      "model": {"source": "../aggregate-gate-vlm-preview.json", "raw_rows": 5, "unique_candidates": 5},
+      "audit": {"confirmed": 2, "uncertain": 0, "rejected_or_duplicate": 3},
+      "candidates": [
+        {"time": "4-12", "subject": "dog", "episode": "fence_1", "status": "confirmed", "evidence": "user-reviewed first climb, 4-16s"},
+        {"time": "10-14", "subject": "dog", "episode": "fence_1", "status": "duplicate", "evidence": "still within first climb; no visible return to floor"},
+        {"time": "14-20", "subject": "dog", "episode": "fence_1", "status": "duplicate", "evidence": "overlaps first climb; model interval extends beyond the reviewed end"},
+        {"time": "22-32", "subject": "dog", "episode": "fence_2", "status": "confirmed", "evidence": "user-reviewed second climb, 22-31s, after a visible reset"},
+        {"time": "30-36", "subject": "dog", "episode": "fence_2", "status": "duplicate", "evidence": "overlaps second climb"}
+      ]
+    },
+    {
+      "video_id": "smartbench_0142",
+      "action": "cat lifts head from bowl",
+      "reference": {"confirmed": 2, "uncertain": 0, "provenance": "assistant frame review; provisional, not independently user verified"},
+      "model": {"source": "smartbench_0142-states.json", "raw_rows": 2, "unique_candidates": 2},
+      "audit": {"confirmed": 2, "uncertain": 0, "rejected_or_duplicate": 0},
+      "candidates": [
+        {"time": "10.5-18.5", "subject": "cat", "episode": "head_up_1", "status": "confirmed", "evidence": "head changes from bowl-down to raised; returns down before next episode"},
+        {"time": "24.5-27.5", "subject": "cat", "episode": "head_up_2", "status": "confirmed", "evidence": "second down-to-raised transition after reset"}
+      ]
+    },
+    {
+      "video_id": "smartbench_0608",
+      "action": "dog enters pool",
+      "reference": {"confirmed": 2, "uncertain": 0, "provenance": "assistant frame review; provisional, not independently user verified"},
+      "model": {"source": "smartbench_0608-states.json", "raw_rows": 3, "unique_candidates": 3},
+      "audit": {"confirmed": 2, "uncertain": 0, "rejected_or_duplicate": 1},
+      "candidates": [
+        {"time": "2-8", "subject": "dog", "episode": "pool_1", "status": "confirmed", "evidence": "first outside-to-water transition near 1.5-2s"},
+        {"time": "11.5-13", "subject": "dog", "episode": null, "status": "rejected", "evidence": "frame review shows dog walking on pool deck, not entering water"},
+        {"time": "20.5-24.5", "subject": "dog", "episode": "pool_2", "status": "confirmed", "evidence": "second outside-to-water transition after dog was out of pool"}
+      ]
+    },
+    {
+      "video_id": "smartbench_0936",
+      "action": "dog raises front paws at glass door, including front-paws-only motions",
+      "reference": {"confirmed": 8, "uncertain": 0, "inclusive_total": 8, "full_jumps": 6, "front_paws_only_included": 2, "provenance": "user reviewed 8 motions under the inclusive rule, of which 2 front-paws-only at about 6.2s and 7.5s; individual interval times provisional"},
+      "model": {"source": "smartbench_0936-states.json", "raw_rows": 9, "unique_candidates": 9},
+      "audit": {"confirmed": 7, "uncertain": 1, "rejected_or_duplicate": 1},
+      "candidates": [
+        {"time": "0-0.75", "subject": "dog", "episode": null, "status": "uncertain", "evidence": "dog already has paws raised in first frame; pre-transition state is outside clip"},
+        {"time": "1.5-2", "subject": "dog", "episode": "paws_2", "status": "confirmed", "evidence": "resting to paws-raised and back"},
+        {"time": "4.25-4.75", "subject": "dog", "episode": "paws_3", "status": "confirmed", "evidence": "resting to paws-raised and back"},
+        {"time": "6.25-6.5", "subject": "dog", "episode": "paws_4", "status": "confirmed", "evidence": "front-paws-only motion is included by the agreed inclusive rule"},
+        {"time": "7-7.75", "subject": "dog", "episode": "paws_5", "status": "confirmed", "evidence": "front-paws-only motion is included by the agreed inclusive rule"},
+        {"time": "9-9.75", "subject": "dog", "episode": "paws_6", "status": "confirmed", "evidence": "resting to paws-raised and back"},
+        {"time": "13-13.25", "subject": "dog", "episode": null, "status": "rejected", "evidence": "not in human-reviewed motion intervals; false positive in stored model states"},
+        {"time": "14-17.25", "subject": "dog", "episode": "paws_7", "status": "confirmed", "evidence": "broad model interval contains reviewed motion at about 15.25-16s; timing imprecise"},
+        {"time": "19-19.5", "subject": "dog", "episode": "paws_8", "status": "confirmed", "evidence": "reviewed final motion; later model verifier incorrectly rejected it"}
+      ],
+      "caveat": "A second model verifier returned 8 accepted rows by accepting the 13s false positive and rejecting the real 19s motion. Its total matched the user count for the wrong events. Strict visible-transition count is 7 confirmed plus 1 clip-boundary uncertain; user inclusive count is 8."
+    },
+    {
+      "video_id": "smartbench_0065",
+      "action": "dog climbs onto either sofa",
+      "reference": {"confirmed": 4, "uncertain": 1, "inclusive_total": 5, "provenance": "user reviewed: black sofa 2 clear + 1 ambiguous, gray sofa 2; no per-event timestamps"},
+      "model": {"source": "smartbench_0065-transitions.json", "raw_rows": 8, "unique_candidates": 7},
+      "audit": {"confirmed": 2, "uncertain": 4, "rejected_or_duplicate": 1, "duplicate_raw_rows": 1},
+      "candidates": [
+        {"time": "2.25", "subject": "dog", "target": "black sofa", "episode": "black_early", "status": "confirmed", "evidence": "1.5-3.5s frames show floor-to-seat landing"},
+        {"time": "4.75", "subject": "dog", "target": "black sofa", "episode": null, "status": "uncertain", "evidence": "new climb versus continued sofa occupancy not established in this audit"},
+        {"time": "7", "subject": "dog", "target": "black sofa", "episode": null, "status": "uncertain", "evidence": "need same-dog exit and new floor-to-seat transition"},
+        {"time": "8.75", "subject": "dog", "target": "black sofa", "episode": null, "status": "uncertain", "evidence": "quick up/down movement; earlier review did not resolve whether full landing occurred"},
+        {"time": "13.5", "subject": "dog", "target": "black sofa", "episode": null, "status": "rejected", "evidence": "12.5-14s frames show empty black sofa; no landing at this timestamp"},
+        {"time": "15.5", "subject": "dog", "target": "gray sofa", "episode": null, "status": "uncertain", "evidence": "model claims entry; nearby frames do not establish before/after landing"},
+        {"time": "20", "subject": "dog", "target": "black sofa", "episode": "black_late", "status": "confirmed", "evidence": "19.75s seat empty, 20-20.25s dog in air then on seat"}
+      ],
+      "caveat": "Model candidates cannot be aligned to the user's 4 clear + 1 ambiguous reference without a timestamped human review. Do not treat the 2 audited confirmations as the full video count."
+    },
+    {
+      "video_id": "smartbench_0518",
+      "action": "dogs climb onto sofa",
+      "reference": {"confirmed": 2, "uncertain": 0, "provenance": "assistant frame review; provisional, not independently user verified"},
+      "model": {"source": "smartbench_0518-transition-eval.json", "raw_rows": 2, "unique_candidates": 2},
+      "audit": {"confirmed": 2, "uncertain": 0, "rejected_or_duplicate": 0},
+      "candidates": [
+        {"time": "19-20", "subject": "black dog", "episode": "black_on_sofa", "status": "confirmed", "evidence": "black dog on floor before, on sofa after"},
+        {"time": "21-21.5", "subject": "white dog", "episode": "white_on_sofa", "status": "confirmed", "evidence": "different dog on floor before, on sofa after"}
+      ]
+    },
+    {
+      "video_id": "smartbench_0642",
+      "action": "dogs enter fountain",
+      "reference": {"confirmed": 2, "uncertain": 0, "provenance": "assistant frame review; provisional, not independently user verified"},
+      "model": {"source": "smartbench_0642-transition-eval.json", "raw_rows": 3, "unique_candidates": 3},
+      "audit": {"confirmed": 2, "uncertain": 0, "rejected_or_duplicate": 1},
+      "candidates": [
+        {"time": "1-2", "subject": "first black dog", "episode": "first_dog_in_water", "status": "confirmed", "evidence": "first dog changes from rocks to water"},
+        {"time": "3.5-4.5", "subject": "second black dog", "episode": "second_dog_in_water", "status": "confirmed", "evidence": "second dog changes from rocks to water"},
+        {"time": "5-5.5", "subject": "second black dog", "episode": "second_dog_in_water", "status": "duplicate", "evidence": "same second dog's continuous entry; no observed return to rocks between model windows"}
+      ]
+    }
+  ]
+}

@@ -1,0 +1,115 @@
+{
+  "video_id": "smartbench_0065",
+  "model": "gpt-4o",
+  "frame_interval_seconds": 0.25,
+  "results": [
+    {
+      "window": [
+        0,
+        4.5
+      ],
+      "response": {
+        "events": [
+          {
+            "t": 2.25,
+            "sofa": "black",
+            "ambiguous": false,
+            "evidence": "The dog is seen jumping and landing on the black sofa."
+          }
+        ]
+      }
+    },
+    {
+      "window": [
+        3.5,
+        8.5
+      ],
+      "response": {
+        "events": [
+          {
+            "t": 4.75,
+            "sofa": "black",
+            "ambiguous": false,
+            "evidence": "The dog is seen on the black sofa, coming from below, indicating it jumped onto it."
+          },
+          {
+            "t": 7.0,
+            "sofa": "black",
+            "ambiguous": false,
+            "evidence": "The dog jumps back onto the black sofa after having left it."
+          }
+        ]
+      }
+    },
+    {
+      "window": [
+        7.5,
+        12.5
+      ],
+      "response": {
+        "events": [
+          {
+            "t": 8.75,
+            "sofa": "black",
+            "ambiguous": false,
+            "evidence": "The dog is seen jumping towards the black sofa."
+          }
+        ]
+      }
+    },
+    {
+      "window": [
+        11.5,
+        16.5
+      ],
+      "response": {
+        "events": [
+          {
+            "t": 13.5,
+            "sofa": "black",
+            "ambiguous": false,
+            "evidence": "Dog is visibly jumping onto the black sofa."
+          },
+          {
+            "t": 15.5,
+            "sofa": "gray",
+            "ambiguous": false,
+            "evidence": "Dog is seen jumping onto the gray sofa from the floor."
+          }
+        ]
+      }
+    },
+    {
+      "window": [
+        15.5,
+        20.5
+      ],
+      "response": {
+        "events": [
+          {
+            "t": 15.5,
+            "sofa": "gray",
+            "ambiguous": false,
+            "evidence": "Dog is seen jumping onto the gray sofa from the floor."
+          }
+        ]
+      }
+    },
+    {
+      "window": [
+        19.5,
+        23.56520833333333
+      ],
+      "response": {
+        "events": [
+          {
+            "t": 20.0,
+            "sofa": "black",
+            "ambiguous": false,
+            "evidence": "Dog is in mid-air above black sofa."
+          }
+        ]
+      }
+    }
+  ]
+}

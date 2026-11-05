@@ -1,0 +1,269 @@
+{
+  "video_id": "smartbench_0142",
+  "fps": 0.5,
+  "events": [
+    {
+      "video_id": "smartbench_0142",
+      "start_time": 20.0,
+      "end_time": 32.0,
+      "subject": "반려동물",
+      "action": "반려동물이 식사를 하는 것으로 보임",
+      "target_object": "음식 그릇",
+      "summary": "반려동물이 음식 그릇에서 식사하는 모습입니다.",
+      "duration": 12.0,
+      "repeat_count": 1,
+      "confidence": 0.9,
+      "interestingness": 0.9,
+      "evidence": [
+        "반려동물이 지속적으로 그릇에 머리를 대고 있는 모습",
+        "음식 그릇 근처에서의 반복적인 동작"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 20.0,
+          "object_labels": [
+            "cat"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 22.0,
+          "object_labels": [
+            "cat"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 24.0,
+          "object_labels": [
+            "cat"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 28.0,
+          "object_labels": [
+            "cat"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 30.0,
+          "object_labels": [
+            "cat"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 32.0,
+          "object_labels": [
+            "cat"
+          ]
+        }
+      ]
+    },
+    {
+      "video_id": "smartbench_0142",
+      "start_time": 0.0,
+      "end_time": 12.0,
+      "subject": "반려동물",
+      "action": "반려동물이 먹이를 먹는 것으로 보임",
+      "target_object": "먹이 그릇",
+      "summary": "반려동물이 먹이를 먹고 있는 모습을 확인할 수 있습니다.",
+      "duration": 12.0,
+      "repeat_count": 1,
+      "confidence": 0.85,
+      "interestingness": 0.9,
+      "evidence": [
+        "반려동물이 그릇 가까이에 있으며 지속적으로 움직임이 있음",
+        "프레임 간 지속적으로 그릇에서 입을 대고 있음"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 0.0,
+          "object_labels": [
+            "cat"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 2.0,
+          "object_labels": [
+            "cat"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 4.0,
+          "object_labels": [
+            "cat"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 8.0,
+          "object_labels": [
+            "cat"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 10.0,
+          "object_labels": [
+            "cat"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 12.0,
+          "object_labels": [
+            "cat"
+          ]
+        }
+      ]
+    },
+    {
+      "video_id": "smartbench_0142",
+      "start_time": 10.0,
+      "end_time": 18.0,
+      "subject": "반려동물",
+      "action": "반려동물이 그릇에서 음식을 먹는 것으로 보임",
+      "target_object": "그릇",
+      "summary": "반려동물이 그릇에서 음식을 먹고 있는 모습이 관찰됨.",
+      "duration": 8.0,
+      "repeat_count": 1,
+      "confidence": 0.8,
+      "interestingness": 0.9,
+      "evidence": [
+        "그릇에 머리를 숙이고 있음",
+        "음식을 섭취하는 동작으로 보임"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 10.0,
+          "object_labels": [
+            "cat"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 12.0,
+          "object_labels": [
+            "cat"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 14.0,
+          "object_labels": [
+            "cat"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 18.0,
+          "object_labels": [
+            "cat"
+          ]
+        }
+      ]
+    },
+    {
+      "video_id": "smartbench_0142",
+      "start_time": 18.0,
+      "end_time": 22.0,
+      "subject": "반려동물",
+      "action": "반려동물이 그릇에서 다시 음식을 먹는 것으로 보임",
+      "target_object": "그릇",
+      "summary": "반려동물이 그릇에서 음식을 다시 먹고 있는 모습이 관찰됨.",
+      "duration": 4.0,
+      "repeat_count": 1,
+      "confidence": 0.8,
+      "interestingness": 0.9,
+      "evidence": [
+        "그릇에 머리를 숙이고 있음",
+        "음식을 섭취하는 동작으로 보임"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 18.0,
+          "object_labels": [
+            "cat"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 20.0,
+          "object_labels": [
+            "cat"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 22.0,
+          "object_labels": [
+            "cat"
+          ]
+        }
+      ]
+    },
+    {
+      "video_id": "smartbench_0142",
+      "start_time": 30.0,
+      "end_time": 32.0,
+      "subject": "반려동물",
+      "action": "음식을 먹는 것으로 보임",
+      "target_object": "그릇",
+      "summary": "반려동물이 그릇에서 음식을 먹고 있는 모습입니다.",
+      "duration": 2.0,
+      "repeat_count": 1,
+      "confidence": 0.8,
+      "interestingness": 0.9,
+      "evidence": [
+        "반려동물이 그릇에 가까이 다가가고 있는 모습",
+        "그릇에서 음식을 섭취하는 듯한 행동"
+      ],
+      "source_frames": [
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 30.0,
+          "object_labels": [
+            "cat"
+          ]
+        },
+        {
+          "frame_id": null,
+          "s3_key": null,
+          "timestamp": 32.0,
+          "object_labels": [
+            "cat"
+          ]
+        }
+      ]
+    }
+  ]
+}
