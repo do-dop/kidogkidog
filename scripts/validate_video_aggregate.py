@@ -78,12 +78,15 @@ def main():
     parser.add_argument("--recheck-existing", action="store_true",
                         help="Reuse stored scan/verification output; rerun only exact-frame evidence checks")
     parser.add_argument("--output", type=Path, default=PROJECT / "notebooks/smarthome-bench-evidence/new-pipeline")
+    parser.add_argument("--cache-dir", type=Path,
+                        help="Reuse model replies from another run without overwriting its result JSON")
     args = parser.parse_args()
     from dotenv import load_dotenv
 
     load_dotenv(PROJECT / ".env")
     args.output.mkdir(parents=True, exist_ok=True)
-    vision = CachedVision(args.output / "api-cache", args.scan_model, args.verify_model)
+    vision = CachedVision(args.cache_dir or args.output / "api-cache",
+                          args.scan_model, args.verify_model)
     for video_id in args.ids:
         path = PROJECT / "data/videos" / f"smartbench_{video_id}.mp4"
         if not path.exists():
