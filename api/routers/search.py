@@ -53,10 +53,14 @@ def query(request: QueryRequest, background_tasks: BackgroundTasks):
     finally:
         latency_ms = int((time.perf_counter() - started_at) * 1000)
 
-    grouped_results = group_results_by_video(rag_result.get("results", []), top_k)
-    raw_evidence = rag_result.get("evidence_items", rag_result.get("results", []))
+    # 순서 질문의 결과는 같은 영상 안의 단계 목록이다. 영상별 한 장으로 묶으면 단계가 사라진다.
+    is_sequence = rag_result.get("query_type") == "sequence"
+    raw_results = rag_result.get("results", [])
+    grouped_results = raw_results if is_sequence else group_results_by_video(raw_results, top_k)
+    raw_evidence = rag_result.get("evidence_items", raw_results)
     grouped_evidence = (
-        grouped_results if raw_evidence is rag_result.get("results")
+        grouped_results if raw_evidence is raw_results
+        else raw_evidence if is_sequence
         else group_results_by_video(raw_evidence, top_k)
     )
 
