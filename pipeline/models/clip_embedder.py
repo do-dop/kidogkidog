@@ -1,6 +1,7 @@
 import os
 import time
 from pathlib import Path
+from threading import Lock
 
 import clip
 import torch
@@ -11,23 +12,27 @@ from pipeline.observability.metrics import measure_stage
 device = "cuda" if torch.cuda.is_available() else "cpu"
 _model = None
 _preprocess = None
+_load_lock = Lock()
 
 
 def load_clip_model():
     """CLIP 모델을 최초 임베딩 시점에 한 번만 로드"""
     global _model, _preprocess
     if _model is None or _preprocess is None:
-        model_name = os.getenv("CLIP_MODEL", "ViT-L/14")
-        cache_dir = Path(os.path.expanduser("~/.cache/clip"))
-        start_time = time.time()
-        print(
-            f"CLIP 모델 로드 시작: model={model_name}, device={device}, cache={cache_dir}",
-            flush=True,
-        )
-        with measure_stage("clip_model_load"):
-            _model, _preprocess = clip.load(model_name, device=device)
-        elapsed = time.time() - start_time
-        print(f"CLIP 모델 로드 완료: {elapsed:.1f}초", flush=True)
+        # 앱 시작 시 미리 로드하는 스레드와 첫 요청이 동시에 들어와도 한 번만 로드한다.
+        with _load_lock:
+            if _model is None or _preprocess is None:
+                model_name = os.getenv("CLIP_MODEL", "ViT-L/14")
+                cache_dir = Path(os.path.expanduser("~/.cache/clip"))
+                start_time = time.time()
+                print(
+                    f"CLIP 모델 로드 시작: model={model_name}, device={device}, cache={cache_dir}",
+                    flush=True,
+                )
+                with measure_stage("clip_model_load"):
+                    _model, _preprocess = clip.load(model_name, device=device)
+                elapsed = time.time() - start_time
+                print(f"CLIP 모델 로드 완료: {elapsed:.1f}초", flush=True)
     return _model, _preprocess
 
 

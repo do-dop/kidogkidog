@@ -99,6 +99,7 @@ jobs:
             --port 8000 \
             --memory 8Gi \
             --cpu 2 \
+            --cpu-boost \
             --min-instances 0 \
             --max-instances 1 \
             --timeout 300 \
