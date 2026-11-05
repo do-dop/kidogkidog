@@ -699,6 +699,9 @@ export default function App() {
   const [answer, setAnswer] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [submitted, setSubmitted] = useState(false);
+  // 기본은 전체 날짜. 날짜 하나로 고정하면 다른 날짜의 영상이 검색에서 보이지 않는다.
+  const [searchAllDates, setSearchAllDates] = useState(true);
+  const [slowSearch, setSlowSearch] = useState(false);
   const [loading, setLoading] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [suggestionSources, setSuggestionSources] = useState<Record<string, SuggestedQuestion>>({});
@@ -723,6 +726,16 @@ export default function App() {
   const recordingsRef = useRef<HTMLDivElement | null>(null);
   const resultsRef = useRef<HTMLDivElement | null>(null);
   const [searchRunId, setSearchRunId] = useState(0);
+
+  useEffect(() => {
+    // 서버가 쉬고 있다 깨어날 때는 첫 검색이 수십 초 걸린다. 멈춘 것으로 보이지 않게 알려 준다.
+    if (!loading) {
+      setSlowSearch(false);
+      return;
+    }
+    const timer = window.setTimeout(() => setSlowSearch(true), 8000);
+    return () => window.clearTimeout(timer);
+  }, [loading]);
 
   useEffect(() => {
     // 검색 결과는 검색창 아래 한참 떨어져 있어서, 검색을 시작하면 그 영역으로 이동한다.
@@ -967,11 +980,12 @@ export default function App() {
 
   const filteredRecordings = useMemo(
     () => recordingItems.filter((recording) => {
-      const matchesDate = !recording.recordingDate || recording.recordingDate === selectedDate;
+      const ignoreDate = screen === "search" && searchAllDates;
+      const matchesDate = ignoreDate || !recording.recordingDate || recording.recordingDate === selectedDate;
       const matchesTime = timeFilter === "all" || recording.period === timeFilter;
       return matchesDate && matchesTime;
     }),
-    [recordingItems, selectedDate, timeFilter],
+    [recordingItems, selectedDate, timeFilter, screen, searchAllDates],
   );
 
   const highlightedBehaviors = useMemo(
@@ -1076,7 +1090,7 @@ export default function App() {
         body: JSON.stringify({
           query: nextQuery,
           video_id: selectedSearchVideoId || undefined,
-          recording_date: `${selectedYear}-${String(selectedMonth).padStart(2, "0")}-${String(selectedDay).padStart(2, "0")}`,
+          recording_date: searchAllDates ? undefined : dateKey(selectedYear, selectedMonth, selectedDay),
           top_k: 3,
           user_id: userId,
           source_event_id: activeSuggestionSource?.source_event_id ?? undefined,
@@ -1600,7 +1614,20 @@ export default function App() {
                 <div className="search-toolbar">
                   <div className="toolbar-field">
                     <span><Icon>calendar_today</Icon>날짜</span>
-                    <DateFilter selectedYear={selectedYear} setSelectedYear={setSelectedYear} selectedMonth={selectedMonth} setSelectedMonth={setSelectedMonth} selectedDay={selectedDay} setSelectedDay={setSelectedDay} compact />
+                    <div className="date-scope">
+                      <button
+                        type="button"
+                        className={`date-all-toggle${searchAllDates ? " on" : ""}`}
+                        aria-pressed={searchAllDates}
+                        onClick={() => setSearchAllDates((value) => !value)}
+                      >
+                        전체 날짜
+                      </button>
+                      {/* 전체 날짜일 때 날짜를 고르려고 누르면 자동으로 날짜 지정으로 바뀐다. */}
+                      <div className={`date-picker-slot${searchAllDates ? " dimmed" : ""}`} onClickCapture={() => setSearchAllDates(false)}>
+                        <DateFilter selectedYear={selectedYear} setSelectedYear={setSelectedYear} selectedMonth={selectedMonth} setSelectedMonth={setSelectedMonth} selectedDay={selectedDay} setSelectedDay={setSelectedDay} compact />
+                      </div>
+                    </div>
                   </div>
                   <div className="toolbar-field">
                     <span><Icon>videocam</Icon>검색할 영상</span>
@@ -1625,7 +1652,7 @@ export default function App() {
                 </div>
                 <p className="toolbar-summary">
                   <Icon>tune</Icon>
-                  선택 범위 · {selectedSearchVideoId || "전체 영상"} · {selectedYear}년 {selectedMonth}월 {selectedDay}일 · {formatHourRange(searchStartHour, searchEndHour)}
+                  선택 범위 · {selectedSearchVideoId || "전체 영상"} · {searchAllDates ? "전체 날짜" : `${selectedYear}년 ${selectedMonth}월 ${selectedDay}일`} · {formatHourRange(searchStartHour, searchEndHour)}
                 </p>
 
                 <div ref={resultsRef} className="results-anchor" aria-hidden="true" />
@@ -1634,6 +1661,9 @@ export default function App() {
                     <span className="search-spinner" />
                     <strong>AI가 영상을 검색하고 있어요</strong>
                     <p>선택한 영상과 시간대에서 비슷한 장면을 찾는 중입니다.</p>
+                    {slowSearch && (
+                      <p className="slow-hint">서버가 쉬고 있다가 깨어나는 중이라 처음 한 번은 오래 걸릴 수 있어요. 잠시만 기다려 주세요.</p>
+                    )}
                   </div>
                 ) : submitted ? (
                   <div className="search-results stack">
@@ -1680,8 +1710,8 @@ export default function App() {
                       <Icon filled>smart_display</Icon>
                       <span>SMART CLIPS & BEHAVIORS</span>
                     </div>
-                    <h2>오늘 포착된 녹화 청크 & 주요 행동</h2>
-                    <p>{selectedYear}년 {selectedMonth}월 {selectedDay}일 · 총 {filteredRecordings.length}개 클립 기록</p>
+                    <h2>포착된 녹화 청크 & 주요 행동</h2>
+                    <p>{searchAllDates ? "전체 날짜" : `${selectedYear}년 ${selectedMonth}월 ${selectedDay}일`} · 총 {filteredRecordings.length}개 클립 기록</p>
                   </div>
 
                   <div className="home-recordings-head">
