@@ -11,6 +11,9 @@ MAX_REPRESENTATIVE_FRAMES = 6
 SEGMENT_GAP_SECONDS = 3.0
 MAX_ANALYSIS_WINDOW_SECONDS = 12.0
 ANALYSIS_WINDOW_OVERLAP_SECONDS = 2.0
+EMPTY_WINDOW_RETRIES = 2
+# 같은 입력의 재시도가 같은 빈 결과를 반복하지 않도록 약간의 다양성을 준다.
+EMPTY_WINDOW_RETRY_TEMPERATURE = 0.4
 
 
 def extract_behavior_events(
@@ -125,6 +128,19 @@ def extract_behavior_events(
                 all_segment_frames=group,
                 model=model,
             )
+            # 움직임이 감지된 구간인데 모델이 빈 결과를 주면 행동을 놓쳤을 수 있어 몇 번 더 확인한다.
+            # 움직임 감지 없이 청크 전체를 뽑은 프레임은 빈 결과가 정상이라 재시도하지 않는다.
+            # 호출 실패(None)는 아래 fallback이 처리하므로 재시도하지 않는다.
+            motion_based = any(frame.get("motion_detected") is True for frame in group)
+            for _ in range(EMPTY_WINDOW_RETRIES if motion_based else 0):
+                if analyzed_events != []:
+                    break
+                analyzed_events = _analyze_segment_with_vlm(
+                    frames=representative_frames,
+                    all_segment_frames=group,
+                    model=model,
+                    temperature=EMPTY_WINDOW_RETRY_TEMPERATURE,
+                )
 
         if analyzed_events is None:
             fallback = _build_fallback_behavior_event(group)
@@ -397,6 +413,7 @@ def _analyze_segment_with_vlm(
     frames: list[dict],
     all_segment_frames: list[dict],
     model: str = DEFAULT_MODEL,
+    temperature: float = 0,
 ) -> list[dict] | None:
     """
     여러 프레임 이미지를 VLM에 전달하여 행동 이벤트를 생성한다.
@@ -438,6 +455,8 @@ def _analyze_segment_with_vlm(
 
         response = client.responses.create(
             model=model,
+            # 같은 영상이 실행마다 다른 이벤트로 저장되지 않도록 출력을 고정한다.
+            temperature=temperature,
             input=[
                 {
                     "role": "user",
@@ -524,9 +543,24 @@ def _build_vlm_prompt(segment_context: dict) -> str:
 아래 이미지는 짧은 움직임 구간에서 시간 순서대로 추출된 프레임들이다.
 서로 떨어진 행동은 별도 이벤트로 나누고, 확인 가능한 행동이 없으면 빈 배열을 반환해라.
 
+이벤트를 나누는 기준:
+- 한 구간 안에서도 장소(바닥, 소파, 문 앞 등), 자세, 이동 방향, 함께 있는 사람이나 다른 개체가 바뀌면 이벤트를 나눈다.
+- 새로운 개체가 화면에 들어오거나 화면에서 사라지면 그 시점부터 별도 이벤트로 기록한다.
+- 이벤트 하나는 길어야 약 6초이며, 구간 전체를 한 문장으로 뭉뚱그리지 않는다.
+- 서로 다른 개체는 "다른 반려동물"처럼 구분해서 쓴다.
+
 중요한 규칙:
 - 이미지에서 확인 가능한 내용만 말한다.
+- 자세·위치·방향을 구체적으로 쓴다. 예: "소파 위로 올라감", "카메라 쪽으로 다가옴", "화면 오른쪽으로 멀어짐".
+- 올라감/내려옴/나감/들어옴 같은 방향 동사는 앞뒤 프레임에서 위치가 실제로 바뀐 것이 보일 때만 쓴다. 한 프레임만으로는 현재 위치(예: "소파 위에 있음")만 쓴다.
+- 애정, 반가움, 장난, 호기심 같은 감정·의도 표현은 쓰지 않는다. 몸짓만 쓴다. 예: "사람 쪽으로 앞발을 올림".
+- 프레임에 없는 접촉이나 동작(예: 비비기, 핥기, 문 통과)은 쓰지 않는다.
+- evidence에는 "12.00초: 프레임에서 실제로 보이는 모습" 형식으로 프레임 시각과 보이는 내용만 적는다.
+- "무엇을 하는 모습", "움직임이 있음"처럼 내용이 없는 문장은 쓰지 않는다. 구체적으로 쓸 수 없으면 이벤트를 만들지 않는다.
 - 각 이벤트의 start_time과 end_time은 첨부된 프레임 시각을 근거로 지정한다.
+- 행동 설명을 뒷받침하는 프레임이 해당 시간 범위 안에 없으면 이벤트를 만들지 않는다.
+- 종료 화면·자막·광고만 보이는 구간은 행동 이벤트가 아니다.
+- 한 프레임에서 보이지 않는 소리, 감정, 의도, 물체를 추측하지 않는다.
 - 행동이 시작하기 전이나 끝난 뒤까지 구간을 넓히지 않는다.
 - 같은 행동이 중단되었다가 다시 시작하면 각각 별도의 이벤트로 기록한다.
 - 이미지에서 구분할 수 없는 행동(예: 그릇 근처에 있는 것과 실제로 마시는 것)은 단정하지 않는다.
@@ -549,16 +583,17 @@ def _build_vlm_prompt(segment_context: dict) -> str:
 출력 형식 (이벤트가 없으면 {{"events": []}}):
 {{"events": [{{
   "start_time": 4.0,
-  "end_time": 12.0,
+  "end_time": 8.0,
   "subject": "반려동물",
-  "action": "반려동물이 무엇을 하는 것으로 보이는지 짧게 작성",
-  "target_object": "행동 대상이 있으면 작성, 없으면 null",
-  "summary": "반려동물의 행동을 사용자가 이해하기 쉬운 한 문장으로 요약",
+  "action": "반려동물이 소파 위에서 앞쪽을 바라봄",
+  "target_object": "소파",
+  "summary": "반려동물이 소파 위에 올라가 앞쪽을 바라보고 있어요",
   "repeat_count": 1,
   "confidence": 0.7,
-  "interestingness": 0.8,
-  "evidence": ["판단 근거 1", "판단 근거 2"]
+  "interestingness": 0.6,
+  "evidence": ["4.00초: 소파 위에 몸을 낮추고 있음", "6.00초: 같은 자리에서 고개를 앞으로 향함"]
 }}]}}
+위 예시는 형식 참고용이다. 문장을 그대로 베끼지 말고 실제 프레임에서 보이는 내용으로 작성해라.
 
 """.strip()
 
@@ -680,16 +715,19 @@ def _normalize_behavior_event(
 
     source_frames = []
 
-    evidence_frames = [
-        frame for frame in representative_frames
+    midpoint = (start_time + end_time) / 2
+    evidence_candidates = [
+        frame for frame in group
         if start_time <= float(frame.get("timestamp") or 0.0) <= end_time
+        and (frame.get("s3_key") or frame.get("frame_path"))
     ]
-    if not evidence_frames and representative_frames:
-        midpoint = (start_time + end_time) / 2
-        evidence_frames = [min(
-            representative_frames,
-            key=lambda frame: abs(float(frame.get("timestamp") or 0.0) - midpoint),
-        )]
+    if not evidence_candidates:
+        # 실제 재생 위치가 없는 이벤트는 검색 답변의 근거로 사용할 수 없다.
+        return None
+    evidence_frames = [min(
+        evidence_candidates,
+        key=lambda frame: abs(float(frame.get("timestamp") or 0.0) - midpoint),
+    )]
 
     for frame in evidence_frames:
         source_frames.append({

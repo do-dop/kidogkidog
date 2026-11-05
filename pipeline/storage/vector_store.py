@@ -452,7 +452,7 @@ def _result_source_chunk_key(result):
     return filename.split("_frame_", 1)[0]
 
 
-def _merge_adjacent_result_scenes(results, max_gap_seconds=4.0, max_span_seconds=20.0):
+def _merge_adjacent_result_scenes(results, max_gap_seconds=4.0, max_span_seconds=10.0):
     """Collapse nearby ranked frames from one source chunk into a playback scene.
 
     This is a presentation/evidence grouping heuristic, not action recognition.

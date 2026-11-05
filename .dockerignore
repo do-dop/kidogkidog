@@ -25,3 +25,14 @@ ui-react/dist
 ui-react/.vite
 gcp-cloudsql-ca.pem
 .DS_Store
+
+# API/worker 이미지는 api, db, pipeline만 실행한다. 아래 폴더는 런타임에 읽지 않는다.
+# (프론트 이미지는 ui-react를 별도 컨텍스트로 빌드하므로 영향이 없다.)
+docs
+notebooks
+tests
+scripts
+ops
+monitoring
+simulator
+ui-react
