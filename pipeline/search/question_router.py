@@ -8,6 +8,7 @@ from enum import Enum
 from typing import Any
 
 from pipeline.search.jev_client import JevClient, JevClientError
+from pipeline.search.sequence_query import is_sequence_query
 
 
 class QuestionType(str, Enum):
@@ -48,16 +49,8 @@ AGGREGATE_PATTERNS = (
     r"빈도",
 )
 
-SEQUENCE_PATTERNS = (
-    r"(?:은|한)\s*뒤",
-    r"하기\s*전",
-    r"하고\s*나서",
-    r"먼저",
-    r"나중에",
-    r"다가",
-    r"이후",
-    r"이전에",
-)
+# 순서 질문 판정은 실제 순서 처리가 쓰는 is_sequence_query 하나만 쓴다.
+# 라우터가 따로 단어 목록을 가지면 라우터와 실제 처리가 서로 다른 질문을 순서로 보게 된다.
 
 EVENT_PATTERNS = (
     r"먹",
@@ -99,7 +92,7 @@ def classify_with_rules(query: str) -> RouteDecision:
             source="rule",
         )
 
-    if _matches_any(normalized, SEQUENCE_PATTERNS):
+    if is_sequence_query(query or ""):
         return RouteDecision(
             question_type=QuestionType.SEQUENCE,
             confidence=0.95,

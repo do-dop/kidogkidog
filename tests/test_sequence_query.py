@@ -247,5 +247,31 @@ class SequenceRoutingTests(unittest.TestCase):
         self.assertEqual(result["answer"], "grounded")
 
 
+class RouterAgreesWithSequenceHandlerTests(unittest.TestCase):
+    """라우터의 SEQUENCE 판정과 실제 순서 처리의 판정이 같은 사전을 쓰는지 확인한다."""
+
+    QUERIES = (
+        "행동 순서 알려줘", "시간순으로 뭐했어?", "물 마신 뒤에 뭐했어?", "밥 먹기 전에 뭐했어?",
+        "수영장 장면 다음에 뭐했어?", "문 열고 나서 뭐했어?", "먼저 한 행동이 뭐야?", "나중에 뭐했어?",
+        "이전에 뭐했어?", "마지막에는 뭐했어?", "오늘 뭐했어?", "물 마시다가 뭐했어?",
+        "강아지가 소파 위에 있나요?", "강아지가 물을 마셨나요?", "오전에 어디 있었어?", "뒤뜰에서 뭐했어?",
+    )
+
+    def test_router_sequence_matches_is_sequence_query(self):
+        from pipeline.search.question_router import QuestionType, classify_with_rules
+
+        for query in self.QUERIES:
+            with self.subTest(query=query):
+                decision = classify_with_rules(query)
+                if decision.question_type == QuestionType.AGGREGATE:
+                    continue
+                self.assertEqual(decision.question_type == QuestionType.SEQUENCE, is_sequence_query(query))
+
+    def test_count_question_stays_aggregate_not_sequence(self):
+        from pipeline.search.question_router import QuestionType, classify_with_rules
+
+        self.assertEqual(classify_with_rules("물을 몇 번 마시고 나서 쉬었어?").question_type, QuestionType.AGGREGATE)
+
+
 if __name__ == "__main__":
     unittest.main()
