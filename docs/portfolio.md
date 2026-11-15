@@ -2,6 +2,8 @@
 
 > 이 문서는 저장소의 현재 코드와 Git 이력을 기준으로 작성했다. 이력서, 포트폴리오 상세 페이지, 면접 답변에 필요한 문장을 목적별로 골라 사용할 수 있다.
 
+2026-11-05까지 추가된 시퀀스 검색·근거 검증 작업과 자소서 문안은 [추가 작업 정리](portfolio-and-application-addendum-2026-11-12.md)에 정리했다.
+
 ![Kidogkidog 시스템 아키텍처](assets/kidogkidog-architecture.svg)
 
 ## 1. 한 줄 소개

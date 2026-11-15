@@ -39,6 +39,10 @@ def event_matches_action(event: dict[str, Any], action: str) -> bool:
     if is_scene_event(event):
         return False
     description = " ".join(str(event.get(key) or "") for key in ("action", "summary", "target_object"))
+    # 검수 메모에 적힌 부정 표현을 행동의 양성 근거로 세지 않는다.
+    # 예: "사료를 먹는 장면이 아님"은 '먹기' 이벤트가 아니다.
+    if re.search(r"(?:장면|행동|모습)?(?:이|은|는)?\s*(?:아님|아니|확인되지\s*않|보이지\s*않|없음)", description, re.I):
+        return False
     if action == "gate_climb":
         if re.search(r"올라|올랐|기어|타고|넘|climb", description, re.I) is None:
             return False
