@@ -28,7 +28,16 @@ def parse_count_action(query: str) -> tuple[str, str] | None:
     return matches[0] if len(matches) == 1 else None
 
 
+def is_scene_event(event: dict[str, Any]) -> bool:
+    """소파가 넘어지는 것처럼 반려동물이 아닌 물건이 주체인 장면 변화 이벤트(주체가 곧 대상 물건)."""
+    subject = str(event.get("subject") or "").strip()
+    return bool(subject) and subject == str(event.get("target_object") or "").strip()
+
+
 def event_matches_action(event: dict[str, Any], action: str) -> bool:
+    # 반려동물의 행동 횟수를 세는 질문이므로 물건의 변화는 세지 않는다.
+    if is_scene_event(event):
+        return False
     description = " ".join(str(event.get(key) or "") for key in ("action", "summary", "target_object"))
     if action == "gate_climb":
         if re.search(r"올라|올랐|기어|타고|넘|climb", description, re.I) is None:

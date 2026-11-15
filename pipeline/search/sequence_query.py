@@ -39,10 +39,39 @@ def _temporal_marker(query: str) -> bool:
     return bool(last and (not last.group().startswith("끝") or _ASKS_ABOUT_ACTION.search(query)))
 
 
+# 물건이 넘어지거나 쓰러지는 등 장면이 바뀐 일. 같은 일을 다르게 적은 설명끼리 맞도록 낱말 묶음으로 본다.
+_SCENE_CHANGE_GROUP = ("넘어지", "넘어졌", "넘어진", "넘어져", "넘어짐", "넘어가", "넘어갔", "쓰러", "젖혀", "젖혔", "무너", "엎어", "뒤집", "자빠")
+_SCENE_CHANGE = re.compile("|".join(_SCENE_CHANGE_GROUP))
+_WHEN = re.compile(r"언제")
+
+
+def _normalize_spelling(query: str) -> str:
+    """같은 물건의 흔한 표기 차이를 맞춘다('쇼파'→'소파'). 이벤트 설명은 '소파'로 적힌다."""
+    return query.replace("쇼파", "소파")
+
+
+def _is_scene_change_statement(query: str) -> bool:
+    """'소파가 넘어진 장면 보여줘'처럼 '언제' 없이 물건이 넘어진 일을 묻는 말인가.
+
+    '강아지가 넘어졌어?'는 반려동물 행동이라 제외한다. 반려동물·질문 틀 낱말을 뗀 뒤 대상 낱말(물건)과 서술어가
+    함께 남을 때만 장면 변화로 본다.
+    """
+    if not _SCENE_CHANGE.search(query):
+        return False
+    terms, _ = _condition_terms(query)
+    return len(terms) >= 2
+
+
 def is_sequence_query(query: str) -> bool:
+    query = _normalize_spelling(query)
     compact = re.sub(r"\s+", "", query.lower())
     if any(word in compact for word in ("몇번", "몇회", "횟수", "몇개", "얼마나자주")):
         return False
+    # '소파가 언제 넘어졌어?'처럼 장면이 바뀐 시각을 묻는 질문은 저장된 이벤트에서 찾는다.
+    if _WHEN.search(compact) and _SCENE_CHANGE.search(compact):
+        return True
+    if _is_scene_change_statement(query):
+        return True
     if any(re.sub(r"\s+", "", word) in compact for word in _SEQUENCE_WORDS):
         return True
     return _temporal_marker(query)
@@ -101,6 +130,21 @@ def _description(event: dict[str, Any]) -> str:
     return str(event.get("summary") or event.get("action") or "움직임 감지").strip()
 
 
+# 무슨 일이 있었는지 말해 주지 않는 설명. 사용자에게 보여 줘도 도움이 안 되고 타임라인만 길어진다.
+# 예: "반려동물이 화면에서 사라져서 더 이상 확인할 수 없어요", "같은 개체의 행동 전후 상태가 20초에 확인돼요".
+# '화면 밖으로 나감'처럼 실제 행동을 말하는 설명은 걸러내지 않도록, 확인 불가를 말하는 표현만 본다.
+_UNINFORMATIVE = re.compile(
+    r"확인할\s*수\s*없|확인되지\s*않|보이지\s*않|알\s*수\s*없|판단할\s*수\s*없"
+    r"|행동\s*전후\s*상태|전후\s*상태가"
+)
+
+
+def _is_informative(event: dict[str, Any]) -> bool:
+    """설명이 비어 있거나 '확인할 수 없음'류이면 시퀀스 답변에서 뺀다."""
+    description = _description(event)
+    return description != "움직임 감지" and not _UNINFORMATIVE.search(description)
+
+
 # 저장된 설명의 문장 끝을 답변 말투(해요체)로 바꾸는 규칙. 위에서부터 처음 맞는 하나만 적용한다.
 _SPOKEN_ENDINGS = (
     ("모습입니다", "모습이 보여요"),
@@ -137,6 +181,32 @@ def _spoken_description(event: dict[str, Any]) -> str:
     return _NOUN_IM.sub(r"\1이에요", description)
 
 
+def _clock_text(moment: datetime | None) -> str:
+    """'오전 7시 34분쯤'처럼 말하듯 시각을 적는다."""
+    if moment is None:
+        return ""
+    period = "오전" if moment.hour < 12 else "오후"
+    return f"{period} {moment.hour % 12 or 12}시 {moment.minute}분 {moment.second}초쯤"
+
+
+# 촬영 시각을 키에서 읽을 수 없는 영상(petcam_ 형식이 아닌 이름)은 청크 번호와 청크 안 시각으로 영상 안의 위치를 말한다.
+_CHUNK_FRAME_KEY = re.compile(r"_(\d{3})_frame_[0-9.]+\.jpg$")
+CHUNK_SECONDS = 60
+
+
+def _video_time_text(event: dict[str, Any]) -> str:
+    """'영상 21초쯤'처럼 영상 안에서의 위치. 청크 번호를 알 수 없으면 청크 안 시각을 그대로 쓴다."""
+    chunk_index = 0
+    for frame in event.get("source_frames") or []:
+        match = _CHUNK_FRAME_KEY.search(str((frame or {}).get("s3_key") or "")) if isinstance(frame, dict) else None
+        if match:
+            chunk_index = int(match.group(1))
+            break
+    seconds = int(chunk_index * CHUNK_SECONDS + float(event.get("start_time") or 0))
+    minutes, rest = divmod(seconds, 60)
+    return f"영상 {minutes}분 {rest}초쯤" if minutes else f"영상 {rest}초쯤"
+
+
 @lru_cache(maxsize=1)
 def _reviewed_events() -> dict[str, dict[str, dict[str, Any]]]:
     """원본 영상과 대조한 시연 영상의 승인 이벤트만 읽는다."""
@@ -152,6 +222,10 @@ def _sequence_intent(query: str) -> tuple[str, str]:
         return "before", query[:before.start()].strip()
     if after:
         return "after", query[:after.start()].strip()
+    if (_WHEN.search(query) or _is_scene_change_statement(query)) and not (
+        _FIRST.search(query) or _LAST.search(query) or _WHOLE_RANGE.search(query)
+    ):
+        return "when", ""
     if _WHOLE_RANGE.search(query):
         return "timeline", ""
     first = _FIRST.search(query) or (None if _ORDER_WORDS.search(query) else _EARLY.search(query))
@@ -168,7 +242,7 @@ def _sequence_intent(query: str) -> tuple[str, str]:
 # 조건·기준 문구에서 행동/대상이 아닌 질문 틀 낱말. 이 낱말만 남으면 조건이 없는 것이다.
 _CONDITION_FILLER = {
     "행동", "장면", "모습", "동작", "상황", "순서", "일", "건", "거", "것", "게", "걸", "한", "했", "하는", "하던", "하고",
-    "본", "봤어", "있었어", "있었던", "뭐", "뭘", "뭐야", "무엇", "무슨", "어떤", "어디", "언제", "어땠어", "어땠나",
+    "본", "봤어", "있었어", "있었던", "적", "있어", "있나", "있니", "있나요", "있어요", "있었나", "있었니", "뭐", "뭘", "뭐야", "무엇", "무슨", "어떤", "어디", "언제", "어땠어", "어땠나",
     "장소", "위치", "시간", "시각", "때", "처음", "첫", "번째", "마지막", "맨", "제일", "가장", "먼저", "끝", "나중",
     "오늘", "어제", "아까", "하루", "오전", "오후", "아침", "점심", "저녁", "밤", "새벽", "최근", "강아지", "고양이",
     "반려동물", "우리", "아이", "그", "알려줘", "알려", "줘", "보여줘", "보여", "말해줘", "해줘",
@@ -209,6 +283,26 @@ def _condition_terms(query: str) -> tuple[list[Term], str]:
     return _content_terms(text)
 
 
+# '소파에서 뭐했어?'·'소파 위에서'처럼 장소 표지가 붙은 낱말. 질문이 특정 장소의 행동을 묻는다는 뜻이다.
+_PLACE_MARKED = re.compile(
+    r"([가-힣A-Za-z0-9]{2,})\s*(?:위에서|위에|아래에서|아래에|옆에서|옆에|근처에서|근처에|앞에서|앞에|속에서|속에|밑에서|밑에|에서)(?![가-힣])"
+)
+# 장소가 아니라 시간·범위·화면을 가리키는 말이라, 이벤트 설명에 없어도 되는 낱말.
+_GENERIC_PLACES = {"집", "방", "여기", "거기", "화면", "영상", "전체", "평소", "하루", "오늘", "어제", "아까", "밤", "낮", "아침", "저녁", "새벽", "어디", "언제"}
+
+
+def _place_terms(query: str) -> list[str]:
+    """질문에서 장소 표지가 붙은 낱말만 뽑는다. 반려동물·질문 틀 낱말과 일반적인 말은 뺀다."""
+    places = []
+    for match in _PLACE_MARKED.finditer(query):
+        word = match.group(1)
+        if word in _CONDITION_FILLER or word in _GENERIC_PLACES or _SUBJECT_WORDS.fullmatch(word):
+            continue
+        if word not in places:
+            places.append(word)
+    return places
+
+
 def _variants(term: str) -> list[str]:
     """'마신'→'마시', '뛰어다닌'→'뛰어다니', '마시기'→'마시'처럼 활용 어미를 뗀 어간 후보를 함께 만든다. 한 글자 어간은 오매칭이 커서 만들지 않는다."""
     variants = [term]
@@ -223,6 +317,9 @@ def _variants(term: str) -> list[str]:
 
 
 def _term_in(term: str, text: str) -> bool:
+    # '넘어졌어'는 '젖혀지면서'·'쓰러져'로 적힌 같은 일에도 맞아야 한다.
+    if any(word in term for word in _SCENE_CHANGE_GROUP) and any(word in text for word in _SCENE_CHANGE_GROUP):
+        return True
     for variant in _variants(term):
         if len(variant) == 1:
             # 한 글자 낱말('물', '사')은 부분 문자열이면 '물그릇'·'사료'에도 맞으므로, 조사까지 붙은 독립된 말일 때만 인정한다.
@@ -283,7 +380,9 @@ _ACTION_CATEGORIES = (
     ("rest", re.compile(r"누워|낮잠|잠을 자|휴식|엎드려")),
     ("explore", re.compile(r"탐색|돌아다니|배회")),
 )
-_UNCERTAIN_ACTION = re.compile(r"않|못|려고|려는|하려|것 같|듯")
+# "멈추"류: "먹기를 멈추고 고개를 든다"는 먹는 행동이 아니라 먹기를 멈춘 장면이다. 먹기로 분류하면
+# 앞뒤의 먹는 장면과 한 단계로 묶여 가운데 장면이 사라진다.
+_UNCERTAIN_ACTION = re.compile(r"않|못|려고|려는|하려|것 같|듯|멈추|멈춰|멈춘|멈췄")
 MAX_MERGE_GAP_SECONDS = 120
 
 
@@ -292,6 +391,49 @@ def _action_category(event: dict[str, Any]) -> str | None:
     if _UNCERTAIN_ACTION.search(description):
         return None
     return next((name for name, pattern in _ACTION_CATEGORIES if pattern.search(description)), None)
+
+
+def _labels(event: dict[str, Any]) -> tuple[str | None, bool | None, str | None]:
+    """모델이 붙인 (action_type, continues_previous, call_id). 이벤트 최상위 또는 근거 프레임의 event_labels에서 읽는다.
+
+    behavior_events 테이블에 라벨 컬럼이 없어 추출 단계가 source_frames_json에 함께 저장한다.
+    call_id는 같은 모델 호출(같은 청크의 같은 Window)에서 나온 이벤트를 알아보는 식별자다.
+    라벨이 없는 기존 이벤트는 (None, None, None)이다.
+    """
+    labels: dict[str, Any] = {}
+    if any(key in event for key in ("action_type", "continues_previous", "call_id")):
+        labels = event
+    else:
+        for frame in event.get("source_frames") or []:
+            found = frame.get("event_labels") if isinstance(frame, dict) else None
+            if isinstance(found, dict):
+                labels = found
+                break
+    action_type, continues, call_id = labels.get("action_type"), labels.get("continues_previous"), labels.get("call_id")
+    return (
+        action_type if isinstance(action_type, str) else None,
+        continues if isinstance(continues, bool) else None,
+        call_id if isinstance(call_id, str) else None,
+    )
+
+
+def _same_action(previous: dict[str, Any], event: dict[str, Any]) -> bool:
+    """두 이웃 이벤트가 '같은 행동이 이어진' 것인가.
+
+    - 같은 모델 호출에서 나온 둘 다 라벨이 있으면 모델 판단을 따른다: action_type이 같고(other 제외)
+      continues_previous가 true일 때만 같다. 타입만 같은 것은 같다고 보지 않는다(서로 다른 개체·방향 전환 구분 불가).
+    - 호출이 다르면(청크·Window 경계) continues_previous는 알 수 없다. 둘 다 라벨이 있고 타입이 다르면 다른 행동이고,
+      그 밖에는 기존 키워드 분류(_action_category)가 같을 때만 묶는다. 라벨이 없는 기존 이벤트도 같다.
+    """
+    prev_type, _, prev_call = _labels(previous)
+    next_type, next_continues, next_call = _labels(event)
+    both_labeled = prev_type is not None and next_type is not None
+    if both_labeled and prev_call and prev_call == next_call and next_continues is not None:
+        return next_type == prev_type and next_type != "other" and next_continues is True
+    if both_labeled and prev_type != next_type:
+        return False
+    category = _action_category(event)
+    return category is not None and _action_category(previous) == category
 
 
 def _event_end(recorded_at: datetime | None, event: dict[str, Any]) -> datetime | None:
@@ -306,8 +448,7 @@ def _group_consecutive(rows: list[tuple[datetime | None, dict]]) -> list[list[tu
     groups: list[list[tuple[datetime | None, dict]]] = []
     for row in rows:
         recorded_at, event = row
-        category = _action_category(event)
-        if groups and category is not None:
+        if groups:
             last_recorded, last_event = groups[-1][-1]
             last_end = _event_end(last_recorded, last_event)
             same_video = last_event.get("video_id") == event.get("video_id")
@@ -316,7 +457,7 @@ def _group_consecutive(rows: list[tuple[datetime | None, dict]]) -> list[list[tu
                 and recorded_at is not None
                 and (recorded_at - last_end).total_seconds() <= MAX_MERGE_GAP_SECONDS
             )
-            if same_video and close and _action_category(last_event) == category:
+            if same_video and close and _same_action(last_event, event):
                 groups[-1].append(row)
                 continue
         groups.append([row])
@@ -348,6 +489,11 @@ def _playable(recorded_at: datetime | None, event: dict[str, Any]) -> bool:
     return recorded_at is not None and any(
         isinstance(frame, dict) and frame.get("s3_key") for frame in event.get("source_frames") or []
     )
+
+
+def _has_frame(_recorded_at: datetime | None, event: dict[str, Any]) -> bool:
+    """촬영 시각은 몰라도 원본 프레임(s3_key)으로 다시 열 수 있는 이벤트인가."""
+    return any(isinstance(frame, dict) and frame.get("s3_key") for frame in event.get("source_frames") or [])
 
 
 def _card(event: dict[str, Any], merged_count: int = 1, role: str | None = None) -> dict[str, Any]:
@@ -397,6 +543,8 @@ def run_sequence_query(
     DB의 `ORDER BY video_id, start_time`은 시간순이 아니므로, 개수 제한을 DB 순서로 자르면
     최신 이벤트가 빠진다. 그래서 여기서는 자르지 않고 전부 받아 청크 번호로 시각을 복원한 뒤 정렬한다.
     """
+    query_as_asked = query
+    query = _normalize_spelling(query)
     if events is None:
         from db.behavior_events import get_behavior_events_for_aggregation
         events = get_behavior_events_for_aggregation(video_id=video_id)
@@ -404,6 +552,7 @@ def run_sequence_query(
 
     rows = []
     excluded_event_count = 0
+    uninformative_event_count = 0
     reviewed = _reviewed_events()
     for event in events:
         recorded_at = _recorded_at(event)
@@ -421,6 +570,9 @@ def run_sequence_query(
                     "reviewed_timestamp": float(approval["timestamp"]),
                     "review_status": "approved",
                 }
+            if not _is_informative(event):
+                uninformative_event_count += 1
+                continue
             rows.append((recorded_at, event))
 
     rows.sort(key=lambda row: (
@@ -436,8 +588,15 @@ def run_sequence_query(
     if intent != "timeline":
         # 처음/마지막/앞/뒤 답은 시각을 알고 다시 재생할 수 있는 이벤트로만 한다.
         # 프레임이 없는 레거시 이벤트는 시각이 없어 맨 뒤로 정렬되므로 '마지막'이나 이웃으로 내면 안 된다.
-        rows = [row for row in all_rows if _playable(*row)]
+        # 다만 '언제' 질문은 시각을 묻는 것이라, 촬영 시각이 없어도 프레임이 있으면 영상 안의 위치로 답할 수 있다.
+        keep = _has_frame if intent == "when" else _playable
+        rows = [row for row in all_rows if keep(*row)]
         unplayable_count = len(all_rows) - len(rows)
+    # '소파에서 뭐했어?'처럼 장소가 붙은 시간순 질문은 그 장소가 나온 장면만 모은다.
+    # 조건을 무시하고 전체 타임라인을 보여 주면 소파와 상관없는 행동이 답으로 나간다.
+    place_terms = _place_terms(query) if intent == "timeline" else []
+    if place_terms:
+        rows = [row for row in rows if all(_term_in(term, _match_text(row[1])) for term in place_terms)]
     selected_groups = None
     step_total = len(rows)
     anchor_span = None
@@ -445,6 +604,7 @@ def run_sequence_query(
     condition_text = ""
     condition_status = None  # None | "missing"(조건에 맞는 장면 없음) | "unsupported"(장소만 맞고 행동은 확인 안 됨)
     condition_near = None
+    when_total = 0
     needs_video = intent in {"before", "after"} and not video_id
     evidence_rows: list[tuple[datetime | None, dict, int, str | None]] = []  # (row, 묶음 크기, 역할)
     if needs_video:
@@ -475,6 +635,22 @@ def run_sequence_query(
                 evidence_rows = ordered
                 spans_in_order = [neighbor, anchor_span] if intent == "before" else [anchor_span, neighbor]
                 selected_groups = [rows[lo:hi + 1] for lo, hi in spans_in_order]
+    elif intent == "when":
+        terms, condition_text = _condition_terms(query)
+        matched = _match_indices(rows, terms) if terms else []
+        if len(terms) > 1:
+            # 시각을 묻는 질문은 '소파'만 맞고 '넘어짐'은 없는 장면을 답으로 내면 안 되므로 서술어도 반드시 맞아야 한다.
+            matched = [i for i in matched if _term_hit(terms[-1], _match_text(rows[i][1]))]
+        if not terms:
+            intent = "timeline"
+            groups = _group_consecutive(rows)
+            selected_groups = groups[:top_k]
+            selected = [group[0] for group in selected_groups]
+            step_total = len(groups)
+        else:
+            when_rows = [rows[i] for i in matched]
+            selected = when_rows[:3]
+            when_total = len(when_rows)
     elif intent in {"first", "last"}:
         terms, condition_text = _condition_terms(query)
         if not terms:
@@ -505,6 +681,9 @@ def run_sequence_query(
         evidence_items = [_card(event, size, role) for _, event, size, role in evidence_rows]
     else:
         results = [_card(event, merged_counts.get(id(event), 1)) for _, event in selected]
+        for card, group in zip(results, selected_groups):
+            if len(group) > 1:
+                card["merged_summaries"] = [_spoken_description(member) for _, member in group]
         evidence_items = results
 
     anchor_event = rows[anchor_span[0]][1] if anchor_span is not None else None
@@ -529,11 +708,27 @@ def run_sequence_query(
         if video_id in reviewed:
             answer += " 이 영상은 여러 장면을 이어 붙인 거라 같은 동물의 연속 행동인지는 알 수 없어요."
         answer += skipped_note
+    elif place_terms and not rows:
+        answer = f"분석된 장면 중에서는 ‘{'·'.join(place_terms)}’이(가) 나오는 행동을 찾지 못했어요."
+        if excluded_event_count:
+            answer += " 다만 제외된 구간이 있어서, 실제로 없었다는 뜻은 아니에요."
     elif not rows:
         if unplayable_count and not excluded_event_count:
             answer = "다시 재생할 수 있는 근거가 있는 행동 장면이 아직 없어요."
         else:
             answer = "선택하신 영상과 시간대에서는 보여드릴 수 있는 행동 장면이 없어요." if excluded_event_count else "선택하신 영상과 시간대에는 아직 분석된 행동이 없어요."
+    elif intent == "when":
+        if not selected:
+            answer = "분석된 장면 중에서는 그 순간을 찾지 못했어요."
+            if excluded_event_count:
+                answer += " 다만 제외된 구간이 있어서, 실제로 없었다는 뜻은 아니에요."
+        else:
+            first_at, first_event = selected[0]
+            clock = _clock_text(first_at) or _video_time_text(first_event)
+            answer = f"{clock}에 {_spoken_description(first_event)}."
+            if when_total > 1:
+                answer += f" 비슷한 장면이 모두 {when_total}번 있었어요."
+        answer += skipped_note
     elif intent in {"first", "last"} and condition_status:
         position = "처음" if intent == "first" else "마지막"
         if condition_status == "unsupported":
@@ -557,13 +752,19 @@ def run_sequence_query(
             merged = merged_counts.get(id(event), 1)
             if merged > 1:
                 sentence += f" 비슷한 장면이 모두 {merged}번 이어져요."
+                # 묶음의 대표는 첫 장면이라, 끝에서 달라진 장면(예: 줄을 당기다 선반이 떨어짐)이 가려지지 않게 덧붙인다.
+                last_description = _spoken_description(selected_groups[index][-1][1])
+                if last_description != _spoken_description(event):
+                    sentence += f" 마지막에는 {last_description}."
             sentences.append(sentence)
         answer = " ".join(sentences)
         if len(selected) < step_total:
             answer += f"\n전체 {step_total}개 장면 중 처음 {len(selected)}개만 보여드려요."
+        if place_terms:
+            answer = f"‘{'·'.join(place_terms)}’이(가) 나오는 행동만 모았어요. " + answer
 
     return {
-        "query": query,
+        "query": query_as_asked,
         "query_type": "sequence",
         "video_id": video_id,
         "answer": answer,
@@ -574,6 +775,7 @@ def run_sequence_query(
         "total_event_count": len(all_rows),
         "total_step_count": step_total,
         "excluded_event_count": excluded_event_count,
+        "uninformative_event_count": uninformative_event_count,
         "sequence_intent": intent,
         "truncated": truncated,
     }

@@ -6,7 +6,28 @@ from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
 
-DEFAULT_MODEL = "gpt-4o-mini"
+# gpt-4o-mini는 소파가 넘어지는 것 같은 장면 변화를 놓치는 경우가 있어 환경변수로 바꿀 수 있게 한다.
+DEFAULT_MODEL = os.getenv("BEHAVIOR_EVENT_MODEL", "gpt-4o-mini")
+
+# 시퀀스 단계 묶기에 쓰는 행동 분류. 모델이 이 중 하나를 고르며, 목록 밖의 값은 버린다(None).
+ACTION_TYPES = frozenset({
+    "eat", "drink", "walk", "run", "jump", "swim", "sniff", "look",
+    "rest", "play", "groom", "hide", "interact_person", "leave_frame", "other",
+})
+
+
+def _event_labels(event: dict) -> dict:
+    """VLM 이벤트에서 묶기용 라벨을 검증해 꺼낸다. 없거나 형식이 틀리면 해당 키를 뺀다."""
+    labels = {}
+    action_type = str(event.get("action_type") or "").strip().lower()
+    if action_type in ACTION_TYPES:
+        labels["action_type"] = action_type
+    continues = event.get("continues_previous")
+    if isinstance(continues, bool):
+        labels["continues_previous"] = continues
+    return labels
+
+
 MAX_REPRESENTATIVE_FRAMES = 6
 SEGMENT_GAP_SECONDS = 3.0
 MAX_ANALYSIS_WINDOW_SECONDS = 12.0
@@ -142,9 +163,25 @@ def extract_behavior_events(
                     temperature=EMPTY_WINDOW_RETRY_TEMPERATURE,
                 )
 
+        # 행동 분석은 반려동물에 집중해서, 반려동물이 사라질 때 같이 일어난 소파 넘어짐 같은 장면 변화를 놓친다.
+        # 구간의 첫·끝 프레임 두 장만 따로 비교해서 찾는다. 이미 장면 변화 이벤트가 나왔으면 다시 묻지 않는다.
+        # 키가 없거나 호출이 실패하면 None이라 기존 추출 결과에는 영향이 없다.
+        scene_event = None
+        already_has_scene_event = any(
+            isinstance(event, dict) and str(event.get("subject_type") or "").lower() == "scene"
+            for event in (analyzed_events or [])
+        )
+        if not already_has_scene_event:
+            from pipeline.events.scene_change_detector import detect_scene_change
+
+            scene_event = detect_scene_change(representative_frames)
+
         if analyzed_events is None:
             fallback = _build_fallback_behavior_event(group)
             analyzed_events = [fallback] if fallback else []
+
+        if scene_event:
+            analyzed_events = [*analyzed_events, scene_event]
 
         for event in analyzed_events:
             normalized_event = _normalize_behavior_event(
@@ -549,6 +586,17 @@ def _build_vlm_prompt(segment_context: dict) -> str:
 - 이벤트 하나는 길어야 약 6초이며, 구간 전체를 한 문장으로 뭉뚱그리지 않는다.
 - 서로 다른 개체는 "다른 반려동물"처럼 구분해서 쓴다.
 
+화면 속 변화(반려동물이 아닌 것):
+- 소파·의자·문 같은 가구나 물건이 움직이거나 넘어지거나 떨어지는 등 장면 자체가 바뀌면, 반려동물 행동과 별도의 이벤트로 기록한다. 이때 subject_type은 "scene", target_object는 그 물건(예: "소파")으로 쓴다.
+- 반려동물이 갑자기 화면에서 안 보이게 되면 "사라졌다", "확인할 수 없다"로 끝내지 않는다. 사라지기 직전과 직후 프레임을 비교해서 그 사이에 달라진 것(가구가 움직임, 물건이 넘어짐, 사람이 나타남)을 쓴다.
+- 직전과 직후를 비교해도 달라진 것이 보이지 않으면 이벤트를 만들지 않는다. 이유를 짐작해서 쓰지 않는다.
+- 물건이 넘어지거나 움직였다는 말은 앞뒤 프레임에서 모양이나 위치가 실제로 달라진 것이 보일 때만 쓴다.
+
+말투:
+- summary는 보호자에게 옆에서 말해 주듯 쉽고 자연스러운 해요체 한 문장으로 쓴다. 일어난 순서대로 "~하면서 ~했어요"처럼 이어서 쓴다.
+- "가려짐", "관찰됨", "확인됨", "상태", "전후"처럼 딱딱하거나 보고서 같은 표현은 쓰지 않는다.
+- 좋은 예: "화분이 옆으로 쓰러지면서 흙이 바닥에 쏟아졌어요" / 나쁜 예: "화분이 쓰러지고 흙이 바닥에 확인됨"
+
 중요한 규칙:
 - 이미지에서 확인 가능한 내용만 말한다.
 - 자세·위치·방향을 구체적으로 쓴다. 예: "소파 위로 올라감", "카메라 쪽으로 다가옴", "화면 오른쪽으로 멀어짐".
@@ -567,13 +615,16 @@ def _build_vlm_prompt(segment_context: dict) -> str:
 - 확실하지 않은 행동은 단정하지 말고 "~로 보임", "~하는 것으로 보임"처럼 표현한다.
 - 단순히 객체 라벨이 보인다는 설명은 피한다.
 - 동물 종류는 코드나 metadata의 라벨을 그대로 따라 쓰지 말고, 이미지를 보고 판단한다.
-- subject는 항상 "반려동물"이라고 적는다.
+- 반려동물 행동 이벤트의 subject는 항상 "반려동물", subject_type은 "pet"이라고 적는다.
 - action과 summary에서도 강아지, 고양이, 새처럼 특정 동물명을 쓰지 말고 "반려동물"이라고 표현한다.
 - 동물 종류를 맞히는 것이 목적이 아니라, 행동과 상황을 설명하는 것이 목적이다.
 - 이미지에서 특정 동물처럼 보여도 화면에 표시되는 설명에서는 "반려동물"로 일반화한다.
 - 행동, 대상, 반복 여부, 지속 시간을 중심으로 설명한다.
 - 보호자에게 유용한 행동일수록 interestingness를 높게 준다.
 - 건강, 식사, 물 섭취, 불안, 반복 행동, 사람/물체와의 상호작용은 중요하게 본다.
+- 각 이벤트에 action_type과 continues_previous를 반드시 더한다.
+  - action_type: eat, drink, walk, run, jump, swim, sniff, look, rest, play, groom, hide, interact_person, leave_frame, other 중 하나. 그 이벤트에서 실제로 하고 있는 행동에 가장 가까운 것을 고르고, 맞는 것이 없으면 other. 행동이 바뀌면 action_type도 바뀐다.
+  - continues_previous: 이 요청 안에서 바로 앞 이벤트와 같은 행동이 끊기지 않고 이어지면 true, 행동이 바뀌었거나 첫 이벤트면 false. 같은 행동이어도 중간에 다른 행동이 끼면 false.
 - JSON 객체만 출력한다.
 - markdown 코드블록을 쓰지 마라.
 
@@ -585,13 +636,30 @@ def _build_vlm_prompt(segment_context: dict) -> str:
   "start_time": 4.0,
   "end_time": 8.0,
   "subject": "반려동물",
+  "subject_type": "pet",
   "action": "반려동물이 소파 위에서 앞쪽을 바라봄",
   "target_object": "소파",
   "summary": "반려동물이 소파 위에 올라가 앞쪽을 바라보고 있어요",
   "repeat_count": 1,
   "confidence": 0.7,
   "interestingness": 0.6,
+  "action_type": "look",
+  "continues_previous": false,
   "evidence": ["4.00초: 소파 위에 몸을 낮추고 있음", "6.00초: 같은 자리에서 고개를 앞으로 향함"]
+}}, {{
+  "start_time": 12.0,
+  "end_time": 14.0,
+  "subject": "화분",
+  "subject_type": "scene",
+  "action": "화분이 옆으로 쓰러짐",
+  "target_object": "화분",
+  "summary": "화분이 옆으로 쓰러지면서 흙이 바닥에 쏟아졌어요",
+  "repeat_count": 1,
+  "confidence": 0.7,
+  "interestingness": 0.8,
+  "action_type": "other",
+  "continues_previous": false,
+  "evidence": ["12.00초: 화분이 창가에 똑바로 서 있음", "14.00초: 화분이 옆으로 누워 있고 바닥에 흙이 흩어져 있음"]
 }}]}}
 위 예시는 형식 참고용이다. 문장을 그대로 베끼지 말고 실제 프레임에서 보이는 내용으로 작성해라.
 
@@ -688,22 +756,31 @@ def _normalize_behavior_event(
     first_frame = group[0]
     video_id = first_frame.get("video_id")
 
-    subject = event.get("subject") or _guess_subject_from_frames(group)
     action = event.get("action")
     summary = event.get("summary") or action
-        # 화면 표시에서는 특정 동물명을 쓰지 않고 반려동물로 일반화한다.
-    subject = "반려동물"
-    action = _generalize_subject_prefix(action)
-    summary = _generalize_subject_prefix(summary)
-
-    if not action and not summary:
-        return None
 
     target_object = (
         event.get("target_object")
         or event.get("target")
         or event.get("object")
     )
+    # 소파가 넘어지는 것처럼 반려동물이 아닌 장면 변화는 물건을 주체로 저장한다.
+    # 주체가 반려동물과 다르게 저장되므로 행동 횟수 집계에서 가려낼 수 있다.
+    is_scene_change = (
+        str(event.get("subject_type") or "").strip().lower() == "scene"
+        and bool(str(target_object or "").strip())
+    )
+    if is_scene_change:
+        target_object = str(target_object).strip()
+        subject = target_object
+    else:
+        # 화면 표시에서는 특정 동물명을 쓰지 않고 반려동물로 일반화한다.
+        subject = "반려동물"
+        action = _generalize_subject_prefix(action)
+        summary = _generalize_subject_prefix(summary)
+
+    if not action and not summary:
+        return None
 
     repeat_count = event.get("repeat_count", 0)
     confidence = _clamp_score(event.get("confidence"), default=0.65)
@@ -729,14 +806,25 @@ def _normalize_behavior_event(
         key=lambda frame: abs(float(frame.get("timestamp") or 0.0) - midpoint),
     )]
 
+    labels = _event_labels(event) if not is_scene_change else {}
+    if labels:
+        # continues_previous는 같은 모델 호출(같은 영상 Window)에서 나온 이벤트끼리만 의미가 있다.
+        # 호출을 구별할 수 있게 청크 이름과 Window 범위로 만든 식별자를 함께 둔다.
+        first_frame_id = str(group[0].get("frame_id") or group[0].get("frame_path") or "")
+        chunk_key = re.sub(r"_frame_[0-9.]+(?:\.jpg)?$", "", first_frame_id)
+        labels["call_id"] = f"{chunk_key}|{_get_group_start(group)}-{_get_group_end(group)}"
     for frame in evidence_frames:
-        source_frames.append({
+        source_frame = {
             "frame_id": frame.get("frame_id"),
             "frame_path": frame.get("frame_path"),
             "s3_key": frame.get("s3_key"),
             "timestamp": frame.get("timestamp"),
             "object_labels": _parse_object_labels(frame.get("object_labels")),
-        })
+        }
+        if labels:
+            # behavior_events 테이블에는 라벨 컬럼이 없어, 스키마를 바꾸지 않고 JSON 컬럼(source_frames_json)에 함께 둔다.
+            source_frame["event_labels"] = dict(labels)
+        source_frames.append(source_frame)
 
     return {
         "video_id": video_id,

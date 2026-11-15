@@ -30,6 +30,60 @@ class SequenceQueryTests(unittest.TestCase):
         self.assertTrue(is_sequence_query("숲길을 걷기 전에 뭐했어?"))
         self.assertFalse(is_sequence_query("물을 몇 번 마셨어?"))
 
+    def test_events_that_say_nothing_are_left_out_of_the_timeline(self):
+        events = [
+            event(1, 0, 2, "반려동물이 소파 근처에서 머무르며 주변을 살펴보고 있어요"),
+            event(2, 0, 10, "같은 개체의 행동 전후 상태가 19.5초와 20초에 확인돼요"),
+            event(3, 0, 20, "반려동물이 화면에서 사라져서 더 이상 확인할 수 없어요"),
+            event(4, 0, 30, "반려동물이 화면 밖으로 나가요"),
+        ]
+        result = run_sequence_query("오늘 강아지가 뭐했는지 알려줘", video_id="dog-video", events=events)
+
+        self.assertEqual([item["id"] for item in result["behavior_events"]], [1, 4])
+        self.assertEqual(result["uninformative_event_count"], 2)
+        self.assertNotIn("확인할 수 없", result["answer"])
+
+    def test_when_question_about_a_scene_change_finds_the_moment(self):
+        events = [
+            event(1, 0, 2, "반려동물이 소파 근처에서 머무르며 주변을 살펴보고 있어요"),
+            event(2, 0, 20, "소파가 뒤로 젖혀지면서 반려동물도 같이 넘어갔어요"),
+        ]
+        self.assertTrue(is_sequence_query("소파가 언제 넘어졌어?"))
+        self.assertFalse(is_sequence_query("물 언제 마셨어?"))
+
+        for question in ("소파가 언제 넘어졌어?", "소파가 언제 쓰러졌어?"):
+            result = run_sequence_query(question, video_id="dog-video", events=events)
+            self.assertEqual(result["sequence_intent"], "when")
+            self.assertEqual([item["source_event_id"] for item in result["results"]], [2])
+            self.assertIn("오전 9시 0분 20초쯤에 소파가 뒤로 젖혀지면서 반려동물도 같이 넘어갔어요", result["answer"])
+
+    def test_when_question_answers_with_video_position_when_capture_time_is_unknown(self):
+        # smartbench_처럼 petcam_ 형식이 아닌 이름은 촬영 시각을 못 읽는다. 그래도 프레임이 있으면 영상 안 위치로 답한다.
+        def stored(event_id, second, summary, chunk=0):
+            return {
+                "id": event_id, "video_id": "smartbench_0518_rerun", "start_time": second, "end_time": second + 2,
+                "summary": summary, "confidence": 0.8,
+                "source_frames": [{"s3_key": f"frames/smartbench_0518_rerun/smartbench_0518_rerun_{chunk:03d}_frame_{second}.jpg",
+                                   "timestamp": second}],
+            }
+
+        events = [stored(1, 19.02, "반려동물이 소파 위로 올라가고 있어요"), stored(2, 21.02, "소파가 뒤집어졌어요")]
+        result = run_sequence_query("소파가 언제 넘어졌어?", video_id="smartbench_0518_rerun", events=events)
+        self.assertEqual(result["sequence_intent"], "when")
+        self.assertEqual([item["source_event_id"] for item in result["results"]], [2])
+        self.assertIn("영상 21초쯤에 소파가 뒤집어졌어요", result["answer"])
+
+        later = run_sequence_query("소파가 언제 넘어졌어?", video_id="smartbench_0518_rerun",
+                                   events=[stored(3, 5.0, "소파가 뒤집어졌어요", chunk=2)])
+        self.assertIn("영상 2분 5초쯤에", later["answer"])
+
+    def test_when_question_without_matching_scene_says_so(self):
+        events = [event(1, 0, 2, "반려동물이 소파 위에 앉아 있어요")]
+        result = run_sequence_query("소파가 언제 넘어졌어?", video_id="dog-video", events=events)
+
+        self.assertEqual(result["results"], [])
+        self.assertIn("찾지 못했어요", result["answer"])
+
     def test_orders_across_chunks_and_keeps_playable_evidence(self):
         events = [
             event(1, 1, 2, "잠을 잠"),
@@ -134,6 +188,138 @@ class SequenceQueryTests(unittest.TestCase):
         for events in (far, waiting, trying):
             result = run_sequence_query("행동 순서 알려줘", events=events, top_k=10)
             self.assertEqual([item["merged_count"] for item in result["results"]], [1, 1])
+
+    def test_stopped_action_between_same_actions_is_not_swallowed_into_one_step(self):
+        events = [
+            event(1, 0, 2, "고양이가 바닥에 놓인 그릇에서 음식을 먹는다."),
+            event(2, 0, 6, "먹기를 멈추고 고개를 들어 카메라 방향을 바라본다."),
+            event(3, 0, 10, "다시 고개를 숙여 그릇의 음식을 먹는다."),
+        ]
+        result = run_sequence_query("행동 순서 알려줘", events=events, top_k=10)
+
+        self.assertEqual([item["source_event_id"] for item in result["results"]], [1, 2, 3])
+        self.assertEqual([item["merged_count"] for item in result["results"]], [1, 1, 1])
+        self.assertEqual(result["total_step_count"], 3)
+
+    def test_model_labels_merge_only_continuing_events_of_the_same_type(self):
+        def labeled(event_id, second, summary, action_type, continues, call_id="w1"):
+            item = event(event_id, 0, second, summary)
+            item["source_frames"][0]["event_labels"] = {
+                "action_type": action_type, "continues_previous": continues, "call_id": call_id,
+            }
+            return item
+
+        events = [
+            labeled(1, 2, "반려동물이 거실 바닥을 빠르게 달려요.", "run", False),
+            labeled(2, 6, "반려동물이 거실 곳곳을 계속 달려요.", "run", True),
+            labeled(3, 10, "반려동물이 화면 오른쪽으로 걸어가요.", "walk", False),
+            labeled(4, 14, "다른 반려동물이 화면 왼쪽에서 걸어와요.", "walk", False),
+        ]
+        result = run_sequence_query("행동 순서 알려줘", events=events, top_k=10)
+
+        # 달리기 2개는 이어짐으로 한 단계가 되고, 타입이 같아도 이어짐이 아닌 걷기 2개는 따로 남는다.
+        self.assertEqual([item["source_event_id"] for item in result["results"]], [1, 3, 4])
+        self.assertEqual([item["merged_count"] for item in result["results"]], [2, 1, 1])
+        self.assertEqual(result["results"][0]["merged_summaries"], [
+            "반려동물이 거실 바닥을 빠르게 달려요", "반려동물이 거실 곳곳을 계속 달려요",
+        ])
+        self.assertIn("마지막에는 반려동물이 거실 곳곳을 계속 달려요.", result["answer"])
+
+    def test_model_label_overrides_keyword_match_and_other_is_never_merged(self):
+        def labeled(event_id, second, summary, action_type, continues, call_id="w1"):
+            item = event(event_id, 0, second, summary)
+            item["source_frames"][0]["event_labels"] = {
+                "action_type": action_type, "continues_previous": continues, "call_id": call_id,
+            }
+            return item
+
+        stopped = [
+            labeled(1, 2, "고양이가 그릇에서 음식을 먹는다.", "eat", False),
+            labeled(2, 6, "고양이가 그릇에서 음식을 계속 먹는다.", "look", True),
+        ]
+        others = [
+            labeled(1, 2, "반려동물이 화분 쪽을 서성인다.", "other", False),
+            labeled(2, 6, "반려동물이 화분 옆에서 서성인다.", "other", True),
+        ]
+        for events in (stopped, others):
+            result = run_sequence_query("행동 순서 알려줘", events=events, top_k=10)
+            self.assertEqual([item["merged_count"] for item in result["results"]], [1, 1])
+
+    def test_events_from_different_model_calls_fall_back_to_keywords_unless_labeled_types_differ(self):
+        def labeled(event_id, chunk, summary, action_type, call_id):
+            item = event(event_id, chunk, 2, summary)
+            item["source_frames"][0]["event_labels"] = {
+                "action_type": action_type, "continues_previous": False, "call_id": call_id,
+            }
+            return item
+
+        # 서로 다른 청크(호출)의 같은 행동은 continues_previous가 항상 false라, 기존처럼 키워드로 이어 붙인다.
+        drinking = [
+            labeled(1, 0, "반려동물이 물 그릇에서 물을 마시는 모습을 보임.", "drink", "chunk0"),
+            labeled(2, 1, "반려동물이 물을 마시며 갈증을 해소하는 모습을 보임.", "drink", "chunk1"),
+        ]
+        self.assertEqual([i["merged_count"] for i in run_sequence_query("행동 순서 알려줘", events=drinking, top_k=10)["results"]], [2])
+        # 둘 다 라벨이 있고 타입이 다르면 키워드가 같아 보여도 묶지 않는다.
+        different = [
+            labeled(1, 0, "반려동물이 물 그릇에서 물을 마시는 모습을 보임.", "drink", "chunk0"),
+            labeled(2, 1, "반려동물이 물을 마시다 정면을 보는 모습을 보임.", "look", "chunk1"),
+        ]
+        self.assertEqual([i["merged_count"] for i in run_sequence_query("행동 순서 알려줘", events=different, top_k=10)["results"]], [1, 1])
+
+    def test_unlabeled_next_to_labeled_event_uses_the_keyword_rule(self):
+        legacy = event(1, 0, 2, "반려동물이 물 그릇에서 물을 마시는 모습을 보임.")
+        labeled_next = event(2, 1, 2, "반려동물이 물을 마시며 갈증을 해소하는 모습을 보임.")
+        labeled_next["source_frames"][0]["event_labels"] = {"action_type": "drink", "continues_previous": False, "call_id": "c1"}
+        result = run_sequence_query("행동 순서 알려줘", events=[legacy, labeled_next], top_k=10)
+        self.assertEqual([item["merged_count"] for item in result["results"]], [2])
+
+    def test_scene_change_statement_without_when_finds_the_moment(self):
+        events = [
+            event(1, 0, 2, "반려동물이 소파 위에서 앞쪽을 바라보고 있어요"),
+            event(2, 0, 20, "소파가 뒤집혀서 바닥에 쓰러졌어요"),
+        ]
+        for question in ("소파가 넘어진 장면 보여줘", "쇼파가 넘어졌어?", "소파가 쓰러진 적 있어?"):
+            self.assertTrue(is_sequence_query(question), question)
+            result = run_sequence_query(question, video_id="dog-video", events=events, top_k=10)
+            self.assertEqual(result["sequence_intent"], "when", question)
+            self.assertEqual([item["source_event_id"] for item in result["results"]], [2], question)
+            self.assertIn("소파가 뒤집혀서 바닥에 쓰러졌어요", result["answer"])
+        # 반려동물 자신의 동작이나 물건이 없는 질문은 장면 변화 질문으로 보지 않는다.
+        self.assertFalse(is_sequence_query("강아지가 넘어졌어?"))
+        self.assertEqual(run_sequence_query("소파가 넘어진 장면 보여줘", events=events, top_k=10)["query"], "소파가 넘어진 장면 보여줘")
+
+    def test_timeline_question_with_a_place_keeps_only_that_place(self):
+        events = [
+            event(1, 0, 2, "반려동물이 소파 위에서 앞쪽을 바라보고 있어요"),
+            event(2, 0, 10, "반려동물이 사료 그릇 앞에서 서성이고 있어요"),
+            event(3, 0, 20, "반려동물이 소파에서 내려와 화면 오른쪽으로 이동하고 있어요"),
+            event(4, 0, 30, "반려동물이 문 앞에서 기다리고 있어요"),
+        ]
+        for question in ("강아지가 소파에서 뭐했어?", "소파 위에서 뭐했어?", "쇼파에서 뭐했어?"):
+            result = run_sequence_query(question, video_id="dog-video", events=events, top_k=10)
+            self.assertEqual([item["source_event_id"] for item in result["results"]], [1, 3], question)
+            self.assertTrue(result["answer"].startswith("‘소파’이(가) 나오는 행동만 모았어요."), question)
+            self.assertEqual(result["total_step_count"], 2)
+            self.assertEqual(result["total_event_count"], 4)
+
+    def test_timeline_question_with_a_place_that_never_appears_says_so(self):
+        events = [
+            event(1, 0, 2, "반려동물이 소파 위에서 앞쪽을 바라보고 있어요"),
+            event(2, 0, 10, "반려동물이 사료 그릇 앞에서 서성이고 있어요"),
+        ]
+        result = run_sequence_query("강아지가 의자에서 뭐했어?", video_id="dog-video", events=events, top_k=10)
+        self.assertEqual(result["results"], [])
+        self.assertIn("‘의자’이(가) 나오는 행동을 찾지 못했어요", result["answer"])
+
+    def test_generic_or_missing_place_words_do_not_filter_the_timeline(self):
+        events = [
+            event(1, 0, 2, "반려동물이 소파 위에서 앞쪽을 바라보고 있어요"),
+            event(2, 0, 10, "반려동물이 사료 그릇 앞에서 서성이고 있어요"),
+        ]
+        for question in ("오늘 집에서 뭐했어?", "오늘 강아지가 어떤 순서로 행동했어?", "행동 순서 알려줘"):
+            result = run_sequence_query(question, video_id="dog-video", events=events, top_k=10)
+            self.assertEqual([item["source_event_id"] for item in result["results"]], [1, 2], question)
+            self.assertNotIn("나오는 행동만 모았어요", result["answer"])
 
     def test_reviewed_video_omits_unverified_events_and_uses_reviewed_anchor(self):
         approved = event(59, 5, 2, "잘못된 예전 설명")
