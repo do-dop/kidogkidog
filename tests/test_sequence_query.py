@@ -30,6 +30,40 @@ class SequenceQueryTests(unittest.TestCase):
         self.assertTrue(is_sequence_query("숲길을 걷기 전에 뭐했어?"))
         self.assertFalse(is_sequence_query("물을 몇 번 마셨어?"))
 
+    def test_events_that_say_nothing_are_left_out_of_the_timeline(self):
+        events = [
+            event(1, 0, 2, "반려동물이 소파 근처에서 머무르며 주변을 살펴보고 있어요"),
+            event(2, 0, 10, "같은 개체의 행동 전후 상태가 19.5초와 20초에 확인돼요"),
+            event(3, 0, 20, "반려동물이 화면에서 사라져서 더 이상 확인할 수 없어요"),
+            event(4, 0, 30, "반려동물이 화면 밖으로 나가요"),
+        ]
+        result = run_sequence_query("오늘 강아지가 뭐했는지 알려줘", video_id="dog-video", events=events)
+
+        self.assertEqual([item["id"] for item in result["behavior_events"]], [1, 4])
+        self.assertEqual(result["uninformative_event_count"], 2)
+        self.assertNotIn("확인할 수 없", result["answer"])
+
+    def test_when_question_about_a_scene_change_finds_the_moment(self):
+        events = [
+            event(1, 0, 2, "반려동물이 소파 근처에서 머무르며 주변을 살펴보고 있어요"),
+            event(2, 0, 20, "소파가 뒤로 젖혀지면서 반려동물도 같이 넘어갔어요"),
+        ]
+        self.assertTrue(is_sequence_query("소파가 언제 넘어졌어?"))
+        self.assertFalse(is_sequence_query("물 언제 마셨어?"))
+
+        for question in ("소파가 언제 넘어졌어?", "소파가 언제 쓰러졌어?"):
+            result = run_sequence_query(question, video_id="dog-video", events=events)
+            self.assertEqual(result["sequence_intent"], "when")
+            self.assertEqual([item["source_event_id"] for item in result["results"]], [2])
+            self.assertIn("오전 9시 0분 20초쯤에 소파가 뒤로 젖혀지면서 반려동물도 같이 넘어갔어요", result["answer"])
+
+    def test_when_question_without_matching_scene_says_so(self):
+        events = [event(1, 0, 2, "반려동물이 소파 위에 앉아 있어요")]
+        result = run_sequence_query("소파가 언제 넘어졌어?", video_id="dog-video", events=events)
+
+        self.assertEqual(result["results"], [])
+        self.assertIn("찾지 못했어요", result["answer"])
+
     def test_orders_across_chunks_and_keeps_playable_evidence(self):
         events = [
             event(1, 1, 2, "잠을 잠"),

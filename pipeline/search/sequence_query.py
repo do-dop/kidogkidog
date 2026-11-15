@@ -39,10 +39,19 @@ def _temporal_marker(query: str) -> bool:
     return bool(last and (not last.group().startswith("끝") or _ASKS_ABOUT_ACTION.search(query)))
 
 
+# 물건이 넘어지거나 쓰러지는 등 장면이 바뀐 일. 같은 일을 다르게 적은 설명끼리 맞도록 낱말 묶음으로 본다.
+_SCENE_CHANGE_GROUP = ("넘어지", "넘어졌", "넘어가", "넘어갔", "쓰러", "젖혀", "젖혔", "무너", "엎어", "뒤집", "자빠")
+_SCENE_CHANGE = re.compile("|".join(_SCENE_CHANGE_GROUP))
+_WHEN = re.compile(r"언제")
+
+
 def is_sequence_query(query: str) -> bool:
     compact = re.sub(r"\s+", "", query.lower())
     if any(word in compact for word in ("몇번", "몇회", "횟수", "몇개", "얼마나자주")):
         return False
+    # '소파가 언제 넘어졌어?'처럼 장면이 바뀐 시각을 묻는 질문은 저장된 이벤트에서 찾는다.
+    if _WHEN.search(compact) and _SCENE_CHANGE.search(compact):
+        return True
     if any(re.sub(r"\s+", "", word) in compact for word in _SEQUENCE_WORDS):
         return True
     return _temporal_marker(query)
@@ -101,6 +110,21 @@ def _description(event: dict[str, Any]) -> str:
     return str(event.get("summary") or event.get("action") or "움직임 감지").strip()
 
 
+# 무슨 일이 있었는지 말해 주지 않는 설명. 사용자에게 보여 줘도 도움이 안 되고 타임라인만 길어진다.
+# 예: "반려동물이 화면에서 사라져서 더 이상 확인할 수 없어요", "같은 개체의 행동 전후 상태가 20초에 확인돼요".
+# '화면 밖으로 나감'처럼 실제 행동을 말하는 설명은 걸러내지 않도록, 확인 불가를 말하는 표현만 본다.
+_UNINFORMATIVE = re.compile(
+    r"확인할\s*수\s*없|확인되지\s*않|보이지\s*않|알\s*수\s*없|판단할\s*수\s*없"
+    r"|행동\s*전후\s*상태|전후\s*상태가"
+)
+
+
+def _is_informative(event: dict[str, Any]) -> bool:
+    """설명이 비어 있거나 '확인할 수 없음'류이면 시퀀스 답변에서 뺀다."""
+    description = _description(event)
+    return description != "움직임 감지" and not _UNINFORMATIVE.search(description)
+
+
 # 저장된 설명의 문장 끝을 답변 말투(해요체)로 바꾸는 규칙. 위에서부터 처음 맞는 하나만 적용한다.
 _SPOKEN_ENDINGS = (
     ("모습입니다", "모습이 보여요"),
@@ -137,6 +161,14 @@ def _spoken_description(event: dict[str, Any]) -> str:
     return _NOUN_IM.sub(r"\1이에요", description)
 
 
+def _clock_text(moment: datetime | None) -> str:
+    """'오전 7시 34분쯤'처럼 말하듯 시각을 적는다."""
+    if moment is None:
+        return ""
+    period = "오전" if moment.hour < 12 else "오후"
+    return f"{period} {moment.hour % 12 or 12}시 {moment.minute}분 {moment.second}초쯤"
+
+
 @lru_cache(maxsize=1)
 def _reviewed_events() -> dict[str, dict[str, dict[str, Any]]]:
     """원본 영상과 대조한 시연 영상의 승인 이벤트만 읽는다."""
@@ -152,6 +184,8 @@ def _sequence_intent(query: str) -> tuple[str, str]:
         return "before", query[:before.start()].strip()
     if after:
         return "after", query[:after.start()].strip()
+    if _WHEN.search(query) and not (_FIRST.search(query) or _LAST.search(query) or _WHOLE_RANGE.search(query)):
+        return "when", ""
     if _WHOLE_RANGE.search(query):
         return "timeline", ""
     first = _FIRST.search(query) or (None if _ORDER_WORDS.search(query) else _EARLY.search(query))
@@ -223,6 +257,9 @@ def _variants(term: str) -> list[str]:
 
 
 def _term_in(term: str, text: str) -> bool:
+    # '넘어졌어'는 '젖혀지면서'·'쓰러져'로 적힌 같은 일에도 맞아야 한다.
+    if any(word in term for word in _SCENE_CHANGE_GROUP) and any(word in text for word in _SCENE_CHANGE_GROUP):
+        return True
     for variant in _variants(term):
         if len(variant) == 1:
             # 한 글자 낱말('물', '사')은 부분 문자열이면 '물그릇'·'사료'에도 맞으므로, 조사까지 붙은 독립된 말일 때만 인정한다.
@@ -404,6 +441,7 @@ def run_sequence_query(
 
     rows = []
     excluded_event_count = 0
+    uninformative_event_count = 0
     reviewed = _reviewed_events()
     for event in events:
         recorded_at = _recorded_at(event)
@@ -421,6 +459,9 @@ def run_sequence_query(
                     "reviewed_timestamp": float(approval["timestamp"]),
                     "review_status": "approved",
                 }
+            if not _is_informative(event):
+                uninformative_event_count += 1
+                continue
             rows.append((recorded_at, event))
 
     rows.sort(key=lambda row: (
@@ -445,6 +486,7 @@ def run_sequence_query(
     condition_text = ""
     condition_status = None  # None | "missing"(조건에 맞는 장면 없음) | "unsupported"(장소만 맞고 행동은 확인 안 됨)
     condition_near = None
+    when_total = 0
     needs_video = intent in {"before", "after"} and not video_id
     evidence_rows: list[tuple[datetime | None, dict, int, str | None]] = []  # (row, 묶음 크기, 역할)
     if needs_video:
@@ -475,6 +517,22 @@ def run_sequence_query(
                 evidence_rows = ordered
                 spans_in_order = [neighbor, anchor_span] if intent == "before" else [anchor_span, neighbor]
                 selected_groups = [rows[lo:hi + 1] for lo, hi in spans_in_order]
+    elif intent == "when":
+        terms, condition_text = _condition_terms(query)
+        matched = _match_indices(rows, terms) if terms else []
+        if len(terms) > 1:
+            # 시각을 묻는 질문은 '소파'만 맞고 '넘어짐'은 없는 장면을 답으로 내면 안 되므로 서술어도 반드시 맞아야 한다.
+            matched = [i for i in matched if _term_hit(terms[-1], _match_text(rows[i][1]))]
+        if not terms:
+            intent = "timeline"
+            groups = _group_consecutive(rows)
+            selected_groups = groups[:top_k]
+            selected = [group[0] for group in selected_groups]
+            step_total = len(groups)
+        else:
+            when_rows = [rows[i] for i in matched]
+            selected = when_rows[:3]
+            when_total = len(when_rows)
     elif intent in {"first", "last"}:
         terms, condition_text = _condition_terms(query)
         if not terms:
@@ -534,6 +592,18 @@ def run_sequence_query(
             answer = "다시 재생할 수 있는 근거가 있는 행동 장면이 아직 없어요."
         else:
             answer = "선택하신 영상과 시간대에서는 보여드릴 수 있는 행동 장면이 없어요." if excluded_event_count else "선택하신 영상과 시간대에는 아직 분석된 행동이 없어요."
+    elif intent == "when":
+        if not selected:
+            answer = "분석된 장면 중에서는 그 순간을 찾지 못했어요."
+            if excluded_event_count:
+                answer += " 다만 제외된 구간이 있어서, 실제로 없었다는 뜻은 아니에요."
+        else:
+            first_at, first_event = selected[0]
+            clock = _clock_text(first_at)
+            answer = f"{clock}에 {_spoken_description(first_event)}." if clock else f"{_spoken_description(first_event)}."
+            if when_total > 1:
+                answer += f" 비슷한 장면이 모두 {when_total}번 있었어요."
+        answer += skipped_note
     elif intent in {"first", "last"} and condition_status:
         position = "처음" if intent == "first" else "마지막"
         if condition_status == "unsupported":
@@ -574,6 +644,7 @@ def run_sequence_query(
         "total_event_count": len(all_rows),
         "total_step_count": step_total,
         "excluded_event_count": excluded_event_count,
+        "uninformative_event_count": uninformative_event_count,
         "sequence_intent": intent,
         "truncated": truncated,
     }
