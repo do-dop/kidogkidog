@@ -77,6 +77,38 @@ class SequenceQueryTests(unittest.TestCase):
                                    events=[stored(3, 5.0, "소파가 뒤집어졌어요", chunk=2)])
         self.assertIn("영상 2분 5초쯤에", later["answer"])
 
+    def test_why_question_infers_cause_from_the_pet_action_right_before(self):
+        # '왜'는 질문 틀 낱말이다. 이벤트에 없는 낱말이라 그대로 조건이 되면 소파 이벤트가 있어도 못 찾는다.
+        scene = {**event(2, 0, 20, "소파가 뒤집어졌어요"), "subject": "소파", "target_object": "소파"}
+        climb = {**event(1, 0, 17, "반려동물이 소파 위로 올라가고 있어요"), "subject": "반려동물", "target_object": "소파"}
+        for question in ("소파 왜 뒤집어졌어?", "소파가 왜 넘어졌어?", "소파가 넘어진 이유가 뭐야?"):
+            result = run_sequence_query(question, video_id="dog-video", events=[climb, scene])
+            self.assertEqual(result["sequence_intent"], "when", question)
+            self.assertEqual([item["source_event_id"] for item in result["results"]], [2], question)
+            self.assertIn("소파가 뒤집어졌어요.", result["answer"])
+            self.assertIn("직전에 반려동물이 소파 위로 올라가고 있었던 점을 보면", result["answer"])
+            self.assertIn("그 행동이 영향을 준 것으로 보여요", result["answer"])
+            self.assertNotIn("단정할 수는 없어요", result["answer"])
+            self.assertEqual(result["answer"].count("."), 2)
+
+    def test_why_question_does_not_blame_an_unrelated_or_distant_action(self):
+        scene = {**event(2, 0, 30, "소파가 뒤집어졌어요"), "subject": "소파", "target_object": "소파"}
+        other_object = {**event(1, 0, 27, "반려동물이 문 앞에서 서성이고 있어요"), "subject": "반려동물", "target_object": "문"}
+        too_early = {**event(3, 0, 5, "반려동물이 소파 위로 올라갔어요"), "subject": "반려동물", "target_object": "소파"}
+        for earlier in (other_object, too_early):
+            result = run_sequence_query("소파 왜 뒤집어졌어?", video_id="dog-video", events=[earlier, scene])
+            self.assertIn("왜 그랬는지는 영상만으로는 알 수 없어요", result["answer"])
+            self.assertNotIn("그 때문에", result["answer"])
+
+        only = run_sequence_query("소파 왜 뒤집어졌어?", video_id="dog-video", events=[scene])
+        self.assertIn("알 수 없어요", only["answer"])
+        self.assertNotIn("그 직전에는", only["answer"])
+
+        # '언제' 질문에는 이유 문장을 붙이지 않는다.
+        plain = run_sequence_query("소파가 언제 뒤집어졌어?", video_id="dog-video", events=[scene])
+        self.assertNotIn("알 수 없어요", plain["answer"])
+        self.assertNotIn("그 때문에", plain["answer"])
+
     def test_when_question_without_matching_scene_says_so(self):
         events = [event(1, 0, 2, "반려동물이 소파 위에 앉아 있어요")]
         result = run_sequence_query("소파가 언제 넘어졌어?", video_id="dog-video", events=events)
@@ -93,8 +125,8 @@ class SequenceQueryTests(unittest.TestCase):
 
         self.assertEqual([item["id"] for item in result["behavior_events"]], [2, 1])
         self.assertEqual([item["source_event_id"] for item in result["results"]], [2, 1])
-        self.assertIn("먼저 물을 마심", result["answer"])
-        self.assertIn("그다음에는 잠을 잠", result["answer"])
+        self.assertIn("먼저 물을 마셔요", result["answer"])
+        self.assertIn("그다음에는 잠을 자요", result["answer"])
         self.assertEqual(result["total_event_count"], 2)
 
     def test_date_filter_excludes_unknown_timestamp(self):
@@ -121,7 +153,7 @@ class SequenceQueryTests(unittest.TestCase):
         self.assertEqual(full["total_event_count"], 4)
         self.assertEqual(len(short["behavior_events"]), 3)
         self.assertIn("전체 4개 장면 중 처음 3개만", short["answer"])
-        self.assertIn("이어서 소파에서 내려옴", short["answer"])
+        self.assertIn("이어서 소파에서 내려와요", short["answer"])
 
     def test_sequence_answer_reads_as_prose_without_changing_event_descriptions(self):
         events = [
@@ -146,7 +178,7 @@ class SequenceQueryTests(unittest.TestCase):
             "반려동물이 사료 그릇에서 먹이를 섭취하고 있는 모습입니다.": "반려동물이 사료 그릇에서 먹이를 섭취하고 있는 모습이 보여요",
             "음식을 먹는 모습이며, 이는 건강을 유지하는 데 중요한 행동임.": "음식을 먹는 모습이며, 이는 건강을 유지하는 데 중요한 행동이에요",
             "반려동물이 6.0초 동안 움직임을 보인 것으로 추정되는 구간입니다.": "반려동물이 6.0초 동안 움직임을 보인 것으로 보여요",
-            "소파에서 움직임": "소파에서 움직임",
+            "소파에서 움직임": "소파에서 움직여요",
         }
         # 말투만 확인하므로 같은 행동이 묶이지 않도록 이벤트 사이를 충분히 띄운다.
         events = [event(i, i * 5, 2, text) for i, text in enumerate(cases, start=1)]
@@ -298,7 +330,7 @@ class SequenceQueryTests(unittest.TestCase):
         for question in ("강아지가 소파에서 뭐했어?", "소파 위에서 뭐했어?", "쇼파에서 뭐했어?"):
             result = run_sequence_query(question, video_id="dog-video", events=events, top_k=10)
             self.assertEqual([item["source_event_id"] for item in result["results"]], [1, 3], question)
-            self.assertTrue(result["answer"].startswith("‘소파’이(가) 나오는 행동만 모았어요."), question)
+            self.assertTrue(result["answer"].startswith("소파와 관련된 행동을 모았어요."), question)
             self.assertEqual(result["total_step_count"], 2)
             self.assertEqual(result["total_event_count"], 4)
 
@@ -309,7 +341,7 @@ class SequenceQueryTests(unittest.TestCase):
         ]
         result = run_sequence_query("강아지가 의자에서 뭐했어?", video_id="dog-video", events=events, top_k=10)
         self.assertEqual(result["results"], [])
-        self.assertIn("‘의자’이(가) 나오는 행동을 찾지 못했어요", result["answer"])
+        self.assertIn("의자와 관련된 행동을 찾지 못했어요", result["answer"])
 
     def test_generic_or_missing_place_words_do_not_filter_the_timeline(self):
         events = [
@@ -319,7 +351,7 @@ class SequenceQueryTests(unittest.TestCase):
         for question in ("오늘 집에서 뭐했어?", "오늘 강아지가 어떤 순서로 행동했어?", "행동 순서 알려줘"):
             result = run_sequence_query(question, video_id="dog-video", events=events, top_k=10)
             self.assertEqual([item["source_event_id"] for item in result["results"]], [1, 2], question)
-            self.assertNotIn("나오는 행동만 모았어요", result["answer"])
+        self.assertNotIn("관련된 행동을 모았어요", result["answer"])
 
     def test_reviewed_video_omits_unverified_events_and_uses_reviewed_anchor(self):
         approved = event(59, 5, 2, "잘못된 예전 설명")
@@ -350,7 +382,9 @@ class SequenceQueryTests(unittest.TestCase):
         self.assertEqual([item["source_event_id"] for item in before["results"]], [1])
         self.assertEqual([item["source_event_id"] for item in last["results"]], [3])
         self.assertEqual(no_next["results"], [])
-        self.assertIn("이어지는 장면이 없어요", no_next["answer"])
+        self.assertIn("그 뒤로는 기록된 장면이 없어요", no_next["answer"])
+        self.assertIn("먼저 문 아래 출입구로 몸을 내밀어요. 그다음에는 마당에서 걸어요.", after["answer"])
+        self.assertNotIn("‘", after["answer"])
 
     def test_does_not_treat_pushing_through_door_as_confirmed_exit(self):
         events = [event(1, 0, 2, "문 아래 출입구로 몸을 내밈"), event(2, 1, 2, "마당에서 걸음")]
@@ -375,7 +409,7 @@ class SequenceQueryTests(unittest.TestCase):
         result = run_sequence_query("행동 순서", events=[multi])
         step = result["results"][0]
 
-        self.assertEqual(step["summary"], "소파에서 내려옴")
+        self.assertEqual(step["summary"], "소파에서 내려와요")
         timestamps = [item["timestamp"] for item in step["step_frames"]]
         self.assertEqual(timestamps, sorted(timestamps))
         self.assertLessEqual(len(timestamps), 4)

@@ -43,6 +43,7 @@ def _temporal_marker(query: str) -> bool:
 _SCENE_CHANGE_GROUP = ("넘어지", "넘어졌", "넘어진", "넘어져", "넘어짐", "넘어가", "넘어갔", "쓰러", "젖혀", "젖혔", "무너", "엎어", "뒤집", "자빠")
 _SCENE_CHANGE = re.compile("|".join(_SCENE_CHANGE_GROUP))
 _WHEN = re.compile(r"언제")
+_WHY = re.compile(r"왜|어째서|어쩌다|이유|원인")
 
 
 def _normalize_spelling(query: str) -> str:
@@ -164,6 +165,15 @@ _SPOKEN_ENDINGS = (
     ("있음", "있어요"),
     ("있다", "있어요"),
     ("없음", "없어요"),
+    ("잠을 잠", "잠을 자요"),
+    ("내려옴", "내려와요"),
+    ("올라감", "올라가요"),
+    ("내밈", "내밀어요"),
+    ("마심", "마셔요"),
+    ("걸음", "걸어요"),
+    ("달림", "달려요"),
+    ("나타남", "나타나요"),
+    ("움직임", "움직여요"),
     ("합니다", "해요"),
     ("한다", "해요"),
     ("됩니다", "돼요"),
@@ -207,6 +217,52 @@ def _video_time_text(event: dict[str, Any]) -> str:
     return f"영상 {minutes}분 {rest}초쯤" if minutes else f"영상 {rest}초쯤"
 
 
+# 물건이 바뀐 일의 원인으로 볼 수 있는 직전 행동: 몇 초 안에 이어지고, 같은 물건에 대한 반려동물의 행동이어야 한다.
+CAUSE_WINDOW_SECONDS = 5.0
+_OBJECT_CORE = re.compile(r"[가-힣A-Za-z0-9]{2,}?(?=의|와|과|이|가|$)")
+
+
+def _is_scene_change_event(event: dict[str, Any]) -> bool:
+    subject = str(event.get("subject") or "").strip()
+    return bool(subject) and subject == str(event.get("target_object") or "").strip()
+
+
+def _likely_cause(scene_event: dict[str, Any], rows: list[tuple[datetime | None, dict]]) -> dict[str, Any] | None:
+    """물건이 바뀌기 직전에 같은 물건에 대해 반려동물이 한 행동. 있으면 원인으로 추정할 수 있다."""
+    match = _OBJECT_CORE.match(str(scene_event.get("target_object") or scene_event.get("subject") or ""))
+    if not match:
+        return None
+    noun = match.group()
+    started = float(scene_event.get("start_time") or 0)
+    candidates = [
+        event for _, event in rows
+        if event is not scene_event
+        and event.get("video_id") == scene_event.get("video_id")
+        and not _is_scene_change_event(event)
+        and float(event.get("start_time") or 0) < started
+        and started - float(event.get("end_time") or event.get("start_time") or 0) <= CAUSE_WINDOW_SECONDS
+        and noun in f"{event.get('summary') or ''} {event.get('action') or ''} {event.get('target_object') or ''}"
+    ]
+    return max(candidates, key=lambda event: float(event.get("end_time") or 0)) if candidates else None
+
+
+def _cause_observation(event: dict[str, Any]) -> str:
+    """저장된 장면 설명을 원인 추정 문장에 자연스럽게 잇는다."""
+    description = _spoken_description(event).rstrip(". ")
+    if description.endswith("고 있어요"):
+        return f"{description[:-5]}고 있었던 점을 보면"
+    if description.endswith("고 있었어요"):
+        return f"{description[:-6]}고 있었던 점을 보면"
+    return f"‘{description}’라는 장면이 나온 점을 보면"
+
+
+def _place_particle(place: str) -> str:
+    """장소 이름 뒤에 붙일 '과/와'를 고른다."""
+    last = place[-1]
+    code = ord(last) - 0xAC00
+    return "과" if 0 <= code < 11172 and code % 28 else "와"
+
+
 @lru_cache(maxsize=1)
 def _reviewed_events() -> dict[str, dict[str, dict[str, Any]]]:
     """원본 영상과 대조한 시연 영상의 승인 이벤트만 읽는다."""
@@ -242,7 +298,7 @@ def _sequence_intent(query: str) -> tuple[str, str]:
 # 조건·기준 문구에서 행동/대상이 아닌 질문 틀 낱말. 이 낱말만 남으면 조건이 없는 것이다.
 _CONDITION_FILLER = {
     "행동", "장면", "모습", "동작", "상황", "순서", "일", "건", "거", "것", "게", "걸", "한", "했", "하는", "하던", "하고",
-    "본", "봤어", "있었어", "있었던", "적", "있어", "있나", "있니", "있나요", "있어요", "있었나", "있었니", "뭐", "뭘", "뭐야", "무엇", "무슨", "어떤", "어디", "언제", "어땠어", "어땠나",
+    "본", "봤어", "있었어", "있었던", "적", "있어", "있나", "있니", "있나요", "있어요", "있었나", "있었니", "뭐", "뭘", "뭐야", "무엇", "무슨", "어떤", "어디", "언제", "어땠어", "어땠나", "왜", "어째서", "어쩌다", "이유", "원인",
     "장소", "위치", "시간", "시각", "때", "처음", "첫", "번째", "마지막", "맨", "제일", "가장", "먼저", "끝", "나중",
     "오늘", "어제", "아까", "하루", "오전", "오후", "아침", "점심", "저녁", "밤", "새벽", "최근", "강아지", "고양이",
     "반려동물", "우리", "아이", "그", "알려줘", "알려", "줘", "보여줘", "보여", "말해줘", "해줘",
@@ -695,12 +751,12 @@ def run_sequence_query(
     elif intent in {"before", "after"} and anchor_claim_unsupported:
         answer = f"가까운 장면은 ‘{_spoken_description(anchor_event)}’인데, 질문하신 행동까지는 보이지 않아요. 그래서 그 행동의 앞뒤는 말씀드리기 어려워요."
     elif intent in {"before", "after"} and anchor_span is not None:
-        direction = "다음" if intent == "after" else "이전"
         if selected:
-            verb = "나와요" if intent == "after" else "있었어요"
-            answer = f"‘{_spoken_description(anchor_event)}’ {direction}에는 ‘{_spoken_description(selected[0][1])}’ 장면이 {verb}."
+            first, second = (anchor_event, selected[0][1]) if intent == "after" else (selected[0][1], anchor_event)
+            answer = f"먼저 {_spoken_description(first)}. 그다음에는 {_spoken_description(second)}."
         else:
-            answer = f"‘{_spoken_description(anchor_event)}’ {direction}에는 이어지는 장면이 없어요." if intent == "after" else f"‘{_spoken_description(anchor_event)}’ {direction}에는 앞선 장면이 없어요."
+            where = "그 뒤로는" if intent == "after" else "그 앞에는"
+            answer = f"{_spoken_description(anchor_event)}. {where} 기록된 장면이 없어요."
         if selected and excluded_event_count:
             answer += " 빠진 구간이 있을 수 있어요."
         elif not selected and excluded_event_count:
@@ -709,7 +765,8 @@ def run_sequence_query(
             answer += " 이 영상은 여러 장면을 이어 붙인 거라 같은 동물의 연속 행동인지는 알 수 없어요."
         answer += skipped_note
     elif place_terms and not rows:
-        answer = f"분석된 장면 중에서는 ‘{'·'.join(place_terms)}’이(가) 나오는 행동을 찾지 못했어요."
+        place = "·".join(place_terms)
+        answer = f"분석된 장면에서는 {place}{_place_particle(place)} 관련된 행동을 찾지 못했어요."
         if excluded_event_count:
             answer += " 다만 제외된 구간이 있어서, 실제로 없었다는 뜻은 아니에요."
     elif not rows:
@@ -726,6 +783,24 @@ def run_sequence_query(
             first_at, first_event = selected[0]
             clock = _clock_text(first_at) or _video_time_text(first_event)
             answer = f"{clock}에 {_spoken_description(first_event)}."
+            if _WHY.search(query):
+                # 이벤트에 원인이 직접 기록되지는 않으므로, 직전 행동이 조건에 맞을 때만 추정한다.
+                cause = _likely_cause(first_event, rows)
+                if cause is not None:
+                    # 원인이 영상에 직접 찍힌 것은 아니므로 추정이라고 밝히고, 근거 장면을 함께 보여 준다.
+                    answer += (
+                        f" 직전에 {_cause_observation(cause)}, 그 행동이 영향을 준 것으로 보여요."
+                    )
+                else:
+                    answer += " 왜 그랬는지는 영상만으로는 알 수 없어요."
+                    started = float(first_event.get("start_time") or 0)
+                    earlier = [
+                        event for _, event in rows
+                        if event.get("video_id") == first_event.get("video_id")
+                        and float(event.get("start_time") or 0) < started
+                    ]
+                    if earlier:
+                        answer += f" 다만 그 직전에는 ‘{_spoken_description(earlier[-1])}’ 장면이 있었어요."
             if when_total > 1:
                 answer += f" 비슷한 장면이 모두 {when_total}번 있었어요."
         answer += skipped_note
@@ -761,7 +836,8 @@ def run_sequence_query(
         if len(selected) < step_total:
             answer += f"\n전체 {step_total}개 장면 중 처음 {len(selected)}개만 보여드려요."
         if place_terms:
-            answer = f"‘{'·'.join(place_terms)}’이(가) 나오는 행동만 모았어요. " + answer
+            place = "·".join(place_terms)
+            answer = f"{place}{_place_particle(place)} 관련된 행동을 모았어요. " + answer
 
     return {
         "query": query_as_asked,
