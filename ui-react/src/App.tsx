@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, Fragment, useEffect, useMemo, useRef, useState } from "react";
 
 type Screen = "live" | "recordings" | "search" | "chunkPlayback" | "searchPlayback" | "profile";
 type Theme = "dark" | "light";
@@ -96,6 +96,23 @@ type ApiSearchFrame = {
     related_scenes?: ApiSearchFrame[];
 };
 
+type AggregateInterval = {
+  video_id: string;
+  start_time: number;
+  end_time: number;
+  event_ids?: Array<number | string | null>;
+};
+
+type AggregateResult = {
+  action: string;
+  metric: string;
+  count: number;
+  count_basis: string;
+  recording_date?: string | null;
+  time_range?: { start_hour: number; end_hour: number } | null;
+  intervals: AggregateInterval[];
+};
+
 type ApiQueryResult = {
   answer?: string;
   query_type?: "sequence" | "search";
@@ -104,6 +121,7 @@ type ApiQueryResult = {
   evidence_items?: ApiQueryResult["results"];
   total_event_count?: number;
   excluded_event_count?: number;
+  aggregate_result?: AggregateResult | null;
   behavior_events?: BehaviorEvent[];
   used_llm?: boolean;
 };
@@ -746,7 +764,8 @@ export default function App() {
   const previousSearchVideoId = useRef("");
   const [query, setQuery] = useState("");
   const [submittedQuery, setSubmittedQuery] = useState("");
-  const [resultQueryType, setResultQueryType] = useState<"sequence" | "search">("search");
+  const [resultQueryType, setResultQueryType] = useState<"sequence" | "search" | "aggregate">("search");
+  const [aggregateResult, setAggregateResult] = useState<AggregateResult | null>(null);
   const [excludedEventCount, setExcludedEventCount] = useState(0);
   const [resultSequenceIntent, setResultSequenceIntent] = useState<ApiQueryResult["sequence_intent"]>("timeline");
   const [answer, setAnswer] = useState("");
@@ -754,6 +773,7 @@ export default function App() {
   const [submitted, setSubmitted] = useState(false);
   // 기본은 전체 날짜. 날짜 하나로 고정하면 다른 날짜의 영상이 검색에서 보이지 않는다.
   const [searchAllDates, setSearchAllDates] = useState(true);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [slowSearch, setSlowSearch] = useState(false);
   const [loading, setLoading] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -1143,6 +1163,13 @@ export default function App() {
     setScreen("searchPlayback");
   }
 
+  /** 결과 페이지의 고정 플레이어를 전체 화면 재생 페이지로 키운다. 선택된 장면은 그대로 유지한다. */
+  function expandPlayer() {
+    scrollByScreen.current[screen] = window.scrollY;
+    delete scrollByScreen.current.searchPlayback;
+    setScreen("searchPlayback");
+  }
+
   function selectResult(result: SearchResult) {
     setActiveResult(result);
     setPlaybackRevision((revision) => revision + 1);
@@ -1204,10 +1231,13 @@ export default function App() {
 
       const payload = (await response.json()) as ApiQueryResult;
       const mappedResults = mapApiResults(payload, recordingItems);
-      const rankedResults = payload.query_type === "sequence" ? mappedResults : pickRelevantResults(mappedResults);
+      const aggregate = payload.aggregate_result ?? null;
+      // 시퀀스와 집계는 점수로 걸러내지 않고 근거 구간을 전부 보여준다.
+      const rankedResults = payload.query_type === "sequence" || aggregate ? mappedResults : pickRelevantResults(mappedResults);
       const nextResults = await clampResultsToMediaDuration(rankedResults, recordingItems);
       setAnswer(payload.answer || `${nextQuery}와 관련된 장면을 찾았어요.`);
-      setResultQueryType(payload.query_type === "sequence" ? "sequence" : "search");
+      setResultQueryType(payload.query_type === "sequence" ? "sequence" : aggregate ? "aggregate" : "search");
+      setAggregateResult(aggregate);
       setExcludedEventCount(payload.excluded_event_count ?? 0);
       setResultSequenceIntent(payload.sequence_intent ?? "timeline");
       setResults(nextResults);
@@ -1228,6 +1258,7 @@ export default function App() {
     } catch (error) {
       console.error("검색 결과 처리 실패", error);
       setAnswer(`"${nextQuery}" 검색 중 문제가 발생했습니다. 백엔드와 인덱스 상태를 확인해주세요.`);
+      setAggregateResult(null);
       setResults([]);
       setActiveResult(null);
       setActiveScene(null);
@@ -1241,6 +1272,11 @@ export default function App() {
     event?.preventDefault();
     await runSearch(query);
   }
+
+  // 결과 목록 옆에 고정 플레이어를 둘 수 있는 상태인지
+  const showInlinePlayer = !loading && submitted && Boolean(playbackResult) && visibleResults.length > 0;
+  const timeFilterActive = !(searchStartHour === 0 && searchEndHour === 24);
+  const appliedFilterCount = (searchAllDates ? 0 : 1) + (selectedSearchVideoId ? 1 : 0) + (timeFilterActive ? 1 : 0);
 
   function applySuggestion(text: string) {
     setQuery(text);
@@ -1456,6 +1492,9 @@ export default function App() {
 
       <main className="main">
         <header className={scrolled ? "topbar scrolled" : "topbar"}>
+          <button className="topbar-menu" type="button" onClick={() => setMenuOpen(true)} aria-label="메뉴 열기" aria-expanded={menuOpen}>
+            <Icon>menu</Icon>
+          </button>
           <div className="topbar-brand" onClick={() => go("search")}>
             <div className="brand-mark">
               <PawMark />
@@ -1620,43 +1659,71 @@ export default function App() {
                       </button>
                     </form>
                   </div>
-                  <div className="search-filters" role="group" aria-label="검색 범위">
-                    <div className="filter-item">
-                      <span className="filter-label"><Icon>calendar_today</Icon>날짜</span>
-                      <div className="date-scope">
-                        <button
-                          type="button"
-                          className={`date-all-toggle${searchAllDates ? " on" : ""}`}
-                          aria-pressed={searchAllDates}
-                          onClick={() => setSearchAllDates((value) => !value)}
-                        >
-                          전체 날짜
-                        </button>
-                        {/* 전체 날짜일 때 날짜를 고르려고 누르면 자동으로 날짜 지정으로 바뀐다. */}
-                        <div className={`date-picker-slot${searchAllDates ? " dimmed" : ""}`} onClickCapture={() => setSearchAllDates(false)}>
-                          <DateFilter selectedYear={selectedYear} setSelectedYear={setSelectedYear} selectedMonth={selectedMonth} setSelectedMonth={setSelectedMonth} selectedDay={selectedDay} setSelectedDay={setSelectedDay} compact />
+                  <div className={filtersOpen ? "filter-wrap open" : "filter-wrap"}>
+                    <button
+                      type="button"
+                      className="filter-summary"
+                      aria-expanded={filtersOpen}
+                      aria-controls="search-filters"
+                      onClick={() => setFiltersOpen((open) => !open)}
+                    >
+                      <Icon>tune</Icon>
+                      <span className="filter-summary-label">검색 범위</span>
+                      <span className="filter-summary-values">
+                        <em className={searchAllDates ? "" : "active"}>{searchAllDates ? "전체 날짜" : `${selectedMonth}월 ${selectedDay}일`}</em>
+                        <i>·</i>
+                        <em className={selectedSearchVideoId ? "active" : ""}>{selectedSearchVideoId || "전체 영상"}</em>
+                        <i>·</i>
+                        <em className={timeFilterActive ? "active" : ""}>{formatHourRange(searchStartHour, searchEndHour)}</em>
+                      </span>
+                      {appliedFilterCount > 0 && <span className="filter-badge">{appliedFilterCount}</span>}
+                      <span className="filter-summary-toggle">
+                        {filtersOpen ? "접기" : "필터 펼치기"}
+                        <Icon>expand_more</Icon>
+                      </span>
+                    </button>
+                    <div className="filter-panel" id="search-filters">
+                      <div className="filter-panel-inner">
+                        <div className="search-filters" role="group" aria-label="검색 범위">
+                          <div className="filter-item">
+                            <span className="filter-label"><Icon>calendar_today</Icon>날짜</span>
+                            <div className="date-scope">
+                              <div className="seg-toggle" role="radiogroup" aria-label="날짜 범위">
+                                <button type="button" role="radio" aria-checked={searchAllDates} className={searchAllDates ? "on" : ""} onClick={() => setSearchAllDates(true)}>
+                                  전체 날짜
+                                </button>
+                                <button type="button" role="radio" aria-checked={!searchAllDates} className={!searchAllDates ? "on" : ""} onClick={() => setSearchAllDates(false)}>
+                                  날짜 지정
+                                </button>
+                              </div>
+                              {/* 전체 날짜일 때 날짜를 고르려고 누르면 자동으로 날짜 지정으로 바뀐다. */}
+                              <div className={`date-picker-slot${searchAllDates ? " dimmed" : ""}`} onClickCapture={() => setSearchAllDates(false)}>
+                                <DateFilter selectedYear={selectedYear} setSelectedYear={setSelectedYear} selectedMonth={selectedMonth} setSelectedMonth={setSelectedMonth} selectedDay={selectedDay} setSelectedDay={setSelectedDay} compact />
+                              </div>
+                            </div>
+                          </div>
+                          <div className="filter-item">
+                            <span className="filter-label"><Icon>videocam</Icon>영상</span>
+                            <select className="video-select" aria-label="검색할 영상" value={selectedSearchVideoId} onChange={(event) => setSelectedSearchVideoId(event.target.value)}>
+                              <option value="">전체 영상</option>
+                              {searchVideoOptions.map((videoId) => (
+                                <option value={videoId} key={videoId}>{videoId}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <div className="filter-item filter-time">
+                            <span className="filter-label"><Icon>schedule</Icon>시간대<b className="filter-time-value">{formatHourRange(searchStartHour, searchEndHour)}</b></span>
+                            <TimeRangeBar
+                              startHour={searchStartHour}
+                              endHour={searchEndHour}
+                              onChange={(start, end) => {
+                                setSearchStartHour(start);
+                                setSearchEndHour(end);
+                              }}
+                            />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="filter-item">
-                      <span className="filter-label"><Icon>videocam</Icon>영상</span>
-                      <select className="video-select" aria-label="검색할 영상" value={selectedSearchVideoId} onChange={(event) => setSelectedSearchVideoId(event.target.value)}>
-                        <option value="">전체 영상</option>
-                        {searchVideoOptions.map((videoId) => (
-                          <option value={videoId} key={videoId}>{videoId}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="filter-item filter-time">
-                      <span className="filter-label"><Icon>schedule</Icon>시간대</span>
-                      <TimeRangeBar
-                        startHour={searchStartHour}
-                        endHour={searchEndHour}
-                        onChange={(start, end) => {
-                          setSearchStartHour(start);
-                          setSearchEndHour(end);
-                        }}
-                      />
                     </div>
                   </div>
                   <div className="suggestions">
@@ -1702,34 +1769,25 @@ export default function App() {
                     </div>
                   )}
                   <div className="feature-matrix-grid">
-                    <div className="feature-matrix-card">
-                      <div className="feature-matrix-icon">🤖</div>
-                      <div>
-                        <strong>행동 이벤트 분석</strong>
-                        <p>움직임이 있는 구간의 행동을 자동으로 요약</p>
-                      </div>
-                    </div>
-                    <div className="feature-matrix-card">
-                      <div className="feature-matrix-icon">⚡</div>
-                      <div>
-                        <strong>자동 인덱싱</strong>
-                        <p>짧은 클립을 장면 단위로 분석해 저장</p>
-                      </div>
-                    </div>
-                    <div className="feature-matrix-card">
-                      <div className="feature-matrix-icon">🔍</div>
-                      <div>
-                        <strong>자연어 검색</strong>
-                        <p>질문하면 해당 장면과 시점을 찾아줘요</p>
-                      </div>
-                    </div>
-                    <div className="feature-matrix-card">
-                      <div className="feature-matrix-icon">▶️</div>
-                      <div>
-                        <strong>구간 재생</strong>
-                        <p>검색 결과에서 해당 시점부터 바로 재생</p>
-                      </div>
-                    </div>
+                    {[
+                      { icon: "search", title: "행동 검색", desc: "밥 먹기, 물 마시기 같은 행동 장면을 찾아줘요", example: "강아지가 밥 먹는 장면 찾아줘" },
+                      { icon: "arrow_right_alt", title: "순서 검색", desc: "어떤 장면 다음에 뭐가 나왔는지 순서대로 보여줘요", example: "수영장 장면 다음에는 뭐가 나와?" },
+                      { icon: "bar_chart", title: "횟수 검색", desc: "행동이 몇 번 감지됐는지 구간과 함께 알려줘요", example: "강아지가 몇 번 물을 마셨어?" },
+                    ].map((card) => (
+                      <button
+                        type="button"
+                        className="feature-matrix-card"
+                        key={card.title}
+                        onClick={() => applySuggestion(card.example)}
+                        title={`예: ${card.example}`}
+                      >
+                        <div className="feature-matrix-icon"><Icon>{card.icon}</Icon></div>
+                        <div>
+                          <strong>{card.title}</strong>
+                          <p>{card.desc}</p>
+                        </div>
+                      </button>
+                    ))}
                   </div>
 
                   <button
@@ -1758,7 +1816,9 @@ export default function App() {
                 ) : submitted ? (
                   <div className="search-results stack">
                     {apiNotice && <p className="notice">{apiNotice}</p>}
-                    {resultQueryType !== "sequence" && <div className="answer-card">
+                    <div className={showInlinePlayer ? "results-split" : "results-flat"}>
+                    <div className="results-main stack">
+                    {resultQueryType === "search" && <div className="answer-card">
                       <div className="brand-mark answer-mark"><PawMark /></div>
                       <div>
                         <span>검색 답변</span>
@@ -1773,16 +1833,25 @@ export default function App() {
                         )}
                       </div>
                     </div>}
-                    {!loading && (resultQueryType === "sequence" || visibleResults.length > 0) && (
+                    {!loading && (resultQueryType === "sequence" || (resultQueryType === "aggregate" && aggregateResult) || visibleResults.length > 0) && (
                       <>
-                        {resultQueryType === "sequence" ? (
+                        {resultQueryType === "aggregate" && aggregateResult ? (
+                          <AggregatePanel
+                            aggregate={aggregateResult}
+                            answer={answer}
+                            question={submittedQuery}
+                            results={visibleResults}
+                            activeId={activeResult?.id}
+                            onOpen={selectResult}
+                          />
+                        ) : resultQueryType === "sequence" ? (
                           <SequencePanel
                             answer={answer}
                             question={submittedQuery}
                             results={visibleResults}
                             activeId={activeResult?.id}
                             excludedCount={excludedEventCount}
-                            onOpen={openResult}
+                            onOpen={selectResult}
                           />
                         ) : (
                           <>
@@ -1792,13 +1861,71 @@ export default function App() {
                             </div>
                             <div className="result-grid">
                               {visibleResults.map((result) => (
-                                <ResultCard key={result.id} result={result} onOpen={() => openResult(result)} />
+                                <ResultCard key={result.id} result={result} active={result.id === activeResult?.id} onOpen={() => selectResult(result)} />
                               ))}
                             </div>
                           </>
                         )}
                       </>
                     )}
+                    </div>
+                    {showInlinePlayer && playbackResult && activeResult && (
+                      <aside className="results-player" aria-label="선택한 영상">
+                        <VideoPanel
+                          key={`inline-${playbackResult.id}-${playbackRevision}`}
+                          label="검색 결과 구간 재생"
+                          camera=""
+                          time={playbackResult.displayDateTime || playbackResult.time}
+                          videoUrl={playbackResult.videoUrl}
+                          startAtSeconds={playbackResult.playbackStartSeconds ?? playbackResult.seekStartSeconds}
+                          playbackSegments={searchPlaybackSegments(playbackResult, recordingItems)}
+                        />
+                        <dl className="results-player-meta">
+                          <dt>촬영 시각</dt>
+                          <dd>{playbackResult.displayDateTime || playbackResult.time}</dd>
+                          {playbackResult.playbackEndSeconds !== undefined && (
+                            <>
+                              <dt>재생 구간</dt>
+                              <dd>{formatSeconds(playbackResult.playbackStartSeconds ?? 0)} - {formatSeconds(playbackResult.playbackEndSeconds)}</dd>
+                            </>
+                          )}
+                          {resultQueryType === "search" && playbackResult.objects.length > 0 && (
+                            <>
+                              <dt>검출 객체</dt>
+                              <dd className="tag-row">{tagList(playbackResult.objects)}</dd>
+                            </>
+                          )}
+                        </dl>
+                        {resultQueryType === "search" && (activeResult.relatedScenes?.length ?? 0) > 1 && (
+                          <div className="results-player-related">
+                            <h4>같은 영상의 관련 장면 · 누르면 해당 시점으로 이동</h4>
+                            <div className="results-player-scenes">
+                              {activeResult.relatedScenes!.map((scene) => (
+                                <button
+                                  type="button"
+                                  key={scene.id}
+                                  className={scene.id === playbackResult.id ? "active" : ""}
+                                  onClick={() => {
+                                    setActiveScene(scene);
+                                    setPlaybackRevision((revision) => revision + 1);
+                                  }}
+                                >
+                                  <div
+                                    className="results-scene-thumb"
+                                    style={scene.thumbnailUrl ? { backgroundImage: `url(${scene.thumbnailUrl})` } : { background: gradients[scene.thumb] }}
+                                  />
+                                  <span>{scene.clockTime || scene.time}</span>
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        <button type="button" className="results-player-expand" onClick={expandPlayer}>
+                          <Icon>open_in_full</Icon>크게 보기{resultQueryType === "sequence" ? " · 단계 이동" : ""}
+                        </button>
+                      </aside>
+                    )}
+                    </div>
                   </div>
                 ) : (
                   <div className="empty-state">
@@ -2531,11 +2658,11 @@ function ClipCard({ clip, eventCount = 0, onOpen }: { clip: Recording; eventCoun
   );
 }
 
-function ResultCard({ result, onOpen }: { result: SearchResult; onOpen: () => void }) {
+function ResultCard({ result, active = false, onOpen }: { result: SearchResult; active?: boolean; onOpen: () => void }) {
   const score = result.score.toFixed(3);
 
   return (
-    <button className="result-card" onClick={onOpen}>
+    <button className={active ? "result-card active" : "result-card"} onClick={onOpen} aria-pressed={active}>
       <div className={result.thumbnailUrl ? "thumb has-image" : "thumb"} style={result.thumbnailUrl ? { backgroundImage: `url(${result.thumbnailUrl})` } : { background: gradients[result.thumb] }}>
         <span className="datetime-pill">
           {result.dateLabel && <small>{result.dateLabel}</small>}
@@ -2550,6 +2677,176 @@ function ResultCard({ result, onOpen }: { result: SearchResult; onOpen: () => vo
         <div className="tag-row">{tagList(result.objects)}</div>
       </div>
     </button>
+  );
+}
+
+function clockToSeconds(clock?: string) {
+  const match = /(\d{1,2}):(\d{2}):(\d{2})/.exec(clock ?? "");
+  if (!match) return null;
+  return Number(match[1]) * 3600 + Number(match[2]) * 60 + Number(match[3]);
+}
+
+/** 같은 날짜의 두 장면 사이 간격(초). 날짜가 다르거나 시각을 알 수 없으면 null. */
+function resultGapSeconds(from: SearchResult, to: SearchResult) {
+  if ((from.dateLabel ?? "") !== (to.dateLabel ?? "")) return null;
+  const a = clockToSeconds(from.clockTime || from.time);
+  const b = clockToSeconds(to.clockTime || to.time);
+  if (a === null || b === null) return null;
+  return b - a;
+}
+
+function formatGap(seconds: number) {
+  const abs = Math.abs(seconds);
+  const sign = seconds < 0 ? "-" : "+";
+  if (abs < 60) return `${sign}${abs}초`;
+  const minutes = Math.floor(abs / 60);
+  const rest = abs % 60;
+  return `${sign}${minutes}분${rest ? ` ${rest}초` : ""}`;
+}
+
+function stepLetter(index: number) {
+  return String.fromCharCode(65 + (index % 26));
+}
+
+/** 시퀀스 단계들의 시각 관계를 한 줄 축으로 보여준다. 모든 단계의 시각을 알 수 있을 때만 그린다. */
+function SequenceAxis({
+  results,
+  activeId,
+  onOpen,
+}: {
+  results: SearchResult[];
+  activeId?: string;
+  onOpen: (result: SearchResult) => void;
+}) {
+  if (results.length < 2) return null;
+  const base = results[0];
+  const offsets = results.map((result, index) => (index === 0 ? 0 : resultGapSeconds(base, result)));
+  if (offsets.some((value) => value === null)) return null;
+
+  const values = offsets as number[];
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const span = Math.max(max - min, 1);
+  const position = (value: number) => 8 + ((value - min) / span) * 84;
+
+  return (
+    <div className="seq-axis" role="group" aria-label="단계별 시각 관계">
+      <div className="seq-axis-head">
+        <strong>시간 관계</strong>
+        <span>{[base.dateLabel, results[0].clockTime || results[0].time].filter(Boolean).join(" ")} 부터 {formatGap(max - min).replace("+", "")}</span>
+      </div>
+      <div className="seq-axis-track">
+        <span className="seq-axis-line" />
+        {results.map((result, index) => (
+          <button
+            type="button"
+            key={result.id}
+            className={result.id === activeId ? "seq-axis-point active" : "seq-axis-point"}
+            style={{ left: `${position(values[index])}%` }}
+            onClick={() => onOpen(result)}
+            aria-label={`${stepLetter(index)} ${result.clockTime || result.time} 구간 재생`}
+          >
+            <span className="seq-axis-label"><b>{stepLetter(index)}</b>{result.clockTime || result.time}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function aggregateRangeLabel(interval: AggregateInterval) {
+  return `${formatSeconds(interval.start_time)} - ${formatSeconds(interval.end_time)}`;
+}
+
+function AggregatePanel({
+  aggregate,
+  answer,
+  question,
+  results,
+  activeId,
+  onOpen,
+}: {
+  aggregate: AggregateResult;
+  answer: string;
+  question: string;
+  results: SearchResult[];
+  activeId?: string;
+  onOpen: (result: SearchResult) => void;
+}) {
+  const intervals = aggregate.intervals ?? [];
+  const matchResult = (interval: AggregateInterval) =>
+    results.find(
+      (result) =>
+        result.videoId === interval.video_id &&
+        result.eventStart !== undefined &&
+        Math.abs(result.eventStart - interval.start_time) < 0.5,
+    );
+  const playableCount = intervals.filter((interval) => matchResult(interval)).length;
+  const range = aggregate.time_range;
+  const rangeLabel = range ? formatHourRange(range.start_hour, range.end_hour) : "전체 시간";
+
+  return (
+    <section className="agg-panel">
+      <div className="agg-top">
+        <div className="agg-count">
+          <span className="agg-count-label">감지된 횟수</span>
+          <strong>{aggregate.count}<small>회</small></strong>
+        </div>
+        <div className="agg-basis">
+          {question && <p className="agg-question">질문 · {question}</p>}
+          <div className="agg-chips">
+            <span>기준 · 감지된 행동 구간</span>
+            <span>{aggregate.recording_date || "전체 날짜"}</span>
+            <span>{rangeLabel}</span>
+          </div>
+          <p className="agg-warn"><Icon>info</Icon>감지된 행동 구간을 기준으로 센 값이에요. 실제 행동 횟수는 영상을 확인해 주세요.</p>
+          {answer && <p className="agg-answer">{answer}</p>}
+        </div>
+      </div>
+
+      <div className="agg-list-head">
+        <h4>발생 목록</h4>
+        <span>시간순{playableCount < intervals.length ? ` · 미리보기·재생은 ${playableCount}개 구간만 제공돼요` : " · 구간을 누르면 재생"}</span>
+      </div>
+      <ol className="agg-list">
+        {intervals.map((interval, index) => {
+          const result = matchResult(interval);
+          const body = (
+            <>
+              <span className="agg-no">{index + 1}</span>
+              <div
+                className="agg-thumb"
+                style={result?.thumbnailUrl ? { backgroundImage: `url(${result.thumbnailUrl})` } : undefined}
+              >
+                {result && <span className="agg-thumb-play"><Icon filled>play_arrow</Icon></span>}
+              </div>
+              <span className="agg-info">
+                <strong>{result ? (result.displayDateTime || result.clockTime || result.time) : `${interval.video_id}`}</strong>
+                <small>{result ? `구간 ${aggregateRangeLabel(interval)}` : `구간 ${aggregateRangeLabel(interval)} · 미리보기 없음`}</small>
+              </span>
+              {result && <span className="agg-play"><Icon filled>play_circle</Icon>구간 재생</span>}
+            </>
+          );
+
+          return (
+            <li key={`${interval.video_id}-${interval.start_time}-${index}`}>
+              {result ? (
+                <button
+                  type="button"
+                  className={result.id === activeId ? "agg-row active" : "agg-row"}
+                  onClick={() => onOpen(result)}
+                  aria-label={`${index + 1}번째 발생 구간 재생`}
+                >
+                  {body}
+                </button>
+              ) : (
+                <div className="agg-row static">{body}</div>
+              )}
+            </li>
+          );
+        })}
+      </ol>
+    </section>
   );
 }
 
@@ -2572,7 +2869,7 @@ function SequencePanel({
     <section className="seq-panel">
       <header className="seq-head">
         <div>
-          <span className="seq-eyebrow">SEARCH RESULTS</span>
+          <span className="seq-eyebrow">순서 검색</span>
           <h3>행동 검색 결과</h3>
           <p>영상에서 확인된 행동을 시간순으로 정리했어요.</p>
         </div>
@@ -2586,6 +2883,8 @@ function SequencePanel({
         <small>확인된 {results.length}개 장면{excludedCount > 0 ? ` · 제외된 ${excludedCount}개 이벤트` : ""}</small>
       </div>
 
+      <SequenceAxis results={results} activeId={activeId} onOpen={onOpen} />
+
       <div className="seq-tl-head">
         <h4>행동 타임라인</h4>
         <span><Icon>south</Icon>시간순</span>
@@ -2595,9 +2894,17 @@ function SequencePanel({
           const frames = result.stepFrames ?? [];
           const firstTimestamp = frames[0]?.timestamp ?? 0;
 
+          const gap = index > 0 ? resultGapSeconds(results[index - 1], result) : null;
+
           return (
-            <li className={result.id === activeId ? "seq-step active" : "seq-step"} key={result.id}>
-              <span className="seq-no">{index + 1}</span>
+            <Fragment key={result.id}>
+            {gap !== null && (
+              <li className="seq-gap" aria-hidden="true">
+                <span>시간 차이 <b>{formatGap(gap)}</b></span>
+              </li>
+            )}
+            <li className={result.id === activeId ? "seq-step active" : "seq-step"}>
+              <span className="seq-no">{stepLetter(index)}</span>
               <button className="seq-card" type="button" onClick={() => onOpen(result)} aria-label={`${index + 1}단계 구간 재생`}>
                 <div
                   className="seq-hero"
@@ -2626,6 +2933,7 @@ function SequencePanel({
                 </div>
               </button>
             </li>
+            </Fragment>
           );
         })}
       </ol>
