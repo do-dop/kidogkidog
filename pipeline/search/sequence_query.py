@@ -320,7 +320,9 @@ _ACTION_CATEGORIES = (
     ("rest", re.compile(r"누워|낮잠|잠을 자|휴식|엎드려")),
     ("explore", re.compile(r"탐색|돌아다니|배회")),
 )
-_UNCERTAIN_ACTION = re.compile(r"않|못|려고|려는|하려|것 같|듯")
+# "멈추"류: "먹기를 멈추고 고개를 든다"는 먹는 행동이 아니라 먹기를 멈춘 장면이다. 먹기로 분류하면
+# 앞뒤의 먹는 장면과 한 단계로 묶여 가운데 장면이 사라진다.
+_UNCERTAIN_ACTION = re.compile(r"않|못|려고|려는|하려|것 같|듯|멈추|멈춰|멈춘|멈췄")
 MAX_MERGE_GAP_SECONDS = 120
 
 
@@ -329,6 +331,49 @@ def _action_category(event: dict[str, Any]) -> str | None:
     if _UNCERTAIN_ACTION.search(description):
         return None
     return next((name for name, pattern in _ACTION_CATEGORIES if pattern.search(description)), None)
+
+
+def _labels(event: dict[str, Any]) -> tuple[str | None, bool | None, str | None]:
+    """모델이 붙인 (action_type, continues_previous, call_id). 이벤트 최상위 또는 근거 프레임의 event_labels에서 읽는다.
+
+    behavior_events 테이블에 라벨 컬럼이 없어 추출 단계가 source_frames_json에 함께 저장한다.
+    call_id는 같은 모델 호출(같은 청크의 같은 Window)에서 나온 이벤트를 알아보는 식별자다.
+    라벨이 없는 기존 이벤트는 (None, None, None)이다.
+    """
+    labels: dict[str, Any] = {}
+    if any(key in event for key in ("action_type", "continues_previous", "call_id")):
+        labels = event
+    else:
+        for frame in event.get("source_frames") or []:
+            found = frame.get("event_labels") if isinstance(frame, dict) else None
+            if isinstance(found, dict):
+                labels = found
+                break
+    action_type, continues, call_id = labels.get("action_type"), labels.get("continues_previous"), labels.get("call_id")
+    return (
+        action_type if isinstance(action_type, str) else None,
+        continues if isinstance(continues, bool) else None,
+        call_id if isinstance(call_id, str) else None,
+    )
+
+
+def _same_action(previous: dict[str, Any], event: dict[str, Any]) -> bool:
+    """두 이웃 이벤트가 '같은 행동이 이어진' 것인가.
+
+    - 같은 모델 호출에서 나온 둘 다 라벨이 있으면 모델 판단을 따른다: action_type이 같고(other 제외)
+      continues_previous가 true일 때만 같다. 타입만 같은 것은 같다고 보지 않는다(서로 다른 개체·방향 전환 구분 불가).
+    - 호출이 다르면(청크·Window 경계) continues_previous는 알 수 없다. 둘 다 라벨이 있고 타입이 다르면 다른 행동이고,
+      그 밖에는 기존 키워드 분류(_action_category)가 같을 때만 묶는다. 라벨이 없는 기존 이벤트도 같다.
+    """
+    prev_type, _, prev_call = _labels(previous)
+    next_type, next_continues, next_call = _labels(event)
+    both_labeled = prev_type is not None and next_type is not None
+    if both_labeled and prev_call and prev_call == next_call and next_continues is not None:
+        return next_type == prev_type and next_type != "other" and next_continues is True
+    if both_labeled and prev_type != next_type:
+        return False
+    category = _action_category(event)
+    return category is not None and _action_category(previous) == category
 
 
 def _event_end(recorded_at: datetime | None, event: dict[str, Any]) -> datetime | None:
@@ -343,8 +388,7 @@ def _group_consecutive(rows: list[tuple[datetime | None, dict]]) -> list[list[tu
     groups: list[list[tuple[datetime | None, dict]]] = []
     for row in rows:
         recorded_at, event = row
-        category = _action_category(event)
-        if groups and category is not None:
+        if groups:
             last_recorded, last_event = groups[-1][-1]
             last_end = _event_end(last_recorded, last_event)
             same_video = last_event.get("video_id") == event.get("video_id")
@@ -353,7 +397,7 @@ def _group_consecutive(rows: list[tuple[datetime | None, dict]]) -> list[list[tu
                 and recorded_at is not None
                 and (recorded_at - last_end).total_seconds() <= MAX_MERGE_GAP_SECONDS
             )
-            if same_video and close and _action_category(last_event) == category:
+            if same_video and close and _same_action(last_event, event):
                 groups[-1].append(row)
                 continue
         groups.append([row])
@@ -563,6 +607,9 @@ def run_sequence_query(
         evidence_items = [_card(event, size, role) for _, event, size, role in evidence_rows]
     else:
         results = [_card(event, merged_counts.get(id(event), 1)) for _, event in selected]
+        for card, group in zip(results, selected_groups):
+            if len(group) > 1:
+                card["merged_summaries"] = [_spoken_description(member) for _, member in group]
         evidence_items = results
 
     anchor_event = rows[anchor_span[0]][1] if anchor_span is not None else None
@@ -627,6 +674,10 @@ def run_sequence_query(
             merged = merged_counts.get(id(event), 1)
             if merged > 1:
                 sentence += f" 비슷한 장면이 모두 {merged}번 이어져요."
+                # 묶음의 대표는 첫 장면이라, 끝에서 달라진 장면(예: 줄을 당기다 선반이 떨어짐)이 가려지지 않게 덧붙인다.
+                last_description = _spoken_description(selected_groups[index][-1][1])
+                if last_description != _spoken_description(event):
+                    sentence += f" 마지막에는 {last_description}."
             sentences.append(sentence)
         answer = " ".join(sentences)
         if len(selected) < step_total:

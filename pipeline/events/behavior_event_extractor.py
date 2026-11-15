@@ -8,6 +8,26 @@ from typing import Any
 
 # gpt-4o-mini는 소파가 넘어지는 것 같은 장면 변화를 놓치는 경우가 있어 환경변수로 바꿀 수 있게 한다.
 DEFAULT_MODEL = os.getenv("BEHAVIOR_EVENT_MODEL", "gpt-4o-mini")
+
+# 시퀀스 단계 묶기에 쓰는 행동 분류. 모델이 이 중 하나를 고르며, 목록 밖의 값은 버린다(None).
+ACTION_TYPES = frozenset({
+    "eat", "drink", "walk", "run", "jump", "swim", "sniff", "look",
+    "rest", "play", "groom", "hide", "interact_person", "leave_frame", "other",
+})
+
+
+def _event_labels(event: dict) -> dict:
+    """VLM 이벤트에서 묶기용 라벨을 검증해 꺼낸다. 없거나 형식이 틀리면 해당 키를 뺀다."""
+    labels = {}
+    action_type = str(event.get("action_type") or "").strip().lower()
+    if action_type in ACTION_TYPES:
+        labels["action_type"] = action_type
+    continues = event.get("continues_previous")
+    if isinstance(continues, bool):
+        labels["continues_previous"] = continues
+    return labels
+
+
 MAX_REPRESENTATIVE_FRAMES = 6
 SEGMENT_GAP_SECONDS = 3.0
 MAX_ANALYSIS_WINDOW_SECONDS = 12.0
@@ -602,6 +622,9 @@ def _build_vlm_prompt(segment_context: dict) -> str:
 - 행동, 대상, 반복 여부, 지속 시간을 중심으로 설명한다.
 - 보호자에게 유용한 행동일수록 interestingness를 높게 준다.
 - 건강, 식사, 물 섭취, 불안, 반복 행동, 사람/물체와의 상호작용은 중요하게 본다.
+- 각 이벤트에 action_type과 continues_previous를 반드시 더한다.
+  - action_type: eat, drink, walk, run, jump, swim, sniff, look, rest, play, groom, hide, interact_person, leave_frame, other 중 하나. 그 이벤트에서 실제로 하고 있는 행동에 가장 가까운 것을 고르고, 맞는 것이 없으면 other. 행동이 바뀌면 action_type도 바뀐다.
+  - continues_previous: 이 요청 안에서 바로 앞 이벤트와 같은 행동이 끊기지 않고 이어지면 true, 행동이 바뀌었거나 첫 이벤트면 false. 같은 행동이어도 중간에 다른 행동이 끼면 false.
 - JSON 객체만 출력한다.
 - markdown 코드블록을 쓰지 마라.
 
@@ -620,6 +643,8 @@ def _build_vlm_prompt(segment_context: dict) -> str:
   "repeat_count": 1,
   "confidence": 0.7,
   "interestingness": 0.6,
+  "action_type": "look",
+  "continues_previous": false,
   "evidence": ["4.00초: 소파 위에 몸을 낮추고 있음", "6.00초: 같은 자리에서 고개를 앞으로 향함"]
 }}, {{
   "start_time": 12.0,
@@ -632,6 +657,8 @@ def _build_vlm_prompt(segment_context: dict) -> str:
   "repeat_count": 1,
   "confidence": 0.7,
   "interestingness": 0.8,
+  "action_type": "other",
+  "continues_previous": false,
   "evidence": ["12.00초: 화분이 창가에 똑바로 서 있음", "14.00초: 화분이 옆으로 누워 있고 바닥에 흙이 흩어져 있음"]
 }}]}}
 위 예시는 형식 참고용이다. 문장을 그대로 베끼지 말고 실제 프레임에서 보이는 내용으로 작성해라.
@@ -779,14 +806,25 @@ def _normalize_behavior_event(
         key=lambda frame: abs(float(frame.get("timestamp") or 0.0) - midpoint),
     )]
 
+    labels = _event_labels(event) if not is_scene_change else {}
+    if labels:
+        # continues_previous는 같은 모델 호출(같은 영상 Window)에서 나온 이벤트끼리만 의미가 있다.
+        # 호출을 구별할 수 있게 청크 이름과 Window 범위로 만든 식별자를 함께 둔다.
+        first_frame_id = str(group[0].get("frame_id") or group[0].get("frame_path") or "")
+        chunk_key = re.sub(r"_frame_[0-9.]+(?:\.jpg)?$", "", first_frame_id)
+        labels["call_id"] = f"{chunk_key}|{_get_group_start(group)}-{_get_group_end(group)}"
     for frame in evidence_frames:
-        source_frames.append({
+        source_frame = {
             "frame_id": frame.get("frame_id"),
             "frame_path": frame.get("frame_path"),
             "s3_key": frame.get("s3_key"),
             "timestamp": frame.get("timestamp"),
             "object_labels": _parse_object_labels(frame.get("object_labels")),
-        })
+        }
+        if labels:
+            # behavior_events 테이블에는 라벨 컬럼이 없어, 스키마를 바꾸지 않고 JSON 컬럼(source_frames_json)에 함께 둔다.
+            source_frame["event_labels"] = dict(labels)
+        source_frames.append(source_frame)
 
     return {
         "video_id": video_id,

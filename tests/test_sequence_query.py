@@ -169,6 +169,90 @@ class SequenceQueryTests(unittest.TestCase):
             result = run_sequence_query("행동 순서 알려줘", events=events, top_k=10)
             self.assertEqual([item["merged_count"] for item in result["results"]], [1, 1])
 
+    def test_stopped_action_between_same_actions_is_not_swallowed_into_one_step(self):
+        events = [
+            event(1, 0, 2, "고양이가 바닥에 놓인 그릇에서 음식을 먹는다."),
+            event(2, 0, 6, "먹기를 멈추고 고개를 들어 카메라 방향을 바라본다."),
+            event(3, 0, 10, "다시 고개를 숙여 그릇의 음식을 먹는다."),
+        ]
+        result = run_sequence_query("행동 순서 알려줘", events=events, top_k=10)
+
+        self.assertEqual([item["source_event_id"] for item in result["results"]], [1, 2, 3])
+        self.assertEqual([item["merged_count"] for item in result["results"]], [1, 1, 1])
+        self.assertEqual(result["total_step_count"], 3)
+
+    def test_model_labels_merge_only_continuing_events_of_the_same_type(self):
+        def labeled(event_id, second, summary, action_type, continues, call_id="w1"):
+            item = event(event_id, 0, second, summary)
+            item["source_frames"][0]["event_labels"] = {
+                "action_type": action_type, "continues_previous": continues, "call_id": call_id,
+            }
+            return item
+
+        events = [
+            labeled(1, 2, "반려동물이 거실 바닥을 빠르게 달려요.", "run", False),
+            labeled(2, 6, "반려동물이 거실 곳곳을 계속 달려요.", "run", True),
+            labeled(3, 10, "반려동물이 화면 오른쪽으로 걸어가요.", "walk", False),
+            labeled(4, 14, "다른 반려동물이 화면 왼쪽에서 걸어와요.", "walk", False),
+        ]
+        result = run_sequence_query("행동 순서 알려줘", events=events, top_k=10)
+
+        # 달리기 2개는 이어짐으로 한 단계가 되고, 타입이 같아도 이어짐이 아닌 걷기 2개는 따로 남는다.
+        self.assertEqual([item["source_event_id"] for item in result["results"]], [1, 3, 4])
+        self.assertEqual([item["merged_count"] for item in result["results"]], [2, 1, 1])
+        self.assertEqual(result["results"][0]["merged_summaries"], [
+            "반려동물이 거실 바닥을 빠르게 달려요", "반려동물이 거실 곳곳을 계속 달려요",
+        ])
+        self.assertIn("마지막에는 반려동물이 거실 곳곳을 계속 달려요.", result["answer"])
+
+    def test_model_label_overrides_keyword_match_and_other_is_never_merged(self):
+        def labeled(event_id, second, summary, action_type, continues, call_id="w1"):
+            item = event(event_id, 0, second, summary)
+            item["source_frames"][0]["event_labels"] = {
+                "action_type": action_type, "continues_previous": continues, "call_id": call_id,
+            }
+            return item
+
+        stopped = [
+            labeled(1, 2, "고양이가 그릇에서 음식을 먹는다.", "eat", False),
+            labeled(2, 6, "고양이가 그릇에서 음식을 계속 먹는다.", "look", True),
+        ]
+        others = [
+            labeled(1, 2, "반려동물이 화분 쪽을 서성인다.", "other", False),
+            labeled(2, 6, "반려동물이 화분 옆에서 서성인다.", "other", True),
+        ]
+        for events in (stopped, others):
+            result = run_sequence_query("행동 순서 알려줘", events=events, top_k=10)
+            self.assertEqual([item["merged_count"] for item in result["results"]], [1, 1])
+
+    def test_events_from_different_model_calls_fall_back_to_keywords_unless_labeled_types_differ(self):
+        def labeled(event_id, chunk, summary, action_type, call_id):
+            item = event(event_id, chunk, 2, summary)
+            item["source_frames"][0]["event_labels"] = {
+                "action_type": action_type, "continues_previous": False, "call_id": call_id,
+            }
+            return item
+
+        # 서로 다른 청크(호출)의 같은 행동은 continues_previous가 항상 false라, 기존처럼 키워드로 이어 붙인다.
+        drinking = [
+            labeled(1, 0, "반려동물이 물 그릇에서 물을 마시는 모습을 보임.", "drink", "chunk0"),
+            labeled(2, 1, "반려동물이 물을 마시며 갈증을 해소하는 모습을 보임.", "drink", "chunk1"),
+        ]
+        self.assertEqual([i["merged_count"] for i in run_sequence_query("행동 순서 알려줘", events=drinking, top_k=10)["results"]], [2])
+        # 둘 다 라벨이 있고 타입이 다르면 키워드가 같아 보여도 묶지 않는다.
+        different = [
+            labeled(1, 0, "반려동물이 물 그릇에서 물을 마시는 모습을 보임.", "drink", "chunk0"),
+            labeled(2, 1, "반려동물이 물을 마시다 정면을 보는 모습을 보임.", "look", "chunk1"),
+        ]
+        self.assertEqual([i["merged_count"] for i in run_sequence_query("행동 순서 알려줘", events=different, top_k=10)["results"]], [1, 1])
+
+    def test_unlabeled_next_to_labeled_event_uses_the_keyword_rule(self):
+        legacy = event(1, 0, 2, "반려동물이 물 그릇에서 물을 마시는 모습을 보임.")
+        labeled_next = event(2, 1, 2, "반려동물이 물을 마시며 갈증을 해소하는 모습을 보임.")
+        labeled_next["source_frames"][0]["event_labels"] = {"action_type": "drink", "continues_previous": False, "call_id": "c1"}
+        result = run_sequence_query("행동 순서 알려줘", events=[legacy, labeled_next], top_k=10)
+        self.assertEqual([item["merged_count"] for item in result["results"]], [2])
+
     def test_reviewed_video_omits_unverified_events_and_uses_reviewed_anchor(self):
         approved = event(59, 5, 2, "잘못된 예전 설명")
         approved["video_id"] = "funny_moments"
