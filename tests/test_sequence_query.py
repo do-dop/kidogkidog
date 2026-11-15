@@ -57,6 +57,26 @@ class SequenceQueryTests(unittest.TestCase):
             self.assertEqual([item["source_event_id"] for item in result["results"]], [2])
             self.assertIn("오전 9시 0분 20초쯤에 소파가 뒤로 젖혀지면서 반려동물도 같이 넘어갔어요", result["answer"])
 
+    def test_when_question_answers_with_video_position_when_capture_time_is_unknown(self):
+        # smartbench_처럼 petcam_ 형식이 아닌 이름은 촬영 시각을 못 읽는다. 그래도 프레임이 있으면 영상 안 위치로 답한다.
+        def stored(event_id, second, summary, chunk=0):
+            return {
+                "id": event_id, "video_id": "smartbench_0518_rerun", "start_time": second, "end_time": second + 2,
+                "summary": summary, "confidence": 0.8,
+                "source_frames": [{"s3_key": f"frames/smartbench_0518_rerun/smartbench_0518_rerun_{chunk:03d}_frame_{second}.jpg",
+                                   "timestamp": second}],
+            }
+
+        events = [stored(1, 19.02, "반려동물이 소파 위로 올라가고 있어요"), stored(2, 21.02, "소파가 뒤집어졌어요")]
+        result = run_sequence_query("소파가 언제 넘어졌어?", video_id="smartbench_0518_rerun", events=events)
+        self.assertEqual(result["sequence_intent"], "when")
+        self.assertEqual([item["source_event_id"] for item in result["results"]], [2])
+        self.assertIn("영상 21초쯤에 소파가 뒤집어졌어요", result["answer"])
+
+        later = run_sequence_query("소파가 언제 넘어졌어?", video_id="smartbench_0518_rerun",
+                                   events=[stored(3, 5.0, "소파가 뒤집어졌어요", chunk=2)])
+        self.assertIn("영상 2분 5초쯤에", later["answer"])
+
     def test_when_question_without_matching_scene_says_so(self):
         events = [event(1, 0, 2, "반려동물이 소파 위에 앉아 있어요")]
         result = run_sequence_query("소파가 언제 넘어졌어?", video_id="dog-video", events=events)

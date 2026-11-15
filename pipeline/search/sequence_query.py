@@ -189,6 +189,24 @@ def _clock_text(moment: datetime | None) -> str:
     return f"{period} {moment.hour % 12 or 12}시 {moment.minute}분 {moment.second}초쯤"
 
 
+# 촬영 시각을 키에서 읽을 수 없는 영상(petcam_ 형식이 아닌 이름)은 청크 번호와 청크 안 시각으로 영상 안의 위치를 말한다.
+_CHUNK_FRAME_KEY = re.compile(r"_(\d{3})_frame_[0-9.]+\.jpg$")
+CHUNK_SECONDS = 60
+
+
+def _video_time_text(event: dict[str, Any]) -> str:
+    """'영상 21초쯤'처럼 영상 안에서의 위치. 청크 번호를 알 수 없으면 청크 안 시각을 그대로 쓴다."""
+    chunk_index = 0
+    for frame in event.get("source_frames") or []:
+        match = _CHUNK_FRAME_KEY.search(str((frame or {}).get("s3_key") or "")) if isinstance(frame, dict) else None
+        if match:
+            chunk_index = int(match.group(1))
+            break
+    seconds = int(chunk_index * CHUNK_SECONDS + float(event.get("start_time") or 0))
+    minutes, rest = divmod(seconds, 60)
+    return f"영상 {minutes}분 {rest}초쯤" if minutes else f"영상 {rest}초쯤"
+
+
 @lru_cache(maxsize=1)
 def _reviewed_events() -> dict[str, dict[str, dict[str, Any]]]:
     """원본 영상과 대조한 시연 영상의 승인 이벤트만 읽는다."""
@@ -473,6 +491,11 @@ def _playable(recorded_at: datetime | None, event: dict[str, Any]) -> bool:
     )
 
 
+def _has_frame(_recorded_at: datetime | None, event: dict[str, Any]) -> bool:
+    """촬영 시각은 몰라도 원본 프레임(s3_key)으로 다시 열 수 있는 이벤트인가."""
+    return any(isinstance(frame, dict) and frame.get("s3_key") for frame in event.get("source_frames") or [])
+
+
 def _card(event: dict[str, Any], merged_count: int = 1, role: str | None = None) -> dict[str, Any]:
     frames = event.get("source_frames") or []
     valid_frames = [item for item in frames if isinstance(item, dict)]
@@ -565,7 +588,9 @@ def run_sequence_query(
     if intent != "timeline":
         # 처음/마지막/앞/뒤 답은 시각을 알고 다시 재생할 수 있는 이벤트로만 한다.
         # 프레임이 없는 레거시 이벤트는 시각이 없어 맨 뒤로 정렬되므로 '마지막'이나 이웃으로 내면 안 된다.
-        rows = [row for row in all_rows if _playable(*row)]
+        # 다만 '언제' 질문은 시각을 묻는 것이라, 촬영 시각이 없어도 프레임이 있으면 영상 안의 위치로 답할 수 있다.
+        keep = _has_frame if intent == "when" else _playable
+        rows = [row for row in all_rows if keep(*row)]
         unplayable_count = len(all_rows) - len(rows)
     # '소파에서 뭐했어?'처럼 장소가 붙은 시간순 질문은 그 장소가 나온 장면만 모은다.
     # 조건을 무시하고 전체 타임라인을 보여 주면 소파와 상관없는 행동이 답으로 나간다.
@@ -699,8 +724,8 @@ def run_sequence_query(
                 answer += " 다만 제외된 구간이 있어서, 실제로 없었다는 뜻은 아니에요."
         else:
             first_at, first_event = selected[0]
-            clock = _clock_text(first_at)
-            answer = f"{clock}에 {_spoken_description(first_event)}." if clock else f"{_spoken_description(first_event)}."
+            clock = _clock_text(first_at) or _video_time_text(first_event)
+            answer = f"{clock}에 {_spoken_description(first_event)}."
             if when_total > 1:
                 answer += f" 비슷한 장면이 모두 {when_total}번 있었어요."
         answer += skipped_note
