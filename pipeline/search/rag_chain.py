@@ -368,14 +368,14 @@ def _run_aggregate_query(
                 frame["source_event_id"] = episode["event_ids"][0]
                 result_frames.append(frame)
 
-    times = ", ".join(
-        f"{item['video_id']} {item['start_time']:.1f}~{item['end_time']:.1f}초"
-        for item in evidence[:3]
-    )
-    more = f" 외 {len(evidence) - 3}개 구간" if len(evidence) > 3 else ""
+    action_phrase = {
+        "drink": "물을 마시는",
+        "eat": "음식을 먹는",
+        "gate_climb": "울타리에 올라타는",
+    }.get(action, f"{action_label} 관련")
     answer = (
-        f"기록에서 {action_label}로 표시된 구간 {len(evidence)}개를 찾았어요. "
-        f"근거 구간: {times}{more}. 실제 행동 횟수는 영상을 확인해 주세요."
+        f"{action_phrase} 장면이 {len(evidence)}개 구간에서 확인됐어요. "
+        "실제 행동 횟수는 아래 영상을 보고 확인해 주세요."
     )
     return {
         "query": query,
@@ -1058,13 +1058,13 @@ def _generate_answer_with_langchain(
 - 행동 이벤트의 time_range(영상 전체 길이에 걸친 넓은 구간)를 그대로 말하지 않는다. 2초~58초처럼 넓은 구간을 안내하지 않는다.
 - 질문에 나온 대상이나 행동(예: 쓰레기통, 뒤지기)이 summary, evidence, target_object, object_labels 어디에도 직접 나오지 않으면, 있다고 말하지 않는다. 이때는 "정확히 그 장면이라고 확신하긴 어렵지만 가장 비슷한 후보는 ~예요"처럼 후보라고 말한다.
 - 근거에 없는 해석(호기심, 감정, 의도 등)을 덧붙이지 않는다. 화면에 보이는 것만 말한다.
-- 후보 장면이 여러 개면 비슷한 순서대로 구간을 짧게 나열한다.
+- 가장 적합한 구간을 먼저 말한다. 다른 구간이 꼭 필요할 때만 한 곳을 덧붙인다. 화면의 관련 영상 목록에 이미 있는 후보를 모두 나열하지 않는다.
 - 중복된 구간은 반복해서 나열하지 말고 하나로 묶는다.
 - confidence, similarity_score, repeat_count, frame count, object_labels 원문, evidence 원문 같은 내부 수치는 노출하지 않는다.
 - "분석된 행동 이벤트", "프레임 기반", "metadata", "ChromaDB" 같은 기술 용어를 사용자 답변에 쓰지 않는다.
 - 행동을 과하게 단정하지 않는다. "~로 보여요", "~장면으로 확인해보면 좋아요"처럼 자연스럽게 말한다.
-- 답변은 2~4문장 또는 최대 3개 bullet로 짧게 작성한다.
-- 마지막에는 필요할 때만 "정확한 행동 판단은 영상으로 한 번 확인해주세요."처럼 부드럽게 덧붙인다.
+- 답변은 한두 문장으로 작성한다. 같은 구간이나 행동 설명을 반복하지 않는다.
+- 행동이 불확실할 때만 확인이 필요하다고 짧게 덧붙인다.
 - 한국어로 답변한다.
 """.strip(),
             ),
@@ -1116,52 +1116,30 @@ def _build_fallback_answer(
     LLM을 못 쓸 때도 behavior_events와 검색 결과 기반으로 간단한 답변을 생성한다.
     """
     if retrieved_frames:
-        # 카드에 보이는 장면과 같은 구간·순서로 안내한다. 이벤트는 장면 설명에만 쓴다.
-        top_items = []
-        for frame in retrieved_frames[:3]:
-            timestamp = _safe_float(frame.get("timestamp"))
-            matching_event = next(
-                (
-                    candidate for candidate in behavior_events
-                    if timestamp is not None
-                    and _safe_float(candidate.get("start_time")) is not None
-                    and _safe_float(candidate.get("end_time")) is not None
-                    and _safe_float(candidate["start_time"]) - 3.0 <= timestamp <= _safe_float(candidate["end_time"]) + 3.0
-                ),
-                None,
-            )
-            description = (
-                _friendly_event_summary(matching_event) if matching_event
-                else _friendly_labels(frame.get("object_labels"))
-            )
-            top_items.append(f"- {_format_scene_range(frame)}: {description}")
-
-        joined = "\n".join(top_items)
-        return (
-            f"'{query}'와 가장 비슷한 장면 순서로 보여드려요. "
-            "질문 속 대상이 정확히 나오는지는 자동으로 확정하기 어려워요.\n\n"
-            f"{joined}\n\n"
-            "결과 영상을 눌러 해당 구간을 직접 확인해보세요."
+        # 대표 구간 하나를 문장으로 안내한다. 나머지 후보는 결과 카드에서 확인할 수 있다.
+        frame = retrieved_frames[0]
+        timestamp = _safe_float(frame.get("timestamp"))
+        matching_event = next(
+            (
+                candidate for candidate in behavior_events
+                if timestamp is not None
+                and _safe_float(candidate.get("start_time")) is not None
+                and _safe_float(candidate.get("end_time")) is not None
+                and _safe_float(candidate["start_time"]) - 3.0 <= timestamp <= _safe_float(candidate["end_time"]) + 3.0
+            ),
+            None,
         )
+        description = (
+            _friendly_event_summary(matching_event) if matching_event
+            else _friendly_labels(frame.get("object_labels"))
+        )
+        scene_range = _format_scene_range(frame).split(" (", 1)[0]
+        return f"가장 가까운 후보는 {scene_range} 구간이에요. {description.rstrip('.')}."
 
     if behavior_events:
-        visible_events = _deduplicate_answer_events(behavior_events)[:3]
-        top_items = []
-
-        for event in visible_events:
-            start_time = event.get("start_time")
-            end_time = event.get("end_time")
-            time_text = _format_user_time_range(start_time, end_time)
-            summary = _friendly_event_summary(event)
-
-            top_items.append(
-                f"- {time_text}: {summary}"
-            )
-
-        joined = "\n".join(top_items)
-        intro = _friendly_intro(query=query, count=len(top_items))
-
-        return f"{intro}\n\n{joined}\n\n정확한 행동은 영상을 재생해서 한 번 확인해보면 좋아요."
+        event = _deduplicate_answer_events(behavior_events)[0]
+        time_text = _format_user_time_range(event.get("start_time"), event.get("end_time"))
+        return f"{time_text}에 {_friendly_event_summary(event).rstrip('.')}."
 
     if retrieved_frames:
         top_items = []
@@ -1271,6 +1249,9 @@ def _friendly_event_summary(event: dict[str, Any]) -> str:
     target = str(event.get("target_object") or "").strip()
     labels = _labels_from_event(event)
 
+    if summary:
+        return _soften_summary(summary)
+
     if target:
         return f"{target} 근처에서 움직임이 보여요."
 
@@ -1282,9 +1263,6 @@ def _friendly_event_summary(event: dict[str, Any]) -> str:
 
     if action and action not in {"motion", "unknown"}:
         return f"{action} 행동으로 보이는 장면이에요."
-
-    if summary:
-        return _soften_summary(summary)
 
     return "움직임이 확인된 장면이에요."
 
@@ -1314,6 +1292,8 @@ def _soften_summary(summary: str) -> str:
     cleaned = re.sub(r"\([^)]*(반복|신뢰도|confidence|frame|프레임)[^)]*\)", "", cleaned).strip()
     cleaned = cleaned.replace("것으로 추정되는 구간입니다", "것으로 보여요")
     cleaned = cleaned.replace("구간입니다", "장면이에요")
+    if cleaned.endswith("움직임"):
+        cleaned = cleaned[:-3] + "움직이는 모습이 보여요"
 
     if len(cleaned) > 70:
         cleaned = cleaned[:67].rstrip() + "..."
