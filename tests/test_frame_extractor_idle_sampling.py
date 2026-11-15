@@ -1,0 +1,52 @@
+import unittest
+from unittest.mock import MagicMock, patch
+
+from pipeline.video import frame_extractor
+
+
+class IdleSampleTimesTests(unittest.TestCase):
+    def test_disabled_when_interval_is_zero(self):
+        self.assertEqual(frame_extractor.idle_sample_times(30, [(5, 10)], 0), [])
+
+    def test_skips_times_near_motion_segments(self):
+        times = frame_extractor.idle_sample_times(20, [(8, 12)], 5, pad=1.0)
+        self.assertEqual(times, [0.0, 5.0, 15.0, 20.0])
+
+    def test_no_motion_means_every_interval(self):
+        self.assertEqual(frame_extractor.idle_sample_times(10, [], 5), [0.0, 5.0, 10.0])
+
+
+class ExtractFramesIdleTests(unittest.TestCase):
+    def _capture(self):
+        capture = MagicMock()
+        capture.get.side_effect = lambda prop: {
+            frame_extractor.cv2.CAP_PROP_FPS: 30.0,
+            frame_extractor.cv2.CAP_PROP_FRAME_COUNT: 600.0,  # 20초
+        }.get(prop, 0)
+        capture.read.return_value = (True, object())
+        return capture
+
+    def _run(self, interval):
+        with patch.object(frame_extractor, "detect_motion", return_value=[(8.0, 12.0)]), \
+             patch.object(frame_extractor.cv2, "VideoCapture", return_value=self._capture()), \
+             patch.object(frame_extractor.cv2, "imwrite", return_value=True), \
+             patch.object(frame_extractor.os, "makedirs"):
+            return frame_extractor.extract_frames(
+                "clip.mp4", output_dir="/tmp/frames", idle_sample_interval=interval
+            )
+
+    def test_off_by_default_keeps_motion_only(self):
+        frames = self._run(0)
+        self.assertEqual([f["timestamp"] for f in frames], [8.0, 10.0, 12.0])
+        self.assertTrue(all(f["motion_detected"] for f in frames))
+
+    def test_idle_frames_are_added_and_flagged(self):
+        frames = self._run(5)
+        self.assertEqual([f["timestamp"] for f in frames], [0.0, 5.0, 8.0, 10.0, 12.0, 15.0, 20.0])
+        idle = [f for f in frames if not f["motion_detected"]]
+        self.assertEqual(len(idle), 4)
+        self.assertEqual(len({f["segment_id"] for f in idle}), 4)  # 프레임마다 별도 구간
+
+
+if __name__ == "__main__":
+    unittest.main()
