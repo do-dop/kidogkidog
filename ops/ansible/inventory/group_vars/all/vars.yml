@@ -17,3 +17,6 @@ rabbitmq_vhost: "kidog_lab"
 mysql_password: "{{ vault_mysql_password }}"
 rabbitmq_password: "{{ vault_rabbitmq_password }}"
 openai_api_key: "{{ vault_openai_api_key }}"
+# 장면 변화 전후 비교(pipeline/events/scene_change_detector.py)용. vault에 아직 없으면 빈 값으로 두어
+# 배포는 그대로 되고, 키가 비어 있으면 전후 비교만 꺼진다.
+gemini_api_key: "{{ vault_gemini_api_key | default('') }}"
