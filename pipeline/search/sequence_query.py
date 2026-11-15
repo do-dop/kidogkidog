@@ -40,17 +40,37 @@ def _temporal_marker(query: str) -> bool:
 
 
 # 물건이 넘어지거나 쓰러지는 등 장면이 바뀐 일. 같은 일을 다르게 적은 설명끼리 맞도록 낱말 묶음으로 본다.
-_SCENE_CHANGE_GROUP = ("넘어지", "넘어졌", "넘어가", "넘어갔", "쓰러", "젖혀", "젖혔", "무너", "엎어", "뒤집", "자빠")
+_SCENE_CHANGE_GROUP = ("넘어지", "넘어졌", "넘어진", "넘어져", "넘어짐", "넘어가", "넘어갔", "쓰러", "젖혀", "젖혔", "무너", "엎어", "뒤집", "자빠")
 _SCENE_CHANGE = re.compile("|".join(_SCENE_CHANGE_GROUP))
 _WHEN = re.compile(r"언제")
 
 
+def _normalize_spelling(query: str) -> str:
+    """같은 물건의 흔한 표기 차이를 맞춘다('쇼파'→'소파'). 이벤트 설명은 '소파'로 적힌다."""
+    return query.replace("쇼파", "소파")
+
+
+def _is_scene_change_statement(query: str) -> bool:
+    """'소파가 넘어진 장면 보여줘'처럼 '언제' 없이 물건이 넘어진 일을 묻는 말인가.
+
+    '강아지가 넘어졌어?'는 반려동물 행동이라 제외한다. 반려동물·질문 틀 낱말을 뗀 뒤 대상 낱말(물건)과 서술어가
+    함께 남을 때만 장면 변화로 본다.
+    """
+    if not _SCENE_CHANGE.search(query):
+        return False
+    terms, _ = _condition_terms(query)
+    return len(terms) >= 2
+
+
 def is_sequence_query(query: str) -> bool:
+    query = _normalize_spelling(query)
     compact = re.sub(r"\s+", "", query.lower())
     if any(word in compact for word in ("몇번", "몇회", "횟수", "몇개", "얼마나자주")):
         return False
     # '소파가 언제 넘어졌어?'처럼 장면이 바뀐 시각을 묻는 질문은 저장된 이벤트에서 찾는다.
     if _WHEN.search(compact) and _SCENE_CHANGE.search(compact):
+        return True
+    if _is_scene_change_statement(query):
         return True
     if any(re.sub(r"\s+", "", word) in compact for word in _SEQUENCE_WORDS):
         return True
@@ -184,7 +204,9 @@ def _sequence_intent(query: str) -> tuple[str, str]:
         return "before", query[:before.start()].strip()
     if after:
         return "after", query[:after.start()].strip()
-    if _WHEN.search(query) and not (_FIRST.search(query) or _LAST.search(query) or _WHOLE_RANGE.search(query)):
+    if (_WHEN.search(query) or _is_scene_change_statement(query)) and not (
+        _FIRST.search(query) or _LAST.search(query) or _WHOLE_RANGE.search(query)
+    ):
         return "when", ""
     if _WHOLE_RANGE.search(query):
         return "timeline", ""
@@ -202,7 +224,7 @@ def _sequence_intent(query: str) -> tuple[str, str]:
 # 조건·기준 문구에서 행동/대상이 아닌 질문 틀 낱말. 이 낱말만 남으면 조건이 없는 것이다.
 _CONDITION_FILLER = {
     "행동", "장면", "모습", "동작", "상황", "순서", "일", "건", "거", "것", "게", "걸", "한", "했", "하는", "하던", "하고",
-    "본", "봤어", "있었어", "있었던", "뭐", "뭘", "뭐야", "무엇", "무슨", "어떤", "어디", "언제", "어땠어", "어땠나",
+    "본", "봤어", "있었어", "있었던", "적", "있어", "있나", "있니", "있나요", "있어요", "있었나", "있었니", "뭐", "뭘", "뭐야", "무엇", "무슨", "어떤", "어디", "언제", "어땠어", "어땠나",
     "장소", "위치", "시간", "시각", "때", "처음", "첫", "번째", "마지막", "맨", "제일", "가장", "먼저", "끝", "나중",
     "오늘", "어제", "아까", "하루", "오전", "오후", "아침", "점심", "저녁", "밤", "새벽", "최근", "강아지", "고양이",
     "반려동물", "우리", "아이", "그", "알려줘", "알려", "줘", "보여줘", "보여", "말해줘", "해줘",
@@ -241,6 +263,26 @@ def _condition_terms(query: str) -> tuple[list[Term], str]:
     """'마지막으로 물 마신 건 언제야?'에서 순서 표지를 지우고 행동 조건(물, 마신)만 남긴다."""
     text = _EARLY.sub(" ", _FIRST.sub(" ", _LAST.sub(" ", query)))
     return _content_terms(text)
+
+
+# '소파에서 뭐했어?'·'소파 위에서'처럼 장소 표지가 붙은 낱말. 질문이 특정 장소의 행동을 묻는다는 뜻이다.
+_PLACE_MARKED = re.compile(
+    r"([가-힣A-Za-z0-9]{2,})\s*(?:위에서|위에|아래에서|아래에|옆에서|옆에|근처에서|근처에|앞에서|앞에|속에서|속에|밑에서|밑에|에서)(?![가-힣])"
+)
+# 장소가 아니라 시간·범위·화면을 가리키는 말이라, 이벤트 설명에 없어도 되는 낱말.
+_GENERIC_PLACES = {"집", "방", "여기", "거기", "화면", "영상", "전체", "평소", "하루", "오늘", "어제", "아까", "밤", "낮", "아침", "저녁", "새벽", "어디", "언제"}
+
+
+def _place_terms(query: str) -> list[str]:
+    """질문에서 장소 표지가 붙은 낱말만 뽑는다. 반려동물·질문 틀 낱말과 일반적인 말은 뺀다."""
+    places = []
+    for match in _PLACE_MARKED.finditer(query):
+        word = match.group(1)
+        if word in _CONDITION_FILLER or word in _GENERIC_PLACES or _SUBJECT_WORDS.fullmatch(word):
+            continue
+        if word not in places:
+            places.append(word)
+    return places
 
 
 def _variants(term: str) -> list[str]:
@@ -478,6 +520,8 @@ def run_sequence_query(
     DB의 `ORDER BY video_id, start_time`은 시간순이 아니므로, 개수 제한을 DB 순서로 자르면
     최신 이벤트가 빠진다. 그래서 여기서는 자르지 않고 전부 받아 청크 번호로 시각을 복원한 뒤 정렬한다.
     """
+    query_as_asked = query
+    query = _normalize_spelling(query)
     if events is None:
         from db.behavior_events import get_behavior_events_for_aggregation
         events = get_behavior_events_for_aggregation(video_id=video_id)
@@ -523,6 +567,11 @@ def run_sequence_query(
         # 프레임이 없는 레거시 이벤트는 시각이 없어 맨 뒤로 정렬되므로 '마지막'이나 이웃으로 내면 안 된다.
         rows = [row for row in all_rows if _playable(*row)]
         unplayable_count = len(all_rows) - len(rows)
+    # '소파에서 뭐했어?'처럼 장소가 붙은 시간순 질문은 그 장소가 나온 장면만 모은다.
+    # 조건을 무시하고 전체 타임라인을 보여 주면 소파와 상관없는 행동이 답으로 나간다.
+    place_terms = _place_terms(query) if intent == "timeline" else []
+    if place_terms:
+        rows = [row for row in rows if all(_term_in(term, _match_text(row[1])) for term in place_terms)]
     selected_groups = None
     step_total = len(rows)
     anchor_span = None
@@ -634,6 +683,10 @@ def run_sequence_query(
         if video_id in reviewed:
             answer += " 이 영상은 여러 장면을 이어 붙인 거라 같은 동물의 연속 행동인지는 알 수 없어요."
         answer += skipped_note
+    elif place_terms and not rows:
+        answer = f"분석된 장면 중에서는 ‘{'·'.join(place_terms)}’이(가) 나오는 행동을 찾지 못했어요."
+        if excluded_event_count:
+            answer += " 다만 제외된 구간이 있어서, 실제로 없었다는 뜻은 아니에요."
     elif not rows:
         if unplayable_count and not excluded_event_count:
             answer = "다시 재생할 수 있는 근거가 있는 행동 장면이 아직 없어요."
@@ -682,9 +735,11 @@ def run_sequence_query(
         answer = " ".join(sentences)
         if len(selected) < step_total:
             answer += f"\n전체 {step_total}개 장면 중 처음 {len(selected)}개만 보여드려요."
+        if place_terms:
+            answer = f"‘{'·'.join(place_terms)}’이(가) 나오는 행동만 모았어요. " + answer
 
     return {
-        "query": query,
+        "query": query_as_asked,
         "query_type": "sequence",
         "video_id": video_id,
         "answer": answer,
