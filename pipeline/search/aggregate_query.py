@@ -23,6 +23,7 @@ ACTION_PATTERNS = {
         r"(?:올라|올랐|올리|점프|타고).{0,16}(?:소파|쇼파|sofa)",
         "소파 올라가기",
     ),
+    "head_lift": (r"고개.{0,8}(?:들|올리|들어)", "고개 들기"),
 }
 COUNT_PATTERN = re.compile(r"몇\s*(?:번|회)|횟수", re.I)
 UNCERTAIN_PATTERN = re.compile(r"마시지\s*않|먹지\s*않|마시는지|먹는지|근처|주변|앞에|옆에", re.I)
@@ -31,10 +32,9 @@ UNCERTAIN_PATTERN = re.compile(r"마시지\s*않|먹지\s*않|마시는지|먹�
 def parse_count_action(query: str) -> tuple[str, str] | None:
     if not COUNT_PATTERN.search(query):
         return None
-    # '밥을 먹다가 고개를 몇 번 들었어?'의 횟수 단위는 식사가 아니라 고개 들기다.
-    # 이 행동의 전환 이벤트가 없는 한 식사 구간을 대신 세면 잘못된 숫자가 된다.
+    # 식사 중 고개 들기 질문은 식사 횟수와 단위가 다르다.
     if re.search(r"고개.{0,8}(?:들|올리|들어)", query):
-        return None
+        return ("head_lift", "고개 들기")
     matches = [
         (action, label)
         for action, (pattern, label) in ACTION_PATTERNS.items()

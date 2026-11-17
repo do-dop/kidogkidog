@@ -6,7 +6,8 @@ from pipeline.search.aggregate_query import parse_count_action
 
 class AggregateEventMatchingTests(unittest.TestCase):
     def test_count_action_does_not_count_eating_for_head_lifts(self):
-        self.assertIsNone(parse_count_action("고양이가 밥을 먹다가 고개를 몇 번 들었어?"))
+        self.assertEqual(parse_count_action("고양이가 밥을 먹다가 고개를 몇 번 들었어?"),
+                         ("head_lift", "고개 들기"))
         self.assertEqual(parse_count_action("고양이가 밥을 몇 번 먹었어?"), ("eat", "먹기"))
 
     def test_matching_count_does_not_hide_wrong_events(self):

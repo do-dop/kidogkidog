@@ -8,5 +8,32 @@
       "reviewed_windows": [[0.0, 1.0], [2.5, 7.0], [9.0, 9.0], [15.0, 15.0], [17.0, 17.0], [20.0, 20.0]],
       "source": "user_review_2026-11-18"
     }
+  },
+  "smartbench_0142": {
+    "head_lift": {
+      "start_time": 9.0,
+      "end_time": 27.5,
+      "summary": "9초부터 28초 무렵까지 식사 장면에서 반려동물이 고개를 여러 차례 들었어요.",
+      "uncertainty": "짧은 동작 하나는 다시 내려놓는 모습이 분명하지 않아 정확한 횟수는 확인하기 어려워요.",
+      "source": "confirmed_two_uncertain_one_2026-11-17"
+    }
+  },
+  "smartbench_0608": {
+    "water_enter": {
+      "start_time": 0.0,
+      "end_time": 25.0,
+      "summary": "영상 초반과 20초 무렵에 반려동물이 수영장 물속으로 들어가는 장면이 보여요.",
+      "uncertainty": "뒤쪽의 짧은 동작은 전후 상태가 불분명해 정확한 총횟수는 확인하기 어려워요.",
+      "source": "confirmed_two_uncertain_one_2026-11-17"
+    }
+  },
+  "smartbench_0936": {
+    "front_paw_raise": {
+      "start_time": 0.0,
+      "end_time": 20.0,
+      "summary": "영상 시작부터 20초 무렵까지 반려동물이 유리문 앞에서 앞발을 여러 차례 빠르게 들었다 내렸어요.",
+      "uncertainty": "첫 장면은 이미 앞발을 든 상태라 정확한 총횟수는 확인하기 어려워요.",
+      "source": "confirmed_seven_start_boundary_uncertain_2026-11-17"
+    }
   }
 }

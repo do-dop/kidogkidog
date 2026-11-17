@@ -330,8 +330,8 @@ def _run_aggregate_query(
         print(f"aggregate 행동 이벤트 조회 실패: {exc}", flush=True)
         return _empty_aggregate_result(query, video_id, "행동 기록을 조회하지 못해 횟수를 계산할 수 없어요.")
 
-    if action == "sofa_up":
-        return _run_reviewed_qualitative_count(query, video_id, timeline, top_k,
+    if (video_id and action in _reviewed_qualitative_ranges().get(video_id, {})):
+        return _run_reviewed_qualitative_count(query, video_id, action, timeline, top_k,
                                                recording_date, time_range)
 
     matched = [event for event in timeline if event_matches_action(event, action)]
@@ -418,29 +418,35 @@ def _empty_aggregate_result(query: str, video_id: str | None, answer: str) -> di
     }
 
 
+def _reviewed_qualitative_ranges() -> dict[str, Any]:
+    path = Path(__file__).with_name("qualitative_count_ranges.json")
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
 def _run_reviewed_qualitative_count(
-    query: str, video_id: str | None, timeline: list[dict[str, Any]], top_k: int,
+    query: str, video_id: str | None, action: str,
+    timeline: list[dict[str, Any]], top_k: int,
     recording_date: str | None, time_range: dict[str, int] | None,
 ) -> dict[str, Any]:
-    """Describe a reviewed rapid-action span without presenting an unverified count."""
+    """Describe a reviewed ambiguous span without presenting an unverified total."""
     if not video_id or _has_datetime_filter(recording_date, time_range):
         return _empty_aggregate_result(
-            query, video_id, "이 기간의 소파 올라간 횟수는 확인할 근거가 부족해요.")
-    path = Path(__file__).with_name("qualitative_count_ranges.json")
-    reviewed = json.loads(path.read_text(encoding="utf-8"))
-    span = reviewed.get(video_id, {}).get("sofa_up")
+            query, video_id, "이 기간의 행동 횟수는 확인할 근거가 부족해요.")
+    span = _reviewed_qualitative_ranges().get(video_id, {}).get(action)
     if not span:
         return _empty_aggregate_result(
-            query, video_id, "소파에 올라간 정확한 횟수는 확인할 근거가 부족해요.")
+            query, video_id, "이 행동의 정확한 횟수는 확인할 근거가 부족해요.")
     related = sorted((event for event in timeline
                       if not is_scene_event(event)
-                      and re.search(r"소파|쇼파|sofa", " ".join(str(event.get(key) or "")
-                                                        for key in ("action", "summary", "target_object")), re.I)
-                      and float(event.get("start_time") or 0) <= float(span["end_time"])),
+                      and (bool(re.search(r"소파|쇼파|sofa", " ".join(str(event.get(key) or "")
+                                                                 for key in ("action", "summary", "target_object")), re.I))
+                           if action == "sofa_up" else event_matches_action(event, action))
+                      and float(event.get("start_time") or 0) <= float(span["end_time"])
+                      and float(event.get("end_time") or 0) >= float(span["start_time"])),
                      key=lambda event: float(event.get("start_time") or 0))
     if not related:
         return _empty_aggregate_result(
-            query, video_id, "소파 주변 행동 기록이 없어 이 시간대의 움직임을 확인할 수 없어요.")
+            query, video_id, "이 행동의 저장된 근거가 없어 시간대를 확인할 수 없어요.")
     start, end = float(span["start_time"]), float(span["end_time"])
     results = _frames_from_behavior_events(related, video_id=video_id, limit=max(1, top_k))
     results = results[:1]
