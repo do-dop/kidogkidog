@@ -432,7 +432,7 @@ def _unsupported_anchor_claim(anchor: str, event: dict[str, Any]) -> bool:
     """장소만 일치할 때 질문 속 행동까지 확인된 것으로 취급하지 않는다."""
     description = _description(event)
     claims = (
-        (r"나간|나갔|나가기|나왔|빠져나", r"나가|나왔|빠져나|통과"),
+        (r"나간|나갔|나가기|나왔|나온|나와|나오|빠져나", r"나가|나왔|나온|나와|나오|빠져나|통과"),
         (r"수영하|수영했|헤엄", r"수영하|수영했|헤엄"),
         (r"먹|마시", r"먹|마시"),
         (r"놀", r"놀"),
@@ -549,7 +549,10 @@ def _find_anchor(
     terms, _ = _content_terms(anchor)
     if not terms:
         return None
-    matched = {span for index in _match_indices(rows, terms) for span in spans if span[0] <= index <= span[1]}
+    # 장소만 맞는 입수·가장자리 장면을 '수영장에서 나온' 기준으로 고르지 않는다.
+    all_indices = _match_indices(rows, terms)
+    indices = [index for index in all_indices if not _unsupported_anchor_claim(anchor, rows[index][1])]
+    matched = {span for index in (indices or all_indices) for span in spans if span[0] <= index <= span[1]}
     return next(iter(matched)) if len(matched) == 1 else None
 
 
