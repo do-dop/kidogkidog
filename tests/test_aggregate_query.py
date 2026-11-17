@@ -26,6 +26,21 @@ class AggregateQueryTests(unittest.TestCase):
             {"action": "반려동물이 울타리를 넘어가는 것으로 보임", "target_object": "울타리"},
             "gate_climb",
         ))
+
+    def test_verified_water_entry_and_front_paw_questions(self):
+        self.assertEqual(parse_count_action("강아지들이 분수 물속에 몇 번 들어갔어?"),
+                         ("water_enter", "물속 들어가기"))
+        self.assertEqual(parse_count_action("유리문 앞에서 앞발을 몇 번 들었다 내렸어?"),
+                         ("front_paw_raise", "앞발 들기"))
+        self.assertTrue(event_matches_action({"action": "반려동물이 물속으로 들어감"}, "water_enter"))
+        self.assertTrue(event_matches_action({"action": "반려동물이 유리문 앞에서 두 앞발을 들어 올림"},
+                                             "front_paw_raise"))
+        self.assertFalse(event_matches_action({"action": "반려동물이 유리문 앞에서 바라봄"},
+                                              "front_paw_raise"))
+
+    def test_sofa_count_question_is_recognized_for_qualitative_review(self):
+        self.assertEqual(parse_count_action("강아지가 쇼파에 몇 번 올라갔어?"),
+                         ("sofa_up", "소파 올라가기"))
         self.assertTrue(event_matches_action(
             {
                 "action": "반려동물이 우리를 넘으려고 시도함",

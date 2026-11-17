@@ -1,0 +1,126 @@
+[
+  {
+    "video_id": "smartbench_0065",
+    "start_time": 19.0,
+    "end_time": 23.0,
+    "subject": "반려동물",
+    "action": "반려동물이 소파 위에 올라가서 앞쪽을 바라봄",
+    "target_object": "소파",
+    "summary": "반려동물이 소파 위에 올라가서 앞쪽을 바라보고 있어요",
+    "duration": 4.0,
+    "repeat_count": 1,
+    "confidence": 0.9,
+    "interestingness": 0.8,
+    "evidence": [
+      "19.00초: 소파 위에 반려동물이 있음",
+      "23.00초: 소파 위에 반려동물이 앉아 앞쪽을 바라보고 있음"
+    ],
+    "source_frames": [
+      {
+        "frame_id": "/var/folders/g5/83j4lqks1w1gyzq149ljv2xc0000gn/T/kidog-event-recheck-wgqhvhxv/smartbench_0065_frame_21.00.jpg",
+        "frame_path": "/var/folders/g5/83j4lqks1w1gyzq149ljv2xc0000gn/T/kidog-event-recheck-wgqhvhxv/smartbench_0065_frame_21.00.jpg",
+        "s3_key": null,
+        "timestamp": 21.0,
+        "object_labels": [],
+        "event_labels": {
+          "action_type": "look",
+          "continues_previous": false,
+          "call_id": "/var/folders/g5/83j4lqks1w1gyzq149ljv2xc0000gn/T/kidog-event-recheck-wgqhvhxv/smartbench_0065|12.0-23.02"
+        }
+      }
+    ]
+  },
+  {
+    "video_id": "smartbench_0065",
+    "start_time": 12.0,
+    "end_time": 14.0,
+    "subject": "반려동물",
+    "action": "반려동물이 소파 위에서 사라짐",
+    "target_object": "소파",
+    "summary": "반려동물이 소파 위에서 사라졌어요",
+    "duration": 2.0,
+    "repeat_count": 1,
+    "confidence": 0.8,
+    "interestingness": 0.7,
+    "evidence": [
+      "12.00초: 소파 위에 반려동물이 있음",
+      "14.00초: 소파 위에 반려동물이 없음"
+    ],
+    "source_frames": [
+      {
+        "frame_id": "/var/folders/g5/83j4lqks1w1gyzq149ljv2xc0000gn/T/kidog-event-recheck-wgqhvhxv/smartbench_0065_frame_13.00.jpg",
+        "frame_path": "/var/folders/g5/83j4lqks1w1gyzq149ljv2xc0000gn/T/kidog-event-recheck-wgqhvhxv/smartbench_0065_frame_13.00.jpg",
+        "s3_key": null,
+        "timestamp": 13.0,
+        "object_labels": [],
+        "event_labels": {
+          "action_type": "leave_frame",
+          "continues_previous": false,
+          "call_id": "/var/folders/g5/83j4lqks1w1gyzq149ljv2xc0000gn/T/kidog-event-recheck-wgqhvhxv/smartbench_0065|12.0-23.02"
+        }
+      }
+    ]
+  },
+  {
+    "video_id": "smartbench_0065",
+    "start_time": 4.0,
+    "end_time": 8.0,
+    "subject": "반려동물",
+    "action": "반려동물이 소파 위에서 앞쪽을 바라봄",
+    "target_object": "소파",
+    "summary": "반려동물이 소파 위에 올라가 앞쪽을 바라보고 있어요",
+    "duration": 4.0,
+    "repeat_count": 1,
+    "confidence": 0.7,
+    "interestingness": 0.6,
+    "evidence": [
+      "4.00초: 소파 위에 몸을 낮추고 있음",
+      "6.00초: 같은 자리에서 고개를 앞으로 향함"
+    ],
+    "source_frames": [
+      {
+        "frame_id": "/var/folders/g5/83j4lqks1w1gyzq149ljv2xc0000gn/T/kidog-event-recheck-wgqhvhxv/smartbench_0065_frame_6.00.jpg",
+        "frame_path": "/var/folders/g5/83j4lqks1w1gyzq149ljv2xc0000gn/T/kidog-event-recheck-wgqhvhxv/smartbench_0065_frame_6.00.jpg",
+        "s3_key": null,
+        "timestamp": 6.0,
+        "object_labels": [],
+        "event_labels": {
+          "action_type": "look",
+          "continues_previous": false,
+          "call_id": "/var/folders/g5/83j4lqks1w1gyzq149ljv2xc0000gn/T/kidog-event-recheck-wgqhvhxv/smartbench_0065|2.0-14.0"
+        }
+      }
+    ]
+  },
+  {
+    "video_id": "smartbench_0065",
+    "start_time": 9.0,
+    "end_time": 12.0,
+    "subject": "반려동물",
+    "action": "반려동물이 소파 앞에서 빠르게 움직임",
+    "target_object": "소파",
+    "summary": "반려동물이 소파 앞에서 빠르게 움직이고 있어요",
+    "duration": 3.0,
+    "repeat_count": 1,
+    "confidence": 0.7,
+    "interestingness": 0.6,
+    "evidence": [
+      "9.00초: 소파 앞에서 빠르게 지나가는 모습",
+      "12.00초: 소파 앞에서 사라짐"
+    ],
+    "source_frames": [
+      {
+        "frame_id": "/var/folders/g5/83j4lqks1w1gyzq149ljv2xc0000gn/T/kidog-event-recheck-wgqhvhxv/smartbench_0065_frame_10.00.jpg",
+        "frame_path": "/var/folders/g5/83j4lqks1w1gyzq149ljv2xc0000gn/T/kidog-event-recheck-wgqhvhxv/smartbench_0065_frame_10.00.jpg",
+        "s3_key": null,
+        "timestamp": 10.0,
+        "object_labels": [],
+        "event_labels": {
+          "action_type": "other",
+          "continues_previous": false,
+          "call_id": "/var/folders/g5/83j4lqks1w1gyzq149ljv2xc0000gn/T/kidog-event-recheck-wgqhvhxv/smartbench_0065|2.0-14.0"
+        }
+      }
+    ]
+  }
+]

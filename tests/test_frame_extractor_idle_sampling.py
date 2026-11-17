@@ -5,6 +5,10 @@ from pipeline.video import frame_extractor
 
 
 class IdleSampleTimesTests(unittest.TestCase):
+    def test_idle_frames_on_opposite_sides_of_motion_are_separate_groups(self):
+        self.assertEqual(frame_extractor._idle_time_groups([0, 1, 2, 9, 10, 11], 1),
+                         [[0, 1, 2], [9, 10, 11]])
+
     def test_disabled_when_interval_is_zero(self):
         self.assertEqual(frame_extractor.idle_sample_times(30, [(5, 10)], 0), [])
 
@@ -35,17 +39,26 @@ class ExtractFramesIdleTests(unittest.TestCase):
                 "clip.mp4", output_dir="/tmp/frames", idle_sample_interval=interval
             )
 
-    def test_off_by_default_keeps_motion_only(self):
+    def test_explicit_zero_keeps_motion_only(self):
         frames = self._run(0)
-        self.assertEqual([f["timestamp"] for f in frames], [8.0, 10.0, 12.0])
+        self.assertEqual([f["timestamp"] for f in frames], [8.0, 9.0, 10.0, 11.0, 12.0])
         self.assertTrue(all(f["motion_detected"] for f in frames))
+
+    def test_default_samples_outside_partial_motion(self):
+        with patch.dict(frame_extractor.os.environ, {}, clear=True):
+            frames = self._run(None)
+        idle = [f for f in frames if not f["motion_detected"]]
+        self.assertIn(0.0, [f["timestamp"] for f in idle])
+        self.assertIn(15.0, [f["timestamp"] for f in idle])
+        self.assertEqual(idle[0]["segment_id"], idle[1]["segment_id"])
 
     def test_idle_frames_are_added_and_flagged(self):
         frames = self._run(5)
-        self.assertEqual([f["timestamp"] for f in frames], [0.0, 5.0, 8.0, 10.0, 12.0, 15.0, 20.0])
+        self.assertEqual([f["timestamp"] for f in frames], [0.0, 5.0, 8.0, 9.0, 10.0, 11.0, 12.0, 15.0, 20.0])
         idle = [f for f in frames if not f["motion_detected"]]
         self.assertEqual(len(idle), 4)
-        self.assertEqual(len({f["segment_id"] for f in idle}), 4)  # 프레임마다 별도 구간
+        self.assertEqual(len({f["segment_id"] for f in idle}), 2)  # 12초 창으로 묶어 전환을 분석
+        self.assertEqual(idle[0]["segment_id"], idle[1]["segment_id"])
 
 
 if __name__ == "__main__":

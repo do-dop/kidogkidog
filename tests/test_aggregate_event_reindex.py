@@ -10,6 +10,10 @@ RESULT = (
     Path(__file__).resolve().parents[1]
     / "notebooks/smarthome-bench-evidence/new-pipeline/ablation-cross-video/smartbench_0188/union-result.json"
 )
+BRANCH_RESULTS = (
+    Path(__file__).resolve().parents[1]
+    / "notebooks/smarthome-bench-evidence/new-pipeline/branch-validation-2026-11-17"
+)
 
 
 class AggregateEventReindexTests(unittest.TestCase):
@@ -39,6 +43,23 @@ class AggregateEventReindexTests(unittest.TestCase):
         result["confirmed_count"] = 0
         with self.assertRaises(ValueError):
             events_from_count_result(result, "smartbench_0188", [{"start_time": 4.5, "s3_key": "frame.jpg"}])
+
+    def test_verified_short_entries_remain_separate_episodes(self):
+        for video_id, filename, expected in [
+            ("smartbench_0642", "smartbench_0642-result.json", 2),
+            ("smartbench_0936", "smartbench_0936-rapid-result.json", 7),
+        ]:
+            with self.subTest(video_id=video_id):
+                result = json.loads((BRANCH_RESULTS / filename).read_text(encoding="utf-8"))
+                scenes = [{"start_time": t,
+                           "s3_key": f"frames/{video_id}/{video_id}_000_frame_{t:.2f}.jpg"}
+                          for t in range(0, 24, 2)]
+                events = events_from_count_result(result, video_id, scenes)
+                action = "water_enter" if video_id.endswith("0642") else "front_paw_raise"
+                self.assertEqual(len(events), expected)
+                self.assertEqual(len(count_episodes(events)), expected)
+                self.assertTrue(all(event_matches_action(event, action) for event in events))
+                self.assertTrue(all("초에" in event["summary"] for event in events))
 
 
 if __name__ == "__main__":

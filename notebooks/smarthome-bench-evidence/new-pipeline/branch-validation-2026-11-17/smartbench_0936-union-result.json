@@ -1,0 +1,769 @@
+{
+  "confirmed_count": 3,
+  "uncertain_count": 3,
+  "confirmed": [
+    {
+      "candidate_time": 4.625,
+      "subject_id": "animal_1",
+      "start_time": 3.375,
+      "end_time": 5.125,
+      "before_time": 3.375,
+      "after_time": 4.625,
+      "reset_time": null,
+      "reason": "The dog is initially seen with its front paws down, and by 4.625s, its two front paws are visibly raised together toward the glass door, meeting the criteria for the transition.",
+      "model_status": "confirmed",
+      "model_subject_id": "black and white dog"
+    },
+    {
+      "candidate_time": 7.75,
+      "subject_id": "animal_1",
+      "start_time": 6.5,
+      "end_time": 9.25,
+      "before_time": 6.75,
+      "after_time": 9.25,
+      "reset_time": 5.125,
+      "reason": "The same black and white dog is observed with both front paws down at time 6.750s and then both front paws are fully raised toward the glass door by 9.250s.",
+      "model_status": "confirmed",
+      "model_subject_id": "black and white dog"
+    },
+    {
+      "candidate_time": 19.25,
+      "subject_id": "animal_1",
+      "start_time": 18.0,
+      "end_time": 20.5,
+      "before_time": 18.0,
+      "after_time": 19.25,
+      "reset_time": 10.344,
+      "reason": "The black and white dog is seen with its front paws down at 18.000s and raises both front paws toward the glass door by 19.250s.",
+      "model_status": "confirmed",
+      "model_subject_id": "black and white dog"
+    }
+  ],
+  "uncertain": [
+    {
+      "candidate_time": 0.5,
+      "subject_id": "animal_1",
+      "start_time": 0.0,
+      "end_time": 1.0,
+      "before_time": null,
+      "after_time": 0.5,
+      "reset_time": null,
+      "reason": "The black and white dog is seen with its front paws fully raised toward the glass door at 0.5s and lowers them by 1.0s, meeting the transition criteria.",
+      "model_status": "uncertain",
+      "model_subject_id": "black and white dog",
+      "review_reason": "전후 상태 또는 개체를 확인하지 못함"
+    },
+    {
+      "candidate_time": 2.0,
+      "subject_id": "animal_1",
+      "start_time": 0.75,
+      "end_time": 2.25,
+      "before_time": null,
+      "after_time": 2.0,
+      "reset_time": null,
+      "reason": "The black and white dog is initially seen with both front paws on the ground. At time 1.750, the dog has both front paws raised toward the glass door. The action is completed by 2.000, with both front paws fully on the glass door.",
+      "model_status": "uncertain",
+      "model_subject_id": "black and white dog",
+      "review_reason": "전후 상태 또는 개체를 확인하지 못함"
+    },
+    {
+      "candidate_time": 15.625,
+      "subject_id": "animal_1",
+      "start_time": 14.375,
+      "end_time": 16.125,
+      "before_time": 14.375,
+      "after_time": 15.625,
+      "reset_time": null,
+      "reason": "The same black and white dog raised both front paws toward the glass door at 15.625s with hind paws remaining on the floor. Before this, its front paws were down at 14.375s. The action of lowering them is visible by 16.125s, confirming the transition.",
+      "model_status": "confirmed",
+      "model_subject_id": "black and white dog",
+      "review_reason": "같은 개체의 새로운 진입 전 이탈/리셋 근거 없음"
+    }
+  ],
+  "rejected": [],
+  "duplicates": [
+    {
+      "candidate_time": 9.25,
+      "subject_id": "animal_1",
+      "start_time": 8.0,
+      "end_time": 10.25,
+      "before_time": 8.0,
+      "after_time": 9.5,
+      "reset_time": null,
+      "reason": "The black and white dog was seen with both front paws down near the door at 8.0s, and both front paws were visibly raised toward the glass door by 9.500s. The action was completed without interruption.",
+      "model_status": "confirmed",
+      "model_subject_id": "black and white dog",
+      "review_reason": "같은 개체의 기존 구간과 겹침"
+    },
+    {
+      "candidate_time": 19.875,
+      "subject_id": "animal_1",
+      "start_time": 18.625,
+      "end_time": 20.125,
+      "before_time": 18.625,
+      "after_time": 19.375,
+      "reset_time": null,
+      "reason": "The black and white dog starts with its two front paws down at 18.625s, raises them toward the glass door by 19.375s, and lowers them again by 20.125s.",
+      "model_status": "confirmed",
+      "model_subject_id": "black and white dog",
+      "review_reason": "같은 개체의 기존 구간과 겹침"
+    }
+  ],
+  "video": "data/videos/smartbench_0936.mp4",
+  "query": "강아지가 유리문 앞에서 앞발을 몇 번 들었다 내렸어? 뒷발이 바닥에 남아도 포함해.",
+  "intent": {
+    "subject": "dog",
+    "action": "raise both front paws toward glass door, then lower them",
+    "target": "glass door",
+    "before_state": "that same animal's two front paws are down, not raised toward the target",
+    "after_state": "that same animal's two front paws are visibly raised together toward the target; hind paws may remain on the floor",
+    "exclusion": "one stepping paw and a continued paws-up pose are not new entries; a repeat requires a visible return to paws-down"
+  },
+  "intent_source": "/private/tmp/kidog-video-count-2026-11-17/0936/fixed-intent.json",
+  "candidate_sources": {
+    "0.5": "/private/tmp/kidog-video-count-2026-11-17/0936/smartbench_0936-result.json",
+    "0.25": "/private/tmp/kidog-video-count-2026-11-17/0936/step025/smartbench_0936-result.json"
+  },
+  "candidates": [
+    {
+      "time": 0.5,
+      "subject": "dog at glass door",
+      "reason": "candidate proposed by saved fixed-intent scan",
+      "source_proposals": [
+        {
+          "time": 0.5,
+          "source": "0.5",
+          "subject": "black and white dog"
+        }
+      ]
+    },
+    {
+      "time": 2.0,
+      "subject": "dog at glass door",
+      "reason": "candidate proposed by saved fixed-intent scan",
+      "source_proposals": [
+        {
+          "time": 2.0,
+          "source": "0.5",
+          "subject": "black and white dog"
+        }
+      ]
+    },
+    {
+      "time": 4.625,
+      "subject": "dog at glass door",
+      "reason": "candidate proposed by saved fixed-intent scan",
+      "source_proposals": [
+        {
+          "time": 4.5,
+          "source": "0.25",
+          "subject": "black and white dog"
+        },
+        {
+          "time": 4.75,
+          "source": "0.5",
+          "subject": "black and white dog"
+        }
+      ]
+    },
+    {
+      "time": 7.75,
+      "subject": "dog at glass door",
+      "reason": "candidate proposed by saved fixed-intent scan",
+      "source_proposals": [
+        {
+          "time": 7.75,
+          "source": "0.5",
+          "subject": "black and white dog"
+        }
+      ]
+    },
+    {
+      "time": 9.25,
+      "subject": "dog at glass door",
+      "reason": "candidate proposed by saved fixed-intent scan",
+      "source_proposals": [
+        {
+          "time": 9.25,
+          "source": "0.5",
+          "subject": "black and white dog"
+        },
+        {
+          "time": 9.25,
+          "source": "0.25",
+          "subject": "black and white dog"
+        }
+      ]
+    },
+    {
+      "time": 15.625,
+      "subject": "dog at glass door",
+      "reason": "candidate proposed by saved fixed-intent scan",
+      "source_proposals": [
+        {
+          "time": 15.5,
+          "source": "0.25",
+          "subject": "black and white dog"
+        },
+        {
+          "time": 15.75,
+          "source": "0.5",
+          "subject": "black and white dog"
+        }
+      ]
+    },
+    {
+      "time": 19.25,
+      "subject": "dog at glass door",
+      "reason": "candidate proposed by saved fixed-intent scan",
+      "source_proposals": [
+        {
+          "time": 19.25,
+          "source": "0.5",
+          "subject": "black and white dog"
+        },
+        {
+          "time": 19.25,
+          "source": "0.25",
+          "subject": "black and white dog"
+        }
+      ]
+    },
+    {
+      "time": 19.875,
+      "subject": "dog at glass door",
+      "reason": "candidate proposed by saved fixed-intent scan",
+      "source_proposals": [
+        {
+          "time": 19.75,
+          "source": "0.25",
+          "subject": "black and white dog"
+        },
+        {
+          "time": 20.0,
+          "source": "0.5",
+          "subject": "black and white dog"
+        }
+      ]
+    }
+  ],
+  "verifications": [
+    {
+      "candidate": {
+        "time": 0.5,
+        "subject": "dog at glass door",
+        "reason": "candidate proposed by saved fixed-intent scan",
+        "source_proposals": [
+          {
+            "time": 0.5,
+            "source": "0.5",
+            "subject": "black and white dog"
+          }
+        ]
+      },
+      "frame_times": [
+        0.0,
+        0.25,
+        0.5,
+        0.75,
+        1.0,
+        1.25,
+        1.5,
+        1.75,
+        2.0
+      ],
+      "observation": {
+        "subject_id": "black and white dog",
+        "start_time": 0.0,
+        "end_time": 1.0,
+        "before_time": null,
+        "after_time": 0.5,
+        "reset_time": null,
+        "status": "uncertain",
+        "reason": "The black and white dog is seen with its front paws fully raised toward the glass door at 0.5s and lowers them by 1.0s, meeting the transition criteria.",
+        "evidence_check_reason": "전후 근거 시각이 유효하지 않음",
+        "track_id": "animal_1"
+      },
+      "clip": [
+        0.0,
+        2.0
+      ],
+      "repair": {
+        "subject_id": null,
+        "start_time": null,
+        "end_time": null,
+        "before_time": null,
+        "after_time": null,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "The animal is a cat, not a dog."
+      },
+      "track_resolution": {
+        "index": 0,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "First appearance of black and white dog."
+      }
+    },
+    {
+      "candidate": {
+        "time": 2.0,
+        "subject": "dog at glass door",
+        "reason": "candidate proposed by saved fixed-intent scan",
+        "source_proposals": [
+          {
+            "time": 2.0,
+            "source": "0.5",
+            "subject": "black and white dog"
+          }
+        ]
+      },
+      "frame_times": [
+        0.75,
+        1.0,
+        1.25,
+        1.5,
+        1.75,
+        2.0,
+        2.25,
+        2.5,
+        2.75,
+        3.0,
+        3.25,
+        3.5
+      ],
+      "observation": {
+        "subject_id": "black and white dog",
+        "start_time": 0.75,
+        "end_time": 2.25,
+        "before_time": null,
+        "after_time": 2.0,
+        "reset_time": null,
+        "status": "uncertain",
+        "reason": "The black and white dog is initially seen with both front paws on the ground. At time 1.750, the dog has both front paws raised toward the glass door. The action is completed by 2.000, with both front paws fully on the glass door.",
+        "evidence_check_reason": "전후 근거 시각이 유효하지 않음",
+        "track_id": "animal_1"
+      },
+      "clip": [
+        0.75,
+        3.5
+      ],
+      "repair": {
+        "subject_id": "animal",
+        "start_time": 0.0,
+        "end_time": 1.0,
+        "before_time": 1.0,
+        "after_time": 0.25,
+        "reset_time": null,
+        "status": "confirmed",
+        "reason": "The animal's front paws are down at 1.000s (before_state) and raised toward the glass door at 0.250s (after_state) after a reset."
+      },
+      "track_resolution": {
+        "index": 1,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "Same position and appearance as previous frame."
+      }
+    },
+    {
+      "candidate": {
+        "time": 4.625,
+        "subject": "dog at glass door",
+        "reason": "candidate proposed by saved fixed-intent scan",
+        "source_proposals": [
+          {
+            "time": 4.5,
+            "source": "0.25",
+            "subject": "black and white dog"
+          },
+          {
+            "time": 4.75,
+            "source": "0.5",
+            "subject": "black and white dog"
+          }
+        ]
+      },
+      "frame_times": [
+        3.375,
+        3.625,
+        3.875,
+        4.125,
+        4.375,
+        4.625,
+        4.875,
+        5.125,
+        5.375,
+        5.625,
+        5.875,
+        6.125
+      ],
+      "observation": {
+        "subject_id": "black and white dog",
+        "start_time": 3.375,
+        "end_time": 5.125,
+        "before_time": 3.375,
+        "after_time": 4.625,
+        "reset_time": null,
+        "status": "confirmed",
+        "reason": "The dog is initially seen with its front paws down, and by 4.625s, its two front paws are visibly raised together toward the glass door, meeting the criteria for the transition.",
+        "track_id": "animal_1"
+      },
+      "clip": [
+        3.375,
+        6.125
+      ],
+      "evidence_check": {
+        "status": "confirmed",
+        "before_state_visible": true,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": "dog",
+        "reason": "The same dog is visible with front paws down in the first frame and both front paws raised in the second frame toward the glass door."
+      },
+      "track_resolution": {
+        "index": 2,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "Continuous presence of the same black and white dog."
+      }
+    },
+    {
+      "candidate": {
+        "time": 7.75,
+        "subject": "dog at glass door",
+        "reason": "candidate proposed by saved fixed-intent scan",
+        "source_proposals": [
+          {
+            "time": 7.75,
+            "source": "0.5",
+            "subject": "black and white dog"
+          }
+        ]
+      },
+      "frame_times": [
+        6.5,
+        6.75,
+        7.0,
+        7.25,
+        7.5,
+        7.75,
+        8.0,
+        8.25,
+        8.5,
+        8.75,
+        9.0,
+        9.25
+      ],
+      "observation": {
+        "subject_id": "black and white dog",
+        "start_time": 6.5,
+        "end_time": 9.25,
+        "before_time": 6.75,
+        "after_time": 9.25,
+        "reset_time": 5.125,
+        "status": "confirmed",
+        "reason": "The same black and white dog is observed with both front paws down at time 6.750s and then both front paws are fully raised toward the glass door by 9.250s.",
+        "track_id": "animal_1"
+      },
+      "clip": [
+        6.5,
+        9.25
+      ],
+      "evidence_check": {
+        "status": "confirmed",
+        "before_state_visible": true,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": "black_and_white_dog",
+        "reason": "The first frame shows the dog's front paws down, while the second frame shows them raised toward the glass door."
+      },
+      "track_resolution": {
+        "index": 3,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "Same dog, consistent behavior and appearance."
+      },
+      "reset_check": {
+        "reset_visible": true,
+        "reset_time": 5.125,
+        "same_subject": true,
+        "reason": "The same dog visibly returned to the before_state with both front paws down at t=5.125s after the first event and before the next transition."
+      }
+    },
+    {
+      "candidate": {
+        "time": 9.25,
+        "subject": "dog at glass door",
+        "reason": "candidate proposed by saved fixed-intent scan",
+        "source_proposals": [
+          {
+            "time": 9.25,
+            "source": "0.5",
+            "subject": "black and white dog"
+          },
+          {
+            "time": 9.25,
+            "source": "0.25",
+            "subject": "black and white dog"
+          }
+        ]
+      },
+      "frame_times": [
+        8.0,
+        8.25,
+        8.5,
+        8.75,
+        9.0,
+        9.25,
+        9.5,
+        9.75,
+        10.0,
+        10.25,
+        10.5,
+        10.75
+      ],
+      "observation": {
+        "subject_id": "black and white dog",
+        "start_time": 8.0,
+        "end_time": 10.25,
+        "before_time": 8.0,
+        "after_time": 9.5,
+        "reset_time": null,
+        "status": "confirmed",
+        "reason": "The black and white dog was seen with both front paws down near the door at 8.0s, and both front paws were visibly raised toward the glass door by 9.500s. The action was completed without interruption.",
+        "track_id": "animal_1"
+      },
+      "clip": [
+        8.0,
+        10.75
+      ],
+      "evidence_check": {
+        "status": "confirmed",
+        "before_state_visible": true,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": "dog",
+        "reason": "The same dog is visible in both frames. In the first frame, its front paws are down, and in the second frame, both front paws are raised toward the glass door."
+      },
+      "track_resolution": {
+        "index": 4,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "Immediate continuation from previous frames."
+      },
+      "overlap_identity_check": {
+        "same_animal": true,
+        "certain": false,
+        "two_animals_simultaneously_visible": false,
+        "reason": "Only one animal is visible in both frames, making it impossible to distinguish if there are two separate animals. The crops are consistent with the full frames, but do not provide clear evidence of two animals."
+      }
+    },
+    {
+      "candidate": {
+        "time": 15.625,
+        "subject": "dog at glass door",
+        "reason": "candidate proposed by saved fixed-intent scan",
+        "source_proposals": [
+          {
+            "time": 15.5,
+            "source": "0.25",
+            "subject": "black and white dog"
+          },
+          {
+            "time": 15.75,
+            "source": "0.5",
+            "subject": "black and white dog"
+          }
+        ]
+      },
+      "frame_times": [
+        14.375,
+        14.625,
+        14.875,
+        15.125,
+        15.375,
+        15.625,
+        15.875,
+        16.125,
+        16.375,
+        16.625,
+        16.875,
+        17.125
+      ],
+      "observation": {
+        "subject_id": "black and white dog",
+        "start_time": 14.375,
+        "end_time": 16.125,
+        "before_time": 14.375,
+        "after_time": 15.625,
+        "reset_time": null,
+        "status": "confirmed",
+        "reason": "The same black and white dog raised both front paws toward the glass door at 15.625s with hind paws remaining on the floor. Before this, its front paws were down at 14.375s. The action of lowering them is visible by 16.125s, confirming the transition.",
+        "track_id": "animal_1"
+      },
+      "clip": [
+        14.375,
+        17.125
+      ],
+      "evidence_check": {
+        "status": "confirmed",
+        "before_state_visible": true,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": "black-and-white-dog",
+        "reason": "The same black and white dog is visible in both frames. In the first frame, its front paws are down, and in the second frame, both front paws are raised toward the glass door."
+      },
+      "track_resolution": {
+        "index": 5,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "No break or change in the dog's presence."
+      },
+      "reset_check": {
+        "reset_visible": false,
+        "reset_time": null,
+        "same_subject": true,
+        "reason": "No visible return to before_state with both front paws down within the observed frames."
+      }
+    },
+    {
+      "candidate": {
+        "time": 19.25,
+        "subject": "dog at glass door",
+        "reason": "candidate proposed by saved fixed-intent scan",
+        "source_proposals": [
+          {
+            "time": 19.25,
+            "source": "0.5",
+            "subject": "black and white dog"
+          },
+          {
+            "time": 19.25,
+            "source": "0.25",
+            "subject": "black and white dog"
+          }
+        ]
+      },
+      "frame_times": [
+        18.0,
+        18.25,
+        18.5,
+        18.75,
+        19.0,
+        19.25,
+        19.5,
+        19.75,
+        20.0,
+        20.25,
+        20.5,
+        20.75
+      ],
+      "observation": {
+        "subject_id": "black and white dog",
+        "start_time": 18.0,
+        "end_time": 20.5,
+        "before_time": 18.0,
+        "after_time": 19.25,
+        "reset_time": 10.344,
+        "status": "confirmed",
+        "reason": "The black and white dog is seen with its front paws down at 18.000s and raises both front paws toward the glass door by 19.250s.",
+        "track_id": "animal_1"
+      },
+      "clip": [
+        18.0,
+        20.75
+      ],
+      "evidence_check": {
+        "status": "confirmed",
+        "before_state_visible": true,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": "dog",
+        "reason": "The subject is the same black and white dog in both frames that initially has its paws down in the first frame (before state) and raises both front paws toward the glass door in the second frame (after state)."
+      },
+      "track_resolution": {
+        "index": 6,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "Continuous tracking of the same dog."
+      },
+      "reset_check": {
+        "reset_visible": true,
+        "reset_time": 10.344,
+        "same_subject": true,
+        "reason": "The same dog visibly returns to the before_state with both front paws down at 10.344s before re-entering the after_state."
+      }
+    },
+    {
+      "candidate": {
+        "time": 19.875,
+        "subject": "dog at glass door",
+        "reason": "candidate proposed by saved fixed-intent scan",
+        "source_proposals": [
+          {
+            "time": 19.75,
+            "source": "0.25",
+            "subject": "black and white dog"
+          },
+          {
+            "time": 20.0,
+            "source": "0.5",
+            "subject": "black and white dog"
+          }
+        ]
+      },
+      "frame_times": [
+        18.625,
+        18.875,
+        19.125,
+        19.375,
+        19.625,
+        19.875,
+        20.125,
+        20.375,
+        20.625,
+        20.875,
+        21.125,
+        21.375
+      ],
+      "observation": {
+        "subject_id": "black and white dog",
+        "start_time": 18.625,
+        "end_time": 20.125,
+        "before_time": 18.625,
+        "after_time": 19.375,
+        "reset_time": null,
+        "status": "confirmed",
+        "reason": "The black and white dog starts with its two front paws down at 18.625s, raises them toward the glass door by 19.375s, and lowers them again by 20.125s.",
+        "track_id": "animal_1"
+      },
+      "clip": [
+        18.625,
+        21.375
+      ],
+      "evidence_check": {
+        "status": "confirmed",
+        "before_state_visible": true,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": null,
+        "reason": "The same dog is visible in both frames with front paws initially down and then raised toward the glass door."
+      },
+      "track_resolution": {
+        "index": 7,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "Consistent appearance, remains in the same location."
+      },
+      "overlap_identity_check": {
+        "same_animal": true,
+        "certain": true,
+        "two_animals_simultaneously_visible": false,
+        "reason": "The images consistently show the same animal at both times without any signs of a second animal being present."
+      }
+    }
+  ],
+  "model": "gpt-4o",
+  "track_status": "model_resolved",
+  "scope_note": "Temporal clustering assumes one target dog; not a multi-animal identity solution."
+}

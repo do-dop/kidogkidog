@@ -2,6 +2,8 @@
 
 Example:
   .venv/bin/python scripts/validate_video_aggregate.py --ids 0518 0642
+  .venv/bin/python scripts/validate_video_aggregate.py --video-id smartbench_0642 \
+    --query '강아지들이 분수 물속에 몇 번 들어갔어?'
 """
 
 from __future__ import annotations
@@ -18,6 +20,8 @@ sys.path.insert(0, str(PROJECT))
 from pipeline.search.video_aggregate import (  # noqa: E402
     OpenAIJsonVision,
     analyze_video_count,
+    challenge_overlapping_tracks,
+    challenge_uncertain_evidence,
     check_claimed_evidence,
     repair_failed_claims,
     reduce_transitions,
@@ -68,7 +72,11 @@ class CachedVision:
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--ids", nargs="+", choices=sorted(QUESTIONS), required=True)
+    source = parser.add_mutually_exclusive_group(required=True)
+    source.add_argument("--ids", nargs="+", choices=sorted(QUESTIONS))
+    source.add_argument("--video-id", help="data/videos/<video-id>.mp4 또는 함께 지정한 --video-path의 ID")
+    parser.add_argument("--query", help="--video-id와 함께 사용할 횟수 질문")
+    parser.add_argument("--video-path", type=Path, help="--video-id와 함께 사용할 로컬 MP4 경로")
     parser.add_argument("--scan-model", default="gpt-4o-mini")
     parser.add_argument("--verify-model", default="gpt-4o")
     parser.add_argument("--coarse-step", type=float, default=0.5)
@@ -83,31 +91,44 @@ def main():
     parser.add_argument("--intent-file", type=Path,
                         help="Use one fixed state-transition definition for a single video ID")
     args = parser.parse_args()
+    if args.video_id:
+        if not args.query:
+            parser.error("--video-id requires --query")
+        cases = [(args.video_id, args.query, args.video_path or PROJECT / "data/videos" / f"{args.video_id}.mp4")]
+    else:
+        if args.query or args.video_path:
+            parser.error("--query and --video-path require --video-id")
+        cases = [(f"smartbench_{video_id}", QUESTIONS[video_id],
+                  PROJECT / "data/videos" / f"smartbench_{video_id}.mp4")
+                 for video_id in args.ids]
     from dotenv import load_dotenv
 
     load_dotenv(PROJECT / ".env")
     args.output.mkdir(parents=True, exist_ok=True)
-    if args.intent_file and (len(args.ids) != 1 or args.recheck_existing):
+    if args.intent_file and (len(cases) != 1 or args.recheck_existing):
         parser.error("--intent-file requires one ID and a fresh run")
     intent_override = (json.loads(args.intent_file.read_text(encoding="utf-8"))
                        if args.intent_file else None)
     vision = CachedVision(args.cache_dir or args.output / "api-cache",
                           args.scan_model, args.verify_model)
-    for video_id in args.ids:
-        path = PROJECT / "data/videos" / f"smartbench_{video_id}.mp4"
+    for video_id, query, path in cases:
         if not path.exists():
             raise FileNotFoundError(path)
-        print(f"\n{video_id}: {QUESTIONS[video_id]}", flush=True)
-        output = args.output / f"smartbench_{video_id}-result.json"
+        print(f"\n{video_id}: {query}", flush=True)
+        output = args.output / f"{video_id}-result.json"
         if args.recheck_existing and output.exists():
             result = json.loads(output.read_text(encoding="utf-8"))
             result["verifications"] = check_claimed_evidence(
                 path, result["intent"], result["verifications"], vision)
             result["verifications"] = repair_failed_claims(
                 path, result["intent"], result["verifications"], vision)
+            result["verifications"] = challenge_uncertain_evidence(
+                path, result["intent"], result["verifications"], vision)
             if not args.skip_track:
                 try:
                     result["verifications"] = resolve_subject_tracks(
+                        path, result["verifications"], vision)
+                    result["verifications"] = challenge_overlapping_tracks(
                         path, result["verifications"], vision)
                     result["verifications"] = verify_resets(
                         path, result["intent"], result["verifications"], vision)
@@ -119,12 +140,15 @@ def main():
                 result["track_status"] = "skipped"
             result.update(reduce_transitions(result["verifications"]))
         else:
-            result = analyze_video_count(path, QUESTIONS[video_id], vision,
+            result = analyze_video_count(path, query, vision,
                                          coarse_step=args.coarse_step, fine_step=args.fine_step,
                                          resolve_tracks=not args.skip_track,
                                          intent_override=intent_override)
             result["intent_source"] = str(args.intent_file) if args.intent_file else "model"
-        result["video"] = str(path.relative_to(PROJECT))
+        try:
+            result["video"] = str(path.relative_to(PROJECT))
+        except ValueError:
+            result["video"] = str(path.resolve())
         output.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         print(f"{video_id}: confirmed={result['confirmed_count']}, uncertain={result['uncertain_count']}, "
               f"candidates={len(result['candidates'])}; saved {output}", flush=True)

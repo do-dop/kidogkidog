@@ -10,6 +10,7 @@ from __future__ import annotations
 import base64
 import json
 import math
+import re
 from pathlib import Path
 from typing import Any
 
@@ -41,7 +42,20 @@ def parse_count_intent(query: str, ask_json: Any) -> dict[str, str]:
     keys = ("subject", "action", "target", "before_state", "after_state", "exclusion")
     if any(not isinstance(result.get(key), str) or not result[key].strip() for key in keys):
         raise ValueError("질문 해석에 상태 전환 정보가 빠졌습니다")
-    return {key: result[key].strip() for key in keys}
+    intent = {key: result[key].strip() for key in keys}
+    # 앞발을 '들었다 내림'은 문 앞에서 발 하나를 내딛는 동작과 다르다.
+    # VLM이 target을 앞발 자체로 바꾸거나 뒷발까지 들어야 한다고 해석하지 않게 고정한다.
+    if ("앞발" in query and re.search(r"들|올리", query)
+            and not re.search(r"한쪽|한\s*발|한\s*쪽", query)):
+        target = "glass door" if "유리문" in query else "door" if "문" in query else intent["target"]
+        intent.update({
+            "action": f"raise both front paws toward {target}, then lower them",
+            "target": target,
+            "before_state": "that same animal's two front paws are down, not raised toward the target",
+            "after_state": "that same animal's two front paws are visibly raised together toward the target; hind paws may remain on the floor",
+            "exclusion": "one stepping paw and a continued paws-up pose are not new entries; a repeat requires a visible return to paws-down",
+        })
+    return intent
 
 
 def video_duration(video_path: Path) -> float:
@@ -114,10 +128,11 @@ def _finite_time(value: Any, low: float, high: float) -> float | None:
 
 
 def collect_candidates(video_path: Path, intent: dict[str, str], ask_json: Any,
-                       coarse_step: float = 0.5) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+                       coarse_step: float = 0.5, core_seconds: float = 4.0
+                       ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     """Scan every part of the video; retain all plausible transitions for review."""
     duration = video_duration(video_path)
-    windows = timeline_windows(duration)
+    windows = timeline_windows(duration, core_seconds=core_seconds)
     candidates = []
     scan_log = []
     for window in windows:
@@ -146,7 +161,8 @@ def collect_candidates(video_path: Path, intent: dict[str, str], ask_json: Any,
         raw = response.get("candidates", []) if isinstance(response, dict) else []
         if not isinstance(raw, list):
             raise ValueError("후보 응답이 목록이 아닙니다")
-        scan_log.append({"window": window, "response": response, "frame_times": [f["time"] for f in frames]})
+        scan_log.append({"window": window, "response": response,
+                         "frame_times": [f["time"] for f in frames], "core_seconds": core_seconds})
         for row in raw:
             if not isinstance(row, dict):
                 continue
@@ -244,19 +260,24 @@ def check_claimed_evidence(video_path: Path, intent: dict[str, str],
 
 def repair_failed_claims(video_path: Path, intent: dict[str, str],
                          verified: list[dict[str, Any]], ask_json: Any) -> list[dict[str, Any]]:
-    """One wider-window retry when the chosen evidence times, not the event, failed."""
+    """One wider-window retry for failed keyframes or an uncertain first review."""
     duration = video_duration(video_path)
     for item in verified:
         failed_check = item.get("evidence_check")
-        if (not failed_check or item.get("repair")
-                or item.get("observation", {}).get("status") == "confirmed"):
+        status = item.get("observation", {}).get("status")
+        if (item.get("repair") or status == "confirmed"
+                or (not failed_check and status != "uncertain")):
             continue
         center = item["candidate"]["time"]
         start, end = max(0.0, center - 2.5), min(duration, center + 2.5)
         frames = sample_frames(video_path, start, end, 0.25)
+        prior = (
+            "A previous candidate's claimed before/after KEYFRAMES failed an independent visual check. "
+            if failed_check else
+            "A previous candidate remained uncertain in a short clip. "
+        )
         prompt = (
-            "A previous candidate's claimed before/after KEYFRAMES failed an "
-            "independent visual check. Search this wider clip for the actual "
+            prior + "Search this wider clip for the actual "
             "transition of ONE animal near the candidate. Return JSON with "
             "subject_id, start_time, end_time, before_time, after_time, reset_time, "
             "status (confirmed/rejected/uncertain), reason. All times numeric or null. "
@@ -264,7 +285,7 @@ def repair_failed_claims(video_path: Path, intent: dict[str, str],
             "earlier frame and wholly in after_state at a later frame. Do not repeat "
             "the invalid pair. If no such pair is visible, reject or leave uncertain. "
             f"Intent: {json.dumps(intent, ensure_ascii=False)}. "
-            f"Candidate time: {center:.3f}s. Failed check: "
+            f"Candidate time: {center:.3f}s. Earlier check: "
             f"{json.dumps(failed_check, ensure_ascii=False)}."
         )
         repair = ask_json(prompt, frames)
@@ -298,6 +319,66 @@ def repair_failed_claims(video_path: Path, intent: dict[str, str],
     return verified
 
 
+def _enlarged_center_frames(frames: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Keep full frames and add a closer central/lower view for small animals."""
+    import cv2
+    import numpy as np
+
+    enlarged = []
+    for frame in frames:
+        pixels = cv2.imdecode(np.frombuffer(frame["jpeg"], dtype=np.uint8), cv2.IMREAD_COLOR)
+        if pixels is None:
+            continue
+        height, width = pixels.shape[:2]
+        crop = pixels[round(height * .25):, round(width * .15):round(width * .9)]
+        ok, jpeg = cv2.imencode(".jpg", crop, [cv2.IMWRITE_JPEG_QUALITY, 75])
+        if ok:
+            enlarged.append({"time": frame["time"], "jpeg": jpeg.tobytes()})
+    return enlarged
+
+
+def challenge_uncertain_evidence(video_path: Path, intent: dict[str, str],
+                                 verified: list[dict[str, Any]], ask_json: Any) -> list[dict[str, Any]]:
+    """Recheck uncertain before/after claims with full and enlarged continuous frames."""
+    if not any((item.get("observation") or {}).get("status") == "uncertain" for item in verified):
+        return verified
+    duration = video_duration(video_path)
+    for item in verified:
+        observation = item.get("observation") or {}
+        if observation.get("status") != "uncertain":
+            continue
+        before = _finite_time(observation.get("before_time"), 0, duration)
+        after = _finite_time(observation.get("after_time"), 0, duration)
+        if before is None or after is None or before >= after:
+            continue
+        frames = sample_frames(video_path, max(0, before - .25), min(duration, after + .25), .25)
+        if len(frames) < 2:
+            continue
+        prompt = (
+            "Independently challenge one UNCERTAIN transition using timestamped full frames "
+            "followed by enlarged central/lower crops at matching times. Return JSON with "
+            "status (confirmed/rejected/uncertain), before_state_visible (boolean), "
+            "after_state_visible (boolean), same_subject_visible (boolean), reason (string). "
+            "Confirm only if the SAME animal can be followed from before_state to "
+            "after_state in these frames. A camera cut, occlusion, or dark fur blending "
+            "into the target is not enough to assert identity; mark uncertain then. "
+            "If the crops miss the subject, use the full frames and remain uncertain. "
+            f"Intent: {json.dumps(intent, ensure_ascii=False)}. "
+            f"Candidate time: {item['candidate']['time']:.3f}s; "
+            f"claimed before: {before:.3f}s; claimed after: {after:.3f}s."
+        )
+        check = ask_json(prompt, [*frames, *_enlarged_center_frames(frames)])
+        item["uncertain_evidence_check"] = check
+        if (isinstance(check, dict) and check.get("status") == "confirmed"
+                and check.get("before_state_visible") is True
+                and check.get("after_state_visible") is True
+                and check.get("same_subject_visible") is True):
+            observation["status"] = "confirmed"
+            observation["evidence_check_reason"] = str(check.get("reason") or "확대 연속 프레임에서 재확인됨")
+            item["clip"] = [min(item["clip"][0], before), max(item["clip"][1], after)]
+    return verified
+
+
 def resolve_subject_tracks(video_path: Path, verified: list[dict[str, Any]],
                            ask_json: Any) -> list[dict[str, Any]]:
     """Resolve model descriptions to stable individuals across candidate windows."""
@@ -312,22 +393,28 @@ def resolve_subject_tracks(video_path: Path, verified: list[dict[str, Any]],
     descriptions = []
     for index, item in relevant:
         observation = item["observation"]
-        t = observation.get("after_time") or item["candidate"]["time"]
-        at = sample_frames(video_path, float(t), float(t), 0.25)
-        if at:
-            frames.extend(at)
-            descriptions.append({"index": index, "time": float(t),
+        after = _finite_time(observation.get("after_time"), 0, float("inf"))
+        if after is None:
+            after = float(item["candidate"]["time"])
+        before = _finite_time(observation.get("before_time"), 0, after)
+        times = [before, after] if before is not None and before < after else [after]
+        pair = [frame for t in times for frame in sample_frames(video_path, t, t, 0.25)]
+        if pair:
+            frames.extend(pair)
+            descriptions.append({"index": index, "frame_times": [frame["time"] for frame in pair],
                                  "description": observation.get("subject_id"),
                                  "candidate_time": item["candidate"]["time"]})
     if not descriptions:
         return verified
     prompt = (
-        "These images are candidate snapshots from ONE video, in the exact order "
+        "These images are before/after candidate frames from ONE video, in the exact order "
         "listed below. Assign a stable track_id for the target animal of each "
         "candidate. The same animal may have different text descriptions across "
         "windows (e.g. black cat vs black-and-white cat); do not rely on names "
-        "alone. Different animals may look similar; use spatial and temporal "
-        "context where visible. If identity cannot be resolved from these "
+        "alone. Different animals may look similar; compare the animal before "
+        "and after each entry and note when another animal is already in the "
+        "target. Use spatial and temporal context where visible. If identity "
+        "cannot be resolved from these "
         "snapshots, use track_id='unknown'. Return JSON "
         "{\"assignments\":[{\"index\":integer,\"track_id\":string,\"certain\":boolean,\"reason\":string}]}. "
         "Use animal_1, animal_2, etc. only for distinct visible animals. "
@@ -344,6 +431,65 @@ def resolve_subject_tracks(video_path: Path, verified: list[dict[str, Any]],
         item["track_resolution"] = assignment
         item["observation"]["track_id"] = track
     return verified
+
+
+def challenge_overlapping_tracks(video_path: Path, verified: list[dict[str, Any]],
+                                 ask_json: Any) -> list[dict[str, Any]]:
+    """Recheck contradictory same-track entries with a closer view of both animals."""
+    next_track = 1 + max(
+        (int(track.split("_")[-1]) for item in verified
+         if (track := str((item.get("observation") or {}).get("track_id") or ""))
+         and track.startswith("animal_") and track.split("_")[-1].isdigit()),
+        default=0,
+    )
+    last_by_track: dict[str, dict[str, Any]] = {}
+    for item in sorted(verified, key=lambda row: row["candidate"]["time"]):
+        observation = item.get("observation") or {}
+        track = str(observation.get("track_id") or "")
+        if observation.get("status") != "confirmed" or not track.startswith("animal_"):
+            continue
+        before = _finite_time(observation.get("before_time"), 0, float("inf"))
+        after = _finite_time(observation.get("after_time"), 0, float("inf"))
+        previous = last_by_track.get(track)
+        if previous is not None and before is not None and after is not None:
+            previous_after = _finite_time(previous["observation"].get("after_time"), 0, float("inf"))
+            if previous_after is not None and before <= previous_after < after:
+                frames = sample_frames(video_path, previous_after, after,
+                                       max(0.25, (after - previous_after) / 5))
+                enlarged = _enlarged_center_frames(frames)
+                prompt = (
+                    "These images show two independently confirmed animal entries into the same target, "
+                    "first as full frames and then as enlarged central/lower crops at the same times. "
+                    "An earlier identity pass assigned both entries the same track, but the second "
+                    "animal was reported outside the target while the first was already inside. "
+                    "Determine whether the entries belong to different animals. Return JSON with "
+                    "same_animal (boolean), certain (boolean), two_animals_simultaneously_visible "
+                    "(boolean), reason (string). Only say certain and different if two distinct "
+                    "animals are visible together or can be followed unambiguously through the frames. "
+                    "If the crop misses the animals, rely on the full frames and mark uncertain. "
+                    f"First after time: {previous_after:.3f}s; second before time: {before:.3f}s; "
+                    f"second after time: {after:.3f}s."
+                )
+                check = ask_json(prompt, [*frames, *enlarged])
+                item["overlap_identity_check"] = check
+                if (isinstance(check, dict) and check.get("certain") is True
+                        and check.get("same_animal") is False
+                        and check.get("two_animals_simultaneously_visible") is True):
+                    observation["track_id"] = f"animal_{next_track}"
+                    next_track += 1
+                    track = observation["track_id"]
+        last_by_track[track] = item
+    return verified
+
+
+def _independent_pair_confirmed(item: dict[str, Any]) -> bool:
+    """The current entry has independently checked same-animal before/after frames."""
+    check = (item.get("uncertain_evidence_check") or item.get("repair_evidence_check")
+             or item.get("evidence_check") or {})
+    return (isinstance(check, dict) and check.get("status") == "confirmed"
+            and check.get("before_state_visible") is True
+            and check.get("after_state_visible") is True
+            and check.get("same_subject_visible") is True)
 
 
 def verify_resets(video_path: Path, intent: dict[str, str],
@@ -370,6 +516,16 @@ def verify_resets(video_path: Path, intent: dict[str, str],
             continue
         previous_after = float(previous["observation"]["after_time"])
         if current_before <= previous_after:
+            continue
+        if _independent_pair_confirmed(item):
+            # This checked before-frame already shows the animal back in the
+            # source state after the previous entry. If identity changed,
+            # the independently checked entry is still a distinct event.
+            row["reset_time"] = current_before
+            item["reset_check"] = {"reset_visible": True, "same_subject": True,
+                                   "reset_time": current_before,
+                                   "reason": "독립 검증된 현재 진입의 이전 상태 프레임"}
+            last_by_track[track] = item
             continue
         span = current_before - previous_after
         frames = sample_frames(video_path, previous_after, current_before,
@@ -444,6 +600,9 @@ def reduce_transitions(verified: list[dict[str, Any]]) -> dict[str, Any]:
             continue
         previous = last_by_subject.get(subject)
         if previous:
+            if before > previous["after_time"] and _independent_pair_confirmed(item):
+                record["reset_time"] = before
+                record["reset_basis"] = "independently_checked_current_before_frame"
             reset = record["reset_time"]
             if before <= previous["after_time"]:
                 record["review_reason"] = "같은 개체의 기존 구간과 겹침"
@@ -506,14 +665,29 @@ def analyze_video_count(video_path: Path, query: str, ask_json: Any,
             raise ValueError("고정한 질문 해석에 상태 전환 정보가 빠졌습니다")
         intent = {key: intent_override[key].strip() for key in keys}
     candidates, scan_log = collect_candidates(video_path, intent, ask_json, coarse_step)
+    if "two front paws" in intent["after_state"].lower():
+        # A 4s window can miss one brief paw raise among several repeated poses.
+        # A focused 2s pass found a previously omitted transition in the 0936 audit.
+        short_candidates, short_log = collect_candidates(
+            video_path, intent, ask_json, min(coarse_step, 0.25), core_seconds=2.0)
+        seen = {(round(row["time"], 2), row["subject"].strip().lower()) for row in candidates}
+        for row in short_candidates:
+            key = (round(row["time"], 2), row["subject"].strip().lower())
+            if key not in seen:
+                candidates.append({**row, "window": row["window"] + len(scan_log)})
+                seen.add(key)
+        candidates.sort(key=lambda row: row["time"])
+        scan_log.extend(short_log)
     verified = verify_candidates(video_path, intent, candidates, ask_json, fine_step)
     verified = check_claimed_evidence(video_path, intent, verified, ask_json)
     verified = repair_failed_claims(video_path, intent, verified, ask_json)
+    verified = challenge_uncertain_evidence(video_path, intent, verified, ask_json)
     track_status = "skipped"
     track_error = None
     if resolve_tracks:
         try:
             verified = resolve_subject_tracks(video_path, verified, ask_json)
+            verified = challenge_overlapping_tracks(video_path, verified, ask_json)
             verified = verify_resets(video_path, intent, verified, ask_json)
             track_status = "model_resolved"
         except Exception as exc:

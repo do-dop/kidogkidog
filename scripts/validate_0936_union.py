@@ -16,6 +16,8 @@ PROJECT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT))
 
 from pipeline.search.video_aggregate import (  # noqa: E402
+    challenge_overlapping_tracks,
+    challenge_uncertain_evidence,
     check_claimed_evidence,
     reduce_transitions,
     repair_failed_claims,
@@ -57,6 +59,9 @@ def merge_candidates(runs: dict[str, dict], tolerance: float = 0.35) -> list[dic
 
 def main() -> None:
     parser = argparse.ArgumentParser()
+    parser.add_argument("--baseline", type=Path, default=RUNS["0.5"])
+    parser.add_argument("--finer", type=Path, default=RUNS["0.25"])
+    parser.add_argument("--intent", type=Path, default=INTENT)
     parser.add_argument("--output", type=Path, default=FIXED / "union-result.json")
     parser.add_argument("--cache-dir", type=Path, default=EVIDENCE / "api-cache")
     parser.add_argument("--model", default="gpt-4o")
@@ -66,9 +71,10 @@ def main() -> None:
     load_dotenv(PROJECT / ".env")
     if not VIDEO.exists():
         raise FileNotFoundError(VIDEO)
-    intent = json.loads(INTENT.read_text(encoding="utf-8"))
+    intent = json.loads(args.intent.read_text(encoding="utf-8"))
+    run_paths = {"0.5": args.baseline, "0.25": args.finer}
     runs = {step: json.loads(path.read_text(encoding="utf-8"))
-            for step, path in RUNS.items()}
+            for step, path in run_paths.items()}
     if any(result["intent"] != intent for result in runs.values()):
         raise ValueError("입력 실행의 질문 해석이 동일하지 않습니다")
     candidates = merge_candidates(runs)
@@ -77,14 +83,15 @@ def main() -> None:
     verified = verify_candidates(VIDEO, intent, candidates, vision)
     verified = check_claimed_evidence(VIDEO, intent, verified, vision)
     verified = repair_failed_claims(VIDEO, intent, verified, vision)
+    verified = challenge_uncertain_evidence(VIDEO, intent, verified, vision)
     verified = resolve_subject_tracks(VIDEO, verified, vision)
+    verified = challenge_overlapping_tracks(VIDEO, verified, vision)
     verified = verify_resets(VIDEO, intent, verified, vision)
     result = reduce_transitions(verified)
     result.update({
         "video": str(VIDEO.relative_to(PROJECT)), "query": runs["0.5"]["query"], "intent": intent,
-        "intent_source": str(INTENT.relative_to(PROJECT)),
-        "candidate_sources": {step: str(path.relative_to(PROJECT))
-                              for step, path in RUNS.items()},
+        "intent_source": str(args.intent),
+        "candidate_sources": {step: str(path) for step, path in run_paths.items()},
         "candidates": candidates, "verifications": verified,
         "model": args.model, "track_status": "model_resolved",
         "scope_note": "Temporal clustering assumes one target dog; not a multi-animal identity solution.",

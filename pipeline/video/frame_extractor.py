@@ -57,22 +57,37 @@ def idle_sample_times(duration, motion_segments, interval, pad=1.0):
 
 def _default_idle_interval():
     try:
-        return float(os.getenv("IDLE_SAMPLE_INTERVAL_SECONDS", "0"))
+        return float(os.getenv("IDLE_SAMPLE_INTERVAL_SECONDS", "1"))
     except ValueError:
-        return 0.0
+        return 1.0
 
 
-def extract_frames(video_path, output_dir="pipeline/frames", fps=0.5, frame_prefix=None, idle_sample_interval=None):
+IDLE_GROUP_SECONDS = 12.0
+
+
+def _idle_time_groups(times, interval):
+    """Do not put idle frames on opposite sides of a motion segment in one VLM window."""
+    groups = []
+    for timestamp in times:
+        if (not groups or timestamp - groups[-1][-1] > interval * 1.5
+                or timestamp - groups[-1][0] >= IDLE_GROUP_SECONDS):
+            groups.append([timestamp])
+        else:
+            groups[-1].append(timestamp)
+    return groups
+
+
+def extract_frames(video_path, output_dir="pipeline/frames", fps=1.0, frame_prefix=None, idle_sample_interval=None):
     """
-    motion 감지된 구간에서만 프레임 추출
+    움직임 구간은 촘촘히, 감지 밖 구간도 보조 프레임으로 추출
 
     Args:
         video_path: 영상 파일 경로
         output_dir: 프레임 저장 폴더
-        fps: 추출할 FPS (기본 0.5fps, 2초마다 1장)
+        fps: 움직임 구간 추출 FPS (기본 1fps, 1초마다 1장)
         idle_sample_interval: motion 구간 밖에서 N초마다 1장씩 추가로 뽑는다.
-            None이면 환경변수 IDLE_SAMPLE_INTERVAL_SECONDS(기본 0=끔)를 따른다.
-            추가 프레임은 motion_detected=False이고 프레임마다 별도 segment_id를 받는다.
+            None이면 환경변수 IDLE_SAMPLE_INTERVAL_SECONDS(기본 1초)를 따른다.
+            추가 프레임은 motion_detected=False이고 연속된 12초 이하 구간으로 묶인다.
 
     Returns:
         frame_list: [
@@ -150,23 +165,23 @@ def extract_frames(video_path, output_dir="pipeline/frames", fps=0.5, frame_pref
     if idle_sample_interval > 0:
         total_frames = cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0
         clip_seconds = total_frames / video_fps if total_frames else 0
-        next_segment_id = len(motion_segments)
-        for current_time in idle_sample_times(clip_seconds, motion_segments, idle_sample_interval):
-            cap.set(cv2.CAP_PROP_POS_FRAMES, int(current_time * video_fps))
-            ret, frame = cap.read()
-            if not ret:
-                continue
-            frame_path = os.path.join(output_dir, f"{frame_prefix}_frame_{current_time:.2f}.jpg")
-            cv2.imwrite(frame_path, frame)
-            frame_list.append({
-                "frame_path": frame_path,
-                "timestamp": current_time,
-                "motion_start": current_time,
-                "motion_end": current_time,
-                "segment_id": next_segment_id,
-                "motion_detected": False,
-            })
-            next_segment_id += 1
+        idle_times = idle_sample_times(clip_seconds, motion_segments, idle_sample_interval)
+        for group_index, times in enumerate(_idle_time_groups(idle_times, idle_sample_interval)):
+            for current_time in times:
+                cap.set(cv2.CAP_PROP_POS_FRAMES, int(current_time * video_fps))
+                ret, frame = cap.read()
+                if not ret:
+                    continue
+                frame_path = os.path.join(output_dir, f"{frame_prefix}_frame_{current_time:.2f}.jpg")
+                cv2.imwrite(frame_path, frame)
+                frame_list.append({
+                    "frame_path": frame_path,
+                    "timestamp": current_time,
+                    "motion_start": times[0],
+                    "motion_end": times[-1],
+                    "segment_id": len(motion_segments) + group_index,
+                    "motion_detected": False,
+                })
         frame_list.sort(key=lambda item: item["timestamp"])
 
     cap.release()

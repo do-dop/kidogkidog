@@ -14,9 +14,9 @@ class FrameExtractorMotionFlagTests(unittest.TestCase):
              patch.object(frame_extractor.cv2, "VideoCapture", return_value=capture), \
              patch.object(frame_extractor.cv2, "imwrite", return_value=True), \
              patch.object(frame_extractor.os, "makedirs"):
-            frames = frame_extractor.extract_frames("clip.mp4", output_dir="/tmp/frames")
+            frames = frame_extractor.extract_frames("clip.mp4", output_dir="/tmp/frames", idle_sample_interval=0)
 
-        self.assertEqual([frame["timestamp"] for frame in frames], [2.0, 4.0, 6.0])
+        self.assertEqual([frame["timestamp"] for frame in frames], [2.0, 3.0, 4.0, 5.0, 6.0])
         self.assertTrue(all(frame["motion_detected"] is True for frame in frames))
 
     def test_whole_chunk_fallback_frames_are_not_flagged_as_motion(self):

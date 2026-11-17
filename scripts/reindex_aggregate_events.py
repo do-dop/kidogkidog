@@ -32,6 +32,12 @@ def _related_old_event(event: dict, action: str) -> bool:
         return bool(re.search(r"마시|마셨|음수|drink", text, re.I))
     if action == "eat":
         return bool(re.search(r"먹|식사|섭취|eat", text, re.I))
+    if action == "water_enter":
+        return bool(re.search(r"물속|물\s*안|분수|수영장|입수", text, re.I)
+                    and re.search(r"들어|입수|담그", text, re.I))
+    if action == "front_paw_raise":
+        return bool(re.search(r"앞발", text, re.I)
+                    and re.search(r"들|올리|올렸", text, re.I))
     raise ValueError(f"지원하지 않는 행동: {action}")
 
 

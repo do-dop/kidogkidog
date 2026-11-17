@@ -1,0 +1,897 @@
+{
+  "confirmed_count": 2,
+  "uncertain_count": 3,
+  "confirmed": [
+    {
+      "candidate_time": 2.75,
+      "subject_id": "animal_1",
+      "start_time": 1.5,
+      "end_time": 3.0,
+      "before_time": 1.5,
+      "after_time": 2.75,
+      "reset_time": null,
+      "reason": "Puppy’s whole body visible on the sofa seat after climbing.",
+      "model_status": "confirmed",
+      "model_subject_id": "unknown"
+    },
+    {
+      "candidate_time": 21.25,
+      "subject_id": "animal_1",
+      "start_time": 19.0,
+      "end_time": 21.25,
+      "before_time": 19.25,
+      "after_time": 21.25,
+      "reset_time": 19.25,
+      "reason": "The transition of one puppy from being fully on the floor to fully on the sofa seat is visible.",
+      "model_status": "confirmed",
+      "model_subject_id": "1",
+      "reset_basis": "independently_checked_current_before_frame"
+    }
+  ],
+  "uncertain": [
+    {
+      "candidate_time": 5.0,
+      "subject_id": "animal_1",
+      "start_time": 3.75,
+      "end_time": 6.5,
+      "before_time": 3.75,
+      "after_time": 4.75,
+      "reset_time": null,
+      "reason": "The black puppy's whole body is visible on the sofa seat at 4.75s after starting on the floor.",
+      "model_status": "uncertain",
+      "model_subject_id": "black puppy",
+      "review_reason": "전후 상태 또는 개체를 확인하지 못함"
+    },
+    {
+      "candidate_time": 20.0,
+      "subject_id": "animal_1",
+      "start_time": 19.0,
+      "end_time": 21.0,
+      "before_time": 19.0,
+      "after_time": 21.0,
+      "reset_time": null,
+      "reason": "The black puppy's whole body is visible on the sofa seat by 21.000s.",
+      "model_status": "uncertain",
+      "model_subject_id": "black puppy",
+      "review_reason": "전후 상태 또는 개체를 확인하지 못함"
+    },
+    {
+      "candidate_time": 20.25,
+      "subject_id": "animal_1",
+      "start_time": 19.0,
+      "end_time": 21.5,
+      "before_time": 19.0,
+      "after_time": 21.5,
+      "reset_time": null,
+      "reason": "The black puppy's whole body is visibly on the sofa at 21.500 seconds.",
+      "model_status": "uncertain",
+      "model_subject_id": "black puppy",
+      "review_reason": "전후 상태 또는 개체를 확인하지 못함"
+    }
+  ],
+  "rejected": [
+    {
+      "candidate_time": 8.75,
+      "subject_id": "dark puppy",
+      "start_time": 7.75,
+      "end_time": 9.0,
+      "before_time": 7.75,
+      "after_time": 9.0,
+      "reset_time": null,
+      "reason": "The dark puppy was initially on the floor at 7.750s and is fully on the sofa seat by 9.000s.",
+      "model_status": "rejected",
+      "model_subject_id": "dark puppy"
+    },
+    {
+      "candidate_time": 12.0,
+      "subject_id": "dark puppy",
+      "start_time": 10.75,
+      "end_time": 13.5,
+      "before_time": 11.25,
+      "after_time": null,
+      "reset_time": null,
+      "reason": "No complete transition observed; puppy not fully on sofa.",
+      "model_status": "rejected",
+      "model_subject_id": "dark puppy"
+    },
+    {
+      "candidate_time": 15.75,
+      "subject_id": "black puppy",
+      "start_time": 14.5,
+      "end_time": null,
+      "before_time": 14.75,
+      "after_time": null,
+      "reset_time": null,
+      "reason": "The black puppy is not fully on the sofa seat in the visible frames.",
+      "model_status": "rejected",
+      "model_subject_id": "black puppy"
+    }
+  ],
+  "duplicates": [],
+  "video": "data/videos/smartbench_0065.mp4",
+  "query": "강아지가 소파 좌석 위에 몇 번 올라갔어? 검은 소파와 회색 소파를 모두 세어.",
+  "intent": {
+    "subject": "puppies",
+    "action": "climb onto",
+    "target": "sofa seats",
+    "before_state": "one puppy's whole body on floor",
+    "after_state": "that same puppy's whole body on sofa seat",
+    "exclusion": "near sofa or front paws only"
+  },
+  "candidates": [
+    {
+      "time": 2.75,
+      "subject": "puppy",
+      "reason": "puppy’s whole body visible on the sofa seat after climbing",
+      "window": 0
+    },
+    {
+      "time": 5.0,
+      "subject": "black puppy",
+      "reason": "whole body on sofa seat at 5.000s after jump from floor.",
+      "window": 1
+    },
+    {
+      "time": 8.75,
+      "subject": "dark puppy",
+      "reason": "puppy visibly on sofa seat after jumping",
+      "window": 2
+    },
+    {
+      "time": 12.0,
+      "subject": "dark puppy",
+      "reason": "puppy visibly on sofa seat after climbing",
+      "window": 2
+    },
+    {
+      "time": 15.75,
+      "subject": "black puppy",
+      "reason": "The black puppy is visible fully on the sofa seat.",
+      "window": 3
+    },
+    {
+      "time": 20.0,
+      "subject": "black puppy",
+      "reason": "whole body visible on sofa seat",
+      "window": 4
+    },
+    {
+      "time": 20.25,
+      "subject": "black puppy",
+      "reason": "The black puppy is visibly midway through the transition to the sofa.",
+      "window": 5
+    },
+    {
+      "time": 21.25,
+      "subject": "black puppy",
+      "reason": "A black puppy is on the sofa seat with whole body visible.",
+      "window": 5
+    }
+  ],
+  "scan_log": [
+    {
+      "window": {
+        "core_start": 0.0,
+        "core_end": 4.0,
+        "start": 0.0,
+        "end": 4.75
+      },
+      "response": {
+        "candidates": [
+          {
+            "time": 2.75,
+            "subject": "puppy",
+            "reason": "puppy’s whole body visible on the sofa seat after climbing"
+          }
+        ]
+      },
+      "frame_times": [
+        0.0,
+        0.25,
+        0.5,
+        0.75,
+        1.0,
+        1.25,
+        1.5,
+        1.75,
+        2.0,
+        2.25,
+        2.5,
+        2.75,
+        3.0,
+        3.25,
+        3.5,
+        3.75,
+        4.0,
+        4.25,
+        4.5,
+        4.75
+      ],
+      "core_seconds": 4.0
+    },
+    {
+      "window": {
+        "core_start": 4.0,
+        "core_end": 8.0,
+        "start": 3.25,
+        "end": 8.75
+      },
+      "response": {
+        "candidates": [
+          {
+            "time": 5.0,
+            "subject": "black puppy",
+            "reason": "whole body on sofa seat at 5.000s after jump from floor."
+          }
+        ]
+      },
+      "frame_times": [
+        3.25,
+        3.5,
+        3.75,
+        4.0,
+        4.25,
+        4.5,
+        4.75,
+        5.0,
+        5.25,
+        5.5,
+        5.75,
+        6.0,
+        6.25,
+        6.5,
+        6.75,
+        7.0,
+        7.25,
+        7.5,
+        7.75,
+        8.0,
+        8.25,
+        8.5,
+        8.75
+      ],
+      "core_seconds": 4.0
+    },
+    {
+      "window": {
+        "core_start": 8.0,
+        "core_end": 12.0,
+        "start": 7.25,
+        "end": 12.75
+      },
+      "response": {
+        "candidates": [
+          {
+            "time": 8.75,
+            "subject": "dark puppy",
+            "reason": "puppy visibly on sofa seat after jumping"
+          },
+          {
+            "time": 12.0,
+            "subject": "dark puppy",
+            "reason": "puppy visibly on sofa seat after climbing"
+          }
+        ]
+      },
+      "frame_times": [
+        7.25,
+        7.5,
+        7.75,
+        8.0,
+        8.25,
+        8.5,
+        8.75,
+        9.0,
+        9.25,
+        9.5,
+        9.75,
+        10.0,
+        10.25,
+        10.5,
+        10.75,
+        11.0,
+        11.25,
+        11.5,
+        11.75,
+        12.0,
+        12.25,
+        12.5,
+        12.75
+      ],
+      "core_seconds": 4.0
+    },
+    {
+      "window": {
+        "core_start": 12.0,
+        "core_end": 16.0,
+        "start": 11.25,
+        "end": 16.75
+      },
+      "response": {
+        "candidates": [
+          {
+            "time": 15.75,
+            "subject": "black puppy",
+            "reason": "The black puppy is visible fully on the sofa seat."
+          }
+        ]
+      },
+      "frame_times": [
+        11.25,
+        11.5,
+        11.75,
+        12.0,
+        12.25,
+        12.5,
+        12.75,
+        13.0,
+        13.25,
+        13.5,
+        13.75,
+        14.0,
+        14.25,
+        14.5,
+        14.75,
+        15.0,
+        15.25,
+        15.5,
+        15.75,
+        16.0,
+        16.25,
+        16.5,
+        16.75
+      ],
+      "core_seconds": 4.0
+    },
+    {
+      "window": {
+        "core_start": 16.0,
+        "core_end": 20.0,
+        "start": 15.25,
+        "end": 20.75
+      },
+      "response": {
+        "candidates": [
+          {
+            "time": 20.0,
+            "subject": "black puppy",
+            "reason": "whole body visible on sofa seat"
+          }
+        ]
+      },
+      "frame_times": [
+        15.25,
+        15.5,
+        15.75,
+        16.0,
+        16.25,
+        16.5,
+        16.75,
+        17.0,
+        17.25,
+        17.5,
+        17.75,
+        18.0,
+        18.25,
+        18.5,
+        18.75,
+        19.0,
+        19.25,
+        19.5,
+        19.75,
+        20.0,
+        20.25,
+        20.5,
+        20.75
+      ],
+      "core_seconds": 4.0
+    },
+    {
+      "window": {
+        "core_start": 20.0,
+        "core_end": 23.56520833333333,
+        "start": 19.25,
+        "end": 23.56520833333333
+      },
+      "response": {
+        "candidates": [
+          {
+            "time": 20.25,
+            "subject": "black puppy",
+            "reason": "The black puppy is visibly midway through the transition to the sofa."
+          },
+          {
+            "time": 21.25,
+            "subject": "black puppy",
+            "reason": "A black puppy is on the sofa seat with whole body visible."
+          }
+        ]
+      },
+      "frame_times": [
+        19.25,
+        19.5,
+        19.75,
+        20.0,
+        20.25,
+        20.5,
+        20.75,
+        21.0,
+        21.25,
+        21.5,
+        21.75,
+        22.0,
+        22.25,
+        22.5,
+        22.75,
+        23.0,
+        23.25,
+        23.5
+      ],
+      "core_seconds": 4.0
+    }
+  ],
+  "verifications": [
+    {
+      "candidate": {
+        "time": 2.75,
+        "subject": "puppy",
+        "reason": "puppy’s whole body visible on the sofa seat after climbing",
+        "window": 0
+      },
+      "frame_times": [
+        1.5,
+        1.75,
+        2.0,
+        2.25,
+        2.5,
+        2.75,
+        3.0,
+        3.25,
+        3.5,
+        3.75,
+        4.0,
+        4.25
+      ],
+      "observation": {
+        "subject_id": "unknown",
+        "start_time": 1.5,
+        "end_time": 3.0,
+        "before_time": 1.5,
+        "after_time": 2.75,
+        "reset_time": null,
+        "status": "confirmed",
+        "reason": "Puppy’s whole body visible on the sofa seat after climbing.",
+        "track_id": "animal_1"
+      },
+      "clip": [
+        1.5,
+        4.25
+      ],
+      "evidence_check": {
+        "status": "confirmed",
+        "before_state_visible": true,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": "puppy_1",
+        "reason": "The same puppy is on the floor in the first frame and fully on the sofa in the second frame."
+      },
+      "track_resolution": {
+        "index": 0,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "Black animal jumping on the couch."
+      }
+    },
+    {
+      "candidate": {
+        "time": 5.0,
+        "subject": "black puppy",
+        "reason": "whole body on sofa seat at 5.000s after jump from floor.",
+        "window": 1
+      },
+      "frame_times": [
+        3.75,
+        4.0,
+        4.25,
+        4.5,
+        4.75,
+        5.0,
+        5.25,
+        5.5,
+        5.75,
+        6.0,
+        6.25,
+        6.5
+      ],
+      "observation": {
+        "subject_id": "black puppy",
+        "start_time": 3.75,
+        "end_time": 6.5,
+        "before_time": 3.75,
+        "after_time": 4.75,
+        "reset_time": null,
+        "status": "uncertain",
+        "reason": "The black puppy's whole body is visible on the sofa seat at 4.75s after starting on the floor.",
+        "evidence_check_reason": "The black puppy is not visible in the first frame to determine the before_state.",
+        "track_id": "animal_1"
+      },
+      "clip": [
+        3.75,
+        6.5
+      ],
+      "evidence_check": {
+        "status": "uncertain",
+        "before_state_visible": false,
+        "after_state_visible": true,
+        "same_subject_visible": false,
+        "subject_id": "N/A",
+        "reason": "The black puppy is not visible in the first frame to determine the before_state."
+      },
+      "repair": {
+        "subject_id": "N/A",
+        "start_time": null,
+        "end_time": null,
+        "before_time": null,
+        "after_time": null,
+        "reset_time": null,
+        "status": "uncertain",
+        "reason": "The clip does not show a clear sequence of one puppy's whole body on the floor and later fully on the sofa. The transition is not visibly captured."
+      },
+      "uncertain_evidence_check": {
+        "status": "uncertain",
+        "before_state_visible": false,
+        "after_state_visible": true,
+        "same_subject_visible": false,
+        "reason": "The full frames and crops do not clearly show a puppy with its whole body on the floor in the 'before' state. The 'after' state shows a puppy on the sofa, but the transition is not clear enough to confirm due to lack of visibility of the same subject throughout the frames."
+      },
+      "track_resolution": {
+        "index": 1,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "The same black animal on the couch as index 0."
+      }
+    },
+    {
+      "candidate": {
+        "time": 8.75,
+        "subject": "dark puppy",
+        "reason": "puppy visibly on sofa seat after jumping",
+        "window": 2
+      },
+      "frame_times": [
+        7.5,
+        7.75,
+        8.0,
+        8.25,
+        8.5,
+        8.75,
+        9.0,
+        9.25,
+        9.5,
+        9.75,
+        10.0,
+        10.25
+      ],
+      "observation": {
+        "subject_id": "dark puppy",
+        "start_time": 7.75,
+        "end_time": 9.0,
+        "before_time": 7.75,
+        "after_time": 9.0,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "The dark puppy was initially on the floor at 7.750s and is fully on the sofa seat by 9.000s.",
+        "evidence_check_reason": "The first frame does not clearly show the puppy's entire body on the floor, and the second frame does not clearly show the puppy's entire body on the sofa."
+      },
+      "clip": [
+        7.5,
+        10.25
+      ],
+      "evidence_check": {
+        "status": "rejected",
+        "before_state_visible": false,
+        "after_state_visible": false,
+        "same_subject_visible": false,
+        "subject_id": null,
+        "reason": "The first frame does not clearly show the puppy's entire body on the floor, and the second frame does not clearly show the puppy's entire body on the sofa."
+      },
+      "repair": {
+        "subject_id": null,
+        "start_time": null,
+        "end_time": null,
+        "before_time": null,
+        "after_time": null,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "No clear transition of a puppy moving from the floor to the sofa with the whole body visible on both surfaces at any time in the visible frames."
+      }
+    },
+    {
+      "candidate": {
+        "time": 12.0,
+        "subject": "dark puppy",
+        "reason": "puppy visibly on sofa seat after climbing",
+        "window": 2
+      },
+      "frame_times": [
+        10.75,
+        11.0,
+        11.25,
+        11.5,
+        11.75,
+        12.0,
+        12.25,
+        12.5,
+        12.75,
+        13.0,
+        13.25,
+        13.5
+      ],
+      "observation": {
+        "subject_id": "dark puppy",
+        "start_time": 10.75,
+        "end_time": 13.5,
+        "before_time": 11.25,
+        "after_time": null,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "No complete transition observed; puppy not fully on sofa."
+      },
+      "clip": [
+        10.75,
+        13.5
+      ]
+    },
+    {
+      "candidate": {
+        "time": 15.75,
+        "subject": "black puppy",
+        "reason": "The black puppy is visible fully on the sofa seat.",
+        "window": 3
+      },
+      "frame_times": [
+        14.5,
+        14.75,
+        15.0,
+        15.25,
+        15.5,
+        15.75,
+        16.0,
+        16.25,
+        16.5,
+        16.75,
+        17.0,
+        17.25
+      ],
+      "observation": {
+        "subject_id": "black puppy",
+        "start_time": 14.5,
+        "end_time": null,
+        "before_time": 14.75,
+        "after_time": null,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "The black puppy is not fully on the sofa seat in the visible frames."
+      },
+      "clip": [
+        14.5,
+        17.25
+      ]
+    },
+    {
+      "candidate": {
+        "time": 20.0,
+        "subject": "black puppy",
+        "reason": "whole body visible on sofa seat",
+        "window": 4
+      },
+      "frame_times": [
+        18.75,
+        19.0,
+        19.25,
+        19.5,
+        19.75,
+        20.0,
+        20.25,
+        20.5,
+        20.75,
+        21.0,
+        21.25,
+        21.5
+      ],
+      "observation": {
+        "subject_id": "black puppy",
+        "start_time": 19.0,
+        "end_time": 21.0,
+        "before_time": 19.0,
+        "after_time": 21.0,
+        "reset_time": null,
+        "status": "uncertain",
+        "reason": "The black puppy's whole body is visible on the sofa seat by 21.000s.",
+        "evidence_check_reason": "The subject's identity cannot be confirmed across frames due to lack of visible distinguishing characteristics.",
+        "track_id": "animal_1"
+      },
+      "clip": [
+        18.75,
+        21.5
+      ],
+      "evidence_check": {
+        "status": "uncertain",
+        "before_state_visible": true,
+        "after_state_visible": true,
+        "same_subject_visible": false,
+        "subject_id": null,
+        "reason": "The subject's identity cannot be confirmed across frames due to lack of visible distinguishing characteristics."
+      },
+      "repair": {
+        "subject_id": null,
+        "start_time": null,
+        "end_time": null,
+        "before_time": null,
+        "after_time": null,
+        "reset_time": null,
+        "status": "uncertain",
+        "reason": "The images do not show a single puppy's entire transition from the floor to the sofa. While a puppy is seen moving, confirming the same subject in both before and after states is not possible due to lack of distinguishing features and visibility constraints."
+      },
+      "uncertain_evidence_check": {
+        "status": "uncertain",
+        "before_state_visible": true,
+        "after_state_visible": true,
+        "same_subject_visible": false,
+        "reason": "The full body of a puppy is visible on the floor at the beginning and on the sofa at the end. However, due to dark fur and blending with the background, it's not possible to conclusively track the same puppy throughout the frames."
+      },
+      "track_resolution": {
+        "index": 5,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "Same black puppy in the room at the same time as index 6, on the couch."
+      }
+    },
+    {
+      "candidate": {
+        "time": 20.25,
+        "subject": "black puppy",
+        "reason": "The black puppy is visibly midway through the transition to the sofa.",
+        "window": 5
+      },
+      "frame_times": [
+        19.0,
+        19.25,
+        19.5,
+        19.75,
+        20.0,
+        20.25,
+        20.5,
+        20.75,
+        21.0,
+        21.25,
+        21.5,
+        21.75
+      ],
+      "observation": {
+        "subject_id": "black puppy",
+        "start_time": 19.0,
+        "end_time": 21.5,
+        "before_time": 19.0,
+        "after_time": 21.5,
+        "reset_time": null,
+        "status": "uncertain",
+        "reason": "The black puppy's whole body is visibly on the sofa at 21.500 seconds.",
+        "evidence_check_reason": "Cannot determine if the same puppy is visible in both frames.",
+        "track_id": "animal_1"
+      },
+      "clip": [
+        19.0,
+        21.75
+      ],
+      "evidence_check": {
+        "status": "uncertain",
+        "before_state_visible": true,
+        "after_state_visible": true,
+        "same_subject_visible": false,
+        "subject_id": null,
+        "reason": "Cannot determine if the same puppy is visible in both frames."
+      },
+      "repair": {
+        "subject_id": null,
+        "start_time": 17.75,
+        "end_time": 20.25,
+        "before_time": 18.75,
+        "after_time": 20.5,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "Cannot confirm that the same puppy is visible in both before and after states due to incomplete visibility."
+      },
+      "uncertain_evidence_check": {
+        "status": "uncertain",
+        "before_state_visible": true,
+        "after_state_visible": true,
+        "same_subject_visible": false,
+        "reason": "While the initial and final frames show a puppy on the floor and then fully on the sofa, the transition is too fast and obscured to confirm that it's the same puppy without doubt."
+      },
+      "track_resolution": {
+        "index": 6,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "Consistent appearance of a black puppy on the couch with index 5."
+      }
+    },
+    {
+      "candidate": {
+        "time": 21.25,
+        "subject": "black puppy",
+        "reason": "A black puppy is on the sofa seat with whole body visible.",
+        "window": 5
+      },
+      "frame_times": [
+        20.0,
+        20.25,
+        20.5,
+        20.75,
+        21.0,
+        21.25,
+        21.5,
+        21.75,
+        22.0,
+        22.25,
+        22.5,
+        22.75
+      ],
+      "observation": {
+        "subject_id": "1",
+        "start_time": 19.0,
+        "end_time": 21.25,
+        "before_time": 19.25,
+        "after_time": 21.25,
+        "reset_time": null,
+        "status": "confirmed",
+        "reason": "The transition of one puppy from being fully on the floor to fully on the sofa seat is visible.",
+        "track_id": "animal_1"
+      },
+      "clip": [
+        18.75,
+        23.56520833333333
+      ],
+      "repair": {
+        "subject_id": "1",
+        "start_time": 19.0,
+        "end_time": 21.25,
+        "before_time": 19.25,
+        "after_time": 21.25,
+        "reset_time": null,
+        "status": "confirmed",
+        "reason": "The transition of one puppy from being fully on the floor to fully on the sofa seat is visible.",
+        "track_id": "animal_1"
+      },
+      "repair_evidence_check": {
+        "status": "confirmed",
+        "before_state_visible": true,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": 1,
+        "reason": "The same puppy's whole body is visible first on the floor, then fully on the sofa seat."
+      },
+      "track_resolution": {
+        "index": 7,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "Clear continuation of the black puppy on the couch from index 6."
+      },
+      "reset_check": {
+        "reset_visible": false,
+        "reset_time": null,
+        "same_subject": false,
+        "reason": "The puppy does not visibly return to the floor after being on the sofa, and it's not clear if the same animal is involved."
+      }
+    }
+  ],
+  "models": {
+    "scan_and_intent": "gpt-4o",
+    "verify": "gpt-4o"
+  },
+  "track_status": "model_resolved",
+  "track_error": null,
+  "coverage_note": "All timeline windows scanned at coarse_step; brief actions may still be missed.",
+  "intent_source": "/private/tmp/kidog-video-count-2026-11-17/0065/fixed-intent.json",
+  "reduction_note": "Recomputed after independently verified current before-frame reset fix."
+}

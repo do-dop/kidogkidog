@@ -1,0 +1,39 @@
+{
+  "video_id": "smartbench_0608",
+  "review_source": "user_sequence_review_2026-11-18_and_local_frames_2026-11-18",
+  "replace_event_ids": [100, 101, 102, 131, 132],
+  "events": [
+    {
+      "start_time": 2.0,
+      "end_time": 2.1,
+      "frame_time": 2.0,
+      "action": "강아지가 수영장 물속으로 들어감",
+      "target_object": "수영장",
+      "summary": "강아지가 영상 초반에 수영장 물속으로 들어갔어요."
+    },
+    {
+      "start_time": 7.5,
+      "end_time": 8.0,
+      "frame_time": 8.0,
+      "action": "강아지가 수영장에서 나옴",
+      "target_object": "수영장",
+      "summary": "강아지가 8초 무렵 수영장에서 나온 뒤 가장자리로 올라왔어요."
+    },
+    {
+      "start_time": 11.0,
+      "end_time": 12.25,
+      "frame_time": 12.0,
+      "action": "강아지가 몸을 털음",
+      "target_object": "몸",
+      "summary": "강아지가 수영장 밖에서 몸을 턴 모습이에요."
+    },
+    {
+      "start_time": 20.25,
+      "end_time": 20.35,
+      "frame_time": 20.0,
+      "action": "강아지가 수영장 물속으로 다시 들어감",
+      "target_object": "수영장",
+      "summary": "강아지가 영상 마지막에 수영장 물속으로 다시 들어갔어요."
+    }
+  ]
+}

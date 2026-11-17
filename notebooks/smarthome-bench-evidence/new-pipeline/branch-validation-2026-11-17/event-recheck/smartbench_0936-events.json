@@ -1,0 +1,99 @@
+[
+  {
+    "video_id": "smartbench_0936",
+    "start_time": 16.0,
+    "end_time": 21.0,
+    "subject": "반려동물",
+    "action": "반려동물이 창문 쪽으로 몸을 기울이며 바라봄",
+    "target_object": "창문",
+    "summary": "반려동물이 창문 쪽으로 몸을 기울이며 바라보고 있어요",
+    "duration": 5.0,
+    "repeat_count": 1,
+    "confidence": 0.8,
+    "interestingness": 0.7,
+    "evidence": [
+      "16.00초: 반려동물이 창문 쪽으로 앞발을 올리고 있음",
+      "17.00초: 반려동물이 몸을 기울이며 창문을 바라봄",
+      "18.00초: 반려동물이 여전히 창문 쪽을 바라보며 자세를 유지함",
+      "19.00초: 반려동물이 창문 쪽으로 몸을 기울이고 있음",
+      "20.00초: 반려동물이 창문 쪽으로 이동하며 바라봄",
+      "21.00초: 반려동물이 창문 쪽에서 멈춰 서 있음"
+    ],
+    "source_frames": [
+      {
+        "frame_id": "/var/folders/g5/83j4lqks1w1gyzq149ljv2xc0000gn/T/kidog-event-recheck-ce8q3074/smartbench_0936_frame_18.00.jpg",
+        "frame_path": "/var/folders/g5/83j4lqks1w1gyzq149ljv2xc0000gn/T/kidog-event-recheck-ce8q3074/smartbench_0936_frame_18.00.jpg",
+        "s3_key": null,
+        "timestamp": 18.0,
+        "object_labels": [],
+        "event_labels": {
+          "action_type": "look",
+          "continues_previous": false,
+          "call_id": "/var/folders/g5/83j4lqks1w1gyzq149ljv2xc0000gn/T/kidog-event-recheck-ce8q3074/smartbench_0936|16.0-21.0"
+        }
+      }
+    ]
+  },
+  {
+    "video_id": "smartbench_0936",
+    "start_time": 4.0,
+    "end_time": 11.0,
+    "subject": "반려동물",
+    "action": "반려동물이 창가 쪽으로 다가가서 앞쪽을 바라봄",
+    "target_object": "창문",
+    "summary": "반려동물이 창가 쪽으로 다가가서 앞쪽을 바라보고 있어요",
+    "duration": 7.0,
+    "repeat_count": 1,
+    "confidence": 0.7,
+    "interestingness": 0.6,
+    "evidence": [
+      "4.00초: 반려동물이 창가 쪽으로 몸을 낮추고 있음",
+      "11.00초: 같은 자리에서 고개를 앞으로 향함"
+    ],
+    "source_frames": [
+      {
+        "frame_id": "/var/folders/g5/83j4lqks1w1gyzq149ljv2xc0000gn/T/kidog-event-recheck-ce8q3074/smartbench_0936_frame_7.00.jpg",
+        "frame_path": "/var/folders/g5/83j4lqks1w1gyzq149ljv2xc0000gn/T/kidog-event-recheck-ce8q3074/smartbench_0936_frame_7.00.jpg",
+        "s3_key": null,
+        "timestamp": 7.0,
+        "object_labels": [],
+        "event_labels": {
+          "action_type": "look",
+          "continues_previous": false,
+          "call_id": "/var/folders/g5/83j4lqks1w1gyzq149ljv2xc0000gn/T/kidog-event-recheck-ce8q3074/smartbench_0936|4.0-15.0"
+        }
+      }
+    ]
+  },
+  {
+    "video_id": "smartbench_0936",
+    "start_time": 0.0,
+    "end_time": 1.0,
+    "subject": "반려동물",
+    "action": "반려동물이 창문 쪽을 바라봄",
+    "target_object": "창문",
+    "summary": "반려동물이 창문 쪽을 바라보고 있어요",
+    "duration": 1.0,
+    "repeat_count": 1,
+    "confidence": 0.7,
+    "interestingness": 0.5,
+    "evidence": [
+      "0.00초: 반려동물이 창문 쪽으로 고개를 돌리고 있음",
+      "1.00초: 여전히 창문 쪽을 바라보고 있음"
+    ],
+    "source_frames": [
+      {
+        "frame_id": "/var/folders/g5/83j4lqks1w1gyzq149ljv2xc0000gn/T/kidog-event-recheck-ce8q3074/smartbench_0936_frame_0.00.jpg",
+        "frame_path": "/var/folders/g5/83j4lqks1w1gyzq149ljv2xc0000gn/T/kidog-event-recheck-ce8q3074/smartbench_0936_frame_0.00.jpg",
+        "s3_key": null,
+        "timestamp": 0.0,
+        "object_labels": [],
+        "event_labels": {
+          "action_type": "look",
+          "continues_previous": false,
+          "call_id": "/var/folders/g5/83j4lqks1w1gyzq149ljv2xc0000gn/T/kidog-event-recheck-ce8q3074/smartbench_0936|0.0-1.0"
+        }
+      }
+    ]
+  }
+]

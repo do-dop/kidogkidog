@@ -12,6 +12,18 @@ ACTION_PATTERNS = {
         r"(?:올라|올랐|기어|타고|climb).{0,14}(?:울타리|펜스|gate)",
         "울타리 올라타기",
     ),
+    "water_enter": (
+        r"(?:분수|수영장|물속|물\s*안).{0,16}(?:들어|들어갔|입수)|"
+        r"(?:들어|들어갔|입수).{0,16}(?:분수|수영장|물속|물\s*안)",
+        "물속 들어가기",
+    ),
+    "front_paw_raise": (r"앞발.{0,16}(?:들|올리|올렸)|(?:들|올리|올렸).{0,16}앞발", "앞발 들기"),
+    "sofa_up": (
+        r"(?:소파|쇼파|sofa).{0,16}(?:올라|올랐|올리|점프|타고)|"
+        r"(?:올라|올랐|올리|점프|타고).{0,16}(?:소파|쇼파|sofa)",
+        "소파 올라가기",
+    ),
+    "head_lift": (r"고개.{0,8}(?:들|올리|들어)", "고개 들기"),
 }
 COUNT_PATTERN = re.compile(r"몇\s*(?:번|회)|횟수", re.I)
 UNCERTAIN_PATTERN = re.compile(r"마시지\s*않|먹지\s*않|마시는지|먹는지|근처|주변|앞에|옆에", re.I)
@@ -20,6 +32,9 @@ UNCERTAIN_PATTERN = re.compile(r"마시지\s*않|먹지\s*않|마시는지|먹�
 def parse_count_action(query: str) -> tuple[str, str] | None:
     if not COUNT_PATTERN.search(query):
         return None
+    # 식사 중 고개 들기 질문은 식사 횟수와 단위가 다르다.
+    if re.search(r"고개.{0,8}(?:들|올리|들어)", query):
+        return ("head_lift", "고개 들기")
     matches = [
         (action, label)
         for action, (pattern, label) in ACTION_PATTERNS.items()
@@ -54,6 +69,10 @@ def event_matches_action(event: dict[str, Any], action: str) -> bool:
             evidence = " ".join(str(item) for item in (event.get("evidence") or []))
             return bool(re.search(r"발.{0,6}걸치|손.{0,6}뻗|몸.{0,6}올라|점프", evidence, re.I))
         return True
+    if action == "water_enter":
+        return bool(re.search(ACTION_PATTERNS[action][0], description, re.I))
+    if action == "front_paw_raise":
+        return bool(re.search(ACTION_PATTERNS[action][0], description, re.I))
     if UNCERTAIN_PATTERN.search(description):
         return False
     return bool(re.search(ACTION_PATTERNS[action][0], description, re.I))
