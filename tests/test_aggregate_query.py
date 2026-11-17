@@ -37,6 +37,10 @@ class AggregateQueryTests(unittest.TestCase):
                                              "front_paw_raise"))
         self.assertFalse(event_matches_action({"action": "반려동물이 유리문 앞에서 바라봄"},
                                               "front_paw_raise"))
+
+    def test_sofa_count_question_is_recognized_for_qualitative_review(self):
+        self.assertEqual(parse_count_action("강아지가 쇼파에 몇 번 올라갔어?"),
+                         ("sofa_up", "소파 올라가기"))
         self.assertTrue(event_matches_action(
             {
                 "action": "반려동물이 우리를 넘으려고 시도함",
