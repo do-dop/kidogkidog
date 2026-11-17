@@ -1,0 +1,602 @@
+{
+  "confirmed_count": 2,
+  "uncertain_count": 0,
+  "confirmed": [
+    {
+      "candidate_time": 1.5,
+      "subject_id": "animal_1",
+      "start_time": 0.25,
+      "end_time": 3.0,
+      "before_time": 0.25,
+      "after_time": 3.0,
+      "reset_time": null,
+      "reason": "The black puppy's body is entering the fountain water.",
+      "model_status": "confirmed",
+      "model_subject_id": "black puppy"
+    },
+    {
+      "candidate_time": 4.25,
+      "subject_id": "animal_2",
+      "start_time": 3.0,
+      "end_time": 5.75,
+      "before_time": 3.0,
+      "after_time": 5.0,
+      "reset_time": null,
+      "reason": "The black dog's body is visibly entering the water from the fountain edge by 5.0 seconds.",
+      "model_status": "confirmed",
+      "model_subject_id": "black dog"
+    }
+  ],
+  "uncertain": [],
+  "rejected": [
+    {
+      "candidate_time": 4.0,
+      "subject_id": "black puppy",
+      "start_time": 2.75,
+      "end_time": 4.0,
+      "before_time": 2.75,
+      "after_time": 4.0,
+      "reset_time": null,
+      "reason": "The black puppy's body is fully in the water by 4.000s, completing the transition.",
+      "model_status": "rejected",
+      "model_subject_id": "black puppy"
+    },
+    {
+      "candidate_time": 8.25,
+      "subject_id": "unknown",
+      "start_time": 7.0,
+      "end_time": 8.75,
+      "before_time": 7.0,
+      "after_time": 8.75,
+      "reset_time": null,
+      "reason": "Puppy's body entering water fully captured.",
+      "model_status": "rejected",
+      "model_subject_id": "unknown"
+    },
+    {
+      "candidate_time": 13.25,
+      "subject_id": "black puppy",
+      "start_time": 12.0,
+      "end_time": 13.25,
+      "before_time": 12.0,
+      "after_time": 13.25,
+      "reset_time": null,
+      "reason": "The black puppy's body is outside the fountain at 12.000s, and it is fully in the water by 13.250s.",
+      "model_status": "rejected",
+      "model_subject_id": "black puppy"
+    },
+    {
+      "candidate_time": 13.75,
+      "subject_id": "black puppy",
+      "start_time": 12.75,
+      "end_time": 13.0,
+      "before_time": 12.75,
+      "after_time": 13.0,
+      "reset_time": null,
+      "reason": "The black puppy's body is visibly entering the water by 13.000 seconds, indicating completion of the transition.",
+      "model_status": "rejected",
+      "model_subject_id": "black puppy"
+    }
+  ],
+  "duplicates": [],
+  "video": "data/videos/smartbench_0642.mp4",
+  "query": "강아지들이 분수 물속에 몇 번 들어갔어? 개별 강아지를 각각 세어.",
+  "intent": {
+    "subject": "puppy",
+    "action": "enter",
+    "target": "fountain water",
+    "before_state": "puppy's body outside fountain edge",
+    "after_state": "puppy's body entering water",
+    "exclusion": "none"
+  },
+  "candidates": [
+    {
+      "time": 1.5,
+      "subject": "black puppy",
+      "reason": "puppy's body entering water",
+      "window": 0
+    },
+    {
+      "time": 4.0,
+      "subject": "black puppy",
+      "reason": "puppy's body entering water",
+      "window": 0
+    },
+    {
+      "time": 4.25,
+      "subject": "black dog",
+      "reason": "puppy's body entering water",
+      "window": 1
+    },
+    {
+      "time": 8.25,
+      "subject": "black puppy",
+      "reason": "puppy's body entering water",
+      "window": 2
+    },
+    {
+      "time": 13.25,
+      "subject": "black puppy",
+      "reason": "puppy's body entering water",
+      "window": 3
+    },
+    {
+      "time": 13.75,
+      "subject": "black puppy",
+      "reason": "puppy's body entering water",
+      "window": 3
+    }
+  ],
+  "scan_log": [
+    {
+      "window": {
+        "core_start": 0.0,
+        "core_end": 4.0,
+        "start": 0.0,
+        "end": 4.75
+      },
+      "response": {
+        "candidates": [
+          {
+            "time": 1.5,
+            "subject": "black puppy",
+            "reason": "puppy's body entering water"
+          },
+          {
+            "time": 4.0,
+            "subject": "black puppy",
+            "reason": "puppy's body entering water"
+          }
+        ]
+      },
+      "frame_times": [
+        0.0,
+        0.5,
+        1.0,
+        1.5,
+        2.0,
+        2.5,
+        3.0,
+        3.5,
+        4.0,
+        4.5,
+        4.75
+      ]
+    },
+    {
+      "window": {
+        "core_start": 4.0,
+        "core_end": 8.0,
+        "start": 3.25,
+        "end": 8.75
+      },
+      "response": {
+        "candidates": [
+          {
+            "time": 4.25,
+            "subject": "black dog",
+            "reason": "puppy's body entering water"
+          }
+        ]
+      },
+      "frame_times": [
+        3.25,
+        3.75,
+        4.25,
+        4.75,
+        5.25,
+        5.75,
+        6.25,
+        6.75,
+        7.25,
+        7.75,
+        8.25,
+        8.75
+      ]
+    },
+    {
+      "window": {
+        "core_start": 8.0,
+        "core_end": 12.0,
+        "start": 7.25,
+        "end": 12.75
+      },
+      "response": {
+        "candidates": [
+          {
+            "time": 8.25,
+            "subject": "black puppy",
+            "reason": "puppy's body entering water"
+          }
+        ]
+      },
+      "frame_times": [
+        7.25,
+        7.75,
+        8.25,
+        8.75,
+        9.25,
+        9.75,
+        10.25,
+        10.75,
+        11.25,
+        11.75,
+        12.25,
+        12.75
+      ]
+    },
+    {
+      "window": {
+        "core_start": 12.0,
+        "core_end": 14.556208333333332,
+        "start": 11.25,
+        "end": 14.556208333333332
+      },
+      "response": {
+        "candidates": [
+          {
+            "time": 13.25,
+            "subject": "black puppy",
+            "reason": "puppy's body entering water"
+          },
+          {
+            "time": 13.75,
+            "subject": "black puppy",
+            "reason": "puppy's body entering water"
+          }
+        ]
+      },
+      "frame_times": [
+        11.25,
+        11.75,
+        12.25,
+        12.75,
+        13.25,
+        13.75,
+        14.25
+      ]
+    }
+  ],
+  "verifications": [
+    {
+      "candidate": {
+        "time": 1.5,
+        "subject": "black puppy",
+        "reason": "puppy's body entering water",
+        "window": 0
+      },
+      "frame_times": [
+        0.25,
+        0.5,
+        0.75,
+        1.0,
+        1.25,
+        1.5,
+        1.75,
+        2.0,
+        2.25,
+        2.5,
+        2.75,
+        3.0
+      ],
+      "observation": {
+        "subject_id": "black puppy",
+        "start_time": 0.25,
+        "end_time": 3.0,
+        "before_time": 0.25,
+        "after_time": 3.0,
+        "reset_time": null,
+        "status": "confirmed",
+        "reason": "The black puppy's body is entering the fountain water.",
+        "track_id": "animal_1"
+      },
+      "clip": [
+        0.25,
+        3.0
+      ],
+      "evidence_check": {
+        "status": "confirmed",
+        "before_state_visible": true,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": "black puppy",
+        "reason": "The black puppy is visible outside the fountain in the first frame and entering the water in the second frame."
+      },
+      "track_resolution": {
+        "index": 0,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "The black puppy is the only black animal visible in frame 0, distinct from other animals."
+      }
+    },
+    {
+      "candidate": {
+        "time": 4.0,
+        "subject": "black puppy",
+        "reason": "puppy's body entering water",
+        "window": 0
+      },
+      "frame_times": [
+        2.75,
+        3.0,
+        3.25,
+        3.5,
+        3.75,
+        4.0,
+        4.25,
+        4.5,
+        4.75,
+        5.0,
+        5.25,
+        5.5
+      ],
+      "observation": {
+        "subject_id": "black puppy",
+        "start_time": 2.75,
+        "end_time": 4.0,
+        "before_time": 2.75,
+        "after_time": 4.0,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "The black puppy's body is fully in the water by 4.000s, completing the transition.",
+        "evidence_check_reason": "The first frame already shows the puppy in the after_state, with part of its body entering the water."
+      },
+      "clip": [
+        2.75,
+        5.5
+      ],
+      "evidence_check": {
+        "status": "rejected",
+        "before_state_visible": false,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": "black_puppy",
+        "reason": "The first frame already shows the puppy in the after_state, with part of its body entering the water."
+      },
+      "repair": {
+        "subject_id": "black_puppy",
+        "start_time": null,
+        "end_time": null,
+        "before_time": null,
+        "after_time": null,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "The sequence shows the same puppy already in the water from the beginning, confirming the earlier rejection. No complete transition from outside to inside the fountain occurred."
+      }
+    },
+    {
+      "candidate": {
+        "time": 4.25,
+        "subject": "black dog",
+        "reason": "puppy's body entering water",
+        "window": 1
+      },
+      "frame_times": [
+        3.0,
+        3.25,
+        3.5,
+        3.75,
+        4.0,
+        4.25,
+        4.5,
+        4.75,
+        5.0,
+        5.25,
+        5.5,
+        5.75
+      ],
+      "observation": {
+        "subject_id": "black dog",
+        "start_time": 3.0,
+        "end_time": 5.75,
+        "before_time": 3.0,
+        "after_time": 5.0,
+        "reset_time": null,
+        "status": "confirmed",
+        "reason": "The black dog's body is visibly entering the water from the fountain edge by 5.0 seconds.",
+        "track_id": "animal_2"
+      },
+      "clip": [
+        3.0,
+        5.75
+      ],
+      "evidence_check": {
+        "status": "confirmed",
+        "before_state_visible": true,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": "black dog",
+        "reason": "The black dog is outside the fountain in the first frame and seen entering the water in the second frame."
+      },
+      "track_resolution": {
+        "index": 2,
+        "track_id": "animal_1",
+        "certain": true,
+        "reason": "The black dog is still visible and consistent with the movements of the black puppy from the previous frame."
+      },
+      "overlap_identity_check": {
+        "same_animal": false,
+        "certain": true,
+        "two_animals_simultaneously_visible": true,
+        "reason": "Both images show two distinct animals visible at the same time."
+      }
+    },
+    {
+      "candidate": {
+        "time": 8.25,
+        "subject": "black puppy",
+        "reason": "puppy's body entering water",
+        "window": 2
+      },
+      "frame_times": [
+        7.0,
+        7.25,
+        7.5,
+        7.75,
+        8.0,
+        8.25,
+        8.5,
+        8.75,
+        9.0,
+        9.25,
+        9.5,
+        9.75
+      ],
+      "observation": {
+        "subject_id": "unknown",
+        "start_time": 7.0,
+        "end_time": 8.75,
+        "before_time": 7.0,
+        "after_time": 8.75,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "Puppy's body entering water fully captured.",
+        "evidence_check_reason": "First frame already shows subject in water, failing before_state visibility."
+      },
+      "clip": [
+        7.0,
+        9.75
+      ],
+      "evidence_check": {
+        "status": "rejected",
+        "before_state_visible": false,
+        "after_state_visible": true,
+        "same_subject_visible": false,
+        "subject_id": "unknown",
+        "reason": "First frame already shows subject in water, failing before_state visibility."
+      },
+      "repair": {
+        "subject_id": "puppy_1",
+        "start_time": 6.75,
+        "end_time": 7.75,
+        "before_time": 6.0,
+        "after_time": 8.0,
+        "reset_time": null,
+        "status": "confirmed",
+        "reason": "The puppy is visibly outside the fountain at 6.000s and enters the fountain water by 8.000s, confirming the transition."
+      },
+      "repair_evidence_check": {
+        "status": "uncertain",
+        "before_state_visible": false,
+        "after_state_visible": true,
+        "same_subject_visible": false,
+        "subject_id": "puppy_1",
+        "reason": "The first frame does not clearly show the puppy's body outside the fountain edge, making it uncertain if the transition occurred."
+      }
+    },
+    {
+      "candidate": {
+        "time": 13.25,
+        "subject": "black puppy",
+        "reason": "puppy's body entering water",
+        "window": 3
+      },
+      "frame_times": [
+        12.0,
+        12.25,
+        12.5,
+        12.75,
+        13.0,
+        13.25,
+        13.5,
+        13.75,
+        14.0,
+        14.25,
+        14.5
+      ],
+      "observation": {
+        "subject_id": "black puppy",
+        "start_time": 12.0,
+        "end_time": 13.25,
+        "before_time": 12.0,
+        "after_time": 13.25,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "The black puppy's body is outside the fountain at 12.000s, and it is fully in the water by 13.250s.",
+        "evidence_check_reason": "First frame does not show the puppy's body outside the fountain edge; all puppies appear within or at the edge. Therefore, the before_state is not fulfilled."
+      },
+      "clip": [
+        12.0,
+        14.556208333333332
+      ],
+      "evidence_check": {
+        "status": "rejected",
+        "before_state_visible": false,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": "uncertain",
+        "reason": "First frame does not show the puppy's body outside the fountain edge; all puppies appear within or at the edge. Therefore, the before_state is not fulfilled."
+      },
+      "repair": {
+        "subject_id": null,
+        "start_time": null,
+        "end_time": null,
+        "before_time": null,
+        "after_time": null,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "The before_state of the puppy's body outside the fountain edge is not visible at any point in the given frames. All puppies appear within or at the edge of the water, so the transition cannot be confirmed."
+      }
+    },
+    {
+      "candidate": {
+        "time": 13.75,
+        "subject": "black puppy",
+        "reason": "puppy's body entering water",
+        "window": 3
+      },
+      "frame_times": [
+        12.5,
+        12.75,
+        13.0,
+        13.25,
+        13.5,
+        13.75,
+        14.0,
+        14.25,
+        14.5
+      ],
+      "observation": {
+        "subject_id": "black puppy",
+        "start_time": 12.75,
+        "end_time": 13.0,
+        "before_time": 12.75,
+        "after_time": 13.0,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "The black puppy's body is visibly entering the water by 13.000 seconds, indicating completion of the transition.",
+        "evidence_check_reason": "First frame already shows the puppy in water, indicating it is not the before_state of the event."
+      },
+      "clip": [
+        12.5,
+        14.556208333333332
+      ],
+      "evidence_check": {
+        "status": "rejected",
+        "before_state_visible": false,
+        "after_state_visible": true,
+        "same_subject_visible": true,
+        "subject_id": "indeterminate",
+        "reason": "First frame already shows the puppy in water, indicating it is not the before_state of the event."
+      },
+      "repair": {
+        "subject_id": "indeterminate",
+        "start_time": null,
+        "end_time": null,
+        "before_time": null,
+        "after_time": null,
+        "reset_time": null,
+        "status": "rejected",
+        "reason": "No frame shows the puppy outside the fountain before entering. All frames observed contain the puppy already in the water, similar to the earlier check."
+      }
+    }
+  ],
+  "models": {
+    "scan_and_intent": "gpt-4o",
+    "verify": "gpt-4o"
+  },
+  "track_status": "model_resolved",
+  "track_error": null,
+  "coverage_note": "All timeline windows scanned at coarse_step; brief actions may still be missed.",
+  "intent_source": "model"
+}

@@ -13,6 +13,8 @@ ACTION_EVENT_TEXT = {
     "gate_climb": ("강아지가 울타리에 올라탐", "울타리"),
     "drink": ("반려동물이 물을 마심", "물"),
     "eat": ("반려동물이 먹이를 먹음", "먹이"),
+    "water_enter": ("반려동물이 물속으로 들어감", "물"),
+    "front_paw_raise": ("반려동물이 두 앞발을 들어 올림", "앞발"),
 }
 
 
@@ -36,18 +38,25 @@ def events_from_count_result(
         raise ValueError("결과에 연결할 인덱싱 프레임이 없습니다")
 
     action, target = ACTION_EVENT_TEXT[parsed[0]]
+    point_transition = parsed[0] in {"water_enter", "front_paw_raise"}
+    query = str(result.get("query") or "")
+    if parsed[0] == "water_enter":
+        target = "분수" if "분수" in query else "수영장" if "수영장" in query else "물"
+    elif parsed[0] == "front_paw_raise" and "유리문" in query:
+        target = "유리문"
+        action = "반려동물이 유리문 앞에서 두 앞발을 들어 올림"
     events = []
     for item in confirmed:
         if item.get("model_status") != "confirmed":
             raise ValueError("미확정 후보를 확정 이벤트로 저장할 수 없습니다")
         try:
-            start = float(item["start_time"])
-            end = float(item["end_time"])
             before = float(item["before_time"])
             after = float(item["after_time"])
+            start = float(item["start_time"] if item.get("start_time") is not None else before)
+            end = float(item["end_time"] if item.get("end_time") is not None else after)
         except (KeyError, TypeError, ValueError) as exc:
             raise ValueError("행동 전후 근거 시각이 빠졌습니다") from exc
-        if not all(map(math.isfinite, (start, end, before, after))) or not (0 <= start <= end and 0 <= before < after):
+        if not all(map(math.isfinite, (start, end, before, after))) or not (0 <= before < after and 0 <= start <= end):
             raise ValueError("행동 전후 근거 시각이 올바르지 않습니다")
         nearest = min(scenes, key=lambda scene: abs(float(scene["start_time"]) - after))
         if abs(float(nearest["start_time"]) - after) > 2.5:
@@ -63,12 +72,23 @@ def events_from_count_result(
         }
         events.append({
             "video_id": video_id,
-            "start_time": min(start, before),
-            "end_time": max(end, after),
+            # 빠른 반복은 검토 창이 서로 겹쳐도 각각 별도 진입이다.
+            "start_time": after if point_transition else min(start, before),
+            "end_time": after + 0.1 if point_transition else max(end, after),
             "subject": item.get("model_subject_id") or item.get("subject_id") or "반려동물",
             "action": action,
             "target_object": target,
-            "summary": f"같은 개체의 행동 전후 상태가 {before:g}초와 {after:g}초에 확인됨",
+            "summary": (
+                f"반려동물이 {after:g}초에 {target} 물속으로 들어갔어요."
+                if parsed[0] == "water_enter" and target != "물" else
+                f"반려동물이 {after:g}초에 물속으로 들어갔어요."
+                if parsed[0] == "water_enter" else
+                f"반려동물이 {after:g}초에 {target} 앞에서 두 앞발을 들어 올렸어요."
+                if parsed[0] == "front_paw_raise" and target == "유리문" else
+                f"반려동물이 {after:g}초에 두 앞발을 들어 올렸어요."
+                if parsed[0] == "front_paw_raise" else
+                f"같은 개체의 행동 전후 상태가 {before:g}초와 {after:g}초에 확인됨"
+            ),
             "evidence": [
                 f"행동 전 상태 {before:g}초, 행동 후 상태 {after:g}초",
                 f"후보 재검증: {item.get('reason') or '확인됨'}",

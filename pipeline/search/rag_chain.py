@@ -372,6 +372,8 @@ def _run_aggregate_query(
         "drink": "물을 마시는",
         "eat": "음식을 먹는",
         "gate_climb": "울타리에 올라타는",
+        "water_enter": "물속에 들어가는",
+        "front_paw_raise": "앞발을 들어 올리는",
     }.get(action, f"{action_label} 관련")
     answer = (
         f"{action_phrase} 장면이 {len(evidence)}개 구간에서 확인됐어요. "

@@ -204,6 +204,17 @@ _CHUNK_FRAME_KEY = re.compile(r"_(\d{3})_frame_[0-9.]+\.jpg$")
 CHUNK_SECONDS = 60
 
 
+def _video_seconds(event: dict[str, Any]) -> float | None:
+    """촬영 시각이 없는 영상의 청크 번호와 청크 안 이벤트 시각을 합친다."""
+    for frame in event.get("source_frames") or []:
+        if not isinstance(frame, dict):
+            continue
+        match = _CHUNK_FRAME_KEY.search(str(frame.get("s3_key") or ""))
+        if match:
+            return int(match.group(1)) * CHUNK_SECONDS + float(event.get("start_time") or 0)
+    return None
+
+
 def _video_time_text(event: dict[str, Any]) -> str:
     """'영상 21초쯤'처럼 영상 안에서의 위치. 청크 번호를 알 수 없으면 청크 안 시각을 그대로 쓴다."""
     chunk_index = 0
@@ -344,7 +355,7 @@ _PLACE_MARKED = re.compile(
     r"([가-힣A-Za-z0-9]{2,})\s*(?:위에서|위에|아래에서|아래에|옆에서|옆에|근처에서|근처에|앞에서|앞에|속에서|속에|밑에서|밑에|에서)(?![가-힣])"
 )
 # 장소가 아니라 시간·범위·화면을 가리키는 말이라, 이벤트 설명에 없어도 되는 낱말.
-_GENERIC_PLACES = {"집", "방", "여기", "거기", "화면", "영상", "전체", "평소", "하루", "오늘", "어제", "아까", "밤", "낮", "아침", "저녁", "새벽", "어디", "언제"}
+_GENERIC_PLACES = {"집", "방", "여기", "거기", "화면", "영상", "전체", "평소", "하루", "오늘", "어제", "아까", "밤", "낮", "아침", "저녁", "새벽", "어디", "언제", "사이"}
 
 
 def _place_terms(query: str) -> list[str]:
@@ -367,6 +378,8 @@ def _variants(term: str) -> list[str]:
         stem = term[:-1] + chr(ord(term[-1]) - code % 28)
         if len(stem) >= 2:
             variants.append(stem)
+            if code % 28 == 4:  # '내려온'과 저장 설명 '내려옴'처럼 ㄴ/ㅁ 명사형을 연결한다.
+                variants.append(term[:-1] + chr(ord(term[-1]) - 4 + 16))
     elif term[-1] in "기고" and len(term) >= 3:  # '마시기'·'마시고' → '마시'
         variants.append(term[:-1])
     return variants
@@ -542,9 +555,7 @@ def _find_anchor(
 
 def _playable(recorded_at: datetime | None, event: dict[str, Any]) -> bool:
     """시각을 알고 원본 프레임(s3_key)으로 다시 열 수 있는 이벤트인가."""
-    return recorded_at is not None and any(
-        isinstance(frame, dict) and frame.get("s3_key") for frame in event.get("source_frames") or []
-    )
+    return _has_frame(recorded_at, event) and (recorded_at is not None or _video_seconds(event) is not None)
 
 
 def _has_frame(_recorded_at: datetime | None, event: dict[str, Any]) -> bool:
@@ -635,7 +646,8 @@ def run_sequence_query(
         row[0] is None,
         row[0] or datetime.max,
         str(row[1].get("video_id") or ""),
-        float(row[1].get("start_time") or 0),
+        _video_seconds(row[1]) if row[0] is None and _video_seconds(row[1]) is not None
+        else float(row[1].get("start_time") or 0),
         int(row[1].get("id") or 0),
     ))
     intent, anchor = _sequence_intent(query)

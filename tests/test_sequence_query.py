@@ -77,6 +77,39 @@ class SequenceQueryTests(unittest.TestCase):
                                    events=[stored(3, 5.0, "소파가 뒤집어졌어요", chunk=2)])
         self.assertIn("영상 2분 5초쯤에", later["answer"])
 
+    def test_smartbench_relative_time_supports_first_last_and_after(self):
+        def stored(event_id, chunk, second, summary):
+            return {
+                "id": event_id, "video_id": "smartbench_sample", "start_time": second,
+                "end_time": second + 2, "summary": summary, "confidence": 0.8,
+                "source_frames": [{
+                    "s3_key": f"frames/smartbench_sample/smartbench_sample_{chunk:03d}_frame_{second:.2f}.jpg",
+                    "timestamp": second,
+                }],
+            }
+
+        events = [
+            stored(3, 1, 2, "바닥을 달림"),
+            stored(1, 0, 40, "소파 위에 있음"),
+            stored(2, 0, 50, "소파에서 내려옴"),
+        ]
+        timeline = run_sequence_query("행동을 시간순으로 알려줘", video_id="smartbench_sample", events=events)
+        first = run_sequence_query("처음에는 뭐했어?", video_id="smartbench_sample", events=events)
+        last = run_sequence_query("마지막에는 뭐했어?", video_id="smartbench_sample", events=events)
+        after = run_sequence_query("소파에서 내려온 다음에는 뭐했어?", video_id="smartbench_sample", events=events)
+
+        self.assertEqual([e["id"] for e in timeline["behavior_events"]], [1, 2, 3])
+        self.assertEqual([card["source_event_id"] for card in first["results"]], [1])
+        self.assertEqual([card["source_event_id"] for card in last["results"]], [3])
+        self.assertEqual([card["source_event_id"] for card in after["results"]], [3])
+        self.assertTrue(all(card["s3_key"] for card in after["evidence_items"]))
+
+    def test_between_places_is_not_treated_as_a_place_named_between(self):
+        events = [event(1, 0, 2, "거실 바닥을 달림"), event(2, 0, 8, "소파 위에 있음")]
+        result = run_sequence_query("강아지가 거실과 소파 사이에서 움직인 순서를 알려줘",
+                                    video_id="dog-video", events=events)
+        self.assertEqual([card["source_event_id"] for card in result["results"]], [1, 2])
+
     def test_why_question_infers_cause_from_the_pet_action_right_before(self):
         # '왜'는 질문 틀 낱말이다. 이벤트에 없는 낱말이라 그대로 조건이 되면 소파 이벤트가 있어도 못 찾는다.
         scene = {**event(2, 0, 20, "소파가 뒤집어졌어요"), "subject": "소파", "target_object": "소파"}

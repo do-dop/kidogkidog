@@ -18,6 +18,8 @@ sys.path.insert(0, str(PROJECT))
 from pipeline.search.video_aggregate import (  # noqa: E402
     OpenAIJsonVision,
     analyze_video_count,
+    challenge_overlapping_tracks,
+    challenge_uncertain_evidence,
     check_claimed_evidence,
     repair_failed_claims,
     reduce_transitions,
@@ -105,9 +107,13 @@ def main():
                 path, result["intent"], result["verifications"], vision)
             result["verifications"] = repair_failed_claims(
                 path, result["intent"], result["verifications"], vision)
+            result["verifications"] = challenge_uncertain_evidence(
+                path, result["intent"], result["verifications"], vision)
             if not args.skip_track:
                 try:
                     result["verifications"] = resolve_subject_tracks(
+                        path, result["verifications"], vision)
+                    result["verifications"] = challenge_overlapping_tracks(
                         path, result["verifications"], vision)
                     result["verifications"] = verify_resets(
                         path, result["intent"], result["verifications"], vision)

@@ -1,0 +1,154 @@
+[
+  {
+    "video_id": "smartbench_0642",
+    "start_time": 9.0,
+    "end_time": 14.0,
+    "subject": "반려동물",
+    "action": "반려동물이 물속에서 움직이며 놀고 있음",
+    "target_object": "물",
+    "summary": "반려동물이 물속에서 놀고 있는 모습이에요",
+    "duration": 5.0,
+    "repeat_count": 1,
+    "confidence": 0.8,
+    "interestingness": 0.7,
+    "evidence": [
+      "9.00초: 반려동물이 물속에서 움직이고 있음",
+      "14.00초: 반려동물이 물속에서 계속 놀고 있음"
+    ],
+    "source_frames": [
+      {
+        "frame_id": "/var/folders/g5/83j4lqks1w1gyzq149ljv2xc0000gn/T/kidog-event-recheck-xazd3840/smartbench_0642_frame_11.00.jpg",
+        "frame_path": "/var/folders/g5/83j4lqks1w1gyzq149ljv2xc0000gn/T/kidog-event-recheck-xazd3840/smartbench_0642_frame_11.00.jpg",
+        "s3_key": null,
+        "timestamp": 11.0,
+        "object_labels": [],
+        "event_labels": {
+          "action_type": "play",
+          "continues_previous": false,
+          "call_id": "/var/folders/g5/83j4lqks1w1gyzq149ljv2xc0000gn/T/kidog-event-recheck-xazd3840/smartbench_0642|9.0-14.0"
+        }
+      }
+    ]
+  },
+  {
+    "video_id": "smartbench_0642",
+    "start_time": 0.0,
+    "end_time": 2.0,
+    "subject": "반려동물",
+    "action": "반려동물이 물가에서 앞발을 물속에 담금",
+    "target_object": "물",
+    "summary": "반려동물이 물가에서 앞발을 물속에 담그고 있어요",
+    "duration": 2.0,
+    "repeat_count": 1,
+    "confidence": 0.8,
+    "interestingness": 0.7,
+    "evidence": [
+      "0.00초: 반려동물이 물가에 있음",
+      "1.00초: 반려동물이 앞발을 물속에 담그고 있음"
+    ],
+    "source_frames": [
+      {
+        "frame_id": "/var/folders/g5/83j4lqks1w1gyzq149ljv2xc0000gn/T/kidog-event-recheck-xazd3840/smartbench_0642_frame_1.00.jpg",
+        "frame_path": "/var/folders/g5/83j4lqks1w1gyzq149ljv2xc0000gn/T/kidog-event-recheck-xazd3840/smartbench_0642_frame_1.00.jpg",
+        "s3_key": null,
+        "timestamp": 1.0,
+        "object_labels": [],
+        "event_labels": {
+          "action_type": "other",
+          "continues_previous": false,
+          "call_id": "/var/folders/g5/83j4lqks1w1gyzq149ljv2xc0000gn/T/kidog-event-recheck-xazd3840/smartbench_0642|0.0-2.0"
+        }
+      }
+    ]
+  },
+  {
+    "video_id": "smartbench_0642",
+    "start_time": 5.0,
+    "end_time": 6.0,
+    "subject": "반려동물",
+    "action": "반려동물이 물속으로 들어감",
+    "target_object": "물",
+    "summary": "반려동물이 물속으로 들어가고 있어요",
+    "duration": 1.0,
+    "repeat_count": 1,
+    "confidence": 0.8,
+    "interestingness": 0.7,
+    "evidence": [
+      "5.00초: 반려동물이 물속으로 들어가는 모습이 보임"
+    ],
+    "source_frames": [
+      {
+        "frame_id": "/var/folders/g5/83j4lqks1w1gyzq149ljv2xc0000gn/T/kidog-event-recheck-xazd3840/smartbench_0642_frame_5.00.jpg",
+        "frame_path": "/var/folders/g5/83j4lqks1w1gyzq149ljv2xc0000gn/T/kidog-event-recheck-xazd3840/smartbench_0642_frame_5.00.jpg",
+        "s3_key": null,
+        "timestamp": 5.0,
+        "object_labels": [],
+        "event_labels": {
+          "action_type": "other",
+          "continues_previous": false,
+          "call_id": "/var/folders/g5/83j4lqks1w1gyzq149ljv2xc0000gn/T/kidog-event-recheck-xazd3840/smartbench_0642|4.0-7.51"
+        }
+      }
+    ]
+  },
+  {
+    "video_id": "smartbench_0642",
+    "start_time": 4.0,
+    "end_time": 5.0,
+    "subject": "반려동물",
+    "action": "반려동물이 물가에서 앞쪽을 바라봄",
+    "target_object": "물",
+    "summary": "반려동물이 물가에서 앞쪽을 바라보고 있어요",
+    "duration": 1.0,
+    "repeat_count": 1,
+    "confidence": 0.7,
+    "interestingness": 0.6,
+    "evidence": [
+      "4.00초: 물가에 서 있음"
+    ],
+    "source_frames": [
+      {
+        "frame_id": "/var/folders/g5/83j4lqks1w1gyzq149ljv2xc0000gn/T/kidog-event-recheck-xazd3840/smartbench_0642_frame_4.00.jpg",
+        "frame_path": "/var/folders/g5/83j4lqks1w1gyzq149ljv2xc0000gn/T/kidog-event-recheck-xazd3840/smartbench_0642_frame_4.00.jpg",
+        "s3_key": null,
+        "timestamp": 4.0,
+        "object_labels": [],
+        "event_labels": {
+          "action_type": "look",
+          "continues_previous": false,
+          "call_id": "/var/folders/g5/83j4lqks1w1gyzq149ljv2xc0000gn/T/kidog-event-recheck-xazd3840/smartbench_0642|4.0-7.51"
+        }
+      }
+    ]
+  },
+  {
+    "video_id": "smartbench_0642",
+    "start_time": 6.0,
+    "end_time": 7.0,
+    "subject": "반려동물",
+    "action": "반려동물이 물속에서 움직임",
+    "target_object": "물",
+    "summary": "반려동물이 물속에서 움직이고 있어요",
+    "duration": 1.0,
+    "repeat_count": 1,
+    "confidence": 0.7,
+    "interestingness": 0.6,
+    "evidence": [
+      "6.00초: 물속에서 반려동물이 움직이는 모습이 보임"
+    ],
+    "source_frames": [
+      {
+        "frame_id": "/var/folders/g5/83j4lqks1w1gyzq149ljv2xc0000gn/T/kidog-event-recheck-xazd3840/smartbench_0642_frame_6.00.jpg",
+        "frame_path": "/var/folders/g5/83j4lqks1w1gyzq149ljv2xc0000gn/T/kidog-event-recheck-xazd3840/smartbench_0642_frame_6.00.jpg",
+        "s3_key": null,
+        "timestamp": 6.0,
+        "object_labels": [],
+        "event_labels": {
+          "action_type": "other",
+          "continues_previous": true,
+          "call_id": "/var/folders/g5/83j4lqks1w1gyzq149ljv2xc0000gn/T/kidog-event-recheck-xazd3840/smartbench_0642|4.0-7.51"
+        }
+      }
+    ]
+  }
+]
