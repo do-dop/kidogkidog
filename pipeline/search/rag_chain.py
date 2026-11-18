@@ -18,6 +18,7 @@ from db.behavior_events import (
 from pipeline.search.aggregate_query import ACTION_PATTERNS, count_episodes, event_matches_action, is_scene_event, parse_count_action
 from pipeline.search.question_router import QuestionType, classify_with_rules
 from pipeline.search.sequence_query import is_sequence_query, run_sequence_query
+from pipeline.storage.capture_time import trusted_capture_time
 
 SEQUENCE_MIN_RESULTS = 10
 
@@ -461,7 +462,7 @@ def _run_aggregate_query(
         # A missing capture time means the event may belong inside the requested period.
         # An incomplete timeline must not produce an exact count.
         if any(not any(
-            _frame_recorded_at_from_key(frame.get("s3_key"))
+            trusted_capture_time(frame)
             for frame in (event.get("source_frames") or [])
             if isinstance(frame, dict)
         ) for event in matched):
@@ -761,25 +762,6 @@ def _get_relevant_behavior_events(
     return candidates[:limit]
 
 
-def _frame_recorded_at_from_key(s3_key: str | None):
-    if not s3_key:
-        return None
-
-    match = re.search(
-        r"petcam_(\d{8})_(\d{6})_(\d{3})_frame_([0-9.]+)\.jpg$",
-        s3_key,
-    )
-
-    if not match:
-        return None
-
-    base = datetime.strptime(
-        f"{match.group(1)}{match.group(2)}",
-        "%Y%m%d%H%M%S",
-    )
-    return base + timedelta(seconds=int(match.group(3)) * 60 + float(match.group(4)))
-
-
 def _has_datetime_filter(recording_date: str | None, time_range: dict[str, int] | None) -> bool:
     if recording_date:
         return True
@@ -843,7 +825,7 @@ def _filter_events_by_datetime(
     for event in events:
         source_frames = event.get("source_frames") or []
         recorded_times = [
-            _frame_recorded_at_from_key(frame.get("s3_key"))
+            trusted_capture_time(frame)
             for frame in source_frames
             if isinstance(frame, dict)
         ]

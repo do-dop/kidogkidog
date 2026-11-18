@@ -15,7 +15,7 @@ type Recording = {
   id: string;
   time: string;
   duration: string;
-  period: Exclude<TimeFilter, "all">;
+  period?: Exclude<TimeFilter, "all">;
   thumb: number;
   motion: "낮음" | "보통" | "높음";
   tags: Tag[];
@@ -147,7 +147,8 @@ type ApiChunk = {
   recorded_at?: string | null;
   recording_date?: string | null;
   time_label?: string | null;
-  period: Exclude<TimeFilter, "all">;
+  time_kind?: "capture" | "offset";
+  period?: Exclude<TimeFilter, "all"> | null;
   size: number;
   last_modified?: string | null;
   url: string;
@@ -328,16 +329,29 @@ function durationToSeconds(duration?: string) {
 }
 
 function addSecondsToClockTime(time: string, seconds: number) {
-  const [hour, minute] = time.split(":").map(Number);
-  if (!Number.isFinite(hour) || !Number.isFinite(minute)) return formatSeconds(seconds);
+  const [hour, minute, second = 0] = time.split(":").map(Number);
+  if (![hour, minute, second].every(Number.isFinite)) return formatSeconds(seconds);
 
-  const totalSeconds = (((hour * 60 + minute) * 60) + Math.max(0, Math.floor(seconds))) % (24 * 60 * 60);
+  const totalSeconds = (((hour * 60 + minute) * 60 + second) + Math.max(0, Math.floor(seconds))) % (24 * 60 * 60);
   const nextHour = Math.floor(totalSeconds / 3600);
   const nextMinute = Math.floor((totalSeconds % 3600) / 60);
   const nextSecond = totalSeconds % 60;
 
   const base = `${String(nextHour).padStart(2, "0")}:${String(nextMinute).padStart(2, "0")}`;
-  return nextSecond > 0 ? `${base}:${String(nextSecond).padStart(2, "0")}` : base;
+  return time.split(":").length === 3 || nextSecond > 0
+    ? `${base}:${String(nextSecond).padStart(2, "0")}` : base;
+}
+
+function captureDateTime(recordedAt: string, seconds: number) {
+  const date = new Date(Date.parse(recordedAt) + Math.max(0, Math.floor(seconds)) * 1000);
+  if (Number.isNaN(date.getTime())) return undefined;
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Seoul", year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23",
+  }).formatToParts(date);
+  const value = (type: string) => parts.find((part) => part.type === type)?.value ?? "";
+  return { dateLabel: `${value("year")}.${value("month")}.${value("day")}`,
+    clockTime: `${value("hour")}:${value("minute")}:${value("second")}` };
 }
 
 function resultDateTime(recording: Recording | undefined, seconds: number) {
@@ -345,15 +359,18 @@ function resultDateTime(recording: Recording | undefined, seconds: number) {
   const offset = recording && durationSeconds && seconds <= durationSeconds + 1
     ? Math.max(0, Math.floor(seconds))
     : Math.max(0, Math.floor(seconds - (recording?.startSeconds ?? 0)));
-  const clockTime = recording ? addSecondsToClockTime(recording.time, offset) : formatSeconds(seconds);
-  const dateLabel = formatDateLabel(recording?.recordingDate);
+  const videoSeconds = (recording?.startSeconds ?? 0) + offset;
+  const hasCaptureTime = Boolean(recording?.recordedAt);
+  const capture = recording?.recordedAt ? captureDateTime(recording.recordedAt, offset) : undefined;
+  const clockTime = capture?.clockTime ?? (hasCaptureTime && recording ? addSecondsToClockTime(recording.time, offset) : formatSeconds(videoSeconds));
+  const dateLabel = hasCaptureTime ? capture?.dateLabel ?? formatDateLabel(recording?.recordingDate) : undefined;
 
   return {
     clockTime,
     dateLabel,
-    displayDateTime: dateLabel ? `${dateLabel} ${clockTime}` : clockTime,
-    offsetLabel: `청크 +${formatSeconds(offset)}`,
-    chunkLabel: recording?.duration ? `${recording.time}부터 ${recording.duration}` : undefined,
+    displayDateTime: hasCaptureTime ? [dateLabel, clockTime].filter(Boolean).join(" ") : `영상 시작 후 ${clockTime}`,
+    offsetLabel: hasCaptureTime ? `청크 +${formatSeconds(offset)}` : `영상 시작 후 ${clockTime}`,
+    chunkLabel: hasCaptureTime && recording?.duration ? `${recording.time}부터 ${recording.duration}` : undefined,
   };
 }
 
@@ -658,7 +675,7 @@ function mapApiChunks(payload: ApiChunksResult): Recording[] {
     id: chunk.id,
     time: chunk.time_label || formatSeconds(chunk.start_seconds),
     duration: formatDuration(chunk.duration_seconds),
-    period: chunk.period,
+    period: chunk.period || undefined,
     thumb: index % gradients.length,
     motion: "보통",
     tags: [
@@ -714,15 +731,21 @@ function behaviorTimeLabel(event: BehaviorEvent, recording?: Recording) {
 
   if (!recording) return formatSeconds(eventStart);
 
-  const offset = Math.max(0, eventStart - (recording.startSeconds ?? 0));
-  const eventEnd = event.end_time ?? eventStart + (event.duration ?? 0);
   const clipDuration = durationToSeconds(recording.duration);
-  const endOffset = Math.max(offset, eventEnd - (recording.startSeconds ?? 0));
+  const chunkRelative = clipDuration !== undefined && eventStart <= clipDuration + 1;
+  const offset = Math.max(0, chunkRelative ? eventStart : eventStart - (recording.startSeconds ?? 0));
+  const eventEnd = event.end_time ?? eventStart + (event.duration ?? 0);
+  const endOffset = Math.max(offset, chunkRelative ? eventEnd : eventEnd - (recording.startSeconds ?? 0));
   const displayEndOffset = clipDuration === undefined ? endOffset : Math.min(endOffset, clipDuration);
-  const startLabel = addSecondsToClockTime(recording.time, offset);
-  const endLabel = addSecondsToClockTime(recording.time, displayEndOffset);
+  const startLabel = recording.recordedAt
+    ? addSecondsToClockTime(recording.time, offset)
+    : formatSeconds((recording.startSeconds ?? 0) + offset);
+  const endLabel = recording.recordedAt
+    ? addSecondsToClockTime(recording.time, displayEndOffset)
+    : formatSeconds((recording.startSeconds ?? 0) + displayEndOffset);
 
-  return startLabel === endLabel ? startLabel : `${startLabel}-${endLabel}`;
+  const label = startLabel === endLabel ? startLabel : `${startLabel}-${endLabel}`;
+  return recording.recordedAt ? label : `영상 ${label}`;
 }
 
 function behaviorVideoTimeLabel(event: BehaviorEvent) {
@@ -1117,7 +1140,8 @@ export default function App() {
   const filteredRecordings = useMemo(
     () => recordingItems.filter((recording) => {
       const ignoreDate = screen === "search" && searchAllDates;
-      const matchesDate = ignoreDate || !recording.recordingDate || recording.recordingDate === selectedDate;
+      const matchesDate = ignoreDate || recording.recordingDate === selectedDate
+        || (screen === "recordings" && !recording.recordingDate);
       const matchesTime = timeFilter === "all" || recording.period === timeFilter;
       return matchesDate && matchesTime;
     }),
@@ -1599,7 +1623,7 @@ export default function App() {
                 <VideoPanel
                   label="최근 녹화"
                   camera=""
-                  time={liveRecording ? `${liveRecording.recordingDate ?? ""} ${liveRecording.time}`.trim() : ""}
+                  time={liveRecording ? (liveRecording.recordedAt ? `${liveRecording.recordingDate ?? ""} ${liveRecording.time}`.trim() : `영상 시작 후 ${liveRecording.time}`) : ""}
                   videoUrl={liveRecording?.videoUrl}
                   showControls={false}
                   loop
@@ -1916,7 +1940,7 @@ export default function App() {
                           playbackSegments={searchPlaybackSegments(playbackResult, recordingItems)}
                         />
                         <dl className="results-player-meta">
-                          <dt>촬영 시각</dt>
+                          <dt>{playbackResult.dateLabel ? "촬영 시각" : "영상 위치"}</dt>
                           <dd>{playbackResult.displayDateTime || playbackResult.time}</dd>
                           {playbackResult.playbackEndSeconds !== undefined && (
                             <>
@@ -2093,7 +2117,9 @@ export default function App() {
                   <VideoPanel
                     label={activeRecording.playbackStartSeconds !== undefined ? "행동 구간 자동 점프" : "GCS 청크 재생"}
                     camera={activeRecording.note || `${videoTitle(activeRecording.videoId)} · ${activeRecording.time}`}
-                    time={activeRecording.playbackStartSeconds !== undefined ? addSecondsToClockTime(activeRecording.time, activeRecording.playbackStartSeconds) : activeRecording.time}
+                    time={activeRecording.recordedAt
+                      ? (activeRecording.playbackStartSeconds !== undefined ? addSecondsToClockTime(activeRecording.time, activeRecording.playbackStartSeconds) : activeRecording.time)
+                      : `영상 시작 후 ${formatSeconds((activeRecording.startSeconds ?? 0) + (activeRecording.playbackStartSeconds ?? 0))}`}
                     videoUrl={activeRecording.videoUrl}
                     startAtSeconds={activeRecording.playbackStartSeconds}
                     wide
@@ -2106,7 +2132,7 @@ export default function App() {
                   <ChunkTimeline chunks={currentVideoRecordings} activeId={activeRecording.id} onSelect={setActiveRecording} />
                   <div className="chunk-info-grid">
                     <Metric icon="movie" label="원본 영상" value={videoTitle(activeRecording.videoId)} />
-                    <Metric icon="schedule" label="현재 구간" value={`${activeRecording.time} · ${activeRecording.duration}`} />
+                    <Metric icon="schedule" label="현재 구간" value={`${activeRecording.recordedAt ? activeRecording.time : `영상 ${activeRecording.time}`} · ${activeRecording.duration}`} />
                   </div>
                   <div className="button-row">
                     <button className="secondary-button" onClick={() => stepRecording(-1)}><Icon>skip_previous</Icon>이전 청크</button>
@@ -2132,7 +2158,7 @@ export default function App() {
                     {(currentVideoRecordings.length > 0 ? currentVideoRecordings : recordingItems).map((recording) => (
                       <button className={recording.id === activeRecording.id ? "side-result active" : "side-result"} key={recording.id} onClick={() => setActiveRecording(recording)}>
                         <div style={recording.thumbnailUrl ? { backgroundImage: `url(${recording.thumbnailUrl})` } : { background: gradients[recording.thumb] }} />
-                        <span>{recording.time}</span>
+                        <span>{recording.recordedAt ? recording.time : `영상 ${recording.time}`}</span>
                         <strong>{recording.note || recording.id}</strong>
                       </button>
                     ))}
@@ -2566,7 +2592,7 @@ function BehaviorHighlights({
           <button className="behavior-card" key={`${event.id}-${recording.id}`} onClick={() => onOpen(recording, event)}>
             <div className="behavior-icon"><Icon filled>auto_awesome</Icon></div>
             <div>
-              <span>{behaviorTimeLabel(event, recording)} · {recording.period}</span>
+              <span>{[behaviorTimeLabel(event, recording), recording.period].filter(Boolean).join(" · ")}</span>
               <strong>{behaviorTitle(event)}</strong>
               <p>{event.summary || `${petName}의 행동 변화가 감지된 구간입니다.`}</p>
             </div>
@@ -2687,7 +2713,7 @@ function ClipCard({ clip, eventCount = 0, onOpen }: { clip: Recording; eventCoun
   return (
     <button className="clip-card" onClick={onOpen} type="button">
       <div className={clip.thumbnailUrl ? "thumb has-image" : "thumb"} style={clip.thumbnailUrl ? { backgroundImage: `url(${clip.thumbnailUrl})` } : { background: gradients[clip.thumb] }}>
-        <span className="time-pill">{clip.time}</span>
+        <span className="time-pill">{clip.recordedAt ? clip.time : `영상 ${clip.time}`}</span>
         <span className="duration-pill">{clip.duration}</span>
         <span className={`motion-pill ${motionClass}`}><i />{clip.motion}</span>
         {eventCount > 0 && <span className="event-badge"><Icon filled>auto_awesome</Icon>{eventCount}</span>}
@@ -2711,7 +2737,7 @@ function VideoCard({ group, eventCount = 0, onOpen }: { group: VideoGroup; event
   return (
     <button className="clip-card" onClick={onOpen} type="button">
       <div className={first.thumbnailUrl ? "thumb has-image" : "thumb"} style={first.thumbnailUrl ? { backgroundImage: `url(${first.thumbnailUrl})` } : { background: gradients[first.thumb] }}>
-        <span className="time-pill">{first.recordingDate ? `${first.recordingDate} ${first.time}` : first.time}</span>
+        <span className="time-pill">{first.recordedAt ? `${first.recordingDate} ${first.time}` : `영상 ${first.time}`}</span>
         <span className="duration-pill">{formatTotalDuration(group.totalSeconds)}</span>
         {eventCount > 0 && <span className="event-badge"><Icon filled>auto_awesome</Icon>{eventCount}</span>}
         <div className="play-circle"><Icon filled>play_arrow</Icon></div>
@@ -2772,14 +2798,16 @@ function ResultCard({ result, active = false, onOpen }: { result: SearchResult; 
 }
 
 function clockToSeconds(clock?: string) {
-  const match = /(\d{1,2}):(\d{2}):(\d{2})/.exec(clock ?? "");
-  if (!match) return null;
-  return Number(match[1]) * 3600 + Number(match[2]) * 60 + Number(match[3]);
+  const parts = (clock ?? "").split(":").map(Number);
+  if (parts.length === 2 && parts.every(Number.isFinite)) return parts[0] * 60 + parts[1];
+  if (parts.length === 3 && parts.every(Number.isFinite)) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+  return null;
 }
 
 /** 같은 날짜의 두 장면 사이 간격(초). 날짜가 다르거나 시각을 알 수 없으면 null. */
 function resultGapSeconds(from: SearchResult, to: SearchResult) {
   if ((from.dateLabel ?? "") !== (to.dateLabel ?? "")) return null;
+  if (!from.dateLabel && from.videoId !== to.videoId) return null;
   const a = clockToSeconds(from.clockTime || from.time);
   const b = clockToSeconds(to.clockTime || to.time);
   if (a === null || b === null) return null;

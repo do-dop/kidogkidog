@@ -1,5 +1,6 @@
 import sys
 import unittest
+from datetime import datetime, timedelta, timezone
 from unittest.mock import MagicMock, patch
 
 from pipeline.search.sequence_query import is_sequence_query, run_sequence_query
@@ -17,6 +18,9 @@ def event(event_id, chunk, second, summary):
             "frame_id": f"frame-{event_id}",
             "s3_key": f"frames/dog-video/petcam_20261104_090000_{chunk:03d}_frame_{second}.jpg",
             "timestamp": second,
+            "source_type": "petcam",
+            "captured_at": (datetime(2026, 11, 4, 9, 0, tzinfo=timezone.utc)
+                            + timedelta(minutes=chunk, seconds=second)).isoformat(),
         }],
     }
 

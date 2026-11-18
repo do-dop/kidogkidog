@@ -1,4 +1,5 @@
 import unittest
+import re
 from contextlib import ExitStack
 from unittest.mock import MagicMock, patch
 
@@ -16,7 +17,8 @@ def collection_with(*s3_keys):
     collection.get.return_value = {
         "ids": [f"frame-{index}" for index in range(len(s3_keys))],
         "metadatas": [
-            {"video_id": "video", "s3_key": key, "frame_path": key, "timestamp": 1.0}
+            {"video_id": "video", "s3_key": key, "frame_path": key, "timestamp": 1.0,
+             "capture_time_source": "petcam", "recorded_at": capture_time(key)}
             for key in s3_keys
         ],
     }
@@ -30,8 +32,14 @@ def event(event_id, s3_key):
         "start_time": 1.0,
         "end_time": 5.0,
         "action": "물을 마시는 것으로 보임",
-        "source_frames": [{"timestamp": 1.0, "s3_key": s3_key}],
+        "source_frames": [{"timestamp": 1.0, "s3_key": s3_key,
+                           "source_type": "petcam", "captured_at": capture_time(s3_key)}],
     }
+
+
+def capture_time(s3_key):
+    match = re.search(r"petcam_(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})", s3_key)
+    return f"{match[1]}-{match[2]}-{match[3]}T{match[4]}:{match[5]}:{match[6]}+00:00"
 
 
 class SearchDateFilterTests(unittest.TestCase):
