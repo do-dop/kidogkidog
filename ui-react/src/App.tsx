@@ -1,4 +1,5 @@
 import { FormEvent, Fragment, useEffect, useMemo, useRef, useState } from "react";
+import { videoTitle } from "./videoTitles";
 
 type Screen = "live" | "recordings" | "search" | "chunkPlayback" | "searchPlayback" | "profile";
 type Theme = "dark" | "light";
@@ -661,10 +662,10 @@ function mapApiChunks(payload: ApiChunksResult): Recording[] {
     thumb: index % gradients.length,
     motion: "보통",
     tags: [
-      { icon: "🎬", label: chunk.video_id },
+      { icon: "🎬", label: videoTitle(chunk.video_id) },
       { icon: "☁️", label: "GCS chunk" },
     ],
-    note: `${chunk.video_id} · ${chunk.filename}`,
+    note: videoTitle(chunk.video_id),
     recordingDate: chunk.recording_date || undefined,
     recordedAt: chunk.recorded_at || undefined,
     startSeconds: chunk.start_seconds,
@@ -1605,7 +1606,7 @@ export default function App() {
                 />
                 <div className="metric-row">
                   <Metric icon="pets" label="가장 최근 감지" value={liveEvent?.summary || "분석된 행동 기록이 아직 없어요"} />
-                  <Metric icon="schedule" label="수신 영상" value={`${s3Recordings.length || recordingItems.length}개 청크${liveRecording?.videoId ? ` · ${liveRecording.videoId}` : ""}`} />
+                  <Metric icon="schedule" label="수신 영상" value={`${s3Recordings.length || recordingItems.length}개 청크${liveRecording?.videoId ? ` · ${videoTitle(liveRecording.videoId)}` : ""}`} />
                 </div>
               </div>
               <aside className="side-panel">
@@ -1706,7 +1707,7 @@ export default function App() {
                       <span className="filter-summary-values">
                         <em className={searchAllDates ? "" : "active"}>{searchAllDates ? "전체 날짜" : `${selectedMonth}월 ${selectedDay}일`}</em>
                         <i>·</i>
-                        <em className={selectedSearchVideoId ? "active" : ""}>{selectedSearchVideoId || "전체 영상"}</em>
+                        <em className={selectedSearchVideoId ? "active" : ""}>{selectedSearchVideoId ? videoTitle(selectedSearchVideoId) : "전체 영상"}</em>
                         <i>·</i>
                         <em className={timeFilterActive ? "active" : ""}>{formatHourRange(searchStartHour, searchEndHour)}</em>
                       </span>
@@ -1741,7 +1742,7 @@ export default function App() {
                             <select className="video-select" aria-label="검색할 영상" value={selectedSearchVideoId} onChange={(event) => setSelectedSearchVideoId(event.target.value)}>
                               <option value="">전체 영상</option>
                               {searchVideoOptions.map((videoId) => (
-                                <option value={videoId} key={videoId}>{videoId}</option>
+                                <option value={videoId} key={videoId}>{videoTitle(videoId)}</option>
                               ))}
                             </select>
                           </div>
@@ -2085,13 +2086,13 @@ export default function App() {
                   <Icon>arrow_back</Icon>
                   녹화 목록으로
                 </button>
-                <strong>{activeRecording.videoId ? `${activeRecording.videoId} 영상 재생` : "녹화 영상 재생"}</strong>
+                <strong>{activeRecording.videoId ? `${videoTitle(activeRecording.videoId)} 재생` : "녹화 영상 재생"}</strong>
               </div>
               <div className="playback-grid">
                 <div className="stack">
                   <VideoPanel
                     label={activeRecording.playbackStartSeconds !== undefined ? "행동 구간 자동 점프" : "GCS 청크 재생"}
-                    camera={activeRecording.note || `${activeRecording.videoId ?? "영상"} · ${activeRecording.time}`}
+                    camera={activeRecording.note || `${videoTitle(activeRecording.videoId)} · ${activeRecording.time}`}
                     time={activeRecording.playbackStartSeconds !== undefined ? addSecondsToClockTime(activeRecording.time, activeRecording.playbackStartSeconds) : activeRecording.time}
                     videoUrl={activeRecording.videoUrl}
                     startAtSeconds={activeRecording.playbackStartSeconds}
@@ -2104,7 +2105,7 @@ export default function App() {
                   />
                   <ChunkTimeline chunks={currentVideoRecordings} activeId={activeRecording.id} onSelect={setActiveRecording} />
                   <div className="chunk-info-grid">
-                    <Metric icon="movie" label="원본 영상" value={activeRecording.videoId || "알 수 없음"} />
+                    <Metric icon="movie" label="원본 영상" value={videoTitle(activeRecording.videoId)} />
                     <Metric icon="schedule" label="현재 구간" value={`${activeRecording.time} · ${activeRecording.duration}`} />
                   </div>
                   <div className="button-row">
@@ -2694,7 +2695,7 @@ function ClipCard({ clip, eventCount = 0, onOpen }: { clip: Recording; eventCoun
       </div>
       <div className="clip-card-footer">
         <div className="clip-info-pills">
-          <span className="clip-source-pill"><Icon>movie</Icon>{clip.videoId || "영상"}</span>
+          <span className="clip-source-pill"><Icon>movie</Icon>{videoTitle(clip.videoId)}</span>
           <span className="clip-type-pill"><Icon>cloud</Icon>GCS chunk</span>
         </div>
         <div className="tag-row">{tagList(clip.tags)}</div>
@@ -2717,7 +2718,7 @@ function VideoCard({ group, eventCount = 0, onOpen }: { group: VideoGroup; event
       </div>
       <div className="clip-card-footer">
         <div className="clip-info-pills">
-          <span className="clip-source-pill"><Icon>movie</Icon>{group.videoId || "영상"}</span>
+          <span className="clip-source-pill"><Icon>movie</Icon>{videoTitle(group.videoId)}</span>
           {chunkCount > 1 && <span className="clip-type-pill"><Icon>view_timeline</Icon>{chunkCount}개 구간</span>}
         </div>
       </div>
