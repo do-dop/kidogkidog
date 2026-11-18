@@ -25,6 +25,9 @@ class _Cursor:
     def fetchall(self):
         return self._cursor.fetchall()
 
+    def fetchone(self):
+        return self._cursor.fetchone()
+
     @property
     def lastrowid(self):
         return self._cursor.lastrowid

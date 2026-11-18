@@ -473,10 +473,11 @@ def _resolve_source_event(
     if source_event_id is not None:
         try:
             event = get_behavior_event_by_id(source_event_id)
-            if event:
+            if event and (not video_id or event.get("video_id") == video_id):
                 return event
         except Exception as exc:
             print(f"source_event_id 조회 실패: {exc}", flush=True)
+        return None
 
     if event_start is None or event_end is None:
         return None
@@ -499,47 +500,49 @@ def _run_event_grounded_query(
 ) -> dict:
     event_video_id = source_event.get("video_id")
     behavior_events = [source_event]
-    retrieved_frames = []
-
-    try:
-        from pipeline.storage.vector_store import search_with_query_expansion
-
-        candidate_frames = search_with_query_expansion(
-            query=query,
-            top_k=max(top_k * 5, 20),
-            video_id=event_video_id,
-        )
-        retrieved_frames = _filter_frames_to_event_window(
-            frames=candidate_frames,
-            event=source_event,
-            margin_seconds=3.0,
-        )[:top_k]
-    except Exception as exc:
-        print(f"event 기반 CLIP 검색 실패: {exc}", flush=True)
-        retrieved_frames = []
-
-    if not retrieved_frames:
-        retrieved_frames = _frames_from_behavior_events(
-            behavior_events=behavior_events,
-            video_id=event_video_id,
-            limit=top_k,
-        )
-
-    retrieved_frames = _attach_event_window_to_frames(retrieved_frames, source_event)
-    retrieved_context = _build_retrieved_context(retrieved_frames)
-    behavior_context = _build_behavior_event_context(behavior_events)
-    prompt_hint = build_prompt_hint(user_id=user_id, video_id=event_video_id)
-
-    answer = _generate_answer_with_langchain(
-        query=query,
-        retrieved_context=retrieved_context,
-        behavior_context=behavior_context,
-        prompt_hint=prompt_hint,
+    # The recommendation was generated from this event. Its stored evidence
+    # must take precedence over nearby CLIP hits from a different action.
+    retrieved_frames = _frames_from_behavior_events(
+        behavior_events=behavior_events,
+        video_id=event_video_id,
+        limit=top_k,
     )
 
-    used_llm = answer != DEFAULT_FALLBACK_MESSAGE
+    if not retrieved_frames:
+        try:
+            from pipeline.storage.vector_store import search_with_query_expansion
+            candidate_frames = search_with_query_expansion(
+                query=query,
+                top_k=max(top_k * 5, 20),
+                video_id=event_video_id,
+            )
+            retrieved_frames = _filter_frames_to_event_window(
+                frames=candidate_frames,
+                event=source_event,
+                margin_seconds=3.0,
+            )[:top_k]
+        except Exception as exc:
+            print(f"event 기반 CLIP 검색 실패: {exc}", flush=True)
+            retrieved_frames = []
 
-    if not used_llm:
+    retrieved_frames = _attach_event_window_to_frames(retrieved_frames, source_event)
+
+    if retrieved_frames and source_event.get("source_frames") and source_event.get("summary"):
+        answer = str(source_event["summary"]).strip()
+        used_llm = False
+    else:
+        retrieved_context = _build_retrieved_context(retrieved_frames)
+        behavior_context = _build_behavior_event_context(behavior_events)
+        prompt_hint = build_prompt_hint(user_id=user_id, video_id=event_video_id)
+        answer = _generate_answer_with_langchain(
+            query=query,
+            retrieved_context=retrieved_context,
+            behavior_context=behavior_context,
+            prompt_hint=prompt_hint,
+        )
+        used_llm = answer != DEFAULT_FALLBACK_MESSAGE
+
+    if answer == DEFAULT_FALLBACK_MESSAGE:
         answer = _build_fallback_answer(
             query=query,
             retrieved_frames=retrieved_frames,
