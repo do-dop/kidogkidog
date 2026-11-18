@@ -23,9 +23,18 @@ type Recording = {
   recordedAt?: string;
   startSeconds?: number;
   playbackStartSeconds?: number;
+  durationSeconds?: number;
   videoId?: string;
   videoUrl?: string;
   thumbnailUrl?: string;
+};
+
+// 같은 원본 영상의 1분 단위 청크를 하나로 묶은 목록 항목.
+type VideoGroup = {
+  id: string;
+  videoId?: string;
+  chunks: Recording[];
+  totalSeconds: number;
 };
 
 type SearchResult = {
@@ -659,10 +668,34 @@ function mapApiChunks(payload: ApiChunksResult): Recording[] {
     recordingDate: chunk.recording_date || undefined,
     recordedAt: chunk.recorded_at || undefined,
     startSeconds: chunk.start_seconds,
+    durationSeconds: chunk.duration_seconds,
     videoId: chunk.video_id,
     videoUrl: mediaUrl(chunk.media_path, chunk.url),
     thumbnailUrl: resizedThumbnailUrl(mediaUrl(chunk.thumbnail_media_path, chunk.thumbnail_url)),
   }));
+}
+
+// videoId가 같은 청크를 한 영상으로 묶는다. videoId가 없는 청크는 각각 따로 둔다. 청크는 시작 위치 순으로 정렬한다.
+function groupRecordingsByVideo(items: Recording[]): VideoGroup[] {
+  const groups = new Map<string, Recording[]>();
+  items.forEach((item) => {
+    const key = item.videoId ? `video:${item.videoId}` : `chunk:${item.id}`;
+    groups.set(key, [...(groups.get(key) ?? []), item]);
+  });
+  return [...groups.entries()].map(([key, chunks]) => {
+    const sorted = [...chunks].sort((a, b) => (a.startSeconds ?? 0) - (b.startSeconds ?? 0));
+    return {
+      id: key,
+      videoId: sorted[0].videoId,
+      chunks: sorted,
+      totalSeconds: sorted.reduce((sum, chunk) => sum + (chunk.durationSeconds ?? 60), 0),
+    };
+  });
+}
+
+function formatTotalDuration(seconds: number) {
+  if (seconds < 90) return `약 ${Math.max(1, Math.round(seconds))}초`;
+  return `약 ${Math.round(seconds / 60)}분`;
 }
 
 function chunkStem(recording: Recording) {
@@ -1089,6 +1122,7 @@ export default function App() {
     }),
     [recordingItems, selectedDate, timeFilter, screen, searchAllDates],
   );
+  const videoGroups = useMemo(() => groupRecordingsByVideo(filteredRecordings), [filteredRecordings]);
 
   const highlightedBehaviors = useMemo(
     () => behaviorEvents
@@ -1128,15 +1162,15 @@ export default function App() {
 
   const visibleResults = results;
   const playbackResult = activeScene ?? activeResult;
-  const currentVideoRecordings = recordingItems.filter(
-    (recording) => recording.videoId && activeRecording.videoId
+  const currentVideoRecordings = recordingItems
+    .filter((recording) => recording.videoId && activeRecording.videoId
       ? recording.videoId === activeRecording.videoId
-      : true,
-  );
+      : true)
+    .sort((a, b) => (a.startSeconds ?? 0) - (b.startSeconds ?? 0));
 
   const topTitle = {
     live: ["최근 감지", `${petName}의 최근 녹화에서 분석된 행동을 확인하세요`],
-    recordings: ["녹화 영상", "GCS에 업로드된 1분 단위 청크를 둘러보세요"],
+    recordings: ["녹화 영상", "업로드된 영상을 둘러보세요"],
     search: ["AI 검색", "자연어로 물어보면 관련 장면을 찾아드려요"],
     chunkPlayback: ["녹화 영상 재생", "GCS 청크를 원본 흐름대로 확인합니다"],
     searchPlayback: ["검색 결과 재생", "AI가 찾은 장면과 근거를 검토합니다"],
@@ -1624,8 +1658,8 @@ export default function App() {
                 onOpen={(recording) => openRecording(recording)}
               />
               <div className="clip-grid">
-                {filteredRecordings.map((clip) => (
-                  <ClipCard key={clip.id} clip={clip} eventCount={eventsForRecording(clip, behaviorEvents).length} onOpen={() => openRecording(clip)} />
+                {videoGroups.map((group) => (
+                  <VideoCard key={group.id} group={group} eventCount={group.chunks.reduce((sum, clip) => sum + eventsForRecording(clip, behaviorEvents).length, 0)} onOpen={() => openRecording(group.chunks[0])} />
                 ))}
               </div>
               {filteredRecordings.length === 0 && (
@@ -1942,7 +1976,7 @@ export default function App() {
                       <span>SMART CLIPS & BEHAVIORS</span>
                     </div>
                     <h2>포착된 녹화 청크 & 주요 행동</h2>
-                    <p>{searchAllDates ? "전체 날짜" : `${selectedYear}년 ${selectedMonth}월 ${selectedDay}일`} · 총 {filteredRecordings.length}개 클립 기록</p>
+                    <p>{searchAllDates ? "전체 날짜" : `${selectedYear}년 ${selectedMonth}월 ${selectedDay}일`} · 총 {videoGroups.length}개 영상 · {filteredRecordings.length}개 청크</p>
                   </div>
 
                   <div className="home-recordings-head">
@@ -1959,8 +1993,8 @@ export default function App() {
                     onOpen={(recording) => openRecording(recording)}
                   />
                   <div className="clip-grid">
-                    {filteredRecordings.map((clip) => (
-                      <ClipCard key={clip.id} clip={clip} eventCount={eventsForRecording(clip, behaviorEvents).length} onOpen={() => openRecording(clip)} />
+                    {videoGroups.map((group) => (
+                      <VideoCard key={group.id} group={group} eventCount={group.chunks.reduce((sum, clip) => sum + eventsForRecording(clip, behaviorEvents).length, 0)} onOpen={() => openRecording(group.chunks[0])} />
                     ))}
                   </div>
                   {filteredRecordings.length === 0 && (
@@ -2051,7 +2085,7 @@ export default function App() {
                   <Icon>arrow_back</Icon>
                   녹화 목록으로
                 </button>
-                <strong>녹화 청크 재생</strong>
+                <strong>{activeRecording.videoId ? `${activeRecording.videoId} 영상 재생` : "녹화 영상 재생"}</strong>
               </div>
               <div className="playback-grid">
                 <div className="stack">
@@ -2062,10 +2096,16 @@ export default function App() {
                     videoUrl={activeRecording.videoUrl}
                     startAtSeconds={activeRecording.playbackStartSeconds}
                     wide
+                    onEnded={() => {
+                      const chunks = currentVideoRecordings.length > 0 ? currentVideoRecordings : recordingItems;
+                      const index = chunks.findIndex((item) => item.id === activeRecording.id);
+                      if (index >= 0 && index + 1 < chunks.length) setActiveRecording(chunks[index + 1]);
+                    }}
                   />
+                  <ChunkTimeline chunks={currentVideoRecordings} activeId={activeRecording.id} onSelect={setActiveRecording} />
                   <div className="chunk-info-grid">
                     <Metric icon="movie" label="원본 영상" value={activeRecording.videoId || "알 수 없음"} />
-                    <Metric icon="schedule" label="청크 구간" value={`${activeRecording.time} · ${activeRecording.duration}`} />
+                    <Metric icon="schedule" label="현재 구간" value={`${activeRecording.time} · ${activeRecording.duration}`} />
                   </div>
                   <div className="button-row">
                     <button className="secondary-button" onClick={() => stepRecording(-1)}><Icon>skip_previous</Icon>이전 청크</button>
@@ -2076,7 +2116,7 @@ export default function App() {
                   <div className="chunk-detail-card">
                     <span>청크 정보</span>
                     <strong>{activeRecording.note || activeRecording.id}</strong>
-                    <p>GCS에 저장된 1분 단위 원본 청크입니다. 이 화면은 녹화 파일 탐색과 연속 재생에 집중합니다.</p>
+                    <p>이 영상은 1분 단위 구간으로 나뉘어 저장돼 있어요. 한 구간이 끝나면 다음 구간이 이어서 재생됩니다.</p>
                   </div>
                   <BehaviorEventPanel videoEvents={activeVideoEvents} chunkEvents={activeRecordingEvents} recording={activeRecording} />
                   <button className="primary-button" onClick={() => {
@@ -2086,7 +2126,7 @@ export default function App() {
                     <Icon>search</Icon>
                     이 구간에서 AI 검색
                   </button>
-                  <p className="section-kicker">같은 원본 영상의 청크 {currentVideoRecordings.length || recordingItems.length}개</p>
+                  <p className="section-kicker">같은 영상의 구간 {currentVideoRecordings.length || recordingItems.length}개</p>
                   <div className="side-results">
                     {(currentVideoRecordings.length > 0 ? currentVideoRecordings : recordingItems).map((recording) => (
                       <button className={recording.id === activeRecording.id ? "side-result active" : "side-result"} key={recording.id} onClick={() => setActiveRecording(recording)}>
@@ -2180,6 +2220,7 @@ function VideoPanel({
   wide = false,
   showControls = true,
   loop = false,
+  onEnded,
 }: {
   label: string;
   camera: string;
@@ -2190,6 +2231,7 @@ function VideoPanel({
   wide?: boolean;
   showControls?: boolean;
   loop?: boolean;
+  onEnded?: () => void;
 }) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [segmentIndex, setSegmentIndex] = useState(0);
@@ -2263,7 +2305,10 @@ function VideoPanel({
               event.currentTarget.currentTime = segment.startAtSeconds;
             }
           }}
-          onEnded={(event) => finishSegment(event.currentTarget)}
+          onEnded={(event) => {
+            if (playbackSegments?.length) finishSegment(event.currentTarget);
+            else onEnded?.();
+          }}
         />
       ) : (
         <div className="video-gradient" />
@@ -2655,6 +2700,51 @@ function ClipCard({ clip, eventCount = 0, onOpen }: { clip: Recording; eventCoun
         <div className="tag-row">{tagList(clip.tags)}</div>
       </div>
     </button>
+  );
+}
+
+function VideoCard({ group, eventCount = 0, onOpen }: { group: VideoGroup; eventCount?: number; onOpen: () => void }) {
+  const first = group.chunks[0];
+  const chunkCount = group.chunks.length;
+
+  return (
+    <button className="clip-card" onClick={onOpen} type="button">
+      <div className={first.thumbnailUrl ? "thumb has-image" : "thumb"} style={first.thumbnailUrl ? { backgroundImage: `url(${first.thumbnailUrl})` } : { background: gradients[first.thumb] }}>
+        <span className="time-pill">{first.recordingDate ? `${first.recordingDate} ${first.time}` : first.time}</span>
+        <span className="duration-pill">{formatTotalDuration(group.totalSeconds)}</span>
+        {eventCount > 0 && <span className="event-badge"><Icon filled>auto_awesome</Icon>{eventCount}</span>}
+        <div className="play-circle"><Icon filled>play_arrow</Icon></div>
+      </div>
+      <div className="clip-card-footer">
+        <div className="clip-info-pills">
+          <span className="clip-source-pill"><Icon>movie</Icon>{group.videoId || "영상"}</span>
+          {chunkCount > 1 && <span className="clip-type-pill"><Icon>view_timeline</Icon>{chunkCount}개 구간</span>}
+        </div>
+      </div>
+    </button>
+  );
+}
+
+function ChunkTimeline({ chunks, activeId, onSelect }: { chunks: Recording[]; activeId: string; onSelect: (recording: Recording) => void }) {
+  if (chunks.length < 2) return null;
+  const activeIndex = Math.max(0, chunks.findIndex((chunk) => chunk.id === activeId));
+
+  return (
+    <div className="chunk-timeline" aria-label="영상 전체 구간">
+      <div className="chunk-timeline-bar">
+        {chunks.map((chunk, index) => (
+          <button
+            key={chunk.id}
+            type="button"
+            className={index === activeIndex ? "active" : index < activeIndex ? "played" : ""}
+            style={{ flexGrow: chunk.durationSeconds ?? 60 }}
+            title={`${index + 1}번째 구간 · ${chunk.time}`}
+            onClick={() => onSelect(chunk)}
+          />
+        ))}
+      </div>
+      <span>{activeIndex + 1} / {chunks.length} 구간 · 끝나면 다음 구간으로 이어서 재생돼요</span>
+    </div>
   );
 }
 

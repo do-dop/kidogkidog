@@ -4275,3 +4275,11 @@ button.agg-row:hover .agg-thumb-play {
   right: 8px;
   bottom: 8px;
 }
+
+
+.chunk-timeline { display: grid; gap: 8px; margin-top: 12px; }
+.chunk-timeline-bar { display: flex; gap: 3px; height: 10px; }
+.chunk-timeline-bar button { flex-basis: 0; min-width: 6px; border: 0; padding: 0; border-radius: 999px; background: rgba(120, 110, 100, 0.28); cursor: pointer; }
+.chunk-timeline-bar button.played { background: rgba(245, 130, 20, 0.45); }
+.chunk-timeline-bar button.active { background: #f58214; }
+.chunk-timeline > span { font-size: 12px; opacity: 0.7; }
