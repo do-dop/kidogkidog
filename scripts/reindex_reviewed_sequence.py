@@ -16,6 +16,7 @@ sys.path.insert(0, str(PROJECT))
 
 from db.behavior_events import get_behavior_events_for_aggregation, insert_behavior_events  # noqa: E402
 from db.connection import connect  # noqa: E402
+from pipeline.storage.gcs_uploader import object_exists  # noqa: E402
 
 
 def build_events(review: dict, scenes: list[dict]) -> list[dict]:
@@ -31,9 +32,11 @@ def build_events(review: dict, scenes: list[dict]) -> list[dict]:
         start, end, frame_time = (float(item[key]) for key in ("start_time", "end_time", "frame_time"))
         if not all(math.isfinite(t) for t in (start, end, frame_time)) or not (last_end <= start <= end):
             raise ValueError("검수 사건의 시각이 올바른 순서가 아닙니다")
-        key = frame_by_time.get(frame_time)
+        key = frame_by_time.get(frame_time) or item.get("frame_key")
         if not key:
             raise ValueError(f"{frame_time:g}초의 저장 프레임이 없습니다")
+        if not str(key).startswith(f"frames/{video_id}/") or not str(key).lower().endswith(".jpg"):
+            raise ValueError("근거 프레임이 검수 영상의 GCS JPEG가 아닙니다")
         if abs(frame_time - start) > 2.0:
             raise ValueError("재생 근거 프레임이 행동 시각에서 너무 멉니다")
         action, summary = str(item.get("action") or ""), str(item.get("summary") or "")
@@ -43,7 +46,7 @@ def build_events(review: dict, scenes: list[dict]) -> list[dict]:
             "video_id": video_id,
             "start_time": start,
             "end_time": end,
-            "subject": "강아지",
+            "subject": item.get("subject") or review.get("subject") or "반려동물",
             "action": action,
             "target_object": item.get("target_object"),
             "summary": summary,
@@ -86,6 +89,10 @@ def main() -> None:
         }, ensure_ascii=False))
         if not args.apply:
             return
+        for event in events:
+            key = event["source_frames"][0]["s3_key"]
+            if not object_exists(key):
+                raise FileNotFoundError(f"GCS 근거 프레임이 없습니다: {key}")
         if args.backup.exists():
             raise FileExistsError(f"기존 백업을 덮어쓰지 않습니다: {args.backup}")
         args.backup.write_text(json.dumps({

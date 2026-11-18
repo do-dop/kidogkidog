@@ -1,0 +1,51 @@
+{
+  "video_id": "smartbench_0142",
+  "subject": "고양이",
+  "review_source": "local_original_frame_review_2026-11-19",
+  "replace_event_ids": [103, 104, 105, 106, 107, 129, 130],
+  "events": [
+    {
+      "start_time": 4.0,
+      "end_time": 9.5,
+      "frame_time": 4.0,
+      "frame_key": "frames/smartbench_0142/smartbench_0142_000_frame_4.00.jpg",
+      "action": "고양이가 그릇에서 먹음",
+      "target_object": "먹이 그릇",
+      "summary": "고양이가 영상 초반에 그릇에 고개를 숙여 먹고 있어요."
+    },
+    {
+      "start_time": 10.5,
+      "end_time": 18.5,
+      "frame_time": 10.51,
+      "action": "고양이가 그릇에서 고개를 듦",
+      "target_object": "고개",
+      "summary": "고양이가 그릇에서 고개를 든 채 주변을 바라봐요."
+    },
+    {
+      "start_time": 19.0,
+      "end_time": 24.25,
+      "frame_time": 20.0,
+      "frame_key": "frames/smartbench_0142/smartbench_0142_000_frame_20.00.jpg",
+      "action": "고양이가 다시 그릇에서 먹음",
+      "target_object": "먹이 그릇",
+      "summary": "고양이가 다시 그릇에 고개를 숙여 먹고 있어요."
+    },
+    {
+      "start_time": 25.0,
+      "end_time": 27.5,
+      "frame_time": 26.52,
+      "action": "고양이가 다시 고개를 듦",
+      "target_object": "고개",
+      "summary": "고양이가 다시 고개를 든 채 그릇 밖을 바라봐요."
+    },
+    {
+      "start_time": 28.0,
+      "end_time": 33.5,
+      "frame_time": 30.0,
+      "frame_key": "frames/smartbench_0142/smartbench_0142_000_frame_30.00.jpg",
+      "action": "고양이가 다시 그릇에서 먹음",
+      "target_object": "먹이 그릇",
+      "summary": "고양이가 마지막에 다시 그릇에 고개를 숙여 먹고 있어요."
+    }
+  ]
+}
