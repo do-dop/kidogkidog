@@ -1,6 +1,8 @@
 import { FormEvent, Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { videoTitle } from "./videoTitles";
 
+import { resolveSearchRecording, playbackOffsets } from "./searchPlayback";
+
 type Screen = "live" | "recordings" | "search" | "chunkPlayback" | "searchPlayback" | "profile";
 type Theme = "dark" | "light";
 type TimeFilter = "all" | "오전" | "오후" | "저녁" | "야간";
@@ -376,52 +378,25 @@ function labelsToTags(labels?: string | string[]): Tag[] {
     .map((label) => ({ icon: label.toLowerCase().includes("dog") ? "🐶" : "•", label }));
 }
 
-function findRecordingForFrame(result: ApiSearchFrame, items: Recording[]) {
-  const s3Key = result.s3_key || "";
-  const frameId = result.frame_id || "";
-
-  const directMatch = items.find((recording) => {
-    const stem = chunkStem(recording);
-    return Boolean(stem && (s3Key.includes(stem) || frameId.includes(stem)));
-  });
-
-  if (directMatch) return directMatch;
-
-  const seconds = Number(result.timestamp ?? 0);
-  return items.find((recording) => {
-    if (!result.video_id || recording.videoId !== result.video_id) return false;
-    const start = recording.startSeconds ?? 0;
-    const end = start + 60;
-    return seconds >= start && seconds < end;
-  });
-}
-
 function mapApiResults(payload: ApiQueryResult, items: Recording[] = []): SearchResult[] {
   const results = payload.evidence_items ?? payload.results ?? [];
   return results.map((result, index) => {
     const seconds = Number(result.representative_timestamp ?? result.timestamp ?? 0);
     const playbackStart = Number(result.playback_start ?? seconds);
     const playbackEnd = result.playback_end !== undefined ? Number(result.playback_end) : undefined;
-    const recording = findRecordingForFrame(result, items);
+    const { recording, chunkRelative } = resolveSearchRecording(result, items);
     const frameImageUrl = (s3Key?: string) => s3Key ? mediaUrl(`/media/s3?key=${encodeURIComponent(s3Key)}&w=${THUMBNAIL_WIDTH}`) : undefined;
     const frameThumbnailUrl = frameImageUrl(result.s3_key);
     const stepFrames: StepFrame[] = (result.step_frames ?? []).flatMap((frame) => {
       const url = frameImageUrl(frame.s3_key);
       return url ? [{ url, timestamp: Number(frame.timestamp ?? 0) }] : [];
     });
-    // 시퀀스 답변은 청크 대표 썸네일이 모든 단계에 똑같이 나오지 않도록 해당 구간의 프레임을 우선 쓴다.
-    const thumbnailUrl = payload.query_type === "sequence"
-      ? frameThumbnailUrl || recording?.thumbnailUrl
-      : recording?.thumbnailUrl || frameThumbnailUrl;
+    // 검색한 순간의 썸네일을 우선해 카드와 재생 장면을 일치시킨다.
+    const thumbnailUrl = frameThumbnailUrl || recording?.thumbnailUrl;
     const dateTime = resultDateTime(recording, seconds);
-    const recordingDurationSeconds = durationToSeconds(recording?.duration);
-    const playbackIsChunkRelative = Boolean(recording && recordingDurationSeconds && playbackStart <= recordingDurationSeconds + 1);
-    const playbackStartSeconds = playbackIsChunkRelative
-      ? Math.max(0, playbackStart)
-      : recording ? Math.max(0, playbackStart - (recording.startSeconds ?? 0)) : playbackStart;
-    const playbackEndSeconds = playbackEnd === undefined ? undefined
-      : playbackIsChunkRelative ? playbackEnd
-        : recording ? playbackEnd - (recording.startSeconds ?? 0) : playbackEnd;
+    const offsets = playbackOffsets(playbackStart, playbackEnd, recording?.startSeconds ?? 0, chunkRelative);
+    const playbackStartSeconds = offsets.start;
+    const playbackEndSeconds = offsets.end;
     const eventStart = result.event_start;
     const eventEnd = result.event_end;
     const noteParts = [];
@@ -2278,7 +2253,7 @@ function VideoPanel({
 
     video.addEventListener("loadedmetadata", seek, { once: true });
     return () => video.removeEventListener("loadedmetadata", seek);
-  }, [safeStartAtSeconds, currentVideoUrl]);
+  }, [safeStartAtSeconds, currentVideoUrl, segmentIndex]);
 
   return (
     <div className={`${wide ? "video-panel wide" : "video-panel"} ${currentVideoUrl ? "with-media" : ""}`}>
