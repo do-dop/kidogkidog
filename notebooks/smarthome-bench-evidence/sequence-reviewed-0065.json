@@ -1,0 +1,49 @@
+{
+  "video_id": "smartbench_0065",
+  "subject": "강아지",
+  "review_source": "user_review_2026-11-18_and_local_original_frame_review_2026-11-19",
+  "replace_event_ids": [109, 110, 111, 112, 113, 114],
+  "events": [
+    {
+      "start_time": 1.5,
+      "end_time": 2.5,
+      "frame_time": 2.0,
+      "action": "강아지가 거실 바닥을 지나감",
+      "target_object": "거실 바닥",
+      "summary": "강아지가 거실 바닥을 빠르게 지나가요."
+    },
+    {
+      "start_time": 5.5,
+      "end_time": 7.5,
+      "frame_time": 6.0,
+      "action": "강아지가 소파 위에 있음",
+      "target_object": "소파",
+      "summary": "강아지가 소파 위에 올라가 있어요."
+    },
+    {
+      "start_time": 8.5,
+      "end_time": 9.5,
+      "frame_time": 9.0,
+      "frame_key": "frames/smartbench_0065/smartbench_0065_000_frame_9.00.jpg",
+      "action": "강아지가 소파에서 내려와 거실 바닥을 지나감",
+      "target_object": "소파",
+      "summary": "강아지가 소파에서 내려온 뒤 거실 바닥을 지나가요."
+    },
+    {
+      "start_time": 17.5,
+      "end_time": 18.5,
+      "frame_time": 18.0,
+      "action": "강아지가 거실 바닥에 다시 나타남",
+      "target_object": "거실 바닥",
+      "summary": "강아지가 거실 바닥에 다시 나타나 빠르게 지나가요."
+    },
+    {
+      "start_time": 21.5,
+      "end_time": 22.5,
+      "frame_time": 22.0,
+      "action": "강아지가 소파 위에 다시 있음",
+      "target_object": "소파",
+      "summary": "강아지가 영상 끝에 소파 위에 다시 올라가 있어요."
+    }
+  ]
+}
