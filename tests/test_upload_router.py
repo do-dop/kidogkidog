@@ -87,6 +87,25 @@ class UploadRouterTests(unittest.TestCase):
         self.assertEqual(send_task.call_args.kwargs["args"], ["chunks/test/video.mp4"])
         self.mark.assert_called_once_with("chunks/test/video.mp4", "test", "queued")
 
+    @patch("api.routers.upload.celery_app.send_task", return_value=SimpleNamespace(id="task-1"))
+    @patch("api.routers.upload.object_exists", return_value=True)
+    def test_timing_kwargs_are_off_by_default_for_old_workers(self, exists, send_task):
+        self.client.post(
+            "/upload", json={"chunk_path": "chunks/test/video.mp4"}, headers={"X-Upload-Token": "lab-token"},
+        )
+        self.assertNotIn("kwargs", send_task.call_args.kwargs)
+
+    @patch("api.routers.upload.celery_app.send_task", return_value=SimpleNamespace(id="task-1"))
+    @patch("api.routers.upload.object_exists", return_value=True)
+    def test_timing_kwargs_are_sent_when_enabled(self, exists, send_task):
+        with patch.dict(os.environ, {"UPLOAD_TIMING_KWARGS": "1"}):
+            self.client.post(
+                "/upload", json={"chunk_path": "chunks/test/video.mp4", "uploaded_at": 12.5},
+                headers={"X-Upload-Token": "lab-token"},
+            )
+        self.assertEqual(send_task.call_args.kwargs["kwargs"]["uploaded_at"], 12.5)
+        self.assertIn("submitted_at", send_task.call_args.kwargs["kwargs"])
+
 
 if __name__ == "__main__":
     unittest.main()

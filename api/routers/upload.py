@@ -52,11 +52,12 @@ def upload(request: ChunkRequest, x_upload_token: str | None = Header(default=No
         uploaded_at = request.uploaded_at
         if uploaded_at is not None and not math.isfinite(uploaded_at):
             uploaded_at = None
-        task = celery_app.send_task(
-            "pipeline.tasks.process_chunk",
-            args=[object_key],
-            kwargs={"submitted_at": time.time(), "uploaded_at": uploaded_at},
-        )
+        task_options = {"args": [object_key]}
+        # 옛 worker의 process_chunk는 이 인자를 받지 못해 작업이 거부된다.
+        # worker를 먼저 새 이미지로 올린 뒤 UPLOAD_TIMING_KWARGS=1로 켠다.
+        if os.getenv("UPLOAD_TIMING_KWARGS", "0").strip() == "1":
+            task_options["kwargs"] = {"submitted_at": time.time(), "uploaded_at": uploaded_at}
+        task = celery_app.send_task("pipeline.tasks.process_chunk", **task_options)
     except OperationalError as exc:
         mark_chunk_state(object_key, chunk_video_id, "failed", error=f"작업 큐 연결 실패: {exc}")
         raise HTTPException(status_code=503, detail="작업 큐에 연결할 수 없습니다.") from exc
