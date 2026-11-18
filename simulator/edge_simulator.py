@@ -100,12 +100,13 @@ def run_edge_simulator(video_path, server_url="http://localhost:8000", interval=
         # GCS 업로드
         s3_key = f"chunks/{video_id}/{os.path.basename(chunk_path)}"
         upload_video(chunk_path, s3_key)
+        uploaded_at = time.time()
 
         # FastAPI 서버에 알림
         try:
             response = requests.post(
                 f"{server_url}/upload",
-                json={"chunk_path": s3_key},
+                json={"chunk_path": s3_key, "uploaded_at": uploaded_at},
                 headers=build_upload_headers(server_url, iam_auth) or None,
                 timeout=20,
             )

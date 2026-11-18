@@ -569,3 +569,15 @@ def get_indexed_video_ids():
         frame["video_id"]
         for frame in get_indexed_frames()
     })
+
+
+def verify_indexed_frame_ids(frame_ids):
+    """Return IDs absent from Chroma after a worker says it indexed them."""
+    requested = [str(frame_id) for frame_id in frame_ids if frame_id]
+    if not requested:
+        return []
+    # IDs are always returned by Chroma; omit embeddings/documents to preserve
+    # compatibility with both the local and HTTP client versions.
+    found = get_collection().get(ids=requested).get("ids") or []
+    found_ids = {str(frame_id) for frame_id in found}
+    return [frame_id for frame_id in requested if frame_id not in found_ids]

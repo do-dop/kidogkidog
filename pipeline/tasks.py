@@ -2,20 +2,23 @@ from celery import Celery
 from celery.signals import worker_ready
 from pipeline.video.frame_extractor import extract_frames
 from pipeline.storage.gcs_uploader import download_video, upload_frame
-from pipeline.storage.vector_store import index_frame
+from pipeline.storage.vector_store import index_frame, verify_indexed_frame_ids
 from pipeline.models.yolo_detector import detect_objects
 from pipeline.events.behavior_event_extractor import extract_behavior_events
 from db.behavior_events import insert_behavior_events
 from db.scenes import insert_scene
 from db.schema import init_db
-from db.processed_chunks import commit_chunk_results, is_chunk_processed
+from db.processed_chunks import commit_chunk_results, is_chunk_ready, mark_chunk_state, record_chunk_integrity
 import os
 import json
 import time
 from datetime import timedelta
 from pathlib import Path
 from pipeline.storage.gcs_uploader import get_object_metadata
-from pipeline.observability.metrics import CHUNKS, FRAMES, STAGE_SECONDS, measure_stage, start_worker_metrics
+from pipeline.observability.metrics import (
+    CHUNKS, END_TO_END_SECONDS, FRAMES, QUEUE_WAIT_SECONDS, RTF,
+    STAGE_SECONDS, VIDEO_SECONDS, measure_stage, start_worker_metrics,
+)
 
 FRAME_ROOT = Path("pipeline/frames")
 
@@ -113,7 +116,7 @@ def delete_local_frames(frames):
     retry_backoff_max=300,
     retry_jitter=True,
 )
-def process_chunk(chunk_path):
+def process_chunk(chunk_path, submitted_at=None, uploaded_at=None):
     """
     S3 영상/청크 수신
     → 다운로드
@@ -129,16 +132,20 @@ def process_chunk(chunk_path):
     """
     print(f"[Task 시작] {chunk_path}")
     task_started = time.monotonic()
+    if submitted_at is not None:
+        QUEUE_WAIT_SECONDS.observe(max(0.0, time.time() - float(submitted_at)))
 
     video_id = get_video_id_from_object_key(chunk_path)
 
     # 재전달·중복 요청으로 이미 끝난 청크는 다시 처리하지 않는다.
     init_db()
-    if is_chunk_processed(chunk_path):
+    if is_chunk_ready(chunk_path):
         print(f"[Task 스킵] 이미 처리된 청크: {chunk_path}", flush=True)
         CHUNKS.labels(outcome="duplicate").inc()
         STAGE_SECONDS.labels(stage="chunk_total").observe(time.monotonic() - task_started)
         return {"chunk_path": chunk_path, "video_id": video_id, "status": "duplicate"}
+
+    mark_chunk_state(chunk_path, video_id, "processing")
 
     frame_output_dir = FRAME_ROOT / video_id
 
@@ -154,6 +161,15 @@ def process_chunk(chunk_path):
         with measure_stage("video_download"):
             download_video(chunk_path, local_path)
         print(f"다운로드 완료: {local_path}")
+
+        # OpenCV is already used by frame extraction; derive source duration from
+        # the downloaded chunk so RTF uses measured media duration, not chunk size assumptions.
+        import cv2
+        capture = cv2.VideoCapture(local_path)
+        source_fps = capture.get(cv2.CAP_PROP_FPS)
+        source_frames = capture.get(cv2.CAP_PROP_FRAME_COUNT)
+        source_duration = source_frames / source_fps if source_fps and source_fps > 0 else 0.0
+        capture.release()
 
         # 2. 프레임 추출 (motion 감지 포함)
         with measure_stage("frame_extraction"):
@@ -228,6 +244,18 @@ def process_chunk(chunk_path):
 
         print(f"프레임 {len(indexed_frames)}개 ChromaDB 저장 완료")
 
+        # Chroma is outside the MySQL transaction. Do not create a durable
+        # completion marker until every frame ID can be read back from it.
+        if not indexed_frames:
+            raise RuntimeError("인덱싱할 프레임이 없어 청크 완료로 표시하지 않습니다.")
+        missing_frame_ids = verify_indexed_frame_ids(
+            [frame.get("frame_id") for frame in indexed_frames]
+        )
+        if missing_frame_ids:
+            raise RuntimeError(
+                f"ChromaDB 읽기 검증에 실패한 프레임 {len(missing_frame_ids)}개"
+            )
+
         # 5. 행동 이벤트 분석
         #
         # indexed_frames에는 frame_path, timestamp, motion_start, motion_end,
@@ -267,8 +295,24 @@ def process_chunk(chunk_path):
             if behavior_events:
                 insert_behavior_events(behavior_events, conn=conn)
 
+        integrity = {
+            "scene_count": len(indexed_frames),
+            "vector_frame_count": len(indexed_frames),
+            "behavior_event_count": len(behavior_events),
+        }
         with measure_stage("scene_write"):
-            committed = commit_chunk_results(chunk_path, video_id, write_results)
+            committed = commit_chunk_results(
+                chunk_path,
+                video_id,
+                write_results,
+                integrity=integrity,
+            )
+
+        if not committed:
+            # A previous version may have committed MySQL rows before this
+            # status table existed. The vector read-back above makes it safe
+            # to promote that legacy completion marker to `ready` now.
+            record_chunk_integrity(chunk_path, video_id, integrity)
 
         if committed:
             print(
@@ -289,6 +333,11 @@ def process_chunk(chunk_path):
 
         if committed:
             FRAMES.inc(len(indexed_frames))
+            if source_duration > 0:
+                VIDEO_SECONDS.inc(source_duration)
+                RTF.observe((time.monotonic() - task_started) / source_duration)
+            if uploaded_at is not None:
+                END_TO_END_SECONDS.observe(max(0.0, time.time() - float(uploaded_at)))
         CHUNKS.labels(outcome="success" if committed else "duplicate").inc()
         return {
             "status": "processed" if committed else "duplicate",
@@ -303,6 +352,7 @@ def process_chunk(chunk_path):
     except Exception as exc:
         CHUNKS.labels(outcome="failure").inc()
         print(f"[Task 실패] {chunk_path} - {exc}", flush=True)
+        mark_chunk_state(chunk_path, video_id, "failed", error=f"{type(exc).__name__}: {exc}")
 
         # 실패하더라도 가능한 로컬 파일은 정리
         if indexed_frames:

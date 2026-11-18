@@ -1,5 +1,7 @@
 import hmac
+import math
 import os
+import time
 from pathlib import PurePosixPath
 
 from fastapi import APIRouter, Header, HTTPException
@@ -7,6 +9,7 @@ from kombu.exceptions import OperationalError
 
 from api.celery_app import celery_app
 from api.schemas import ChunkRequest
+from db.processed_chunks import mark_chunk_state
 from pipeline.storage.gcs_uploader import object_exists
 
 
@@ -40,9 +43,22 @@ def upload(request: ChunkRequest, x_upload_token: str | None = Header(default=No
     if not object_exists(object_key):
         raise HTTPException(status_code=404, detail="GCS 영상을 찾을 수 없습니다.")
 
+    # 워커가 먼저 processing으로 바꾸는 경합을 피하려고 큐에 넣기 전에 queued를 남긴다.
+    parts = PurePosixPath(object_key).parts
+    chunk_video_id = parts[1] if len(parts) > 1 else "unknown"
+    mark_chunk_state(object_key, chunk_video_id, "queued")
+
     try:
-        task = celery_app.send_task("pipeline.tasks.process_chunk", args=[object_key])
+        uploaded_at = request.uploaded_at
+        if uploaded_at is not None and not math.isfinite(uploaded_at):
+            uploaded_at = None
+        task = celery_app.send_task(
+            "pipeline.tasks.process_chunk",
+            args=[object_key],
+            kwargs={"submitted_at": time.time(), "uploaded_at": uploaded_at},
+        )
     except OperationalError as exc:
+        mark_chunk_state(object_key, chunk_video_id, "failed", error=f"작업 큐 연결 실패: {exc}")
         raise HTTPException(status_code=503, detail="작업 큐에 연결할 수 없습니다.") from exc
 
     return {
