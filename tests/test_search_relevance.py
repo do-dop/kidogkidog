@@ -33,9 +33,10 @@ def event(event_id, summary):
 
 
 class SearchRelevanceTests(unittest.TestCase):
-    def run_query(self, query, found, top_events=(), env=None):
+    def run_query(self, query, found, top_events=(), all_events=(), env=None):
         with ExitStack() as stack:
             stack.enter_context(patch.object(vs, "search_with_query_expansion", return_value=found))
+            stack.enter_context(patch.object(rag, "get_behavior_events", return_value=list(all_events)))
             stack.enter_context(patch.object(rag, "get_behavior_events_overlapping", return_value=[]))
             stack.enter_context(patch.object(rag, "get_top_behavior_events", return_value=list(top_events)))
             stack.enter_context(patch.object(rag, "build_prompt_hint", return_value=""))
@@ -45,6 +46,87 @@ class SearchRelevanceTests(unittest.TestCase):
             stack.enter_context(patch.dict("os.environ", env or {}, clear=False))
             result = rag.run_rag_query(query=query, video_id="video", top_k=3)
         return result, answer
+
+    def test_cat_question_drops_frames_where_only_a_dog_is_detected(self):
+        dog = {**frame("dog", 0.30), "object_labels": "dog,couch"}
+        cat = {**frame("cat", 0.28), "object_labels": "cat"}
+        unknown = {**frame("unknown", 0.27), "object_labels": ""}
+        result, _ = self.run_query("고양이가 러그 위에서 주변을 둘러봄", [dog, cat, unknown])
+
+        self.assertEqual([item["frame_id"] for item in result["results"]], ["cat", "unknown"])
+
+    def test_cat_question_with_only_dog_frames_is_not_answered(self):
+        dog = {**frame("dog", 0.30), "object_labels": "dog"}
+        result, answer = self.run_query("고양이가 급식기로 걸어감", [dog])
+
+        self.assertEqual(result["results"], [])
+        self.assertIn("찾지 못했", result["answer"])
+        answer.assert_not_called()
+
+    def test_question_naming_both_or_neither_animal_is_not_filtered(self):
+        dog = {**frame("dog", 0.30), "object_labels": "dog"}
+        for query in ("고양이와 강아지가 같이 있는 장면", "물 마시는 장면", "몇 개 먹었어 장면"):
+            result, _ = self.run_query(query, [dog])
+            self.assertEqual(len(result["results"]), 1, query)
+
+    def test_species_filter_can_be_disabled(self):
+        dog = {**frame("dog", 0.30), "object_labels": "dog"}
+        result, _ = self.run_query("고양이가 걷는 장면", [dog], env={"SEARCH_SPECIES_FILTER": "0"})
+        self.assertEqual(len(result["results"]), 1)
+
+    def test_below_threshold_candidates_are_offered_as_related_not_as_a_match(self):
+        found = [frame("near", 0.215, 3.0), frame("nearer", 0.225, 6.0), frame("far", 0.15)]
+        result, answer = self.run_query("물 마시는 장면", found)
+
+        self.assertEqual(result["match_level"], "related")
+        self.assertEqual([item["frame_id"] for item in result["results"]], ["nearer", "near"])
+        self.assertTrue(all(item["match_level"] == "related" for item in result["results"]))
+        self.assertIn("정확히 맞는 장면은 찾지 못했어요", result["answer"])
+        self.assertIn("정확히 일치하지 않을 수 있어요", result["answer"])
+        self.assertFalse(result["used_llm"])
+        answer.assert_not_called()
+
+    def test_related_candidates_can_be_turned_off(self):
+        found = [frame("near", 0.215)]
+        result, _ = self.run_query("물 마시는 장면", found, env={"SEARCH_RELATED_MIN_SCORE": "0"})
+
+        self.assertEqual(result["results"], [])
+        self.assertNotIn("match_level", result)
+
+    def test_a_real_match_is_not_mixed_with_related_candidates(self):
+        found = [frame("good", 0.27), frame("near", 0.215)]
+        result, _ = self.run_query("물 마시는 장면", found)
+
+        self.assertEqual([item["frame_id"] for item in result["results"]], ["good"])
+        self.assertNotEqual(result.get("match_level"), "related")
+
+    def test_search_failure_offers_only_events_that_match_the_question_words(self):
+        drinking = event(7, "반려동물이 물을 마시는 모습")
+        unrelated = event(8, "반려동물이 침대에서 쉬는 모습")
+        with patch.object(vs, "search_with_query_expansion", side_effect=RuntimeError("offline")), \
+                patch.object(rag, "get_behavior_events", return_value=[]), \
+                patch.object(rag, "get_behavior_events_overlapping", return_value=[]), \
+                patch.object(rag, "get_top_behavior_events", return_value=[unrelated, drinking]), \
+                patch.object(rag, "build_prompt_hint", return_value=""), \
+                patch.object(rag, "_generate_answer_with_langchain") as llm:
+            result = rag.run_rag_query("강아지가 물 마시는 장면 보여줘", video_id="video", top_k=3)
+
+        self.assertEqual(result["match_level"], "related_events")
+        self.assertEqual([item["id"] for item in result["behavior_events"]], [7])
+        self.assertIn("검색 서버에 연결하지 못해", result["answer"])
+        self.assertFalse(result["used_llm"])
+        llm.assert_not_called()
+
+    def test_search_failure_does_not_present_arbitrary_recording(self):
+        with patch.object(vs, "search_with_query_expansion", side_effect=RuntimeError("offline")), \
+                patch.object(rag, "get_behavior_events", return_value=[]), \
+                patch.object(rag, "_get_relevant_behavior_events", return_value=[]), \
+                patch.object(rag, "_fallback_indexed_frames") as fallback:
+            result = rag.run_rag_query("강아지가 소파 위로 올라가는 장면 보여줘", top_k=3)
+        self.assertEqual(result["results"], [])
+        self.assertFalse(result["used_llm"])
+        self.assertIn("연결하지 못해", result["answer"])
+        fallback.assert_not_called()
 
     def test_low_similarity_frames_are_not_shown_and_llm_is_skipped(self):
         found = [frame("a", 0.19), frame("b", 0.18)]
@@ -97,10 +179,28 @@ class SearchRelevanceTests(unittest.TestCase):
         self.assertEqual([item["frame_id"] for item in result["results"]], ["a"])
 
     def test_invalid_threshold_falls_back_to_default(self):
+        # 잘못된 값이면 기본 기준(0.23)을 쓴다. 0.20은 기준 미달이라 "비슷한 장면"으로만 나온다.
         found = [frame("a", 0.20)]
         result, _ = self.run_query("물 마시는 장면", found, env={"SEARCH_MIN_SCORE": "not-a-number"})
 
-        self.assertEqual(result["results"], [])
+        self.assertEqual(result["match_level"], "related")
+
+    def test_clear_event_description_promotes_its_precise_time_window(self):
+        broad_frame = frame("visual-hit", 0.31, timestamp=30)
+        pool_exit = {
+            **event(9, "강아지가 수영장 얕은 계단을 타고 물 밖으로 올라온다"),
+            "start_time": 4.8,
+            "end_time": 9.0,
+        }
+        result, _ = self.run_query(
+            "강아지가 수영장 얕은 계단을 타고 밖으로 올라온 장면 보여줘",
+            [broad_frame],
+            all_events=[pool_exit],
+        )
+
+        self.assertEqual(result["results"][0]["source_event_id"], 9)
+        self.assertEqual(result["results"][0]["playback_start"], 4.3)
+        self.assertEqual(result["results"][0]["playback_end"], 9.5)
 
 
 class FrameCountPenaltyTests(unittest.TestCase):
