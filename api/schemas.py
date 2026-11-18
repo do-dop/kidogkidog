@@ -4,6 +4,7 @@ from pydantic import BaseModel
 class ChunkRequest(BaseModel):
     chunk_path: str | None = None
     video_path: str | None = None
+    uploaded_at: float | None = None
 
 
 class TimeRangeRequest(BaseModel):

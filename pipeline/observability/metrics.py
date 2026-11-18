@@ -26,6 +26,25 @@ FRAMES = Counter(
     "kidog_pipeline_frames_total",
     "Frames indexed by the worker.",
 )
+QUEUE_WAIT_SECONDS = Histogram(
+    "kidog_pipeline_queue_wait_seconds",
+    "Time from API enqueue to worker start, in seconds.",
+    buckets=(0.01, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10, 30, 60, 180, 600),
+)
+END_TO_END_SECONDS = Histogram(
+    "kidog_pipeline_upload_to_index_seconds",
+    "Time from simulator upload completion to durable index completion, in seconds.",
+    buckets=(1, 2.5, 5, 10, 30, 60, 120, 300, 600, 1800, 3600),
+)
+VIDEO_SECONDS = Counter(
+    "kidog_pipeline_video_seconds_total",
+    "Duration of successfully indexed video chunks, in seconds.",
+)
+RTF = Histogram(
+    "kidog_pipeline_real_time_factor",
+    "Chunk processing wall time divided by source video duration.",
+    buckets=(0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2, 5, 10),
+)
 
 
 @contextmanager

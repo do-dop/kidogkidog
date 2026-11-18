@@ -49,6 +49,23 @@ def init_db():
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     ''')
 
+    # The completion marker above prevents duplicate writes, but it cannot say
+    # whether the externally stored vector frames survived. Keep a separately
+    # queryable integrity record for every successfully committed chunk.
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS chunk_processing_status (
+            chunk_path VARCHAR(512) PRIMARY KEY,
+            video_id VARCHAR(255) NOT NULL,
+            state VARCHAR(32) NOT NULL,
+            scene_count INTEGER NOT NULL DEFAULT 0,
+            vector_frame_count INTEGER NOT NULL DEFAULT 0,
+            behavior_event_count INTEGER NOT NULL DEFAULT 0,
+            error_message TEXT NULL,
+            verified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            INDEX idx_chunk_processing_status_video (video_id, state)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    ''')
+
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS search_logs (
             id BIGINT PRIMARY KEY AUTO_INCREMENT,

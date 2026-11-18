@@ -3,6 +3,7 @@ from pathlib import Path
 import re
 
 from db.scenes import get_scene_records
+from db.processed_chunks import get_chunk_processing_statuses
 from pipeline.storage.gcs_uploader import create_presigned_url, list_objects
 
 from api.services.media_service import media_path_for_key, thumbnail_path_for_key
@@ -75,6 +76,10 @@ def find_thumbnail_key(video_id, chunk_key):
 def list_s3_recording_chunks(video_id: str | None = None):
     prefix = f"chunks/{video_id}/" if video_id else "chunks/"
     objects = list_objects(prefix)
+    status_by_chunk = {
+        item["chunk_path"]: item
+        for item in get_chunk_processing_statuses(video_id=video_id)
+    }
     chunks = []
 
     for obj in objects:
@@ -109,6 +114,7 @@ def list_s3_recording_chunks(video_id: str | None = None):
             "thumbnail_s3_key": thumbnail_key,
             "thumbnail_url": create_presigned_url(thumbnail_key, expires_in=3600) if thumbnail_key else None,
             "thumbnail_media_path": media_path_for_key(thumbnail_key) if thumbnail_key else thumbnail_path_for_key(key),
+            "processing": status_by_chunk.get(key, {"state": "pending"}),
         })
 
     chunks.sort(key=lambda item: (item["video_id"], item["chunk_index"], item["filename"]))
