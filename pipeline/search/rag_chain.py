@@ -1,5 +1,7 @@
+import math
 import os
 import re
+import time
 import json
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -32,6 +34,56 @@ DEFAULT_MIN_SEARCH_SCORE = 0.23
 # 행동 이벤트가 질문과 맞는다고 보려면 _behavior_query_score의 키워드 그룹이 하나 이상 일치해야 한다.
 # 0.3점짜리 단어 일치("장면" 같은 흔한 단어)만으로는 근거로 삼지 않는다.
 _MIN_EVENT_KEYWORD_SCORE = 1.0
+
+
+# 프레임이 많은 영상은 질문과 무관해도 한 프레임쯤 높은 점수가 나오기 쉬워 전역 검색에서 위로 올라온다.
+# 점수에서 beta * ln(영상의 색인 프레임 수)를 빼 이 쏠림을 줄인다. 0이면 끈다.
+# 스테이징 질문 38개로 측정한 값이다(experiments/ranking-2026-11-19/REPORT.md).
+DEFAULT_FRAME_COUNT_PENALTY = 0.01
+_FRAME_COUNT_CACHE_SECONDS = 300
+_frame_count_cache: dict[str, Any] = {"at": 0.0, "counts": {}}
+
+
+def _frame_count_penalty() -> float:
+    try:
+        return max(0.0, float(os.getenv("RANK_FRAME_COUNT_PENALTY", DEFAULT_FRAME_COUNT_PENALTY)))
+    except ValueError:
+        return DEFAULT_FRAME_COUNT_PENALTY
+
+
+def _video_frame_counts() -> dict[str, int]:
+    now = time.monotonic()
+    if _frame_count_cache["counts"] and now - _frame_count_cache["at"] < _FRAME_COUNT_CACHE_SECONDS:
+        return _frame_count_cache["counts"]
+    from pipeline.storage.vector_store import get_video_frame_counts
+
+    counts = get_video_frame_counts()
+    _frame_count_cache.update(at=now, counts=counts)
+    return counts
+
+
+def _apply_frame_count_penalty(frames: list[dict[str, Any]], video_id: str | None) -> list[dict[str, Any]]:
+    """전역 검색일 때만 영상 크기에 따른 점수 쏠림을 보정하고 점수 순으로 다시 정렬한다.
+
+    영상을 지정한 검색은 같은 영상 안의 순위라 보정하지 않는다. 원래 CLIP 점수는 clip_score에 남긴다.
+    """
+    beta = _frame_count_penalty()
+    if video_id or beta <= 0 or len(frames) < 2:
+        return frames
+    try:
+        counts = _video_frame_counts()
+    except Exception as exc:
+        print(f"영상 프레임 수 조회 실패(순위 보정 생략): {exc}", flush=True)
+        return frames
+
+    adjusted = []
+    for frame in frames:
+        size = counts.get(frame.get("video_id"))
+        score = float(frame.get("score") or 0.0)
+        if size and size > 1:
+            frame = {**frame, "clip_score": score, "score": score - beta * math.log(size)}
+        adjusted.append(frame)
+    return sorted(adjusted, key=lambda item: float(item.get("score") or 0.0), reverse=True)
 
 
 def _min_search_score() -> float:
@@ -130,6 +182,7 @@ def run_rag_query(
             frame for frame in candidates
             if float(frame.get("score") or 0.0) >= _min_search_score()
         ]
+        retrieved_frames = _apply_frame_count_penalty(retrieved_frames, video_id)
     except Exception as exc:
         # ChromaDB가 깨졌거나 인덱스 파일이 불안정할 때도
         # behavior_events 기반 답변은 가능하도록 앱 전체를 죽이지 않는다.

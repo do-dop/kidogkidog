@@ -103,5 +103,54 @@ class SearchRelevanceTests(unittest.TestCase):
         self.assertEqual(result["results"], [])
 
 
+class FrameCountPenaltyTests(unittest.TestCase):
+    def frames(self):
+        return [
+            {"frame_id": "big", "video_id": "big_video", "score": 0.290},
+            {"frame_id": "small", "video_id": "small_video", "score": 0.275},
+        ]
+
+    def test_large_video_loses_its_head_start_in_global_search(self):
+        with patch.object(rag, "_video_frame_counts", return_value={"big_video": 300, "small_video": 8}):
+            result = rag._apply_frame_count_penalty(self.frames(), video_id=None)
+
+        self.assertEqual([item["video_id"] for item in result], ["small_video", "big_video"])
+        self.assertAlmostEqual(result[1]["clip_score"], 0.290)
+        self.assertLess(result[1]["score"], 0.290)
+
+    def test_video_scoped_search_is_not_adjusted(self):
+        with patch.object(rag, "_video_frame_counts", return_value={"big_video": 300, "small_video": 8}) as counts:
+            result = rag._apply_frame_count_penalty(self.frames(), video_id="big_video")
+
+        self.assertEqual([item["video_id"] for item in result], ["big_video", "small_video"])
+        counts.assert_not_called()
+
+    def test_penalty_can_be_disabled(self):
+        with patch.dict("os.environ", {"RANK_FRAME_COUNT_PENALTY": "0"}), \
+                patch.object(rag, "_video_frame_counts", return_value={"big_video": 300, "small_video": 8}):
+            result = rag._apply_frame_count_penalty(self.frames(), video_id=None)
+
+        self.assertEqual([item["video_id"] for item in result], ["big_video", "small_video"])
+
+    def test_count_lookup_failure_keeps_original_order(self):
+        with patch.object(rag, "_video_frame_counts", side_effect=RuntimeError("chroma down")):
+            result = rag._apply_frame_count_penalty(self.frames(), video_id=None)
+
+        self.assertEqual([item["video_id"] for item in result], ["big_video", "small_video"])
+
+    def test_penalty_is_applied_after_the_similarity_threshold(self):
+        # 보정 후 점수가 기준 아래로 내려가도 원래 CLIP 점수가 기준 이상이면 결과에서 빠지면 안 된다.
+        found = [{**frame("only", 0.24), "video_id": "big_video"}, {**frame("other", 0.23), "video_id": "small_video"}]
+        with patch.object(vs, "search_with_query_expansion", return_value=found), \
+                patch.object(rag, "_video_frame_counts", return_value={"big_video": 300, "small_video": 8}), \
+                patch.object(rag, "get_behavior_events_overlapping", return_value=[]), \
+                patch.object(rag, "get_top_behavior_events", return_value=[]), \
+                patch.object(rag, "build_prompt_hint", return_value=""), \
+                patch.object(rag, "_generate_answer_with_langchain", return_value="답변"):
+            result = rag.run_rag_query(query="물 마시는 장면", top_k=3)
+
+        self.assertEqual(len(result["results"]), 2)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -569,3 +569,14 @@ def get_indexed_video_ids():
         frame["video_id"]
         for frame in get_indexed_frames()
     })
+
+
+def get_video_frame_counts():
+    """영상별 색인 프레임 수. 전역 검색 순위 보정에 쓴다."""
+    collection = get_collection()
+    results = collection.get(include=["metadatas"])
+    counts = {}
+    for metadata in results["metadatas"]:
+        video_id = (metadata or {}).get("video_id", "default")
+        counts[video_id] = counts.get(video_id, 0) + 1
+    return counts

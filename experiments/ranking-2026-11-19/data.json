@@ -1,0 +1,3453 @@
+{
+ "rows": [
+  {
+   "set": "A",
+   "query": "검은 개들이 연못 돌 옆에 있음 장면 보여줘",
+   "gold_video": "smartbench_0642",
+   "global": [
+    {
+     "video_id": "smartbench_0642",
+     "score": 0.28368664
+    }
+   ],
+   "scoped": [
+    {
+     "video_id": "smartbench_0642",
+     "score": 0.28368664
+    }
+   ]
+  },
+  {
+   "set": "A",
+   "query": "개가 연못 물에 들어감 장면 보여줘",
+   "gold_video": "smartbench_0642",
+   "global": [
+    {
+     "video_id": "funny_moments2",
+     "score": 0.2951579
+    },
+    {
+     "video_id": "smartbench_0642",
+     "score": 0.27114165
+    },
+    {
+     "video_id": "smartbench_0608",
+     "score": 0.25331570000000003
+    },
+    {
+     "video_id": "funny_moments",
+     "score": 0.23533344
+    }
+   ],
+   "scoped": [
+    {
+     "video_id": "smartbench_0642",
+     "score": 0.27114165
+    }
+   ]
+  },
+  {
+   "set": "A",
+   "query": "개들이 연못 물속에서 헤엄치거나 놂 장면 보여줘",
+   "gold_video": "smartbench_0642",
+   "global": [
+    {
+     "video_id": "funny_moments2",
+     "score": 0.27517366
+    },
+    {
+     "video_id": "smartbench_0642",
+     "score": 0.27485649999999995
+    },
+    {
+     "video_id": "smartbench_0608",
+     "score": 0.2636048
+    },
+    {
+     "video_id": "funny_moments",
+     "score": 0.24063826
+    }
+   ],
+   "scoped": [
+    {
+     "video_id": "smartbench_0642",
+     "score": 0.27485649999999995
+    }
+   ]
+  },
+  {
+   "set": "A",
+   "query": "개가 계속 연못에서 헤엄침 장면 보여줘",
+   "gold_video": "smartbench_0642",
+   "global": [
+    {
+     "video_id": "funny_moments2",
+     "score": 0.2843008
+    },
+    {
+     "video_id": "smartbench_0608",
+     "score": 0.2733101
+    },
+    {
+     "video_id": "smartbench_0642",
+     "score": 0.2712939
+    },
+    {
+     "video_id": "funny_moments",
+     "score": 0.2548127
+    }
+   ],
+   "scoped": [
+    {
+     "video_id": "smartbench_0642",
+     "score": 0.2712939
+    }
+   ]
+  },
+  {
+   "set": "A",
+   "query": "강아지가 수영장 가장자리에서 물에 들어가 헤엄침 장면 보여줘",
+   "gold_video": "smartbench_0608",
+   "global": [
+    {
+     "video_id": "smartbench_0608",
+     "score": 0.2978849
+    },
+    {
+     "video_id": "funny_moments2",
+     "score": 0.29320985
+    },
+    {
+     "video_id": "funny_moments",
+     "score": 0.28178245
+    },
+    {
+     "video_id": "smartbench_0642",
+     "score": 0.26043479999999997
+    }
+   ],
+   "scoped": [
+    {
+     "video_id": "smartbench_0608",
+     "score": 0.2978849
+    }
+   ]
+  },
+  {
+   "set": "A",
+   "query": "강아지가 얕은 곳에서 계단으로 나와 데크로 올라옴 장면 보여줘",
+   "gold_video": "smartbench_0608",
+   "global": [
+    {
+     "video_id": "funny_moments",
+     "score": 0.27145319999999995
+    },
+    {
+     "video_id": "smartbench_0188",
+     "score": 0.26581200000000005
+    },
+    {
+     "video_id": "smartbench_0608",
+     "score": 0.26351637000000006
+    },
+    {
+     "video_id": "dog_escape",
+     "score": 0.2555052
+    },
+    {
+     "video_id": "IMG_6483",
+     "score": 0.25451504999999996
+    },
+    {
+     "video_id": "funny_moments2",
+     "score": 0.25382096
+    }
+   ],
+   "scoped": [
+    {
+     "video_id": "smartbench_0608",
+     "score": 0.26351637000000006
+    }
+   ]
+  },
+  {
+   "set": "A",
+   "query": "강아지가 수영장 데크를 따라 걷거나 달림 장면 보여줘",
+   "gold_video": "smartbench_0608",
+   "global": [
+    {
+     "video_id": "smartbench_0608",
+     "score": 0.2875913
+    },
+    {
+     "video_id": "funny_moments",
+     "score": 0.27571619999999997
+    },
+    {
+     "video_id": "funny_moments2",
+     "score": 0.25845194000000005
+    },
+    {
+     "video_id": "IMG_6483",
+     "score": 0.23609170000000002
+    }
+   ],
+   "scoped": [
+    {
+     "video_id": "smartbench_0608",
+     "score": 0.2875913
+    }
+   ]
+  },
+  {
+   "set": "A",
+   "query": "강아지가 물에 뛰어들어 헤엄침 장면 보여줘",
+   "gold_video": "smartbench_0608",
+   "global": [
+    {
+     "video_id": "funny_moments2",
+     "score": 0.2898598
+    },
+    {
+     "video_id": "smartbench_0608",
+     "score": 0.27737959999999995
+    },
+    {
+     "video_id": "funny_moments",
+     "score": 0.2627406
+    },
+    {
+     "video_id": "smartbench_0642",
+     "score": 0.2433438
+    }
+   ],
+   "scoped": [
+    {
+     "video_id": "smartbench_0608",
+     "score": 0.27737959999999995
+    }
+   ]
+  },
+  {
+   "set": "A",
+   "query": "검은 개가 소파에서 내려감 장면 보여줘",
+   "gold_video": "smartbench_0065",
+   "global": [
+    {
+     "video_id": "smartbench_0065",
+     "score": 0.30209529999999996
+    },
+    {
+     "video_id": "funny_moments",
+     "score": 0.27100729999999995
+    },
+    {
+     "video_id": "funny_moments2",
+     "score": 0.2693107
+    },
+    {
+     "video_id": "two_dogs",
+     "score": 0.25961219999999996
+    },
+    {
+     "video_id": "smartbench_0518_rerun",
+     "score": 0.23887396000000005
+    },
+    {
+     "video_id": "smartbench_0188",
+     "score": 0.23623780000000005
+    },
+    {
+     "video_id": "smartbench_0608",
+     "score": 0.23068637000000003
+    },
+    {
+     "video_id": "smartbench_0936",
+     "score": 0.230236
+    }
+   ],
+   "scoped": [
+    {
+     "video_id": "smartbench_0065",
+     "score": 0.30209529999999996
+    }
+   ]
+  },
+  {
+   "set": "A",
+   "query": "검은 개가 소파에 한 번 오르고 거실 바닥을 달려 지나감 장면 보여줘",
+   "gold_video": "smartbench_0065",
+   "global": [
+    {
+     "video_id": "smartbench_0065",
+     "score": 0.29575019999999996
+    },
+    {
+     "video_id": "funny_moments",
+     "score": 0.28178420000000004
+    },
+    {
+     "video_id": "smartbench_0518_rerun",
+     "score": 0.26304287000000004
+    },
+    {
+     "video_id": "funny_moments2",
+     "score": 0.25762945000000004
+    },
+    {
+     "video_id": "two_dogs",
+     "score": 0.25641376000000005
+    },
+    {
+     "video_id": "smartbench_0518",
+     "score": 0.24518930000000005
+    },
+    {
+     "video_id": "smartbench_0188",
+     "score": 0.24209460000000005
+    },
+    {
+     "video_id": "smartbench_0936",
+     "score": 0.23907460000000003
+    }
+   ],
+   "scoped": [
+    {
+     "video_id": "smartbench_0065",
+     "score": 0.29575019999999996
+    }
+   ]
+  },
+  {
+   "set": "A",
+   "query": "검은 개가 소파 등받이 위에 앉아 앞을 바라봄 장면 보여줘",
+   "gold_video": "smartbench_0065",
+   "global": [
+    {
+     "video_id": "smartbench_0065",
+     "score": 0.26821595
+    }
+   ],
+   "scoped": [
+    {
+     "video_id": "smartbench_0065",
+     "score": 0.26821595
+    }
+   ]
+  },
+  {
+   "set": "A",
+   "query": "강아지가 울타리 앞에 서서 앞발을 울타리에 걸침 장면 보여줘",
+   "gold_video": "smartbench_0188",
+   "global": [
+    {
+     "video_id": "dog_escape",
+     "score": 0.8
+    }
+   ],
+   "scoped": [
+    {
+     "video_id": "smartbench_0188",
+     "score": 0.5
+    }
+   ]
+  },
+  {
+   "set": "A",
+   "query": "강아지가 울타리 위로 올라타 넘어가려 함 장면 보여줘",
+   "gold_video": "smartbench_0188",
+   "global": [],
+   "scoped": [
+    {
+     "video_id": "smartbench_0188",
+     "score": 0.5
+    }
+   ]
+  },
+  {
+   "set": "A",
+   "query": "강아지가 울타리에 다시 올라타 넘어가려 함 장면 보여줘",
+   "gold_video": "smartbench_0188",
+   "global": [],
+   "scoped": [
+    {
+     "video_id": "smartbench_0188",
+     "score": 0.5
+    }
+   ]
+  },
+  {
+   "set": "A",
+   "query": "고양이가 오른쪽에서 걸어와 급식기 쪽으로 이동함 장면 보여줘",
+   "gold_video": "IMG_8450_2",
+   "global": [
+    {
+     "video_id": "smartbench_0142",
+     "score": 0.2891865
+    },
+    {
+     "video_id": "IMG_6483",
+     "score": 0.28807896
+    },
+    {
+     "video_id": "dog_drinking_water",
+     "score": 0.26214309999999996
+    }
+   ],
+   "scoped": [
+    {
+     "video_id": "IMG_8450_2",
+     "score": 0.24608629999999998
+    }
+   ]
+  },
+  {
+   "set": "A",
+   "query": "고양이가 방 가운데 러그에 서서 주변을 둘러봄 장면 보여줘",
+   "gold_video": "IMG_8450_2",
+   "global": [
+    {
+     "video_id": "funny_moments2",
+     "score": 0.2656843
+    },
+    {
+     "video_id": "smartbench_0065",
+     "score": 0.25033026999999997
+    },
+    {
+     "video_id": "two_dogs",
+     "score": 0.24185809999999996
+    }
+   ],
+   "scoped": []
+  },
+  {
+   "set": "A",
+   "query": "흰 고양이가 러그 위에서 카메라를 보며 울다가 고개를 숙임 장면 보여줘",
+   "gold_video": "IMG_8450_2",
+   "global": [
+    {
+     "video_id": "funny_moments2",
+     "score": 0.24065360000000002
+    },
+    {
+     "video_id": "smartbench_0188",
+     "score": 0.24037470000000005
+    },
+    {
+     "video_id": "dog_escape",
+     "score": 0.23318755999999996
+    }
+   ],
+   "scoped": []
+  },
+  {
+   "set": "A",
+   "query": "개가 초록 그릇에 고개를 숙이고 물을 마심 장면 보여줘",
+   "gold_video": "dog_drinking_water",
+   "global": [
+    {
+     "video_id": "dog_drinking_water",
+     "score": 0.27538323
+    },
+    {
+     "video_id": "funny_moments",
+     "score": 0.24628335
+    },
+    {
+     "video_id": "smartbench_0936",
+     "score": 0.24315213999999996
+    }
+   ],
+   "scoped": [
+    {
+     "video_id": "dog_drinking_water",
+     "score": 0.27538323
+    }
+   ]
+  },
+  {
+   "set": "B",
+   "query": "강아지가 카메라 바로 앞에서 움직임 장면 보여줘",
+   "gold_video": "smartbench_0037",
+   "global": [
+    {
+     "video_id": "two_dogs",
+     "score": 0.28047350000000004
+    },
+    {
+     "video_id": "smartbench_0037",
+     "score": 0.26718025999999995
+    },
+    {
+     "video_id": "funny_moments",
+     "score": 0.26585539999999996
+    },
+    {
+     "video_id": "IMG_6483",
+     "score": 0.2658551
+    },
+    {
+     "video_id": "funny_moments2",
+     "score": 0.2583904
+    },
+    {
+     "video_id": "smartbench_0065",
+     "score": 0.25815666000000004
+    },
+    {
+     "video_id": "smartbench_0518",
+     "score": 0.2515043
+    }
+   ],
+   "scoped": [
+    {
+     "video_id": "smartbench_0037",
+     "score": 0.26718025999999995
+    }
+   ]
+  },
+  {
+   "set": "B",
+   "query": "강아지가 길 아래로 걸어가며 뒤돌아봄 장면 보여줘",
+   "gold_video": "smartbench_0037",
+   "global": [
+    {
+     "video_id": "IMG_6483",
+     "score": 0.26441669999999995
+    },
+    {
+     "video_id": "funny_moments2",
+     "score": 0.26331990000000005
+    },
+    {
+     "video_id": "funny_moments",
+     "score": 0.23014676999999995
+    }
+   ],
+   "scoped": []
+  },
+  {
+   "set": "B",
+   "query": "강아지가 돌아와 카메라를 보며 서 있음 장면 보여줘",
+   "gold_video": "smartbench_0037",
+   "global": [
+    {
+     "video_id": "two_dogs",
+     "score": 0.25964135
+    },
+    {
+     "video_id": "funny_moments",
+     "score": 0.25800955000000003
+    },
+    {
+     "video_id": "funny_moments2",
+     "score": 0.24844383999999997
+    },
+    {
+     "video_id": "smartbench_0037",
+     "score": 0.2430675
+    },
+    {
+     "video_id": "smartbench_0065",
+     "score": 0.23500365
+    }
+   ],
+   "scoped": [
+    {
+     "video_id": "smartbench_0037",
+     "score": 0.2430675
+    }
+   ]
+  },
+  {
+   "set": "B",
+   "query": "강아지가 다시 길 아래로 멀어짐 장면 보여줘",
+   "gold_video": "smartbench_0037",
+   "global": [
+    {
+     "video_id": "funny_moments2",
+     "score": 0.26750680000000004
+    },
+    {
+     "video_id": "IMG_6483",
+     "score": 0.24479260000000003
+    },
+    {
+     "video_id": "funny_moments",
+     "score": 0.23319732999999998
+    }
+   ],
+   "scoped": []
+  },
+  {
+   "set": "B",
+   "query": "강아지 얼굴이 카메라에 가까이 다가옴 장면 보여줘",
+   "gold_video": "smartbench_0037",
+   "global": [
+    {
+     "video_id": "two_dogs",
+     "score": 0.27968526000000005
+    },
+    {
+     "video_id": "smartbench_0037",
+     "score": 0.2560631
+    },
+    {
+     "video_id": "funny_moments",
+     "score": 0.25276536000000005
+    },
+    {
+     "video_id": "smartbench_0518",
+     "score": 0.25199320000000003
+    },
+    {
+     "video_id": "funny_moments2",
+     "score": 0.24936824999999996
+    },
+    {
+     "video_id": "smartbench_0518_rerun",
+     "score": 0.24921786999999995
+    },
+    {
+     "video_id": "smartbench_0065",
+     "score": 0.24888635000000003
+    },
+    {
+     "video_id": "dog_escape",
+     "score": 0.24312849999999997
+    },
+    {
+     "video_id": "IMG_6483",
+     "score": 0.24296510000000004
+    }
+   ],
+   "scoped": [
+    {
+     "video_id": "smartbench_0037",
+     "score": 0.2560631
+    }
+   ]
+  },
+  {
+   "set": "B",
+   "query": "개가 보이지 않고 연못만 보임 장면 보여줘",
+   "gold_video": "smartbench_0642",
+   "global": [
+    {
+     "video_id": "smartbench_0642",
+     "score": 0.2452991
+    }
+   ],
+   "scoped": [
+    {
+     "video_id": "smartbench_0642",
+     "score": 0.2452991
+    }
+   ]
+  },
+  {
+   "set": "B",
+   "query": "고양이가 밥그릇에서 먹이를 먹음 장면 보여줘",
+   "gold_video": "smartbench_0142",
+   "global": [
+    {
+     "video_id": "funny_moments2",
+     "score": 0.30276996
+    },
+    {
+     "video_id": "IMG_6483",
+     "score": 0.28394747
+    }
+   ],
+   "scoped": [
+    {
+     "video_id": "smartbench_0142",
+     "score": 0.26578630000000003
+    }
+   ]
+  },
+  {
+   "set": "B",
+   "query": "고양이가 고개를 들어 카메라를 쳐다봄 장면 보여줘",
+   "gold_video": "smartbench_0142",
+   "global": [
+    {
+     "video_id": "funny_moments2",
+     "score": 0.24815016999999995
+    },
+    {
+     "video_id": "IMG_6483",
+     "score": 0.23846630000000002
+    }
+   ],
+   "scoped": [
+    {
+     "video_id": "smartbench_0142",
+     "score": 0.5
+    }
+   ]
+  },
+  {
+   "set": "B",
+   "query": "고양이가 다시 그릇에서 먹음 장면 보여줘",
+   "gold_video": "smartbench_0142",
+   "global": [
+    {
+     "video_id": "funny_moments2",
+     "score": 0.3118402
+    },
+    {
+     "video_id": "IMG_6483",
+     "score": 0.30257500000000004
+    }
+   ],
+   "scoped": [
+    {
+     "video_id": "smartbench_0142",
+     "score": 0.27970079999999997
+    }
+   ]
+  },
+  {
+   "set": "B",
+   "query": "고양이가 고개를 들어 카메라 쪽을 봄 장면 보여줘",
+   "gold_video": "smartbench_0142",
+   "global": [
+    {
+     "video_id": "funny_moments2",
+     "score": 0.24877340000000003
+    },
+    {
+     "video_id": "IMG_6483",
+     "score": 0.24186956999999998
+    }
+   ],
+   "scoped": [
+    {
+     "video_id": "smartbench_0142",
+     "score": 0.5
+    }
+   ]
+  },
+  {
+   "set": "B",
+   "query": "고양이가 다시 먹이를 먹음 장면 보여줘",
+   "gold_video": "smartbench_0142",
+   "global": [
+    {
+     "video_id": "IMG_6483",
+     "score": 0.3029775
+    }
+   ],
+   "scoped": [
+    {
+     "video_id": "smartbench_0142",
+     "score": 0.27571349999999994
+    }
+   ]
+  },
+  {
+   "set": "B",
+   "query": "검은 개가 소파의 잠든 여성 곁에 있음 장면 보여줘",
+   "gold_video": "smartbench_0518",
+   "global": [
+    {
+     "video_id": "smartbench_0065",
+     "score": 0.28121364000000004
+    },
+    {
+     "video_id": "two_dogs",
+     "score": 0.2392339
+    }
+   ],
+   "scoped": []
+  },
+  {
+   "set": "B",
+   "query": "갈색 개가 왼쪽에서 소파 쪽으로 걸어옴 장면 보여줘",
+   "gold_video": "smartbench_0518",
+   "global": [
+    {
+     "video_id": "smartbench_0065",
+     "score": 0.3112937
+    },
+    {
+     "video_id": "dog_escape",
+     "score": 0.23795500000000003
+    },
+    {
+     "video_id": "smartbench_0188",
+     "score": 0.23763299999999998
+    },
+    {
+     "video_id": "funny_moments",
+     "score": 0.236282
+    },
+    {
+     "video_id": "two_dogs",
+     "score": 0.23481894000000003
+    },
+    {
+     "video_id": "smartbench_0518",
+     "score": 0.23404026
+    },
+    {
+     "video_id": "smartbench_0518_rerun",
+     "score": 0.23244715000000005
+    }
+   ],
+   "scoped": [
+    {
+     "video_id": "smartbench_0518",
+     "score": 0.23404026
+    }
+   ]
+  },
+  {
+   "set": "B",
+   "query": "갈색 개가 소파 위로 뛰어올라 여성 곁에 감 장면 보여줘",
+   "gold_video": "smartbench_0518",
+   "global": [
+    {
+     "video_id": "smartbench_0065",
+     "score": 0.30367520000000003
+    },
+    {
+     "video_id": "funny_moments",
+     "score": 0.26538414
+    },
+    {
+     "video_id": "funny_moments2",
+     "score": 0.24825280000000005
+    },
+    {
+     "video_id": "two_dogs",
+     "score": 0.24714539999999996
+    }
+   ],
+   "scoped": [
+    {
+     "video_id": "smartbench_0518",
+     "score": 0.5
+    }
+   ]
+  },
+  {
+   "set": "B",
+   "query": "장면이 바뀌어 소파 대신 검은 구조물만 보이고 개는 없음 장면 보여줘",
+   "gold_video": "smartbench_0518",
+   "global": [
+    {
+     "video_id": "smartbench_0065",
+     "score": 0.2712217
+    },
+    {
+     "video_id": "two_dogs",
+     "score": 0.2360907
+    },
+    {
+     "video_id": "smartbench_0188",
+     "score": 0.23093050000000004
+    },
+    {
+     "video_id": "dog_escape",
+     "score": 0.23052852999999995
+    },
+    {
+     "video_id": "funny_moments2",
+     "score": 0.23051213999999998
+    }
+   ],
+   "scoped": []
+  },
+  {
+   "set": "B",
+   "query": "개 두 마리가 방 안을 가로질러 걸어감 장면 보여줘",
+   "gold_video": "smartbench_0518",
+   "global": [
+    {
+     "video_id": "two_dogs",
+     "score": 0.3001252
+    },
+    {
+     "video_id": "smartbench_0518",
+     "score": 0.2935508
+    },
+    {
+     "video_id": "funny_moments",
+     "score": 0.29101960000000004
+    },
+    {
+     "video_id": "smartbench_0518_rerun",
+     "score": 0.28952880000000003
+    },
+    {
+     "video_id": "funny_moments2",
+     "score": 0.28780574000000003
+    },
+    {
+     "video_id": "smartbench_0065",
+     "score": 0.27714550000000004
+    },
+    {
+     "video_id": "smartbench_0936",
+     "score": 0.27558327000000005
+    }
+   ],
+   "scoped": [
+    {
+     "video_id": "smartbench_0518",
+     "score": 0.2935508
+    }
+   ]
+  },
+  {
+   "set": "B",
+   "query": "강아지가 벽에 걸린 줄 장난감을 물고 당김 장면 보여줘",
+   "gold_video": "smartbench_0949",
+   "global": [
+    {
+     "video_id": "funny_moments2",
+     "score": 0.2809167
+    },
+    {
+     "video_id": "funny_moments",
+     "score": 0.25828470000000003
+    },
+    {
+     "video_id": "smartbench_0188",
+     "score": 0.2506977
+    },
+    {
+     "video_id": "dog_escape",
+     "score": 0.24086799999999997
+    }
+   ],
+   "scoped": []
+  },
+  {
+   "set": "B",
+   "query": "강아지는 화면 밖이고 줄만 걸려 있음 장면 보여줘",
+   "gold_video": "smartbench_0949",
+   "global": [
+    {
+     "video_id": "IMG_6483",
+     "score": 0.27274376
+    },
+    {
+     "video_id": "funny_moments",
+     "score": 0.25777923999999997
+    },
+    {
+     "video_id": "two_dogs",
+     "score": 0.23311269999999995
+    },
+    {
+     "video_id": "funny_moments2",
+     "score": 0.23245970000000005
+    }
+   ],
+   "scoped": []
+  },
+  {
+   "set": "B",
+   "query": "강아지가 초록 장난감을 입에 물고 서 있음 장면 보여줘",
+   "gold_video": "smartbench_0949",
+   "global": [
+    {
+     "video_id": "funny_moments",
+     "score": 0.26282859999999997
+    }
+   ],
+   "scoped": []
+  },
+  {
+   "set": "B",
+   "query": "강아지가 바닥에 흩어진 장난감 근처를 걸어 다님 장면 보여줘",
+   "gold_video": "smartbench_0949",
+   "global": [
+    {
+     "video_id": "dog_drinking_water",
+     "score": 0.25683940000000005
+    },
+    {
+     "video_id": "smartbench_0065",
+     "score": 0.25301814
+    },
+    {
+     "video_id": "two_dogs",
+     "score": 0.24579394
+    },
+    {
+     "video_id": "smartbench_0518",
+     "score": 0.24547200000000002
+    },
+    {
+     "video_id": "funny_moments",
+     "score": 0.24065393000000002
+    },
+    {
+     "video_id": "smartbench_0518_rerun",
+     "score": 0.23699669999999995
+    },
+    {
+     "video_id": "funny_moments2",
+     "score": 0.23552680000000004
+    }
+   ],
+   "scoped": []
+  }
+ ],
+ "videos": {
+  "IMG_6483": {
+   "frames": 201,
+   "events": [
+    {
+     "id": 18,
+     "video_id": "IMG_6483",
+     "start_time": 7.0,
+     "end_time": 60.5,
+     "subject": "반려동물",
+     "action": "반려동물이 바닥에 드러누워 몸을 굴리는 것으로 보임",
+     "target_object": null,
+     "summary": "반려동물이 바닥에서 몸을 뒤척이며 놀고 있는 모습이 관찰됨.",
+     "duration": 53.5,
+     "repeat_count": 1,
+     "confidence": 0.8,
+     "interestingness": 0.9,
+     "created_at": "2026-10-14T07:21:25",
+     "evidence": [
+      "반려동물이 여러 각도로 몸을 굴리며 노는 모습이 지속적으로 포착됨.",
+      "반려동물의 행동은 평온해 보이며 즐거운 상태로 보임."
+     ],
+     "source_frames": [
+      {
+       "s3_key": "frames/IMG_6483/petcam_20260612_121942_000_frame_7.00.jpg",
+       "frame_id": "IMG_6483__petcam_20260612_121942_000_frame_7.00",
+       "timestamp": 7.0,
+       "frame_path": "/tmp/kidog_IMG_6483_20260612_121942/frames/IMG_6483/petcam_20260612_121942_000_frame_7.00.jpg",
+       "object_labels": [
+        "cat"
+       ]
+      },
+      {
+       "s3_key": "frames/IMG_6483/petcam_20260612_121942_000_frame_17.00.jpg",
+       "frame_id": "IMG_6483__petcam_20260612_121942_000_frame_17.00",
+       "timestamp": 17.0,
+       "frame_path": "/tmp/kidog_IMG_6483_20260612_121942/frames/IMG_6483/petcam_20260612_121942_000_frame_17.00.jpg",
+       "object_labels": [
+        "dog"
+       ]
+      },
+      {
+       "s3_key": "frames/IMG_6483/petcam_20260612_121942_000_frame_27.00.jpg",
+       "frame_id": "IMG_6483__petcam_20260612_121942_000_frame_27.00",
+       "timestamp": 27.0,
+       "frame_path": "/tmp/kidog_IMG_6483_20260612_121942/frames/IMG_6483/petcam_20260612_121942_000_frame_27.00.jpg",
+       "object_labels": [
+        "cat"
+       ]
+      },
+      {
+       "s3_key": "frames/IMG_6483/petcam_20260612_121942_000_frame_39.00.jpg",
+       "frame_id": "IMG_6483__petcam_20260612_121942_000_frame_39.00",
+       "timestamp": 39.0,
+       "frame_path": "/tmp/kidog_IMG_6483_20260612_121942/frames/IMG_6483/petcam_20260612_121942_000_frame_39.00.jpg",
+       "object_labels": [
+        "dog"
+       ]
+      },
+      {
+       "s3_key": "frames/IMG_6483/petcam_20260612_121942_000_frame_49.00.jpg",
+       "frame_id": "IMG_6483__petcam_20260612_121942_000_frame_49.00",
+       "timestamp": 49.0,
+       "frame_path": "/tmp/kidog_IMG_6483_20260612_121942/frames/IMG_6483/petcam_20260612_121942_000_frame_49.00.jpg",
+       "object_labels": [
+        "bird",
+        "cat"
+       ]
+      },
+      {
+       "s3_key": "frames/IMG_6483/petcam_20260612_121942_000_frame_59.00.jpg",
+       "frame_id": "IMG_6483__petcam_20260612_121942_000_frame_59.00",
+       "timestamp": 59.0,
+       "frame_path": "/tmp/kidog_IMG_6483_20260612_121942/frames/IMG_6483/petcam_20260612_121942_000_frame_59.00.jpg",
+       "object_labels": []
+      }
+     ]
+    },
+    {
+     "id": 27,
+     "video_id": "IMG_6483",
+     "start_time": 11.0,
+     "end_time": 56.0,
+     "subject": "반려동물",
+     "action": "반려동물이 음식을 먹고 있는 것으로 보임",
+     "target_object": "음식 그릇",
+     "summary": "반려동물이 음식을 주의 깊게 먹고 있는 모습이 포착됨.",
+     "duration": 45.0,
+     "repeat_count": 1,
+     "confidence": 0.85,
+     "interestingness": 0.9,
+     "created_at": "2026-10-14T07:24:59",
+     "evidence": [
+      "반려동물이 여러 번 음식 그릇을 향해 몸을 숙여 먹고 있는 모습이 나타남.",
+      "음식 그릇 주변에서 지속적으로 동작하고 있어 건강 관리와 관련된 행동으로 판단됨."
+     ],
+     "source_frames": [
+      {
+       "s3_key": "frames/IMG_6483/petcam_20260612_121942_004_frame_11.00.jpg",
+       "frame_id": "IMG_6483__petcam_20260612_121942_004_frame_11.00",
+       "timestamp": 11.0,
+       "frame_path": "/tmp/kidog_IMG_6483_20260612_121942/frames/IMG_6483/petcam_20260612_121942_004_frame_11.00.jpg",
+       "object_labels": [
+        "dog"
+       ]
+      },
+      {
+       "s3_key": "frames/IMG_6483/petcam_20260612_121942_004_frame_19.00.jpg",
+       "frame_id": "IMG_6483__petcam_20260612_121942_004_frame_19.00",
+       "timestamp": 19.0,
+       "frame_path": "/tmp/kidog_IMG_6483_20260612_121942/frames/IMG_6483/petcam_20260612_121942_004_frame_19.00.jpg",
+       "object_labels": [
+        "cat",
+        "tv"
+       ]
+      },
+      {
+       "s3_key": "frames/IMG_6483/petcam_20260612_121942_004_frame_29.00.jpg",
+       "frame_id": "IMG_6483__petcam_20260612_121942_004_frame_29.00",
+       "timestamp": 29.0,
+       "frame_path": "/tmp/kidog_IMG_6483_20260612_121942/frames/IMG_6483/petcam_20260612_121942_004_frame_29.00.jpg",
+       "object_labels": [
+        "cat"
+       ]
+      },
+      {
+       "s3_key": "frames/IMG_6483/petcam_20260612_121942_004_frame_37.00.jpg",
+       "frame_id": "IMG_6483__petcam_20260612_121942_004_frame_37.00",
+       "timestamp": 37.0,
+       "frame_path": "/tmp/kidog_IMG_6483_20260612_121942/frames/IMG_6483/petcam_20260612_121942_004_frame_37.00.jpg",
+       "object_labels": [
+        "cat"
+       ]
+      },
+      {
+       "s3_key": "frames/IMG_6483/petcam_20260612_121942_004_frame_47.00.jpg",
+       "frame_id": "IMG_6483__petcam_20260612_121942_004_frame_47.00",
+       "timestamp": 47.0,
+       "frame_path": "/tmp/kidog_IMG_6483_20260612_121942/frames/IMG_6483/petcam_20260612_121942_004_frame_47.00.jpg",
+       "object_labels": [
+        "cat"
+       ]
+      },
+      {
+       "s3_key": "frames/IMG_6483/petcam_20260612_121942_004_frame_55.00.jpg",
+       "frame_id": "IMG_6483__petcam_20260612_121942_004_frame_55.00",
+       "timestamp": 55.0,
+       "frame_path": "/tmp/kidog_IMG_6483_20260612_121942/frames/IMG_6483/petcam_20260612_121942_004_frame_55.00.jpg",
+       "object_labels": [
+        "cat",
+        "tv"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "IMG_8450_2": {
+   "frames": 33,
+   "events": [
+    {
+     "id": 4,
+     "video_id": "IMG_8450_2",
+     "start_time": 2.0,
+     "end_time": 2.0,
+     "subject": "반려동물",
+     "action": "반려동물이 주변을 탐색하는 것으로 보임",
+     "target_object": null,
+     "summary": "반려동물이 주변을 돌아다니며 호기심을 보이는 모습이 관찰됨.",
+     "duration": 0.0,
+     "repeat_count": 1,
+     "confidence": 0.7,
+     "interestingness": 0.6,
+     "created_at": "2026-09-26T08:34:15",
+     "evidence": [
+      "반려동물이 다른 공간으로 이동하는 모습이 보임.",
+      "주변 환경에 대해 관심을 가지며 움직이는 행동이 나타남."
+     ],
+     "source_frames": [
+      {
+       "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_001_frame_2.00.jpg",
+       "frame_id": "IMG_8450_2__petcam_20260926_173123_001_frame_2.00",
+       "timestamp": 2.0,
+       "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_001_frame_2.00.jpg",
+       "object_labels": [
+        "bowl",
+        "cat"
+       ],
+       "object_detections": [
+        {
+         "bbox": [
+          664.02685546875,
+          277.9151916503906,
+          1185.0670166015625,
+          596.638427734375
+         ],
+         "label": "cat",
+         "confidence": 0.8995531797409058
+        },
+        {
+         "bbox": [
+          774.2655029296875,
+          621.4356689453125,
+          1054.721923828125,
+          969.5059814453124
+         ],
+         "label": "cat",
+         "confidence": 0.8671646118164062
+        },
+        {
+         "bbox": [
+          503.9564208984375,
+          375.2084655761719,
+          667.845703125,
+          517.9446411132812
+         ],
+         "label": "bowl",
+         "confidence": 0.680773138999939
+        }
+       ],
+       "species_resolution": [
+        {
+         "bbox": [
+          664.02685546875,
+          277.9151916503906,
+          1185.0670166015625,
+          596.638427734375
+         ],
+         "clip_label": "cat",
+         "yolo_label": "cat",
+         "resolved_label": "cat",
+         "yolo_confidence": 0.8995531797409058,
+         "clip_cat_similarity": 0.22852369141116277,
+         "clip_dog_similarity": 0.18360694671381017
+        },
+        {
+         "bbox": [
+          774.2655029296875,
+          621.4356689453125,
+          1054.721923828125,
+          969.5059814453124
+         ],
+         "clip_label": "cat",
+         "yolo_label": "cat",
+         "resolved_label": "cat",
+         "yolo_confidence": 0.8671646118164062,
+         "clip_cat_similarity": 0.2376675012591853,
+         "clip_dog_similarity": 0.18583837712660303
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 3,
+     "video_id": "IMG_8450_2",
+     "start_time": 4.5,
+     "end_time": 9.0,
+     "subject": "반려동물",
+     "action": "반려동물이 배식을 기다리는 것으로 보임",
+     "target_object": "자동 급식기",
+     "summary": "반려동물이 자동 급식기 주변에서 음식을 기다리는 행동을 보임.",
+     "duration": 4.5,
+     "repeat_count": 1,
+     "confidence": 0.8,
+     "interestingness": 0.9,
+     "created_at": "2026-09-26T08:34:00",
+     "evidence": [
+      "여러 프레임에서 반려동물이 자동 급식기 근처에서 머무르고 있음.",
+      "반려동물이 급식기 방향으로 시선을 집중하며 관심을 보이는 것이 관찰됨."
+     ],
+     "source_frames": [
+      {
+       "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_4.50.jpg",
+       "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_4.50",
+       "timestamp": 4.5,
+       "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_4.50.jpg",
+       "object_labels": [
+        "cat"
+       ],
+       "object_detections": [
+        {
+         "bbox": [
+          574.2930908203125,
+          518.6837768554688,
+          996.9342041015624,
+          743.725341796875
+         ],
+         "label": "cat",
+         "confidence": 0.8898727297782898
+        },
+        {
+         "bbox": [
+          878.6801147460938,
+          770.0922241210938,
+          1287.06494140625,
+          1076.4578857421875
+         ],
+         "label": "cat",
+         "confidence": 0.8782334327697754
+        }
+       ],
+       "species_resolution": [
+        {
+         "bbox": [
+          574.2930908203125,
+          518.6837768554688,
+          996.9342041015624,
+          743.725341796875
+         ],
+         "clip_label": "cat",
+         "yolo_label": "cat",
+         "resolved_label": "cat",
+         "yolo_confidence": 0.8898727297782898,
+         "clip_cat_similarity": 0.2105807118794657,
+         "clip_dog_similarity": 0.1588334040686575
+        },
+        {
+         "bbox": [
+          878.6801147460938,
+          770.0922241210938,
+          1287.06494140625,
+          1076.4578857421875
+         ],
+         "clip_label": "cat",
+         "yolo_label": "cat",
+         "resolved_label": "cat",
+         "yolo_confidence": 0.8782334327697754,
+         "clip_cat_similarity": 0.22376382679971105,
+         "clip_dog_similarity": 0.1878508728136948
+        }
+       ]
+      },
+      {
+       "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_6.50.jpg",
+       "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_6.50",
+       "timestamp": 6.5,
+       "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_6.50.jpg",
+       "object_labels": [
+        "bed",
+        "cat"
+       ],
+       "object_detections": [
+        {
+         "bbox": [
+          577.0997924804688,
+          568.5198974609375,
+          1015.771240234375,
+          985.7499389648438
+         ],
+         "label": "cat",
+         "confidence": 0.8688372373580933
+        },
+        {
+         "bbox": [
+          620.7088623046875,
+          480.280517578125,
+          1009.2943725585938,
+          739.9962158203125
+         ],
+         "label": "cat",
+         "confidence": 0.8329091668128967
+        },
+        {
+         "bbox": [
+          909.35888671875,
+          291.2328186035156,
+          1918.9588623046875,
+          1073.427001953125
+         ],
+         "label": "bed",
+         "confidence": 0.5314090251922607
+        }
+       ],
+       "species_resolution": [
+        {
+         "bbox": [
+          577.0997924804688,
+          568.5198974609375,
+          1015.771240234375,
+          985.7499389648438
+         ],
+         "clip_label": "cat",
+         "yolo_label": "cat",
+         "resolved_label": "cat",
+         "yolo_confidence": 0.8688372373580933,
+         "clip_cat_similarity": 0.2319998386671976,
+         "clip_dog_similarity": 0.18496684673871872
+        },
+        {
+         "bbox": [
+          620.7088623046875,
+          480.280517578125,
+          1009.2943725585938,
+          739.9962158203125
+         ],
+         "clip_label": "cat",
+         "yolo_label": "cat",
+         "resolved_label": "cat",
+         "yolo_confidence": 0.8329091668128967,
+         "clip_cat_similarity": 0.1870673313411204,
+         "clip_dog_similarity": 0.13990485710145148
+        }
+       ]
+      },
+      {
+       "s3_key": "frames/IMG_8450_2/petcam_20260926_173123_000_frame_8.50.jpg",
+       "frame_id": "IMG_8450_2__petcam_20260926_173123_000_frame_8.50",
+       "timestamp": 8.5,
+       "frame_path": "pipeline/frames/IMG_8450_2/petcam_20260926_173123_000_frame_8.50.jpg",
+       "object_labels": [
+        "cat"
+       ],
+       "object_detections": [
+        {
+         "bbox": [
+          547.4594116210938,
+          494.5295104980469,
+          897.9644165039062,
+          925.3267822265624
+         ],
+         "label": "cat",
+         "confidence": 0.8867819905281067
+        },
+        {
+         "bbox": [
+          675.284423828125,
+          502.893310546875,
+          1068.1925048828125,
+          755.3676147460938
+         ],
+         "label": "cat",
+         "confidence": 0.7864072918891907
+        }
+       ],
+       "species_resolution": [
+        {
+         "bbox": [
+          547.4594116210938,
+          494.5295104980469,
+          897.9644165039062,
+          925.3267822265624
+         ],
+         "clip_label": "cat",
+         "yolo_label": "cat",
+         "resolved_label": "cat",
+         "yolo_confidence": 0.8867819905281067,
+         "clip_cat_similarity": 0.2070172217954133,
+         "clip_dog_similarity": 0.1570372564498936
+        },
+        {
+         "bbox": [
+          675.284423828125,
+          502.893310546875,
+          1068.1925048828125,
+          755.3676147460938
+         ],
+         "clip_label": "cat",
+         "yolo_label": "cat",
+         "resolved_label": "cat",
+         "yolo_confidence": 0.7864072918891907,
+         "clip_cat_similarity": 0.20819582188741192,
+         "clip_dog_similarity": 0.16416523402301156
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "dog_drinking_water": {
+   "frames": 89,
+   "events": [
+    {
+     "id": 8,
+     "video_id": "dog_drinking_water",
+     "start_time": 3.5,
+     "end_time": 9.5,
+     "subject": "반려동물",
+     "action": "반려동물이 있는 구간으로 감지됨",
+     "target_object": null,
+     "summary": "반려동물이 6.0초 동안 움직임을 보인 것으로 추정되는 구간입니다.",
+     "duration": 6.0,
+     "repeat_count": 4,
+     "confidence": 0.45,
+     "interestingness": 0.55,
+     "created_at": "2026-09-26T08:38:24",
+     "evidence": [
+      "motion 구간 3.5초~9.5초에서 프레임 4개 추출",
+      "함께 감지된 객체 라벨: ['cat', 'dog']",
+      "여러 프레임에서 움직임이 이어짐"
+     ],
+     "source_frames": [
+      {
+       "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_3.50.jpg",
+       "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_3.50",
+       "timestamp": 3.5,
+       "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_3.50.jpg",
+       "object_labels": [
+        "bowl",
+        "dog"
+       ],
+       "object_detections": [
+        {
+         "bbox": [
+          502.2410888671875,
+          417.383544921875,
+          930.0391845703124,
+          693.6995849609375
+         ],
+         "label": "bowl",
+         "confidence": 0.7908104658126831
+        },
+        {
+         "bbox": [
+          3.9481201171875,
+          1.6119384765625,
+          828.1619873046875,
+          636.90625
+         ],
+         "label": "cat",
+         "confidence": 0.7355613708496094
+        }
+       ],
+       "species_resolution": [
+        {
+         "bbox": [
+          3.9481201171875,
+          1.6119384765625,
+          828.1619873046875,
+          636.90625
+         ],
+         "clip_label": "dog",
+         "yolo_label": "cat",
+         "resolved_label": "dog",
+         "yolo_confidence": 0.7355613708496094,
+         "clip_cat_similarity": 0.1286597419300658,
+         "clip_dog_similarity": 0.17230537194577045
+        }
+       ]
+      },
+      {
+       "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_5.50.jpg",
+       "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_5.50",
+       "timestamp": 5.5,
+       "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_5.50.jpg",
+       "object_labels": [
+        "bowl",
+        "dog"
+       ],
+       "object_detections": [
+        {
+         "bbox": [
+          504.4384765625,
+          421.107177734375,
+          929.995361328125,
+          692.889892578125
+         ],
+         "label": "bowl",
+         "confidence": 0.8418801426887512
+        },
+        {
+         "bbox": [
+          17.72747802734375,
+          1.60272216796875,
+          885.71923828125,
+          633.8026733398438
+         ],
+         "label": "dog",
+         "confidence": 0.7667728066444397
+        }
+       ],
+       "species_resolution": [
+        {
+         "bbox": [
+          17.72747802734375,
+          1.60272216796875,
+          885.71923828125,
+          633.8026733398438
+         ],
+         "clip_label": "dog",
+         "yolo_label": "dog",
+         "resolved_label": "dog",
+         "yolo_confidence": 0.7667728066444397,
+         "clip_cat_similarity": 0.13782237826995625,
+         "clip_dog_similarity": 0.17957788182981285
+        }
+       ]
+      },
+      {
+       "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_7.50.jpg",
+       "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_7.50",
+       "timestamp": 7.5,
+       "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_7.50.jpg",
+       "object_labels": [
+        "bowl",
+        "dog"
+       ],
+       "object_detections": [
+        {
+         "bbox": [
+          502.9016418457031,
+          419.1217041015625,
+          930.080810546875,
+          692.654296875
+         ],
+         "label": "bowl",
+         "confidence": 0.6918655037879944
+        },
+        {
+         "bbox": [
+          3.4346923828125,
+          1.74365234375,
+          643.08984375,
+          630.6929321289062
+         ],
+         "label": "cat",
+         "confidence": 0.4168091714382171
+        }
+       ],
+       "species_resolution": [
+        {
+         "bbox": [
+          3.4346923828125,
+          1.74365234375,
+          643.08984375,
+          630.6929321289062
+         ],
+         "clip_label": "dog",
+         "yolo_label": "cat",
+         "resolved_label": "dog",
+         "yolo_confidence": 0.4168091714382171,
+         "clip_cat_similarity": 0.13384892185985348,
+         "clip_dog_similarity": 0.17338649082905833
+        }
+       ]
+      },
+      {
+       "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_000_frame_9.50.jpg",
+       "frame_id": "dog_drinking_water__petcam_20260926_173602_000_frame_9.50",
+       "timestamp": 9.5,
+       "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_000_frame_9.50.jpg",
+       "object_labels": [
+        "bowl",
+        "dog"
+       ],
+       "object_detections": [
+        {
+         "bbox": [
+          501.3648681640625,
+          429.846923828125,
+          931.1580810546876,
+          690.5133056640625
+         ],
+         "label": "bowl",
+         "confidence": 0.7399030327796936
+        },
+        {
+         "bbox": [
+          0.47686767578125,
+          2.8587646484375,
+          699.4136352539062,
+          624.039306640625
+         ],
+         "label": "cat",
+         "confidence": 0.5739920735359192
+        },
+        {
+         "bbox": [
+          1.3331298828125,
+          6.88079833984375,
+          700.56201171875,
+          629.0335083007812
+         ],
+         "label": "dog",
+         "confidence": 0.492383748292923
+        }
+       ],
+       "species_resolution": [
+        {
+         "bbox": [
+          0.47686767578125,
+          2.8587646484375,
+          699.4136352539062,
+          624.039306640625
+         ],
+         "clip_label": "dog",
+         "yolo_label": "cat",
+         "resolved_label": "dog",
+         "yolo_confidence": 0.5739920735359192,
+         "clip_cat_similarity": 0.1195817722448003,
+         "clip_dog_similarity": 0.1612867420085709
+        },
+        {
+         "bbox": [
+          1.3331298828125,
+          6.88079833984375,
+          700.56201171875,
+          629.0335083007812
+         ],
+         "clip_label": "dog",
+         "yolo_label": "dog",
+         "resolved_label": "dog",
+         "yolo_confidence": 0.492383748292923,
+         "clip_cat_similarity": 0.12390301926884024,
+         "clip_dog_similarity": 0.1652479654851714
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 9,
+     "video_id": "dog_drinking_water",
+     "start_time": 2.0,
+     "end_time": 57.5,
+     "subject": "반려동물",
+     "action": "반려동물이 물을 마시는 것으로 보임",
+     "target_object": "물 그릇",
+     "summary": "반려동물이 물 그릇에 다가가 물을 마시는 행동을 하고 있음.",
+     "duration": 55.5,
+     "repeat_count": 1,
+     "confidence": 0.8,
+     "interestingness": 0.9,
+     "created_at": "2026-09-26T08:39:53",
+     "evidence": [
+      "반려동물이 구조물에 다가가며 물을 찾는 모습이 여러 프레임에 나타남.",
+      "확인된 물 그릇에 반려동물이 끊임없이 관심을 두고 있음."
+     ],
+     "source_frames": [
+      {
+       "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_2.00.jpg",
+       "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_2.00",
+       "timestamp": 2.0,
+       "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_2.00.jpg",
+       "object_labels": [
+        "bowl",
+        "dog"
+       ],
+       "object_detections": [
+        {
+         "bbox": [
+          0.0,
+          0.0108642578125,
+          883.1170043945312,
+          585.3431396484375
+         ],
+         "label": "dog",
+         "confidence": 0.8949471116065979
+        },
+        {
+         "bbox": [
+          512.7894287109375,
+          418.9571533203125,
+          943.9554443359376,
+          677.2061767578125
+         ],
+         "label": "bowl",
+         "confidence": 0.6018588542938232
+        }
+       ],
+       "species_resolution": [
+        {
+         "bbox": [
+          0.0,
+          0.0108642578125,
+          883.1170043945312,
+          585.3431396484375
+         ],
+         "clip_label": "dog",
+         "yolo_label": "dog",
+         "resolved_label": "dog",
+         "yolo_confidence": 0.8949471116065979,
+         "clip_cat_similarity": 0.13376818735363025,
+         "clip_dog_similarity": 0.17599622896188602
+        }
+       ]
+      },
+      {
+       "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_12.00.jpg",
+       "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_12.00",
+       "timestamp": 12.0,
+       "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_12.00.jpg",
+       "object_labels": [],
+       "object_detections": [],
+       "species_resolution": []
+      },
+      {
+       "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_24.00.jpg",
+       "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_24.00",
+       "timestamp": 24.0,
+       "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_24.00.jpg",
+       "object_labels": [
+        "bowl",
+        "dog"
+       ],
+       "object_detections": [
+        {
+         "bbox": [
+          514.887939453125,
+          419.008056640625,
+          945.8544921875,
+          674.2005615234375
+         ],
+         "label": "bowl",
+         "confidence": 0.8025985956192017
+        },
+        {
+         "bbox": [
+          3.396240234375,
+          2.7890625,
+          869.74072265625,
+          632.8072509765625
+         ],
+         "label": "dog",
+         "confidence": 0.5444923639297485
+        }
+       ],
+       "species_resolution": [
+        {
+         "bbox": [
+          3.396240234375,
+          2.7890625,
+          869.74072265625,
+          632.8072509765625
+         ],
+         "clip_label": "dog",
+         "yolo_label": "dog",
+         "resolved_label": "dog",
+         "yolo_confidence": 0.5444923639297485,
+         "clip_cat_similarity": 0.13611367356703105,
+         "clip_dog_similarity": 0.1828486480621399
+        }
+       ]
+      },
+      {
+       "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_34.00.jpg",
+       "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_34.00",
+       "timestamp": 34.0,
+       "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_34.00.jpg",
+       "object_labels": [
+        "dog"
+       ],
+       "object_detections": [
+        {
+         "bbox": [
+          178.34765625,
+          3.20281982421875,
+          746.298828125,
+          532.493896484375
+         ],
+         "label": "dog",
+         "confidence": 0.7045226693153381
+        }
+       ],
+       "species_resolution": [
+        {
+         "bbox": [
+          178.34765625,
+          3.20281982421875,
+          746.298828125,
+          532.493896484375
+         ],
+         "clip_label": "dog",
+         "yolo_label": "dog",
+         "resolved_label": "dog",
+         "yolo_confidence": 0.7045226693153381,
+         "clip_cat_similarity": 0.1307173464347725,
+         "clip_dog_similarity": 0.17136536690088497
+        }
+       ]
+      },
+      {
+       "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_46.00.jpg",
+       "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_46.00",
+       "timestamp": 46.0,
+       "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_46.00.jpg",
+       "object_labels": [
+        "bowl",
+        "dog"
+       ],
+       "object_detections": [
+        {
+         "bbox": [
+          185.13079833984375,
+          0.86724853515625,
+          827.3467407226562,
+          535.1911010742188
+         ],
+         "label": "dog",
+         "confidence": 0.9465194344520568
+        },
+        {
+         "bbox": [
+          515.2767333984375,
+          420.4627685546875,
+          942.972900390625,
+          677.8580322265625
+         ],
+         "label": "bowl",
+         "confidence": 0.5311747789382935
+        }
+       ],
+       "species_resolution": [
+        {
+         "bbox": [
+          185.13079833984375,
+          0.86724853515625,
+          827.3467407226562,
+          535.1911010742188
+         ],
+         "clip_label": "dog",
+         "yolo_label": "dog",
+         "resolved_label": "dog",
+         "yolo_confidence": 0.9465194344520568,
+         "clip_cat_similarity": 0.13214170508397022,
+         "clip_dog_similarity": 0.1746633440789047
+        }
+       ]
+      },
+      {
+       "s3_key": "frames/dog_drinking_water/petcam_20260926_173602_001_frame_56.00.jpg",
+       "frame_id": "dog_drinking_water__petcam_20260926_173602_001_frame_56.00",
+       "timestamp": 56.0,
+       "frame_path": "pipeline/frames/dog_drinking_water/petcam_20260926_173602_001_frame_56.00.jpg",
+       "object_labels": [
+        "bowl",
+        "dog"
+       ],
+       "object_detections": [
+        {
+         "bbox": [
+          85.94097900390625,
+          0.0,
+          688.5899047851562,
+          536.5283203125
+         ],
+         "label": "dog",
+         "confidence": 0.8877696990966797
+        },
+        {
+         "bbox": [
+          514.6536254882812,
+          421.607177734375,
+          944.2017211914062,
+          674.4884033203125
+         ],
+         "label": "bowl",
+         "confidence": 0.7794100046157837
+        },
+        {
+         "bbox": [
+          528.160400390625,
+          134.61253356933594,
+          823.89208984375,
+          445.1326904296875
+         ],
+         "label": "cat",
+         "confidence": 0.6315016746520996
+        }
+       ],
+       "species_resolution": [
+        {
+         "bbox": [
+          85.94097900390625,
+          0.0,
+          688.5899047851562,
+          536.5283203125
+         ],
+         "clip_label": "dog",
+         "yolo_label": "dog",
+         "resolved_label": "dog",
+         "yolo_confidence": 0.8877696990966797,
+         "clip_cat_similarity": 0.12422768507239822,
+         "clip_dog_similarity": 0.1735184357804739
+        },
+        {
+         "bbox": [
+          528.160400390625,
+          134.61253356933594,
+          823.89208984375,
+          445.1326904296875
+         ],
+         "clip_label": "dog",
+         "yolo_label": "cat",
+         "resolved_label": "dog",
+         "yolo_confidence": 0.6315016746520996,
+         "clip_cat_similarity": 0.14279788456844056,
+         "clip_dog_similarity": 0.19426239985040084
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "dog_escape": {
+   "frames": 28,
+   "events": [
+    {
+     "id": 5,
+     "video_id": "dog_escape",
+     "start_time": 2.0,
+     "end_time": 56.06,
+     "subject": "반려동물",
+     "action": "반려동물이 장애물을 넘어서는 것으로 보임",
+     "target_object": "반려동물의 장난감이나 식기",
+     "summary": "반려동물이 장애물을 넘으려는 시도를 하며 활동적인 모습을 보임.",
+     "duration": 54.06,
+     "repeat_count": 1,
+     "confidence": 0.8,
+     "interestingness": 0.9,
+     "created_at": "2026-09-26T08:36:02",
+     "evidence": [
+      "반려동물이 펜스 위로 뛰어오르려고 하는 모습이 관찰됨.",
+      "장애물 주변에서의 활발한 움직임이 감지됨."
+     ],
+     "source_frames": [
+      {
+       "s3_key": "frames/dog_escape/petcam_20260926_173415_000_frame_2.00.jpg",
+       "frame_id": "dog_escape__petcam_20260926_173415_000_frame_2.00",
+       "timestamp": 2.0,
+       "frame_path": "pipeline/frames/dog_escape/petcam_20260926_173415_000_frame_2.00.jpg",
+       "object_labels": [
+        "couch",
+        "dog"
+       ],
+       "object_detections": [
+        {
+         "bbox": [
+          390.25726318359375,
+          130.69473266601562,
+          1920.0,
+          1063.4091796875
+         ],
+         "label": "couch",
+         "confidence": 0.8794270157814026
+        },
+        {
+         "bbox": [
+          207.44284057617188,
+          414.0171203613281,
+          400.8630065917969,
+          828.6760864257812
+         ],
+         "label": "dog",
+         "confidence": 0.810840904712677
+        },
+        {
+         "bbox": [
+          816.1497802734375,
+          581.2676391601562,
+          1181.820556640625,
+          822.340087890625
+         ],
+         "label": "dog",
+         "confidence": 0.5955648422241211
+        }
+       ],
+       "species_resolution": [
+        {
+         "bbox": [
+          207.44284057617188,
+          414.0171203613281,
+          400.8630065917969,
+          828.6760864257812
+         ],
+         "clip_label": "dog",
+         "yolo_label": "dog",
+         "resolved_label": "dog",
+         "yolo_confidence": 0.810840904712677,
+         "clip_cat_similarity": 0.19374192671756532,
+         "clip_dog_similarity": 0.20869365124887929
+        },
+        {
+         "bbox": [
+          816.1497802734375,
+          581.2676391601562,
+          1181.820556640625,
+          822.340087890625
+         ],
+         "clip_label": "dog",
+         "yolo_label": "dog",
+         "resolved_label": "dog",
+         "yolo_confidence": 0.5955648422241211,
+         "clip_cat_similarity": 0.18518902597005604,
+         "clip_dog_similarity": 0.21561870947062992
+        }
+       ]
+      },
+      {
+       "s3_key": "frames/dog_escape/petcam_20260926_173415_000_frame_12.00.jpg",
+       "frame_id": "dog_escape__petcam_20260926_173415_000_frame_12.00",
+       "timestamp": 12.0,
+       "frame_path": "pipeline/frames/dog_escape/petcam_20260926_173415_000_frame_12.00.jpg",
+       "object_labels": [
+        "couch",
+        "dog"
+       ],
+       "object_detections": [
+        {
+         "bbox": [
+          637.9634399414062,
+          80.47897338867188,
+          1920.0,
+          530.9373779296875
+         ],
+         "label": "couch",
+         "confidence": 0.703570544719696
+        },
+        {
+         "bbox": [
+          503.34228515625,
+          133.40341186523438,
+          971.5328979492188,
+          570.3810424804688
+         ],
+         "label": "dog",
+         "confidence": 0.42569711804389954
+        }
+       ],
+       "species_resolution": [
+        {
+         "bbox": [
+          503.34228515625,
+          133.40341186523438,
+          971.5328979492188,
+          570.3810424804688
+         ],
+         "clip_label": "dog",
+         "yolo_label": "dog",
+         "resolved_label": "dog",
+         "yolo_confidence": 0.42569711804389954,
+         "clip_cat_similarity": 0.20063089674755685,
+         "clip_dog_similarity": 0.2179736827382597
+        }
+       ]
+      },
+      {
+       "s3_key": "frames/dog_escape/petcam_20260926_173415_000_frame_24.00.jpg",
+       "frame_id": "dog_escape__petcam_20260926_173415_000_frame_24.00",
+       "timestamp": 24.0,
+       "frame_path": "pipeline/frames/dog_escape/petcam_20260926_173415_000_frame_24.00.jpg",
+       "object_labels": [],
+       "object_detections": [],
+       "species_resolution": []
+      },
+      {
+       "s3_key": "frames/dog_escape/petcam_20260926_173415_000_frame_34.00.jpg",
+       "frame_id": "dog_escape__petcam_20260926_173415_000_frame_34.00",
+       "timestamp": 34.0,
+       "frame_path": "pipeline/frames/dog_escape/petcam_20260926_173415_000_frame_34.00.jpg",
+       "object_labels": [],
+       "object_detections": [],
+       "species_resolution": []
+      },
+      {
+       "s3_key": "frames/dog_escape/petcam_20260926_173415_000_frame_46.00.jpg",
+       "frame_id": "dog_escape__petcam_20260926_173415_000_frame_46.00",
+       "timestamp": 46.0,
+       "frame_path": "pipeline/frames/dog_escape/petcam_20260926_173415_000_frame_46.00.jpg",
+       "object_labels": [
+        "person"
+       ],
+       "object_detections": [
+        {
+         "bbox": [
+          1175.6099853515625,
+          471.9503173828125,
+          1314.4259033203125,
+          702.3880615234375
+         ],
+         "label": "person",
+         "confidence": 0.8415614366531372
+        },
+        {
+         "bbox": [
+          1275.144287109375,
+          474.8700256347656,
+          1431.049072265625,
+          698.7825317382812
+         ],
+         "label": "person",
+         "confidence": 0.795427143573761
+        }
+       ],
+       "species_resolution": []
+      },
+      {
+       "s3_key": "frames/dog_escape/petcam_20260926_173415_000_frame_56.00.jpg",
+       "frame_id": "dog_escape__petcam_20260926_173415_000_frame_56.00",
+       "timestamp": 56.0,
+       "frame_path": "pipeline/frames/dog_escape/petcam_20260926_173415_000_frame_56.00.jpg",
+       "object_labels": [
+        "person"
+       ],
+       "object_detections": [
+        {
+         "bbox": [
+          265.0714416503906,
+          537.6883544921875,
+          755.5822143554688,
+          905.7203979492188
+         ],
+         "label": "person",
+         "confidence": 0.8922990560531616
+        }
+       ],
+       "species_resolution": []
+      }
+     ]
+    }
+   ]
+  },
+  "funny_moments": {
+   "frames": 245,
+   "events": [
+    {
+     "id": 41,
+     "video_id": "funny_moments",
+     "start_time": 2.0,
+     "end_time": 64.56,
+     "subject": "반려동물",
+     "action": "반려동물이 침대 위에서 움직이며 가족과 상호작용하는 것으로 보임",
+     "target_object": "침대",
+     "summary": "반려동물이 침대 위에서 사람과 함께 놀거나 상호작용하고 있는 모습입니다.",
+     "duration": 62.56,
+     "repeat_count": 1,
+     "confidence": 0.8,
+     "interestingness": 0.9,
+     "created_at": "2026-10-14T16:25:56",
+     "evidence": [
+      "반려동물과 사람이 함께 있는 장면이 여러 번 등장함",
+      "반려동물이 주위 상황에 반응하며 움직이는 모습이 포착됨"
+     ],
+     "source_frames": [
+      {
+       "s3_key": "frames/funny_moments/petcam_20261014_161557_000_frame_2.00.jpg",
+       "frame_id": "funny_moments__petcam_20261014_161557_000_frame_2.00",
+       "timestamp": 2.0,
+       "frame_path": "pipeline/frames/funny_moments/petcam_20261014_161557_000_frame_2.00.jpg",
+       "object_labels": [
+        "bed",
+        "person"
+       ]
+      },
+      {
+       "s3_key": "frames/funny_moments/petcam_20261014_161557_000_frame_14.00.jpg",
+       "frame_id": "funny_moments__petcam_20261014_161557_000_frame_14.00",
+       "timestamp": 14.0,
+       "frame_path": "pipeline/frames/funny_moments/petcam_20261014_161557_000_frame_14.00.jpg",
+       "object_labels": [
+        "person"
+       ]
+      },
+      {
+       "s3_key": "frames/funny_moments/petcam_20261014_161557_000_frame_26.00.jpg",
+       "frame_id": "funny_moments__petcam_20261014_161557_000_frame_26.00",
+       "timestamp": 26.0,
+       "frame_path": "pipeline/frames/funny_moments/petcam_20261014_161557_000_frame_26.00.jpg",
+       "object_labels": [
+        "cat"
+       ]
+      },
+      {
+       "s3_key": "frames/funny_moments/petcam_20261014_161557_000_frame_40.00.jpg",
+       "frame_id": "funny_moments__petcam_20261014_161557_000_frame_40.00",
+       "timestamp": 40.0,
+       "frame_path": "pipeline/frames/funny_moments/petcam_20261014_161557_000_frame_40.00.jpg",
+       "object_labels": [
+        "dog"
+       ]
+      },
+      {
+       "s3_key": "frames/funny_moments/petcam_20261014_161557_000_frame_52.00.jpg",
+       "frame_id": "funny_moments__petcam_20261014_161557_000_frame_52.00",
+       "timestamp": 52.0,
+       "frame_path": "pipeline/frames/funny_moments/petcam_20261014_161557_000_frame_52.00.jpg",
+       "object_labels": [
+        "dog"
+       ]
+      },
+      {
+       "s3_key": "frames/funny_moments/petcam_20261014_161557_000_frame_64.00.jpg",
+       "frame_id": "funny_moments__petcam_20261014_161557_000_frame_64.00",
+       "timestamp": 64.0,
+       "frame_path": "pipeline/frames/funny_moments/petcam_20261014_161557_000_frame_64.00.jpg",
+       "object_labels": [
+        "dog"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "funny_moments2": {
+   "frames": 319,
+   "events": [
+    {
+     "id": 69,
+     "video_id": "funny_moments2",
+     "start_time": 2.0,
+     "end_time": 58.56,
+     "subject": "반려동물",
+     "action": "반려동물이 쓰레기통을 탐색하는 것으로 보임",
+     "target_object": "쓰레기통",
+     "summary": "반려동물이 쓰레기통 안을 살펴보며 관심을 보이는 모습이 포착됨.",
+     "duration": 56.56,
+     "repeat_count": 1,
+     "confidence": 0.8,
+     "interestingness": 0.9,
+     "created_at": "2026-10-14T17:38:39",
+     "evidence": [
+      "반려동물이 쓰레기통 안을 들여다보는 모습이 보임.",
+      "쓰레기통 탐색은 일반적으로 호기심이나 음식 섭취를 위한 행동으로 해석될 수 있음."
+     ],
+     "source_frames": [
+      {
+       "s3_key": "frames/funny_moments2/petcam_20261014_161931_006_frame_2.00.jpg",
+       "frame_id": "funny_moments2__petcam_20261014_161931_006_frame_2.00",
+       "timestamp": 2.0,
+       "frame_path": "pipeline/frames/funny_moments2/petcam_20261014_161931_006_frame_2.00.jpg",
+       "object_labels": []
+      },
+      {
+       "s3_key": "frames/funny_moments2/petcam_20261014_161931_006_frame_14.00.jpg",
+       "frame_id": "funny_moments2__petcam_20261014_161931_006_frame_14.00",
+       "timestamp": 14.0,
+       "frame_path": "pipeline/frames/funny_moments2/petcam_20261014_161931_006_frame_14.00.jpg",
+       "object_labels": []
+      },
+      {
+       "s3_key": "frames/funny_moments2/petcam_20261014_161931_006_frame_24.00.jpg",
+       "frame_id": "funny_moments2__petcam_20261014_161931_006_frame_24.00",
+       "timestamp": 24.0,
+       "frame_path": "pipeline/frames/funny_moments2/petcam_20261014_161931_006_frame_24.00.jpg",
+       "object_labels": [
+        "bed",
+        "cat"
+       ]
+      },
+      {
+       "s3_key": "frames/funny_moments2/petcam_20261014_161931_006_frame_36.00.jpg",
+       "frame_id": "funny_moments2__petcam_20261014_161931_006_frame_36.00",
+       "timestamp": 36.0,
+       "frame_path": "pipeline/frames/funny_moments2/petcam_20261014_161931_006_frame_36.00.jpg",
+       "object_labels": [
+        "chair"
+       ]
+      },
+      {
+       "s3_key": "frames/funny_moments2/petcam_20261014_161931_006_frame_46.00.jpg",
+       "frame_id": "funny_moments2__petcam_20261014_161931_006_frame_46.00",
+       "timestamp": 46.0,
+       "frame_path": "pipeline/frames/funny_moments2/petcam_20261014_161931_006_frame_46.00.jpg",
+       "object_labels": []
+      },
+      {
+       "s3_key": "frames/funny_moments2/petcam_20261014_161931_006_frame_58.00.jpg",
+       "frame_id": "funny_moments2__petcam_20261014_161931_006_frame_58.00",
+       "timestamp": 58.0,
+       "frame_path": "pipeline/frames/funny_moments2/petcam_20261014_161931_006_frame_58.00.jpg",
+       "object_labels": [
+        "dog",
+        "person"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "smartbench_0037": {
+   "frames": 9,
+   "events": [
+    {
+     "id": 169,
+     "video_id": "smartbench_0037",
+     "start_time": 4.0,
+     "end_time": 6.0,
+     "subject": "반려동물",
+     "action": "반려동물이 문 앞에서 앞쪽을 바라봄",
+     "target_object": "문 앞",
+     "summary": "반려동물이 문 앞에서 앞쪽을 바라보고 있어요",
+     "duration": 2.0,
+     "repeat_count": 1,
+     "confidence": 0.7,
+     "interestingness": 0.6,
+     "created_at": "2026-11-18T16:24:41",
+     "evidence": [
+      "4.00초: 문 앞에 서 있음",
+      "6.00초: 같은 자리에서 고개를 앞으로 향함"
+     ],
+     "source_frames": [
+      {
+       "s3_key": "frames/smartbench_0037/smartbench_0037_000_frame_4.00.jpg",
+       "frame_id": "smartbench_0037__smartbench_0037_000_frame_4.00",
+       "timestamp": 4.0,
+       "frame_path": "pipeline/frames/smartbench_0037/smartbench_0037_000_frame_4.00.jpg",
+       "event_labels": {
+        "call_id": "smartbench_0037__smartbench_0037_000|2.0-14.0",
+        "action_type": "look",
+        "continues_previous": false
+       },
+       "object_labels": []
+      }
+     ]
+    }
+   ]
+  },
+  "smartbench_0065": {
+   "frames": 11,
+   "events": [
+    {
+     "id": 164,
+     "video_id": "smartbench_0065",
+     "start_time": 1.5,
+     "end_time": 2.5,
+     "subject": "강아지",
+     "action": "강아지가 거실 바닥을 지나감",
+     "target_object": "거실 바닥",
+     "summary": "강아지가 거실 바닥을 빠르게 지나가요.",
+     "duration": 1.0,
+     "repeat_count": 0,
+     "confidence": null,
+     "interestingness": null,
+     "created_at": "2026-11-18T15:36:39",
+     "evidence": [
+      "user_review_2026-11-18_and_local_original_frame_review_2026-11-19",
+      "원본 영상 1.5~2.5초와 저장 프레임 2초 대조"
+     ],
+     "source_frames": [
+      {
+       "s3_key": "frames/smartbench_0065/smartbench_0065_000_frame_2.00.jpg",
+       "frame_id": "smartbench_0065__smartbench_0065_000_frame_2.00",
+       "timestamp": 2.0,
+       "object_labels": []
+      }
+     ]
+    }
+   ]
+  },
+  "smartbench_0142": {
+   "frames": 8,
+   "events": [
+    {
+     "id": 159,
+     "video_id": "smartbench_0142",
+     "start_time": 4.0,
+     "end_time": 9.5,
+     "subject": "고양이",
+     "action": "고양이가 그릇에서 먹음",
+     "target_object": "먹이 그릇",
+     "summary": "고양이가 영상 초반에 그릇에 고개를 숙여 먹고 있어요.",
+     "duration": 5.5,
+     "repeat_count": 0,
+     "confidence": null,
+     "interestingness": null,
+     "created_at": "2026-11-18T15:36:32",
+     "evidence": [
+      "local_original_frame_review_2026-11-19",
+      "원본 영상 4~9.5초와 저장 프레임 4초 대조"
+     ],
+     "source_frames": [
+      {
+       "s3_key": "frames/smartbench_0142/smartbench_0142_000_frame_4.00.jpg",
+       "frame_id": "smartbench_0142__smartbench_0142_000_frame_4.00",
+       "timestamp": 4.0,
+       "object_labels": []
+      }
+     ]
+    }
+   ]
+  },
+  "smartbench_0188": {
+   "frames": 27,
+   "events": [
+    {
+     "id": 96,
+     "video_id": "smartbench_0188",
+     "start_time": 3.0,
+     "end_time": 15.0,
+     "subject": "white dog",
+     "action": "강아지가 울타리에 올라탐",
+     "target_object": "울타리",
+     "summary": "같은 개체의 행동 전후 상태가 3.25초와 5.25초에 확인됨",
+     "duration": 12.0,
+     "repeat_count": 0,
+     "confidence": null,
+     "interestingness": null,
+     "created_at": "2026-11-05T08:47:38",
+     "evidence": [
+      "행동 전 상태 3.25초, 행동 후 상태 5.25초",
+      "후보 재검증: The white dog’s front paws and upper body are visibly supported on the fence.",
+      "사람이 확인한 전체 행동 구간 3~15초"
+     ],
+     "source_frames": [
+      {
+       "s3_key": "frames/smartbench_0188/smartbench_0188_000_frame_4.50.jpg",
+       "frame_id": "smartbench_0188__smartbench_0188_000_frame_4.50",
+       "timestamp": 4.5,
+       "object_labels": []
+      }
+     ]
+    },
+    {
+     "id": 87,
+     "video_id": "smartbench_0188",
+     "start_time": 40.02,
+     "end_time": 42.02,
+     "subject": "반려동물",
+     "action": "반려동물이 사람에게 반응하는 것으로 보임",
+     "target_object": "사람",
+     "summary": "반려동물이 문 앞에 있는 사람에게 흥미를 보이는 모습입니다.",
+     "duration": 2.0,
+     "repeat_count": 1,
+     "confidence": 0.85,
+     "interestingness": 0.9,
+     "created_at": "2026-11-05T07:44:51",
+     "evidence": [
+      "사람이 문 앞에 서 있음",
+      "반려동물이 관심을 보임"
+     ],
+     "source_frames": [
+      {
+       "s3_key": "frames/smartbench_0188/smartbench_0188_000_frame_40.02.jpg",
+       "frame_id": "smartbench_0188__smartbench_0188_000_frame_40.02",
+       "timestamp": 40.02,
+       "frame_path": "pipeline/frames/smartbench_0188/smartbench_0188_000_frame_40.02.jpg",
+       "object_labels": [
+        "person"
+       ]
+      },
+      {
+       "s3_key": "frames/smartbench_0188/smartbench_0188_000_frame_42.02.jpg",
+       "frame_id": "smartbench_0188__smartbench_0188_000_frame_42.02",
+       "timestamp": 42.02,
+       "frame_path": "pipeline/frames/smartbench_0188/smartbench_0188_000_frame_42.02.jpg",
+       "object_labels": [
+        "person"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "smartbench_0518": {
+   "frames": 6,
+   "events": [
+    {
+     "id": 83,
+     "video_id": "smartbench_0518",
+     "start_time": 20.52,
+     "end_time": 22.52,
+     "subject": "반려동물",
+     "action": "반려동물이 소파 쪽으로 빠르게 이동하는 것으로 보임",
+     "target_object": "소파",
+     "summary": "반려동물이 소파 쪽으로 빠르게 움직이고 있다.",
+     "duration": 2.0,
+     "repeat_count": 1,
+     "confidence": 0.7,
+     "interestingness": 0.7,
+     "created_at": "2026-11-05T07:40:10",
+     "evidence": [
+      "반려동물이 소파 방향으로 다가감",
+      "소파에서의 활동이 눈에 띄게 보임"
+     ],
+     "source_frames": [
+      {
+       "s3_key": "frames/smartbench_0518/smartbench_0518_000_frame_20.52.jpg",
+       "frame_id": "smartbench_0518__smartbench_0518_000_frame_20.52",
+       "timestamp": 20.52,
+       "frame_path": "pipeline/frames/smartbench_0518/smartbench_0518_000_frame_20.52.jpg",
+       "object_labels": [
+        "couch",
+        "dog"
+       ]
+      },
+      {
+       "s3_key": "frames/smartbench_0518/smartbench_0518_000_frame_22.52.jpg",
+       "frame_id": "smartbench_0518__smartbench_0518_000_frame_22.52",
+       "timestamp": 22.52,
+       "frame_path": "pipeline/frames/smartbench_0518/smartbench_0518_000_frame_22.52.jpg",
+       "object_labels": [
+        "bed",
+        "chair"
+       ]
+      }
+     ]
+    },
+    {
+     "id": 115,
+     "video_id": "smartbench_0518",
+     "start_time": 19.5,
+     "end_time": 20.0,
+     "subject": "black dog",
+     "action": "강아지가 소파 위에 올라감",
+     "target_object": "소파",
+     "summary": "같은 개체의 행동 전후 상태가 19.5초와 20초에 확인됨",
+     "duration": 0.5,
+     "repeat_count": 0,
+     "confidence": null,
+     "interestingness": null,
+     "created_at": "2026-11-05T08:54:28",
+     "evidence": [
+      "행동 전 상태 19.5초, 행동 후 상태 20초",
+      "후보 재검증: The black dog transitions from having its whole body on the floor at 19.500s to having its whole body on the sofa seat at 20.000s."
+     ],
+     "source_frames": [
+      {
+       "s3_key": "frames/smartbench_0518/smartbench_0518_000_frame_20.52.jpg",
+       "frame_id": "smartbench_0518__smartbench_0518_000_frame_20.52",
+       "timestamp": 20.52,
+       "object_labels": []
+      }
+     ]
+    }
+   ]
+  },
+  "smartbench_0518_rerun": {
+   "frames": 7,
+   "events": [
+    {
+     "id": 141,
+     "video_id": "smartbench_0518_rerun",
+     "start_time": 21.02,
+     "end_time": 23.02,
+     "subject": "소파",
+     "action": "소파가 뒤집어졌어요",
+     "target_object": "소파",
+     "summary": "소파가 뒤집어졌어요",
+     "duration": 2.0,
+     "repeat_count": 1,
+     "confidence": 0.95,
+     "interestingness": 0.8,
+     "created_at": "2026-11-15T07:30:10",
+     "evidence": [
+      "19.02초: 소파 위에 담요와 물건들이 놓여 있어요",
+      "25.02초: 소파가 뒤집어져 있어요"
+     ],
+     "source_frames": [
+      {
+       "s3_key": "frames/smartbench_0518_rerun/smartbench_0518_rerun_000_frame_21.02.jpg",
+       "frame_id": "smartbench_0518_rerun__smartbench_0518_rerun_000_frame_21.02",
+       "timestamp": 21.02,
+       "frame_path": "pipeline/frames/smartbench_0518_rerun/smartbench_0518_rerun_000_frame_21.02.jpg",
+       "object_labels": [
+        "couch",
+        "dog"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "smartbench_0608": {
+   "frames": 10,
+   "events": [
+    {
+     "id": 155,
+     "video_id": "smartbench_0608",
+     "start_time": 2.0,
+     "end_time": 2.1,
+     "subject": "강아지",
+     "action": "강아지가 수영장 물속으로 들어감",
+     "target_object": "수영장",
+     "summary": "강아지가 영상 초반에 수영장 물속으로 들어갔어요.",
+     "duration": 0.1,
+     "repeat_count": 0,
+     "confidence": null,
+     "interestingness": null,
+     "created_at": "2026-11-17T16:12:50",
+     "evidence": [
+      "user_sequence_review_2026-11-18_and_local_frames_2026-11-18",
+      "원본 영상 2~2.1초와 저장 프레임 2초 대조"
+     ],
+     "source_frames": [
+      {
+       "s3_key": "frames/smartbench_0608/smartbench_0608_000_frame_2.00.jpg",
+       "frame_id": "smartbench_0608__smartbench_0608_000_frame_2.00",
+       "timestamp": 2.0,
+       "object_labels": []
+      }
+     ]
+    },
+    {
+     "id": 156,
+     "video_id": "smartbench_0608",
+     "start_time": 7.5,
+     "end_time": 8.0,
+     "subject": "강아지",
+     "action": "강아지가 수영장에서 나옴",
+     "target_object": "수영장",
+     "summary": "강아지가 8초 무렵 수영장에서 나온 뒤 가장자리로 올라왔어요.",
+     "duration": 0.5,
+     "repeat_count": 0,
+     "confidence": null,
+     "interestingness": null,
+     "created_at": "2026-11-17T16:12:50",
+     "evidence": [
+      "user_sequence_review_2026-11-18_and_local_frames_2026-11-18",
+      "원본 영상 7.5~8초와 저장 프레임 8초 대조"
+     ],
+     "source_frames": [
+      {
+       "s3_key": "frames/smartbench_0608/smartbench_0608_000_frame_8.00.jpg",
+       "frame_id": "smartbench_0608__smartbench_0608_000_frame_8.00",
+       "timestamp": 8.0,
+       "object_labels": []
+      }
+     ]
+    }
+   ]
+  },
+  "smartbench_0642": {
+   "frames": 8,
+   "events": [
+    {
+     "id": 108,
+     "video_id": "smartbench_0642",
+     "start_time": 4.0,
+     "end_time": 6.0,
+     "subject": "반려동물",
+     "action": "반려동물이 물가에서 앞쪽을 바라보며 서 있음",
+     "target_object": "물가",
+     "summary": "반려동물이 물가에서 앞쪽을 바라보고 서 있습니다.",
+     "duration": 2.0,
+     "repeat_count": 1,
+     "confidence": 0.8,
+     "interestingness": 0.7,
+     "created_at": "2026-11-05T08:50:52",
+     "evidence": [
+      "4.00초: 물가에서 서 있는 모습"
+     ],
+     "source_frames": [
+      {
+       "s3_key": "frames/smartbench_0642/smartbench_0642_000_frame_4.00.jpg",
+       "frame_id": "smartbench_0642__smartbench_0642_000_frame_4.00",
+       "timestamp": 4.0,
+       "frame_path": "pipeline/frames/smartbench_0642/smartbench_0642_000_frame_4.00.jpg",
+       "object_labels": [
+        "bear"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "smartbench_0936": {
+   "frames": 12,
+   "events": [
+    {
+     "id": 148,
+     "video_id": "smartbench_0936",
+     "start_time": 2.0,
+     "end_time": 2.1,
+     "subject": "black and white dog",
+     "action": "반려동물이 유리문 앞에서 두 앞발을 들어 올림",
+     "target_object": "유리문",
+     "summary": "반려동물이 2초에 유리문 앞에서 두 앞발을 들어 올렸어요.",
+     "duration": 0.1,
+     "repeat_count": 0,
+     "confidence": null,
+     "interestingness": null,
+     "created_at": "2026-11-17T13:08:43",
+     "evidence": [
+      "행동 전 상태 1초, 행동 후 상태 2초",
+      "후보 재검증: The dog initially had its front paws down and then raised both front paws toward the glass door, as evidenced at 2.000s. The paws were lowered back down by 2.500s."
+     ],
+     "source_frames": [
+      {
+       "s3_key": "frames/smartbench_0936/smartbench_0936_000_frame_2.00.jpg",
+       "frame_id": "smartbench_0936__smartbench_0936_000_frame_2.00",
+       "timestamp": 2.0,
+       "object_labels": []
+      }
+     ]
+    }
+   ]
+  },
+  "smartbench_0949": {
+   "frames": 0,
+   "events": []
+  },
+  "two_dogs": {
+   "frames": 90,
+   "events": [
+    {
+     "id": 1,
+     "video_id": "two_dogs",
+     "start_time": 0.0,
+     "end_time": 178.0,
+     "subject": "반려동물",
+     "action": "반려동물이 있는 구간으로 감지됨",
+     "target_object": null,
+     "summary": "반려동물이 178.0초 동안 움직임을 보인 것으로 추정되는 구간입니다.",
+     "duration": 178.0,
+     "repeat_count": 90,
+     "confidence": 0.45,
+     "interestingness": 0.6,
+     "created_at": "2026-09-26T02:44:44",
+     "evidence": [
+      "motion 구간 0.0초~178.0초에서 프레임 90개 추출",
+      "함께 감지된 객체 라벨: ['tv', 'dog', 'chair', 'couch', 'person']",
+      "178.0초 동안 지속된 구간",
+      "여러 프레임에서 움직임이 이어짐"
+     ],
+     "source_frames": [
+      {
+       "s3_key": "frames/two_dogs/two_dogs_000_frame_000001.jpg",
+       "frame_id": "two_dogs__two_dogs_000_frame_000001",
+       "timestamp": 0.0,
+       "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000001.jpg",
+       "object_labels": [
+        "chair",
+        "couch",
+        "dog",
+        "tv"
+       ],
+       "object_detections": [
+        {
+         "bbox": [
+          1519.0411376953125,
+          492.68609619140625,
+          1788.3189697265625,
+          951.162841796875
+         ],
+         "label": "dog",
+         "confidence": 0.9077696800231934
+        },
+        {
+         "bbox": [
+          984.309814453125,
+          476.1907653808594,
+          1104.6650390625,
+          734.576904296875
+         ],
+         "label": "dog",
+         "confidence": 0.8299235105514526
+        },
+        {
+         "bbox": [
+          373.4696044921875,
+          222.84100341796875,
+          607.6221923828125,
+          401.11761474609375
+         ],
+         "label": "tv",
+         "confidence": 0.775188684463501
+        },
+        {
+         "bbox": [
+          1082.5235595703125,
+          439.0066223144531,
+          1337.470458984375,
+          869.2960205078125
+         ],
+         "label": "chair",
+         "confidence": 0.7654667496681213
+        },
+        {
+         "bbox": [
+          0.9863204956054688,
+          436.3515930175781,
+          224.71633911132812,
+          656.3037109375
+         ],
+         "label": "couch",
+         "confidence": 0.7099083662033081
+        },
+        {
+         "bbox": [
+          1737.19384765625,
+          334.62744140625,
+          1918.7615966796875,
+          1068.976806640625
+         ],
+         "label": "couch",
+         "confidence": 0.5894817113876343
+        }
+       ],
+       "species_resolution": [
+        {
+         "bbox": [
+          1519.0411376953125,
+          492.68609619140625,
+          1788.3189697265625,
+          951.162841796875
+         ],
+         "clip_label": "dog",
+         "yolo_label": "dog",
+         "resolved_label": "dog",
+         "yolo_confidence": 0.9077696800231934,
+         "clip_cat_similarity": 0.17678863829013758,
+         "clip_dog_similarity": 0.23443334769390609
+        },
+        {
+         "bbox": [
+          984.309814453125,
+          476.1907653808594,
+          1104.6650390625,
+          734.576904296875
+         ],
+         "clip_label": "dog",
+         "yolo_label": "dog",
+         "resolved_label": "dog",
+         "yolo_confidence": 0.8299235105514526,
+         "clip_cat_similarity": 0.18182119235140337,
+         "clip_dog_similarity": 0.23595475208600156
+        }
+       ]
+      },
+      {
+       "s3_key": "frames/two_dogs/two_dogs_000_frame_000019.jpg",
+       "frame_id": "two_dogs__two_dogs_000_frame_000019",
+       "timestamp": 36.0,
+       "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000019.jpg",
+       "object_labels": [
+        "chair",
+        "couch",
+        "dog",
+        "tv"
+       ],
+       "object_detections": [
+        {
+         "bbox": [
+          636.3272094726562,
+          452.7220458984375,
+          1026.475830078125,
+          732.7186889648438
+         ],
+         "label": "dog",
+         "confidence": 0.8428593277931213
+        },
+        {
+         "bbox": [
+          369.89453125,
+          432.0290222167969,
+          621.33935546875,
+          753.2468872070312
+         ],
+         "label": "dog",
+         "confidence": 0.7245790362358093
+        },
+        {
+         "bbox": [
+          372.6470642089844,
+          227.86734008789065,
+          603.914794921875,
+          405.3106384277344
+         ],
+         "label": "tv",
+         "confidence": 0.7175349593162537
+        },
+        {
+         "bbox": [
+          1080.240234375,
+          445.1339721679687,
+          1341.1202392578125,
+          866.1104736328125
+         ],
+         "label": "chair",
+         "confidence": 0.6454158425331116
+        },
+        {
+         "bbox": [
+          1734.5035400390625,
+          335.7047424316406,
+          1918.9244384765625,
+          1068.747314453125
+         ],
+         "label": "chair",
+         "confidence": 0.6234938502311707
+        },
+        {
+         "bbox": [
+          0.19168853759765625,
+          437.0285339355469,
+          240.83868408203125,
+          646.1329345703125
+         ],
+         "label": "couch",
+         "confidence": 0.5144459009170532
+        },
+        {
+         "bbox": [
+          0.869293212890625,
+          436.1326904296875,
+          247.8668212890625,
+          638.2225341796875
+         ],
+         "label": "chair",
+         "confidence": 0.4395359754562378
+        }
+       ],
+       "species_resolution": [
+        {
+         "bbox": [
+          636.3272094726562,
+          452.7220458984375,
+          1026.475830078125,
+          732.7186889648438
+         ],
+         "clip_label": "dog",
+         "yolo_label": "dog",
+         "resolved_label": "dog",
+         "yolo_confidence": 0.8428593277931213,
+         "clip_cat_similarity": 0.1737221919243103,
+         "clip_dog_similarity": 0.2377568282603981
+        },
+        {
+         "bbox": [
+          369.89453125,
+          432.0290222167969,
+          621.33935546875,
+          753.2468872070312
+         ],
+         "clip_label": "dog",
+         "yolo_label": "dog",
+         "resolved_label": "dog",
+         "yolo_confidence": 0.7245790362358093,
+         "clip_cat_similarity": 0.17213680881732607,
+         "clip_dog_similarity": 0.22440042217419923
+        }
+       ]
+      },
+      {
+       "s3_key": "frames/two_dogs/two_dogs_000_frame_000037.jpg",
+       "frame_id": "two_dogs__two_dogs_000_frame_000037",
+       "timestamp": 72.0,
+       "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000037.jpg",
+       "object_labels": [
+        "chair",
+        "dog",
+        "tv"
+       ],
+       "object_detections": [
+        {
+         "bbox": [
+          674.0286865234375,
+          515.3919067382812,
+          984.652099609375,
+          1074.3817138671875
+         ],
+         "label": "dog",
+         "confidence": 0.9320510625839232
+        },
+        {
+         "bbox": [
+          1253.4254150390625,
+          753.0732421875,
+          1728.3782958984375,
+          1075.499267578125
+         ],
+         "label": "dog",
+         "confidence": 0.8863306045532227
+        },
+        {
+         "bbox": [
+          373.2392578125,
+          228.6137237548828,
+          603.0348510742188,
+          394.6668395996094
+         ],
+         "label": "tv",
+         "confidence": 0.8475244641304016
+        },
+        {
+         "bbox": [
+          1081.8182373046875,
+          447.5116882324219,
+          1334.1650390625,
+          867.9585571289062
+         ],
+         "label": "chair",
+         "confidence": 0.5721610188484192
+        },
+        {
+         "bbox": [
+          0.88916015625,
+          436.5444030761719,
+          250.462890625,
+          646.2921752929688
+         ],
+         "label": "chair",
+         "confidence": 0.49172866344451904
+        },
+        {
+         "bbox": [
+          1734.8433837890625,
+          335.5295104980469,
+          1919.011962890625,
+          1071.3779296875
+         ],
+         "label": "chair",
+         "confidence": 0.462426632642746
+        },
+        {
+         "bbox": [
+          1736.37451171875,
+          335.37652587890625,
+          1919.0009765625,
+          1068.5946044921875
+         ],
+         "label": "couch",
+         "confidence": 0.4612666368484497
+        }
+       ],
+       "species_resolution": [
+        {
+         "bbox": [
+          674.0286865234375,
+          515.3919067382812,
+          984.652099609375,
+          1074.3817138671875
+         ],
+         "clip_label": "dog",
+         "yolo_label": "dog",
+         "resolved_label": "dog",
+         "yolo_confidence": 0.9320510625839232,
+         "clip_cat_similarity": 0.16215762860891736,
+         "clip_dog_similarity": 0.22410343267913016
+        },
+        {
+         "bbox": [
+          1253.4254150390625,
+          753.0732421875,
+          1728.3782958984375,
+          1075.499267578125
+         ],
+         "clip_label": "dog",
+         "yolo_label": "dog",
+         "resolved_label": "dog",
+         "yolo_confidence": 0.8863306045532227,
+         "clip_cat_similarity": 0.20147374017415015,
+         "clip_dog_similarity": 0.22765226606976055
+        }
+       ]
+      },
+      {
+       "s3_key": "frames/two_dogs/two_dogs_000_frame_000054.jpg",
+       "frame_id": "two_dogs__two_dogs_000_frame_000054",
+       "timestamp": 106.0,
+       "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000054.jpg",
+       "object_labels": [
+        "chair",
+        "dog",
+        "tv"
+       ],
+       "object_detections": [
+        {
+         "bbox": [
+          0.34698486328125,
+          563.15185546875,
+          1103.4942626953125,
+          1073.660888671875
+         ],
+         "label": "dog",
+         "confidence": 0.8403562903404236
+        },
+        {
+         "bbox": [
+          369.2607727050781,
+          228.4865570068359,
+          602.84521484375,
+          410.3094177246094
+         ],
+         "label": "tv",
+         "confidence": 0.761172354221344
+        },
+        {
+         "bbox": [
+          1735.6494140625,
+          337.34527587890625,
+          1918.98486328125,
+          1069.4256591796875
+         ],
+         "label": "chair",
+         "confidence": 0.5853765606880188
+        },
+        {
+         "bbox": [
+          1078.0572509765625,
+          444.6251220703125,
+          1336.281005859375,
+          865.119384765625
+         ],
+         "label": "chair",
+         "confidence": 0.433016300201416
+        },
+        {
+         "bbox": [
+          1045.118896484375,
+          839.674072265625,
+          1627.0599365234375,
+          1074.7144775390625
+         ],
+         "label": "dog",
+         "confidence": 0.4199236929416657
+        },
+        {
+         "bbox": [
+          0.7039947509765625,
+          439.5806579589844,
+          238.51730346679688,
+          691.7679443359375
+         ],
+         "label": "couch",
+         "confidence": 0.4071532487869262
+        }
+       ],
+       "species_resolution": [
+        {
+         "bbox": [
+          0.34698486328125,
+          563.15185546875,
+          1103.4942626953125,
+          1073.660888671875
+         ],
+         "clip_label": "dog",
+         "yolo_label": "dog",
+         "resolved_label": "dog",
+         "yolo_confidence": 0.8403562903404236,
+         "clip_cat_similarity": 0.1768567063983982,
+         "clip_dog_similarity": 0.2268285950840334
+        },
+        {
+         "bbox": [
+          1045.118896484375,
+          839.674072265625,
+          1627.0599365234375,
+          1074.7144775390625
+         ],
+         "clip_label": "dog",
+         "yolo_label": "dog",
+         "resolved_label": "dog",
+         "yolo_confidence": 0.4199236929416657,
+         "clip_cat_similarity": 0.16264050433273844,
+         "clip_dog_similarity": 0.2207762114529238
+        }
+       ]
+      },
+      {
+       "s3_key": "frames/two_dogs/two_dogs_000_frame_000072.jpg",
+       "frame_id": "two_dogs__two_dogs_000_frame_000072",
+       "timestamp": 142.0,
+       "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000072.jpg",
+       "object_labels": [
+        "chair",
+        "dog",
+        "tv"
+       ],
+       "object_detections": [
+        {
+         "bbox": [
+          1420.470703125,
+          407.1941528320313,
+          1566.946044921875,
+          700.4644775390625
+         ],
+         "label": "chair",
+         "confidence": 0.8156885504722595
+        },
+        {
+         "bbox": [
+          1647.77490234375,
+          452.20458984375,
+          1881.4229736328125,
+          843.4901733398438
+         ],
+         "label": "chair",
+         "confidence": 0.7985719442367554
+        },
+        {
+         "bbox": [
+          1508.60205078125,
+          428.52099609375,
+          1701.6380615234375,
+          777.6286010742188
+         ],
+         "label": "chair",
+         "confidence": 0.7927997708320618
+        },
+        {
+         "bbox": [
+          1187.99755859375,
+          442.927734375,
+          1367.8818359375,
+          664.460693359375
+         ],
+         "label": "dog",
+         "confidence": 0.6444181799888611
+        },
+        {
+         "bbox": [
+          1032.8565673828125,
+          417.8793640136719,
+          1210.658203125,
+          615.7932739257812
+         ],
+         "label": "dog",
+         "confidence": 0.6291183829307556
+        },
+        {
+         "bbox": [
+          294.6552429199219,
+          84.05149841308594,
+          626.5313110351562,
+          302.7537536621094
+         ],
+         "label": "tv",
+         "confidence": 0.5756171941757202
+        },
+        {
+         "bbox": [
+          1453.6512451171875,
+          371.5597229003906,
+          1919.1796875,
+          829.0636596679688
+         ],
+         "label": "dining table",
+         "confidence": 0.4806246757507324
+        },
+        {
+         "bbox": [
+          1259.2091064453125,
+          456.4714965820313,
+          1367.4178466796875,
+          663.8206787109375
+         ],
+         "label": "dog",
+         "confidence": 0.43652987480163574
+        }
+       ],
+       "species_resolution": [
+        {
+         "bbox": [
+          1187.99755859375,
+          442.927734375,
+          1367.8818359375,
+          664.460693359375
+         ],
+         "clip_label": "dog",
+         "yolo_label": "dog",
+         "resolved_label": "dog",
+         "yolo_confidence": 0.6444181799888611,
+         "clip_cat_similarity": 0.17854349572824807,
+         "clip_dog_similarity": 0.2414831773793071
+        },
+        {
+         "bbox": [
+          1032.8565673828125,
+          417.8793640136719,
+          1210.658203125,
+          615.7932739257812
+         ],
+         "clip_label": "dog",
+         "yolo_label": "dog",
+         "resolved_label": "dog",
+         "yolo_confidence": 0.6291183829307556,
+         "clip_cat_similarity": 0.15964185042117332,
+         "clip_dog_similarity": 0.21808027372610136
+        },
+        {
+         "bbox": [
+          1259.2091064453125,
+          456.4714965820313,
+          1367.4178466796875,
+          663.8206787109375
+         ],
+         "clip_label": "dog",
+         "yolo_label": "dog",
+         "resolved_label": "dog",
+         "yolo_confidence": 0.43652987480163574,
+         "clip_cat_similarity": 0.17511722098987198,
+         "clip_dog_similarity": 0.23697092211939008
+        }
+       ]
+      },
+      {
+       "s3_key": "frames/two_dogs/two_dogs_000_frame_000090.jpg",
+       "frame_id": "two_dogs__two_dogs_000_frame_000090",
+       "timestamp": 178.0,
+       "frame_path": "pipeline/frames/two_dogs/two_dogs_000_frame_000090.jpg",
+       "object_labels": [
+        "dog",
+        "horse"
+       ],
+       "object_detections": [
+        {
+         "bbox": [
+          51.568084716796875,
+          12.694244384765623,
+          460.7755737304687,
+          1059.7823486328125
+         ],
+         "label": "horse",
+         "confidence": 0.928037703037262
+        },
+        {
+         "bbox": [
+          468.32025146484375,
+          152.31756591796875,
+          862.2521362304688,
+          936.737548828125
+         ],
+         "label": "horse",
+         "confidence": 0.8854895234107971
+        },
+        {
+         "bbox": [
+          365.7944030761719,
+          480.5875854492187,
+          567.365234375,
+          1013.1480102539062
+         ],
+         "label": "horse",
+         "confidence": 0.4915819466114044
+        },
+        {
+         "bbox": [
+          368.6918029785156,
+          443.4299011230469,
+          568.9647216796875,
+          1005.2827758789062
+         ],
+         "label": "dog",
+         "confidence": 0.4545835256576538
+        }
+       ],
+       "species_resolution": [
+        {
+         "bbox": [
+          368.6918029785156,
+          443.4299011230469,
+          568.9647216796875,
+          1005.2827758789062
+         ],
+         "clip_label": "dog",
+         "yolo_label": "dog",
+         "resolved_label": "dog",
+         "yolo_confidence": 0.4545835256576538,
+         "clip_cat_similarity": 0.19042907570636647,
+         "clip_dog_similarity": 0.24335444915917084
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ }
+}
