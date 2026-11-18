@@ -218,6 +218,26 @@ Python worker를 직접 실행할 때는 `METRICS_ENABLED=true METRICS_PORT=8002
 `http://localhost:8002/metrics`, API 지표는 `http://localhost:8000/metrics`에서
 직접 확인할 수 있습니다. 영상 ID·질문 원문은 Prometheus 라벨에 넣지 않습니다.
 
+신규 처리부터 업로드 완료 시각(시뮬레이터)→청크 인덱싱 완료 지연, API 접수→worker 시작
+큐 대기, 원본 청크 길이 대비 처리 배율(RTF), 초당 처리한 영상 길이가 추가로 기록됩니다.
+Prometheus에서 아래 식으로 확인할 수 있습니다.
+
+```promql
+# 업로드 완료부터 인덱싱 완료까지 평균 초
+sum(rate(kidog_pipeline_upload_to_index_seconds_sum[5m])) / sum(rate(kidog_pipeline_upload_to_index_seconds_count[5m]))
+# 큐 대기 p95 (API 접수→worker 시작)
+histogram_quantile(0.95, sum by (le) (rate(kidog_pipeline_queue_wait_seconds_bucket[5m])))
+# 처리량: 벽시계 1초당 처리한 영상 초 (1보다 크면 입력 재생보다 빠름)
+rate(kidog_pipeline_video_seconds_total[5m])
+# RTF p95 (1 미만이면 청크를 영상 재생시간보다 빨리 처리)
+histogram_quantile(0.95, sum by (le) (rate(kidog_pipeline_real_time_factor_bucket[5m])))
+```
+
+큐 적체는 RabbitMQ exporter의 `rabbitmq_queue_messages_ready{queue="celery"}`로,
+worker가 가져가 처리 중인 양은 `rabbitmq_queue_messages_unacked{queue="celery"}`로 봅니다.
+업로드→완료 및 RTF는 중복 청크를 제외한 성공 처리 기준입니다. 수치는 계측을 켠 뒤
+새로 처리한 청크부터 쌓이며, 시뮬레이터와 worker 간 시계가 동기화되어야 합니다.
+
 ```bash
 docker compose --profile monitoring down
 ```

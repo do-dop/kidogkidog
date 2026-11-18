@@ -229,6 +229,10 @@ def suggest_query_items(
                 question
                 for question in _deduplicate_keep_order(video_specific_questions)
                 if question not in selected_questions
+                # A label can prove the object is present, but cannot prove
+                # that the pet moved near it or inspected it.
+                and "근처에서 움직인" not in question
+                and "살펴보는" not in question
             ]
             selected_questions.extend(supplemental_questions[:remaining_count])
 

@@ -281,6 +281,12 @@ def _reviewed_events() -> dict[str, dict[str, dict[str, Any]]]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+@lru_cache(maxsize=1)
+def _reviewed_sequence_notes() -> dict[str, str]:
+    path = Path(__file__).with_name("sequence_review_notes.json")
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
 def _sequence_intent(query: str) -> tuple[str, str]:
     """전체·첫/마지막·특정 행동의 앞/뒤 질문을 구분한다."""
     before = _BEFORE.search(query)
@@ -853,6 +859,9 @@ def run_sequence_query(
         if place_terms:
             place = "·".join(place_terms)
             answer = f"{place}{_place_particle(place)} 관련된 행동을 모았어요. " + answer
+
+    if intent == "timeline" and results and video_id in _reviewed_sequence_notes():
+        answer += " " + _reviewed_sequence_notes()[video_id]
 
     return {
         "query": query_as_asked,

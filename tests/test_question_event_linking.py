@@ -7,6 +7,7 @@ from unittest.mock import patch
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from api.routers import search, suggestions
+from db import behavior_events, connection
 from pipeline import question_generator as qg, query_suggester as qs, rag_chain as rag
 
 
@@ -18,6 +19,27 @@ def event(event_id=1, **fields):
 
 
 class QuestionEventLinkingTests(unittest.TestCase):
+    def test_db_cursor_supports_single_event_lookup(self):
+        class RawCursor:
+            def execute(self, *_args):
+                pass
+
+            def fetchone(self):
+                return {'id': 155, 'video_id': 'smartbench_0608',
+                        'source_frames_json': '[{"timestamp":2,"s3_key":"frames/smartbench_0608/frame.jpg"}]',
+                        'evidence_json': '[]'}
+
+        class FakeConnection:
+            def cursor(self):
+                return connection._Cursor(RawCursor())
+
+            def close(self):
+                pass
+
+        with patch.object(behavior_events, 'connect', return_value=FakeConnection()):
+            result = behavior_events.get_behavior_event_by_id(155)
+        self.assertEqual(result['source_frames'][0]['timestamp'], 2)
+
     def generate_final(self, events, llm_items, labels=None, limit=3):
         with ExitStack() as stack:
             stack.enter_context(patch.object(qs, 'get_top_behavior_events', return_value=events))
@@ -139,6 +161,27 @@ class QuestionEventLinkingTests(unittest.TestCase):
         lookup.assert_called_once_with(1)
         self.assertEqual(grounded.call_args.kwargs['source_event'], original)
         general.assert_not_called()
+
+    def test_recommendation_uses_its_event_frame_and_summary(self):
+        source = event(155, video_id='smartbench_0608', action='강아지가 수영장 물속으로 들어감',
+                       summary='강아지가 영상 초반에 수영장 물속으로 들어갔어요.',
+                       source_frames=[{'timestamp': 2.0, 's3_key': 'frames/smartbench_0608/frame.jpg'}])
+        with patch('pipeline.storage.vector_store.search_with_query_expansion') as clip, \
+             patch.object(rag, 'build_prompt_hint', return_value=''), \
+             patch.object(rag, '_generate_answer_with_langchain') as llm:
+            result = rag._run_event_grounded_query('수영장 물속으로 들어간 장면이 있어?', source, 3, None)
+        self.assertEqual(result['answer'], source['summary'])
+        self.assertEqual(result['results'][0]['s3_key'], 'frames/smartbench_0608/frame.jpg')
+        self.assertEqual(result['results'][0]['source_event_id'], 155)
+        clip.assert_not_called()
+        llm.assert_not_called()
+
+    def test_label_fallback_does_not_invent_inspecting_or_moving(self):
+        source = event(146, video_id='smartbench_0642', action='반려동물이 물속으로 들어감',
+                       summary='반려동물이 분수 물속으로 들어갔어요.', target_object='분수')
+        items = self.generate_final([source], [{'event_index': 1, 'question': '분수 물속으로 들어간 장면이 있어?'}],
+                                    ['분수 근처에서 움직인 장면 찾아줘', '분수을 살펴보는 장면 있어?'])
+        self.assertEqual([item['question'] for item in items], ['분수 물속으로 들어간 장면이 있어?'])
 
 
 if __name__ == '__main__':

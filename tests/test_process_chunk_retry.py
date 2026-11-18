@@ -39,10 +39,22 @@ class ProcessChunkRetryTests(unittest.TestCase):
 
     def _run(self, error):
         with patch.object(self.tasks, "init_db"), \
-                patch.object(self.tasks, "is_chunk_processed", return_value=False), \
+                patch.object(self.tasks, "is_chunk_ready", return_value=False), \
+                patch.object(self.tasks, "mark_chunk_state") as mark, \
                 patch.object(self.tasks, "get_object_metadata", side_effect=error) as metadata:
             result = self.tasks.process_chunk.apply(args=["chunks/v/a.mp4"], throw=False)
+        self.mark = mark
         return result, metadata
+
+    def test_failure_is_recorded_with_error_message(self):
+        self._run(RuntimeError("chroma unavailable"))
+
+        states = [call.args[2] for call in self.mark.call_args_list]
+        self.assertEqual(states[0], "processing")
+        self.assertEqual(states[-1], "failed")
+        failed = self.mark.call_args_list[-1]
+        self.assertEqual(failed.args[:2], ("chunks/v/a.mp4", "v"))
+        self.assertIn("chroma unavailable", failed.kwargs["error"])
 
     def test_transient_error_is_retried_up_to_the_limit(self):
         result, metadata = self._run(RuntimeError("chroma unavailable"))
@@ -58,12 +70,14 @@ class ProcessChunkRetryTests(unittest.TestCase):
 
     def test_already_processed_chunk_returns_duplicate_without_work(self):
         with patch.object(self.tasks, "init_db"), \
-                patch.object(self.tasks, "is_chunk_processed", return_value=True), \
+                patch.object(self.tasks, "is_chunk_ready", return_value=True), \
+                patch.object(self.tasks, "mark_chunk_state") as mark, \
                 patch.object(self.tasks, "get_object_metadata") as metadata:
             result = self.tasks.process_chunk.apply(args=["chunks/v/a.mp4"])
 
         self.assertEqual(result.get()["status"], "duplicate")
         metadata.assert_not_called()
+        mark.assert_not_called()
 
 
 if __name__ == "__main__":
