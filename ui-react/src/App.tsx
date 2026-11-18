@@ -1090,6 +1090,12 @@ export default function App() {
     [recordingItems, selectedDate, timeFilter, screen, searchAllDates],
   );
 
+  // 홈의 "최근 녹화 영상": 촬영 시각이 있으면 최신순, 없으면 원래 순서를 유지해 4개만 보여준다.
+  const recentRecordings = useMemo(
+    () => [...filteredRecordings].sort((a, b) => (b.recordedAt ?? "").localeCompare(a.recordedAt ?? "")).slice(0, 4),
+    [filteredRecordings],
+  );
+
   const highlightedBehaviors = useMemo(
     () => behaviorEvents
       .map((event) => ({
@@ -1927,58 +1933,28 @@ export default function App() {
                     )}
                     </div>
                   </div>
-                ) : (
-                  <div className="empty-state">
-                    <Icon filled>auto_awesome</Icon>
-                    <strong>무엇이든 자연어로 물어보세요</strong>
-                    <p>"{petName}가 밥 먹는 장면"처럼 입력하면 AI가 하루 영상에서 관련 구간을 찾아드려요.</p>
-                  </div>
-                )}
+                ) : null}
 
-                <div className="home-recordings" ref={recordingsRef}>
-                  <div className="section-title-block left">
-                    <div className="section-kicker-pill">
-                      <Icon filled>smart_display</Icon>
-                      <span>SMART CLIPS & BEHAVIORS</span>
-                    </div>
-                    <h2>포착된 녹화 청크 & 주요 행동</h2>
-                    <p>{searchAllDates ? "전체 날짜" : `${selectedYear}년 ${selectedMonth}월 ${selectedDay}일`} · 총 {filteredRecordings.length}개 클립 기록</p>
+                <div className="home-rec" ref={recordingsRef}>
+                  <div className="home-rec-head">
+                    <h2>최근 녹화 영상</h2>
+                    <p>{searchAllDates ? "전체 날짜" : `${selectedYear}년 ${selectedMonth}월 ${selectedDay}일`} · 총 {filteredRecordings.length}개 클립 · 눌러서 바로 재생</p>
                   </div>
-
-                  <div className="home-recordings-head">
-                    <div>
-                      <span>시간대 필터</span>
-                      <strong>{timeFilter === "all" ? "전체 시간대" : `${timeFilter} 영상`}</strong>
-                    </div>
-                    <TimeChips value={timeFilter} onChange={setTimeFilter} compact />
-                  </div>
-                  <BehaviorHighlights
-                    items={highlightedBehaviors}
-                    notice={behaviorNotice}
-                    petName={petName}
-                    onOpen={(recording) => openRecording(recording)}
-                  />
-                  <div className="clip-grid">
-                    {filteredRecordings.map((clip) => (
-                      <ClipCard key={clip.id} clip={clip} eventCount={eventsForRecording(clip, behaviorEvents).length} onOpen={() => openRecording(clip)} />
+                  <div className="home-rec-grid">
+                    {recentRecordings.map((clip) => (
+                      <HomeClipTile key={clip.id} clip={clip} eventCount={eventsForRecording(clip, behaviorEvents).length} onOpen={() => openRecording(clip)} />
                     ))}
                   </div>
                   {filteredRecordings.length === 0 && (
                     <RecordingsStatus loading={recordingsLoading} failed={recordingsFailed} notice={recordingsNotice} onRetry={() => setRecordingsRefreshToken((token) => token + 1)} />
                   )}
-                </div>
-
-                <div className="brand-callout-banner">
-                  <div className="brand-callout-content">
-                    <span className="brand-callout-kicker">KIDOGKIDOG PET AI PLATFORM</span>
-                    <h2>A Small Moment Makes a Big Memory</h2>
-                    <p>소중한 반려견의 하루를 24시간 스마트하게 트래킹하고 감동적인 모먼트로 간직하세요.</p>
-                  </div>
-                  <div className="brand-callout-badge">
-                    <PawMark />
-                    <strong>KIDOGKIDOG</strong>
-                    <span>Smart Pet Cam AI</span>
-                  </div>
+                  {filteredRecordings.length > recentRecordings.length && (
+                    <div className="home-rec-more">
+                      <button className="secondary-button" type="button" onClick={() => go("recordings")}>
+                        녹화 영상 전체 보기<Icon>arrow_forward</Icon>
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </section>
@@ -2632,6 +2608,29 @@ function RecordingsStatus({ loading, failed, notice, onRetry }: { loading: boole
       <strong>선택한 날짜와 시간대에 녹화 영상이 없어요</strong>
       <p>다른 날짜나 시간대를 선택해보세요.</p>
     </div>
+  );
+}
+
+function HomeClipTile({ clip, eventCount = 0, onOpen }: { clip: Recording; eventCount?: number; onOpen: () => void }) {
+  const dateLabel = formatDateLabel(clip.recordingDate);
+
+  return (
+    <button className="home-clip" type="button" onClick={onOpen} aria-label={`${clip.time} 녹화 영상 재생`}>
+      <div
+        className={clip.thumbnailUrl ? "home-clip-thumb has-image" : "home-clip-thumb"}
+        style={clip.thumbnailUrl ? { backgroundImage: `url(${clip.thumbnailUrl})` } : { background: gradients[clip.thumb] }}
+      >
+        <span className="home-clip-duration">{clip.duration}</span>
+        <span className="home-clip-play"><Icon filled>play_arrow</Icon></span>
+      </div>
+      <div className="home-clip-body">
+        <strong>{clip.time}</strong>
+        <span className="home-clip-meta">
+          {eventCount > 0 && <em>이벤트 {eventCount}</em>}
+          {dateLabel && <small>{dateLabel}</small>}
+        </span>
+      </div>
+    </button>
   );
 }
 
