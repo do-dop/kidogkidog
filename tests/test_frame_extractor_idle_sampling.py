@@ -49,7 +49,7 @@ class ExtractFramesIdleTests(unittest.TestCase):
             frames = self._run(None)
         idle = [f for f in frames if not f["motion_detected"]]
         self.assertIn(0.0, [f["timestamp"] for f in idle])
-        self.assertIn(15.0, [f["timestamp"] for f in idle])
+        self.assertIn(14.0, [f["timestamp"] for f in idle])
         self.assertEqual(idle[0]["segment_id"], idle[1]["segment_id"])
 
     def test_idle_frames_are_added_and_flagged(self):

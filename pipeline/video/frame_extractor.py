@@ -57,7 +57,7 @@ def idle_sample_times(duration, motion_segments, interval, pad=1.0):
 
 def _default_idle_interval():
     try:
-        return float(os.getenv("IDLE_SAMPLE_INTERVAL_SECONDS", "1"))
+        return float(os.getenv("IDLE_SAMPLE_INTERVAL_SECONDS", "2"))
     except ValueError:
         return 1.0
 
@@ -86,7 +86,7 @@ def extract_frames(video_path, output_dir="pipeline/frames", fps=1.0, frame_pref
         output_dir: 프레임 저장 폴더
         fps: 움직임 구간 추출 FPS (기본 1fps, 1초마다 1장)
         idle_sample_interval: motion 구간 밖에서 N초마다 1장씩 추가로 뽑는다.
-            None이면 환경변수 IDLE_SAMPLE_INTERVAL_SECONDS(기본 1초)를 따른다.
+            None이면 환경변수 IDLE_SAMPLE_INTERVAL_SECONDS(기본 2초)를 따른다.
             추가 프레임은 motion_detected=False이고 연속된 12초 이하 구간으로 묶인다.
 
     Returns:

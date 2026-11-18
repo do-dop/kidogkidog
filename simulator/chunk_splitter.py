@@ -40,6 +40,9 @@ def split_video_into_chunks(video_path, chunk_duration=60, output_dir="simulator
         "-c:a", "aac",
         "-b:a", "128k",
 
+        # 청크 경계마다 키프레임을 강제해 청크 길이를 chunk_duration에 맞춘다.
+        # 없으면 58~67초로 흔들려 청크번호*60 시각 계산이 어긋난다.
+        "-force_key_frames", f"expr:gte(t,n_forced*{chunk_duration})",
         "-segment_time", str(chunk_duration),
         "-f", "segment",
         "-reset_timestamps", "1",
