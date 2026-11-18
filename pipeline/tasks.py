@@ -15,6 +15,7 @@ import time
 from datetime import timedelta
 from pathlib import Path
 from pipeline.storage.gcs_uploader import get_object_metadata
+from pipeline.storage.capture_time import trusted_capture_time
 from pipeline.observability.metrics import (
     CHUNKS, END_TO_END_SECONDS, FRAMES, QUEUE_WAIT_SECONDS, RTF,
     STAGE_SECONDS, VIDEO_SECONDS, measure_stage, start_worker_metrics,
@@ -54,6 +55,7 @@ def index_frame_to_chromadb(local_frame_path, video_id, s3_key=None, object_labe
         s3_key=s3_key,
         object_labels=object_labels,
         recorded_at=recorded_at,
+        capture_time_source="petcam" if recorded_at else None,
         timestamp=timestamp,
     )
 
@@ -155,7 +157,7 @@ def process_chunk(chunk_path, submitted_at=None, uploaded_at=None):
 
     try:
         chunk_metadata = get_object_metadata(chunk_path)
-        chunk_recorded_at = chunk_metadata.get("LastModified")
+        chunk_recorded_at = trusted_capture_time(chunk_metadata.get("Metadata"))
 
         # 1. GCS에서 영상/청크 다운로드
         with measure_stage("video_download"):
@@ -240,6 +242,9 @@ def process_chunk(chunk_path, submitted_at=None, uploaded_at=None):
                 **frame,
                 "frame_id": frame_id,
                 "object_labels": object_labels,
+                **({"source_type": "petcam", "captured_at": (
+                    chunk_recorded_at + timedelta(seconds=float(frame["timestamp"]))
+                ).isoformat()} if chunk_recorded_at else {}),
             })
 
         print(f"프레임 {len(indexed_frames)}개 ChromaDB 저장 완료")

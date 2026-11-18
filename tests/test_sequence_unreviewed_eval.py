@@ -12,6 +12,7 @@
 
 import sys
 import unittest
+from datetime import datetime, timedelta, timezone
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from typing import Any, Callable
@@ -48,6 +49,9 @@ def ev(event_id, chunk, second, text, end=None, frames=True, video=NEW_VIDEO, da
             "frame_id": f"f{event_id}",
             "s3_key": f"frames/{video}/petcam_{day}_090000_{chunk:03d}_frame_{second}.00.jpg",
             "timestamp": float(second),
+            "source_type": "petcam",
+            "captured_at": (datetime.strptime(f"{day}090000", "%Y%m%d%H%M%S").replace(tzinfo=timezone.utc)
+                            + timedelta(minutes=chunk, seconds=second)).isoformat(),
         }]
     return event
 

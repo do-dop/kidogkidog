@@ -1,10 +1,12 @@
-from datetime import datetime, timedelta, timezone
+from datetime import timezone
 from pathlib import Path
 import re
+from zoneinfo import ZoneInfo
 
 from db.scenes import get_scene_records
 from db.processed_chunks import get_chunk_processing_statuses
 from pipeline.storage.gcs_uploader import create_presigned_url, list_objects
+from pipeline.storage.capture_time import trusted_capture_time
 
 from api.services.media_service import media_path_for_key, thumbnail_path_for_key
 
@@ -17,23 +19,15 @@ def get_chunk_index(s3_key):
     return int(match.group(1))
 
 
-def get_chunk_recorded_at(s3_key, last_modified=None):
-    filename = Path(s3_key).name
-    match = re.search(r"petcam_(\d{8})_(\d{6})_(\d{3})\.mp4$", filename)
+def get_chunk_recorded_at(s3_key, last_modified=None, metadata=None):
+    # Object modification time and generated petcam_ filenames are not evidence
+    # of when an imported source video was filmed.
+    return trusted_capture_time(metadata)
 
-    if match:
-        base = datetime.strptime(
-            f"{match.group(1)}{match.group(2)}",
-            "%Y%m%d%H%M%S",
-        )
-        return base + timedelta(seconds=int(match.group(3)) * 60)
 
-    if last_modified:
-        if last_modified.tzinfo:
-            return last_modified.astimezone(timezone.utc).replace(tzinfo=None)
-        return last_modified
-
-    return None
+def format_seconds(seconds):
+    minutes, remainder = divmod(max(0, int(seconds)), 60)
+    return f"{minutes:02d}:{remainder:02d}"
 
 
 def get_chunk_period_from_hour(hour):
@@ -92,7 +86,9 @@ def list_s3_recording_chunks(video_id: str | None = None):
         chunk_video_id = parts[1] if len(parts) >= 2 and parts[0] == "chunks" else "unknown"
         index = get_chunk_index(key)
         start_seconds = index * 60
-        recorded_at = get_chunk_recorded_at(key, obj.get("LastModified"))
+        recorded_at = get_chunk_recorded_at(key, obj.get("LastModified"), obj.get("Metadata"))
+        if recorded_at:
+            recorded_at = recorded_at.astimezone(ZoneInfo("Asia/Seoul"))
         thumbnail_key = find_thumbnail_key(chunk_video_id, key)
 
         chunks.append({
@@ -105,8 +101,9 @@ def list_s3_recording_chunks(video_id: str | None = None):
             "duration_seconds": 60,
             "recorded_at": recorded_at.isoformat() if recorded_at else None,
             "recording_date": recorded_at.date().isoformat() if recorded_at else None,
-            "time_label": recorded_at.strftime("%H:%M") if recorded_at else None,
-            "period": get_chunk_period_from_hour(recorded_at.hour) if recorded_at else "오전",
+            "time_label": recorded_at.strftime("%H:%M:%S") if recorded_at else format_seconds(start_seconds),
+            "period": get_chunk_period_from_hour(recorded_at.hour) if recorded_at else None,
+            "time_kind": "capture" if recorded_at else "offset",
             "size": obj.get("Size", 0),
             "last_modified": format_timestamp(obj.get("LastModified")),
             "url": create_presigned_url(key, expires_in=3600),

@@ -18,13 +18,27 @@ def _get_bucket():
 def upload_file(local_path, object_key, extra_args=None):
     content_type = (extra_args or {}).get("ContentType")
     blob = _get_bucket().blob(object_key)
+    metadata = (extra_args or {}).get("Metadata")
+    if metadata:
+        blob.metadata = metadata
     blob.upload_from_filename(local_path, content_type=content_type)
     print(f"GCS 업로드 성공: {object_key}")
     return object_key
 
 
-def upload_video(local_path, object_key):
-    return upload_file(local_path, object_key, extra_args={"ContentType": "video/mp4"})
+def upload_video(local_path, object_key, *, captured_at=None):
+    """Camera uploads must supply an ISO timestamp with a timezone.
+
+    Imported/test videos deliberately carry no capture time, even when their
+    generated filename resembles a camera recording.
+    """
+    metadata = {"source_type": "imported"}
+    if captured_at is not None:
+        from pipeline.storage.capture_time import trusted_capture_time
+        metadata = {"source_type": "petcam", "captured_at": str(captured_at)}
+        if trusted_capture_time(metadata) is None:
+            raise ValueError("captured_at must be an ISO datetime with a timezone")
+    return upload_file(local_path, object_key, extra_args={"ContentType": "video/mp4", "Metadata": metadata})
 
 
 def upload_frame(local_path, video_id):
@@ -53,6 +67,7 @@ def get_object_metadata(object_key):
     return {
         "ContentLength": blob.size,
         "LastModified": blob.updated,
+        "Metadata": blob.metadata or {},
     }
 
 
@@ -71,6 +86,7 @@ def list_objects(prefix):
             "Key": blob.name,
             "Size": blob.size,
             "LastModified": blob.updated,
+            "Metadata": blob.metadata or {},
         }
         for blob in _get_bucket().list_blobs(prefix=prefix)
     ]

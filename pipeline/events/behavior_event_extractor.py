@@ -821,6 +821,9 @@ def _normalize_behavior_event(
             "timestamp": frame.get("timestamp"),
             "object_labels": _parse_object_labels(frame.get("object_labels")),
         }
+        if frame.get("source_type") == "petcam" and frame.get("captured_at"):
+            source_frame["source_type"] = "petcam"
+            source_frame["captured_at"] = frame["captured_at"]
         if labels:
             # behavior_events 테이블에는 라벨 컬럼이 없어, 스키마를 바꾸지 않고 JSON 컬럼(source_frames_json)에 함께 둔다.
             source_frame["event_labels"] = dict(labels)
