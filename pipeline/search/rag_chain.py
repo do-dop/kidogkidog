@@ -143,6 +143,16 @@ def run_rag_query(
     if gate_scene_result is not None:
         return gate_scene_result
 
+    action_scene_result = _run_action_scene_query(
+        query=query,
+        video_id=video_id or (source_event or {}).get("video_id"),
+        source_event=source_event,
+        recording_date=recording_date,
+        time_range=time_range,
+    )
+    if action_scene_result is not None:
+        return action_scene_result
+
     if source_event:
         return _run_event_grounded_query(
             query=query,
@@ -353,6 +363,65 @@ def _run_gate_climb_scene_query(
         "results": evidence,
         "evidence_items": evidence,
         "behavior_events": matched,
+        "used_llm": False,
+    }
+
+
+def _run_action_scene_query(
+    query: str,
+    video_id: str | None,
+    source_event: dict[str, Any] | None,
+    recording_date: str | None,
+    time_range: dict[str, int] | None,
+) -> dict[str, Any] | None:
+    """Show every stored episode of the requested action, not only the
+    recommendation's first source event.
+    """
+    if (not video_id or _has_datetime_filter(recording_date, time_range)
+            or not re.search(r"장면|구간|보여|찾아|있어", query)):
+        return None
+    actions = [action for action, (pattern, _) in ACTION_PATTERNS.items()
+               if re.search(pattern, query, re.I)]
+    if len(actions) != 1:
+        return None
+    action = actions[0]
+    if source_event and not event_matches_action(source_event, action):
+        return None
+
+    try:
+        timeline = get_behavior_events_for_aggregation(video_id=video_id)
+    except Exception as exc:
+        print(f"행동 장면 조회 실패: {exc}", flush=True)
+        return None
+
+    episodes = count_episodes([event for event in timeline if event_matches_action(event, action)])
+    evidence = []
+    matched_events = []
+    for episode in episodes[:10]:
+        event = episode["events"][0]
+        frames = _frames_from_behavior_events([event], video_id=video_id, limit=1)
+        if not frames or not frames[0].get("s3_key"):
+            continue
+        frame = _attach_event_window_to_frames(frames, event)[0]
+        frame["summary"] = event.get("summary")
+        evidence.append(frame)
+        matched_events.append(event)
+
+    if not evidence:
+        return None
+    moments = ", ".join(f"{int(float(item['timestamp']) // 60):02d}:{int(float(item['timestamp']) % 60):02d}"
+                        for item in evidence[:3])
+    if len(evidence) > 3:
+        moments += " 등"
+    label = ACTION_PATTERNS[action][1]
+    answer = f"{label} 장면은 {moments} 근처에서 확인할 수 있어요."
+    return {
+        "query": query,
+        "video_id": video_id,
+        "answer": answer,
+        "results": evidence,
+        "evidence_items": evidence,
+        "behavior_events": matched_events,
         "used_llm": False,
     }
 
