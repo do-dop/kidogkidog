@@ -87,6 +87,19 @@ class AnswerSceneGroundingTests(unittest.TestCase):
             self.assertLessEqual(scene["scene_end"] - scene["scene_start"], 10.0)
         self.assertGreater(len(scenes), 1)
 
+    def test_search_scene_playback_stays_close_to_matched_frames(self):
+        rows = [
+            {"video_id": "video", "s3_key": f"videos/chunk_frame_{t}.jpg",
+             "timestamp": float(t), "score": 0.4}
+            for t in (4, 7, 11)
+        ]
+        scenes = vs._merge_adjacent_result_scenes(rows)
+        self.assertEqual(len(scenes), 2)
+        self.assertEqual(
+            [(scene["playback_start"], scene["playback_end"]) for scene in scenes],
+            [(2.0, 9.0), (9.0, 13.0)],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

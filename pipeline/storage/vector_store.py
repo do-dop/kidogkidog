@@ -452,7 +452,7 @@ def _result_source_chunk_key(result):
     return filename.split("_frame_", 1)[0]
 
 
-def _merge_adjacent_result_scenes(results, max_gap_seconds=4.0, max_span_seconds=10.0):
+def _merge_adjacent_result_scenes(results, max_gap_seconds=3.0, max_span_seconds=6.0):
     """Collapse nearby ranked frames from one source chunk into a playback scene.
 
     This is a presentation/evidence grouping heuristic, not action recognition.
@@ -492,8 +492,11 @@ def _merge_adjacent_result_scenes(results, max_gap_seconds=4.0, max_span_seconds
                 "representative_timestamp": float(representative["timestamp"]),
                 "scene_start": scene_start,
                 "scene_end": scene_end,
-                "playback_start": max(0.0, scene_start - 3.0),
-                "playback_end": scene_end + 5.0,
+                # Keep the searched moment near the beginning of playback.
+                # A wide context window hides short actions and makes the
+                # displayed interval overlap poorly with the actual moment.
+                "playback_start": max(0.0, scene_start - 2.0),
+                "playback_end": scene_end + 2.0,
                 "merged_frame_count": len(cluster),
                 "video_id": video_id,
                 "source_chunk": chunk_key,
