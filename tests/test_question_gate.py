@@ -21,7 +21,7 @@ class CheckQuestionFitTests(unittest.TestCase):
         self.addCleanup(env.stop)
 
     def test_pet_words_pass_without_calling_the_llm(self):
-        for query in ("강아지가 밥 먹는 장면", "고양이가 소파에 올라간 장면", "개가 짖는 장면", "코코가 산책하는 장면"):
+        for query in ("강아지가 밥 먹는 장면", "고양이가 소파에 올라간 장면", "개가 짖는 장면", "코코가 산책하는 장면", "개가 연못에서 헤엄침", "수영장에서 나오는 장면"):
             with llm_says('{"fit": false}') as ask:
                 decision = gate.check_question_fit(query)
             self.assertTrue(decision.fit, query)
