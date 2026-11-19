@@ -1,4 +1,4 @@
-import { FormEvent, Fragment, useEffect, useMemo, useRef, useState } from "react";
+import { CSSProperties, FormEvent, Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { videoTitle } from "./videoTitles";
 
 import { resolveSearchRecording, playbackOffsets } from "./searchPlayback";
@@ -2259,6 +2259,7 @@ function VideoPanel({
   const requestedStart = segment?.startAtSeconds ?? startAtSeconds;
   const safeStartAtSeconds = Math.max(0, Number.isFinite(requestedStart) ? requestedStart : 0);
   const videoKey = `${currentVideoUrl || "empty"}-${safeStartAtSeconds}-${segmentIndex}`;
+  const [portraitRatio, setPortraitRatio] = useState<number | null>(null);
 
   function finishSegment(video: HTMLVideoElement) {
     if (!playbackSegments?.length) return;
@@ -2299,12 +2300,20 @@ function VideoPanel({
   }, [safeStartAtSeconds, currentVideoUrl, segmentIndex]);
 
   return (
-    <div className={`${wide ? "video-panel wide" : "video-panel"} ${currentVideoUrl ? "with-media" : ""}`}>
+    <div
+      className={`${wide ? "video-panel wide" : "video-panel"} ${currentVideoUrl ? "with-media" : ""} ${portraitRatio ? "portrait" : ""}`}
+      style={portraitRatio ? ({ "--video-ar": portraitRatio, aspectRatio: String(portraitRatio) } as CSSProperties) : undefined}
+    >
       {currentVideoUrl ? (
         <video
           key={videoKey}
           ref={videoRef}
           className="video-player"
+          onLoadedMetadata={(event) => {
+            // 세로 영상은 16:9 칸에서 위아래가 잘리므로 영상 비율대로 패널을 바꾼다. 가로 영상은 기존 모양 그대로 둔다.
+            const { videoWidth, videoHeight } = event.currentTarget;
+            setPortraitRatio(videoWidth > 0 && videoHeight > videoWidth * 1.05 ? videoWidth / videoHeight : null);
+          }}
           src={currentVideoUrl}
           controls={showControls}
           autoPlay

@@ -42,7 +42,7 @@ def _temporal_marker(query: str) -> bool:
 
 
 # 물건이 넘어지거나 쓰러지는 등 장면이 바뀐 일. 같은 일을 다르게 적은 설명끼리 맞도록 낱말 묶음으로 본다.
-_SCENE_CHANGE_GROUP = ("넘어지", "넘어졌", "넘어진", "넘어져", "넘어짐", "넘어가", "넘어갔", "쓰러", "젖혀", "젖혔", "무너", "엎어", "뒤집", "자빠")
+_SCENE_CHANGE_GROUP = ("넘어지", "넘어졌", "넘어진", "넘어져", "넘어짐", "넘어가", "넘어갔", "쓰러", "젖혀", "젖혔", "무너", "엎어", "뒤집", "자빠", "떨어지", "떨어졌", "떨어진", "떨어져", "떨어짐", "떨어뜨")
 _SCENE_CHANGE = re.compile("|".join(_SCENE_CHANGE_GROUP))
 _WHEN = re.compile(r"언제")
 _WHY = re.compile(r"왜|어째서|어쩌다|이유|원인")
@@ -225,6 +225,39 @@ def _video_time_text(event: dict[str, Any]) -> str:
     seconds = int(chunk_index * CHUNK_SECONDS + float(event.get("start_time") or 0))
     minutes, rest = divmod(seconds, 60)
     return f"영상 {minutes}분 {rest}초쯤" if minutes else f"영상 {rest}초쯤"
+
+
+def _video_range_text(event: dict[str, Any]) -> str | None:
+    """변화가 있었던 구간이 3초 이상 벌어졌으면 '영상 22~25초 사이'처럼 범위로 적는다. 아니면 None.
+
+    장면 변화는 변화 직전 프레임과 변화가 처음 보이는 프레임 사이 어딘가에서 일어났다. 시작 시각만 쓰면 실제보다 이르게 들린다.
+    """
+    start = float(event.get("start_time") or 0)
+    end = float(event.get("end_time") or start)
+    if end - start < 3.0:
+        return None
+    chunk_index = 0
+    for frame in event.get("source_frames") or []:
+        match = _CHUNK_FRAME_KEY.search(str((frame or {}).get("s3_key") or "")) if isinstance(frame, dict) else None
+        if match:
+            chunk_index = int(match.group(1))
+            break
+    low, high = int(chunk_index * CHUNK_SECONDS + start), int(chunk_index * CHUNK_SECONDS + end)
+    if low // 60 != high // 60:
+        return None
+    minutes = low // 60
+    prefix = f"영상 {minutes}분 " if minutes else "영상 "
+    return f"{prefix}{low % 60}~{high % 60}초 사이"
+
+
+# 장면 설명에 반려동물이 한 일이 원인으로 이미 적혀 있는가: '강아지가 줄을 당기면서 선반이 떨어졌어요'.
+_PET_SUBJECT = re.compile(r"강아지|반려동물|반려견|고양이|아이가")
+_PET_CAUSE_VERB = re.compile(r"당기|당겨|잡아당|끌|밀[어고며었]|물[어고며었]|잡아|부딪|치[고며면어]|건드|올라[가타]|뛰어|들이받")
+
+
+def _states_pet_cause(event: dict[str, Any]) -> bool:
+    text = f"{event.get('summary') or ''} {event.get('action') or ''}"
+    return bool(_PET_SUBJECT.search(text) and _PET_CAUSE_VERB.search(text))
 
 
 # 물건이 바뀐 일의 원인으로 볼 수 있는 직전 행동: 몇 초 안에 이어지고, 같은 물건에 대한 반려동물의 행동이어야 한다.
@@ -844,9 +877,12 @@ def run_sequence_query(
                 answer += " 다만 제외된 구간이 있어서, 실제로 없었다는 뜻은 아니에요."
         else:
             first_at, first_event = selected[0]
-            clock = _clock_text(first_at) or _video_time_text(first_event)
+            clock = _clock_text(first_at) or _video_range_text(first_event) or _video_time_text(first_event)
             answer = f"{clock}에 {_spoken_description(first_event)}."
-            if _WHY.search(query):
+            if _WHY.search(query) and _states_pet_cause(first_event):
+                # 장면 설명이 원인(반려동물의 행동)을 이미 담고 있다. 모른다고 덧붙이거나 관련 없는 직전 장면을 끌어오지 않는다.
+                pass
+            elif _WHY.search(query):
                 # 이벤트에 원인이 직접 기록되지는 않으므로, 직전 행동이 조건에 맞을 때만 추정한다.
                 cause = _likely_cause(first_event, rows)
                 if cause is not None:

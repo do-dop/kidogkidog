@@ -29,10 +29,10 @@ SCENE_CHANGE_INTERESTINGNESS = 0.8
 
 _PROMPT = """너는 펫캠 영상 분석 도우미다.
 
-아래 이미지들은 같은 장면에서 시간 순서대로 가져온 프레임이다. 반려동물과 사람은 무시하고, 장면 속 가구·문·물건의 모양이나 위치가 앞뒤 프레임에서 달라졌는지만 판단해라.
+아래 이미지들은 같은 장면에서 시간 순서대로 가져온 프레임이다. 장면 속 가구·문·물건·줄의 모양이나 위치가 앞뒤 프레임에서 달라졌는지 판단해라. 반려동물이 물거나 당겨서 물건이 떨어지거나 끌려온 경우도 변화로 본다. 이때 summary에는 원인이 프레임에서 보일 때만 반려동물의 행동을 함께 쓴다.
 
 규칙:
-- 반려동물이나 사람이 움직이거나 나타나거나 사라지는 것은 변화가 아니다.
+- 반려동물이나 사람이 움직이거나 나타나거나 사라지는 것 자체는 변화가 아니다.
 - 카메라 밝기, 초점, 화질, 자막 변화는 변화가 아니다.
 - 카메라가 흔들리거나 화면 구도(보이는 범위, 확대)가 달라져서 물건이 다르게 보이는 것은 변화가 아니다. 벽·창문·문틀 같은 배경 물건의 위치가 같이 바뀌었다면 카메라가 움직인 것이다. 앞 프레임에 없던 물건이 뒤 프레임에 보이더라도 시야가 달라져서일 수 있으니 이때도 false로 한다.
 - 그 물건이 앞 프레임과 뒤 프레임에서 분명히 다른 모양이거나 다른 자리에 있을 때만 changed를 true로 한다. 조금이라도 불확실하면 false로 한다.
@@ -45,7 +45,7 @@ _PROMPT = """너는 펫캠 영상 분석 도우미다.
 출력 형식:
 {"changed": false}
 또는
-{"changed": true, "object": "물건 이름", "before": "앞 프레임 모습", "after": "뒤 프레임 모습", "summary": "한 문장", "confidence": 0.0}
+{"changed": true, "object": "물건 이름", "before": "앞 프레임 모습", "after": "뒤 프레임 모습", "summary": "한 문장", "changed_at": 변화가 처음 보이는 프레임의 영상 시각(초, 숫자), "confidence": 0.0}
 """
 
 
@@ -111,9 +111,12 @@ def _parse(text: str) -> dict | None:
     return parsed if isinstance(parsed, dict) else None
 
 
-def _compare(first: dict, last: dict) -> dict | None:
-    """두 프레임을 비교해 물건이 달라졌으면 {object, summary, before, after, confidence}를, 아니면 None을 돌려준다."""
-    text = _call_gemini([first, last])
+def _compare(frames: list[dict]) -> dict | None:
+    """프레임들을 시간순으로 비교해 물건이 달라졌으면 {object, summary, before, after, confidence}를, 아니면 None을 돌려준다.
+
+    첫·끝 두 장만 보내면 12초 창처럼 긴 구간에서 중간에 생긴 변화가 희석되거나, 창이 시작될 때 이미 변한 뒤라 놓친다.
+    """
+    text = _call_gemini(frames)
     parsed = _parse(text) if text else None
     if not parsed or parsed.get("changed") is not True:
         return None
@@ -127,6 +130,7 @@ def _compare(first: dict, last: dict) -> dict | None:
         "before": str(parsed.get("before") or "").strip(),
         "after": str(parsed.get("after") or "").strip(),
         "confidence": parsed.get("confidence"),
+        "changed_at": parsed.get("changed_at"),
     }
 
 
@@ -165,6 +169,22 @@ def _locate_change(frames: list[dict]) -> tuple[int, int]:
     return best, best + 1
 
 
+def _locate_from_model(frames: list[dict], changed_at: Any) -> tuple[int | None, int | None]:
+    """모델이 답한 "변화가 처음 보이는 프레임 시각"으로 (직전 프레임, 그 프레임) 인덱스를 구한다. 못 찾으면 (None, None).
+
+    픽셀 차이는 카메라 컷이나 반려동물 움직임에 속지만, 모델은 둘을 구분해서 답한다.
+    """
+    try:
+        target = float(changed_at)
+    except (TypeError, ValueError):
+        return None, None
+    times = [float(frame.get("timestamp") or 0.0) for frame in frames]
+    for index in range(1, len(times)):
+        if abs(times[index] - target) < 0.01:
+            return index - 1, index
+    return None, None
+
+
 def detect_scene_change(frames: list[dict]) -> dict | None:
     """구간의 첫·끝 프레임을 비교해 장면 변화 이벤트를 돌려준다. 변화가 없거나 실패하면 None.
 
@@ -182,11 +202,13 @@ def detect_scene_change(frames: list[dict]) -> dict | None:
     if last_time <= first_time:
         return None
 
-    found = _compare(first, last)
+    found = _compare(frames)
     if found is None:
         return None
 
-    low, high = _locate_change(frames)
+    low, high = _locate_from_model(frames, found.get("changed_at"))
+    if low is None:
+        low, high = _locate_change(frames)
     evidence = [
         f"{first_time:.2f}초: {found['before']}" if found["before"] else f"{first_time:.2f}초: 변화 전 프레임",
         f"{last_time:.2f}초: {found['after']}" if found["after"] else f"{last_time:.2f}초: 변화 후 프레임",

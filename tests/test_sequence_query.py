@@ -25,6 +25,19 @@ def event(event_id, chunk, second, summary):
     }
 
 
+def offset_event(event_id, start, end, summary, scene=False):
+    """촬영 시각이 없는 영상(청크 번호와 오프셋 초만 있는 키)의 이벤트."""
+    item = {
+        "id": event_id, "video_id": "dog-video", "start_time": start, "end_time": end,
+        "summary": summary, "action": summary, "confidence": 0.8, "subject": "반려동물",
+        "source_frames": [{"frame_id": f"f{event_id}", "timestamp": end,
+                           "s3_key": f"frames/dog-video/dog-video_000_frame_{end:.2f}.jpg"}],
+    }
+    if scene:
+        item.update(subject="물건", target_object="물건", subject_type="scene")
+    return item
+
+
 class SequenceQueryTests(unittest.TestCase):
     def test_classifies_sequence_question(self):
         self.assertTrue(is_sequence_query("강아지가 무엇을 한 다음에 쉬었어?"))
@@ -145,6 +158,26 @@ class SequenceQueryTests(unittest.TestCase):
         plain = run_sequence_query("소파가 언제 뒤집어졌어?", video_id="dog-video", events=[scene])
         self.assertNotIn("알 수 없어요", plain["answer"])
         self.assertNotIn("그 때문에", plain["answer"])
+
+    def test_why_question_uses_the_cause_already_written_in_the_scene_description(self):
+        # 장면 설명이 '강아지가 줄을 당기면서'처럼 원인을 담고 있으면 모른다고 덧붙이거나 관련 없는 직전 장면을 끌어오지 않는다.
+        scene = offset_event(2, 22, 25, "강아지가 줄을 당기면서 벽에 걸려 있던 물건들이 바닥으로 떨어졌어요", scene=True)
+        earlier = offset_event(1, 15, 20, "반려동물이 TV 쪽을 바라보며 서 있었어요")
+        for question in ("물건들이 왜 떨어졌어?", "물건들이 떨어진 건 언제야?", "물건들이 왜, 언제 떨어졌어?"):
+            result = run_sequence_query(question, video_id="dog-video", events=[earlier, scene])
+            self.assertEqual([item["source_event_id"] for item in result["results"]], [2], question)
+            self.assertIn("줄을 당기면서", result["answer"], question)
+            self.assertIn("22~25초 사이", result["answer"], question)
+            self.assertNotIn("알 수 없어요", result["answer"], question)
+            self.assertNotIn("그 직전에는", result["answer"], question)
+
+    def test_narrow_scene_change_interval_keeps_the_single_time(self):
+        narrow = offset_event(3, 21, 23, "소파가 뒤집어졌어요", scene=True)
+        self.assertIn("21초쯤", run_sequence_query("소파가 언제 뒤집어졌어?", video_id="dog-video", events=[narrow])["answer"])
+
+    def test_fell_down_question_is_routed_to_stored_events(self):
+        for question in ("물건들이 왜 떨어졌어?", "선반이 떨어진 건 언제야?", "물건이 떨어진 장면 보여줘"):
+            self.assertTrue(is_sequence_query(question), question)
 
     def test_when_question_without_matching_scene_says_so(self):
         events = [event(1, 0, 2, "반려동물이 소파 위에 앉아 있어요")]
