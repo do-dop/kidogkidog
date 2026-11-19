@@ -4,7 +4,7 @@ from pipeline.video.frame_extractor import extract_frames
 from pipeline.storage.gcs_uploader import download_video, upload_frame
 from pipeline.storage.vector_store import index_frame, verify_indexed_frame_ids
 from pipeline.models.yolo_detector import detect_objects
-from pipeline.events.behavior_event_extractor import extract_behavior_events
+from pipeline.events.video_event_extractor import extract_events_for_chunk
 from db.behavior_events import insert_behavior_events
 from db.scenes import insert_scene
 from db.schema import init_db
@@ -270,9 +270,11 @@ def process_chunk(chunk_path, submitted_at=None, uploaded_at=None):
             print("행동 이벤트 분석 시작...", flush=True)
 
             with measure_stage("behavior_analysis"):
-                behavior_events = extract_behavior_events(
+                # BEHAVIOR_EVENT_SOURCE(기본 frames)에 따라 프레임 방식 또는 영상 직접 입력을 쓴다.
+                behavior_events = extract_events_for_chunk(
                     indexed_frames=indexed_frames,
                     video_id=video_id,
+                    video_path=local_path,
                     limit=20,
                 )
         else:

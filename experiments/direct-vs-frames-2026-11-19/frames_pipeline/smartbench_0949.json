@@ -1,0 +1,47 @@
+{
+ "clip": "smartbench_0949",
+ "frames": 23,
+ "seconds": 52.4,
+ "events": [
+  {
+   "action": "반려동물이 화면에서 사라짐",
+   "start_time": 20.5,
+   "end_time": 25.5,
+   "subject": "반려동물",
+   "subject_type": null,
+   "confidence": 0.9
+  },
+  {
+   "action": "반려동물이 앞쪽을 바라보며 기다림",
+   "start_time": 15.5,
+   "end_time": 20.5,
+   "subject": "반려동물",
+   "subject_type": null,
+   "confidence": 0.8
+  },
+  {
+   "action": "반려동물이 바닥에 있는 물체를 냄새 맡음",
+   "start_time": 26.5,
+   "end_time": 29.5,
+   "subject": "반려동물",
+   "subject_type": null,
+   "confidence": 0.8
+  },
+  {
+   "action": "반려동물이 바닥에 있는 물체를 탐색함",
+   "start_time": 25.5,
+   "end_time": 27.5,
+   "subject": "반려동물",
+   "subject_type": null,
+   "confidence": 0.7
+  },
+  {
+   "action": "반려동물이 벽 쪽으로 다가가서 물체를 바라봄",
+   "start_time": 0.0,
+   "end_time": 2.0,
+   "subject": "반려동물",
+   "subject_type": null,
+   "confidence": 0.7
+  }
+ ]
+}

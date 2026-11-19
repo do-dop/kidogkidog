@@ -1,0 +1,47 @@
+{
+ "clip": "smartbench_0142",
+ "frames": 23,
+ "seconds": 55.3,
+ "events": [
+  {
+   "action": "반려동물이 그릇에서 먹고 있음",
+   "start_time": 0.0,
+   "end_time": 8.0,
+   "subject": "반려동물",
+   "subject_type": null,
+   "confidence": 0.8
+  },
+  {
+   "action": "반려동물이 그릇 근처에서 움직이며 앞쪽을 바라봄",
+   "start_time": 10.51,
+   "end_time": 14.51,
+   "subject": "반려동물",
+   "subject_type": null,
+   "confidence": 0.8
+  },
+  {
+   "action": "반려동물이 그릇에서 먹고 있음",
+   "start_time": 31.03,
+   "end_time": 33.03,
+   "subject": "반려동물",
+   "subject_type": null,
+   "confidence": 0.8
+  },
+  {
+   "action": "반려동물이 그릇에서 먹고 있음",
+   "start_time": 20.0,
+   "end_time": 22.0,
+   "subject": "반려동물",
+   "subject_type": null,
+   "confidence": 0.8
+  },
+  {
+   "action": "반려동물이 그릇 근처에서 움직임",
+   "start_time": 24.52,
+   "end_time": 27.53,
+   "subject": "반려동물",
+   "subject_type": null,
+   "confidence": 0.6
+  }
+ ]
+}

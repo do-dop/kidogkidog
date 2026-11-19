@@ -1,0 +1,23 @@
+{
+ "clip": "smartbench_0642",
+ "frames": 9,
+ "seconds": 26.9,
+ "events": [
+  {
+   "action": "반려동물이 물가에서 앞발을 담그고 있음",
+   "start_time": 0.0,
+   "end_time": 2.0,
+   "subject": "반려동물",
+   "subject_type": null,
+   "confidence": 0.8
+  },
+  {
+   "action": "반려동물이 물속에서 움직임",
+   "start_time": 4.0,
+   "end_time": 7.0,
+   "subject": "반려동물",
+   "subject_type": null,
+   "confidence": 0.7
+  }
+ ]
+}

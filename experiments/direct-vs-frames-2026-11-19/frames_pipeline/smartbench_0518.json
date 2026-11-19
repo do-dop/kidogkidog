@@ -1,0 +1,47 @@
+{
+ "clip": "smartbench_0518",
+ "frames": 22,
+ "seconds": 45.3,
+ "events": [
+  {
+   "action": "소파 위에 있던 담요와 물건들이 치워졌어요",
+   "start_time": 21.52,
+   "end_time": 22.52,
+   "subject": "소파",
+   "subject_type": null,
+   "confidence": 0.95
+  },
+  {
+   "action": "반려동물이 소파 옆에서 뒤쪽으로 이동함",
+   "start_time": 10.0,
+   "end_time": 16.0,
+   "subject": "반려동물",
+   "subject_type": null,
+   "confidence": 0.8
+  },
+  {
+   "action": "반려동물이 소파 위로 올라가서 다른 반려동물과 함께 있음",
+   "start_time": 18.52,
+   "end_time": 22.52,
+   "subject": "반려동물",
+   "subject_type": null,
+   "confidence": 0.8
+  },
+  {
+   "action": "반려동물이 소파에서 나감",
+   "start_time": 22.52,
+   "end_time": 24.52,
+   "subject": "반려동물",
+   "subject_type": null,
+   "confidence": 0.7
+  },
+  {
+   "action": "반려동물이 화면 오른쪽으로 이동함",
+   "start_time": 30.03,
+   "end_time": 33.53,
+   "subject": "반려동물",
+   "subject_type": null,
+   "confidence": 0.8
+  }
+ ]
+}
