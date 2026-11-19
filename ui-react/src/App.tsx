@@ -1123,6 +1123,18 @@ export default function App() {
     [recordingItems, selectedDate, timeFilter, screen, searchAllDates],
   );
   const videoGroups = useMemo(() => groupRecordingsByVideo(filteredRecordings), [filteredRecordings]);
+  // 홈 타일에 "N개 구간"을 보여주기 위해 영상별 청크 수를 센다.
+  const chunkCountByVideo = useMemo(() => {
+    const counts = new Map<string, number>();
+    videoGroups.forEach((group) => counts.set(group.videoId ?? "", group.chunks.length));
+    return counts;
+  }, [videoGroups]);
+
+  // 홈의 "최근 녹화 영상": 촬영 시각이 있으면 최신순, 없으면 원래 순서를 유지해 4개만 보여준다.
+  const recentRecordings = useMemo(
+    () => [...filteredRecordings].sort((a, b) => (b.recordedAt ?? "").localeCompare(a.recordedAt ?? "")).slice(0, 4),
+    [filteredRecordings],
+  );
 
   const highlightedBehaviors = useMemo(
     () => behaviorEvents
@@ -1969,16 +1981,11 @@ export default function App() {
                   </div>
                 )}
 
-                <div className="home-recordings" ref={recordingsRef}>
-                  <div className="section-title-block left">
-                    <div className="section-kicker-pill">
-                      <Icon filled>smart_display</Icon>
-                      <span>SMART CLIPS & BEHAVIORS</span>
-                    </div>
-                    <h2>포착된 녹화 청크 & 주요 행동</h2>
-                    <p>{searchAllDates ? "전체 날짜" : `${selectedYear}년 ${selectedMonth}월 ${selectedDay}일`} · 총 {videoGroups.length}개 영상 · {filteredRecordings.length}개 청크</p>
+                <div className="home-rec" ref={recordingsRef}>
+                  <div className="home-rec-head">
+                    <h2>최근 녹화 영상</h2>
+                    <p>{searchAllDates ? "전체 날짜" : `${selectedYear}년 ${selectedMonth}월 ${selectedDay}일`} · 총 {filteredRecordings.length}개 클립 · 눌러서 바로 재생</p>
                   </div>
-
                   <div className="home-recordings-head">
                     <div>
                       <span>시간대 필터</span>
@@ -1992,13 +1999,20 @@ export default function App() {
                     petName={petName}
                     onOpen={(recording) => openRecording(recording)}
                   />
-                  <div className="clip-grid">
-                    {videoGroups.map((group) => (
-                      <VideoCard key={group.id} group={group} eventCount={group.chunks.reduce((sum, clip) => sum + eventsForRecording(clip, behaviorEvents).length, 0)} onOpen={() => openRecording(group.chunks[0])} />
+                  <div className="home-rec-grid">
+                    {recentRecordings.map((clip) => (
+                      <HomeClipTile key={clip.id} clip={clip} eventCount={eventsForRecording(clip, behaviorEvents).length} chunkCount={chunkCountByVideo.get(clip.videoId ?? "") ?? 1} onOpen={() => openRecording(clip)} />
                     ))}
                   </div>
                   {filteredRecordings.length === 0 && (
                     <RecordingsStatus loading={recordingsLoading} failed={recordingsFailed} notice={recordingsNotice} onRetry={() => setRecordingsRefreshToken((token) => token + 1)} />
+                  )}
+                  {filteredRecordings.length > recentRecordings.length && (
+                    <div className="home-rec-more">
+                      <button className="secondary-button" type="button" onClick={() => go("recordings")}>
+                        녹화 영상 전체 보기<Icon>arrow_forward</Icon>
+                      </button>
+                    </div>
                   )}
                 </div>
 
@@ -2679,6 +2693,33 @@ function RecordingsStatus({ loading, failed, notice, onRetry }: { loading: boole
       <strong>선택한 날짜와 시간대에 녹화 영상이 없어요</strong>
       <p>다른 날짜나 시간대를 선택해보세요.</p>
     </div>
+  );
+}
+
+function HomeClipTile({ clip, eventCount = 0, chunkCount = 1, onOpen }: { clip: Recording; eventCount?: number; chunkCount?: number; onOpen: () => void }) {
+  const dateLabel = formatDateLabel(clip.recordingDate);
+
+  return (
+    <button className="home-clip" type="button" onClick={onOpen} aria-label={`${clip.time} 녹화 영상 재생`}>
+      <div
+        className={clip.thumbnailUrl ? "home-clip-thumb has-image" : "home-clip-thumb"}
+        style={clip.thumbnailUrl ? { backgroundImage: `url(${clip.thumbnailUrl})` } : { background: gradients[clip.thumb] }}
+      >
+        <span className="home-clip-duration">{clip.duration}</span>
+        <span className="home-clip-play"><Icon filled>play_arrow</Icon></span>
+      </div>
+      <div className="home-clip-body">
+        <strong>{clip.time}</strong>
+        <span className="home-clip-meta">
+          {eventCount > 0 && <em>이벤트 {eventCount}</em>}
+          {dateLabel && <small>{dateLabel}</small>}
+        </span>
+        <div className="clip-info-pills">
+          <span className="clip-source-pill"><Icon>movie</Icon>{videoTitle(clip.videoId)}</span>
+          {chunkCount > 1 && <span className="clip-type-pill"><Icon>view_timeline</Icon>{chunkCount}개 구간</span>}
+        </div>
+      </div>
+    </button>
   );
 }
 
