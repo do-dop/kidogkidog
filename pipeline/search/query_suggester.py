@@ -1,4 +1,5 @@
 from db.behavior_events import get_top_behavior_events
+from pipeline.search.grounded_event_questions import grounded_event_question_items
 from pipeline.search.question_generator import generate_question_items_from_behavior_events
 from pipeline.storage.vector_store import get_indexed_frames
 
@@ -194,6 +195,10 @@ def suggest_query_items(
     )
 
     if behavior_events:
+        grounded_items = grounded_event_question_items(behavior_events, limit)
+        if len(grounded_items) >= limit:
+            return grounded_items
+
         video_specific_questions = _generate_video_specific_questions(
             events=behavior_events,
             video_id=video_id,
@@ -201,12 +206,12 @@ def suggest_query_items(
         )
         generated_items = generate_question_items_from_behavior_events(
             events=behavior_events,
-            limit=max(limit * 3, 9),
+            limit=max((limit - len(grounded_items)) * 3, 9),
         )
 
         # 문장 선정 순서는 그대로 두고, 선택된 문장의 원본 metadata를 보존한다.
         generated_by_question = {}
-        for item in generated_items:
+        for item in grounded_items + generated_items:
             generated_by_question.setdefault(item["question"], item)
 
         generated_questions = [
@@ -215,9 +220,10 @@ def suggest_query_items(
             if not _is_low_value_question(question)
         ]
 
-        generated_questions = _dedupe_questions_by_category(
-            generated_questions,
-            limit=limit,
+        grounded_questions = [item["question"] for item in grounded_items]
+        generated_questions = grounded_questions + _dedupe_questions_by_category(
+            [question for question in generated_questions if question not in grounded_questions],
+            limit=limit - len(grounded_questions),
         )
         # 행동 기반 질문(생성 함수의 fallback 포함)을 먼저 선정한다.
         selected_questions = generated_questions[:limit]
