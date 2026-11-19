@@ -49,7 +49,7 @@ class ExtractFramesIdleTests(unittest.TestCase):
             frames = self._run(None)
         idle = [f for f in frames if not f["motion_detected"]]
         self.assertIn(0.0, [f["timestamp"] for f in idle])
-        self.assertIn(15.0, [f["timestamp"] for f in idle])
+        self.assertIn(14.0, [f["timestamp"] for f in idle])
         self.assertEqual(idle[0]["segment_id"], idle[1]["segment_id"])
 
     def test_idle_frames_are_added_and_flagged(self):
@@ -59,6 +59,23 @@ class ExtractFramesIdleTests(unittest.TestCase):
         self.assertEqual(len(idle), 4)
         self.assertEqual(len({f["segment_id"] for f in idle}), 2)  # 12초 창으로 묶어 전환을 분석
         self.assertEqual(idle[0]["segment_id"], idle[1]["segment_id"])
+
+class IdleFallbackTests(unittest.TestCase):
+    def _run(self, idle, fps=1.0):
+        with patch.object(frame_extractor, "detect_motion", return_value=[]), \
+             patch.object(frame_extractor, "_extract_frames_with_ffmpeg", return_value=[]) as ff, \
+             patch.object(frame_extractor.os, "makedirs"):
+            frame_extractor.extract_frames("clip.mp4", output_dir="/tmp/f", fps=fps, idle_sample_interval=idle)
+        return ff.call_args.kwargs["fps"]
+
+    def test_no_motion_chunk_follows_idle_interval(self):
+        self.assertAlmostEqual(self._run(6), 1 / 6)
+
+    def test_no_motion_chunk_keeps_fps_when_idle_disabled(self):
+        self.assertEqual(self._run(0), 1.0)
+
+    def test_idle_interval_never_raises_fps(self):
+        self.assertEqual(self._run(0.5, fps=0.5), 0.5)
 
 
 if __name__ == "__main__":

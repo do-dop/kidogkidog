@@ -48,6 +48,23 @@ def get_yolo_model():
         return YOLO(model_name)
 
 
+def _class_confidence_overrides():
+    """YOLO_CLASS_CONFIDENCE="dog=0.6,cat=0.55" 형태로 클래스별 최소 confidence를 지정한다.
+
+    정적 물체(담요 등)가 dog으로 오탐되는 것을 줄이는 용도이며 기본은 끔이다.
+    잘못된 항목은 무시한다.
+    """
+    overrides = {}
+    for item in os.getenv("YOLO_CLASS_CONFIDENCE", "").split(","):
+        name, _, value = item.partition("=")
+        try:
+            overrides[name.strip()] = float(value)
+        except ValueError:
+            continue
+    overrides.pop("", None)
+    return overrides
+
+
 def detect_objects(
     frame_path: str,
     confidence_threshold: float = 0.5,
@@ -77,6 +94,7 @@ def detect_objects(
             )
 
         detected_labels = set()
+        class_thresholds = _class_confidence_overrides()
 
         for result in results:
             names = result.names
@@ -86,7 +104,7 @@ def detect_objects(
                 confidence = float(box.conf[0])
                 label = names[class_id]
 
-                if confidence < confidence_threshold:
+                if confidence < max(confidence_threshold, class_thresholds.get(label, 0.0)):
                     continue
 
                 if label not in labels_filter:

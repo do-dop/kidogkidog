@@ -130,6 +130,27 @@ def _normalize_object_labels(object_labels):
     return ",".join(str(label) for label in object_labels)
 
 
+def _frame_metadata(
+    frame_path, video_id, s3_key, object_labels, recorded_at, timestamp, capture_time_source=None
+):
+    metadata = {
+        "frame_path": str(frame_path),
+        "timestamp": (
+            float(timestamp) if timestamp is not None
+            else _timestamp_from_frame_path(frame_path)
+        ),
+        "video_id": video_id,
+        "object_labels": _normalize_object_labels(object_labels),
+    }
+    if s3_key:
+        metadata["s3_key"] = s3_key
+    if recorded_at:
+        metadata["recorded_at"] = str(recorded_at)
+        if capture_time_source:
+            metadata["capture_time_source"] = capture_time_source
+    return metadata
+
+
 def index_frame(
     frame_path,
     frame_root="pipeline/frames",
@@ -152,7 +173,13 @@ def index_frame(
     print(f"ChromaDB 기존 프레임 확인 시작: {frame_id}", flush=True)
     existing = collection.get(ids=[frame_id])
     if existing["ids"]:
-        print(f"ChromaDB 기존 프레임 스킵: {frame_id}", flush=True)
+        # 임베딩은 재계산하지 않고, 재처리로 바뀔 수 있는 메타데이터만 갱신한다.
+        refreshed = _frame_metadata(
+            frame_path, frame_video_id, s3_key, object_labels, recorded_at, timestamp,
+            capture_time_source,
+        )
+        collection.update(ids=[frame_id], metadatas=[refreshed])
+        print(f"ChromaDB 기존 프레임 메타데이터 갱신: {frame_id}", flush=True)
         return frame_id
     print(f"ChromaDB 기존 프레임 확인 완료: {frame_id}", flush=True)
 
@@ -160,22 +187,10 @@ def index_frame(
     embedding = embed_image(str(frame_path))
     print(f"CLIP 이미지 임베딩 완료: {frame_path}", flush=True)
 
-    metadata = {
-        "frame_path": str(frame_path),
-        "timestamp": (
-            float(timestamp) if timestamp is not None
-            else _timestamp_from_frame_path(frame_path)
-        ),
-        "video_id": frame_video_id,
-        "object_labels": _normalize_object_labels(object_labels),
-    }
-
-    if s3_key:
-        metadata["s3_key"] = s3_key
-    if recorded_at:
-        metadata["recorded_at"] = str(recorded_at)
-        if capture_time_source:
-            metadata["capture_time_source"] = capture_time_source
+    metadata = _frame_metadata(
+        frame_path, frame_video_id, s3_key, object_labels, recorded_at, timestamp,
+        capture_time_source,
+    )
 
     print(f"ChromaDB add 시작: {frame_id}", flush=True)
     with measure_stage("chroma_write"):
