@@ -44,6 +44,9 @@ def split_video_into_chunks(video_path, chunk_duration=60, output_dir="simulator
         # 없으면 58~67초로 흔들려 청크번호*60 시각 계산이 어긋난다.
         "-force_key_frames", f"expr:gte(t,n_forced*{chunk_duration})",
         "-segment_time", str(chunk_duration),
+        # 경계 키프레임 시각이 segment_time과 부동소수점 오차로 어긋나 한 키프레임 건너뛰고
+        # 첫 청크가 길어지는 문제(68초)를 막는다.
+        "-segment_time_delta", "0.05",
         "-f", "segment",
         "-reset_timestamps", "1",
         str(output_pattern),
