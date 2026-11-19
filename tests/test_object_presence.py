@@ -34,6 +34,15 @@ class ObjectPresenceTests(unittest.TestCase):
         for query in ("고양이가 초인종 앞에 있는 장면 보여줘", "고양이가 움직인 장면 찾아줘"):
             self.assertIsNone(object_presence._presence_subject(query), query)
 
+    def test_short_presence_questions_use_the_same_grounded_frames(self):
+        for query in ("고양이가 있어?", "고양이 있니?", "강아지가 있어?", "강아지 보여?"):
+            with self.subTest(query=query):
+                subject = object_presence._presence_subject(query)
+                self.assertIsNotNone(subject)
+        with patch.object(object_presence, "get_indexed_frames", return_value=[frame("cat", 2, "cat")]):
+            result = object_presence.find_presence_scenes("고양이가 있어?", "video", 3)
+        self.assertEqual(result["results"][0]["frame_id"], "cat")
+
     def test_no_matching_label_does_not_invent_a_scene(self):
         with patch.object(object_presence, "get_indexed_frames", return_value=[frame("dog", 2, "dog")]):
             self.assertIsNone(object_presence.find_presence_scenes("고양이가 보이는 장면 보여줘", "video", 3))

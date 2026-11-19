@@ -17,13 +17,17 @@ ACTION_PATTERNS = {
         r"(?:들어|들어갔|입수).{0,16}(?:분수|수영장|물속|물\s*안)",
         "물속 들어가기",
     ),
-    "front_paw_raise": (r"앞발.{0,16}(?:들|올리|올렸)|(?:들|올리|올렸).{0,16}앞발", "앞발 들기"),
+    "front_paw_raise": (r"앞발.{0,16}(?:들|올리|올렸|올린|올림|올려)|(?:들|올리|올렸|올린|올림|올려).{0,16}앞발", "앞발 들기"),
     "sofa_up": (
         r"(?:소파|쇼파|sofa).{0,16}(?:올라|올랐|올리|점프|타고)|"
         r"(?:올라|올랐|올리|점프|타고).{0,16}(?:소파|쇼파|sofa)",
         "소파 올라가기",
     ),
     "head_lift": (r"고개.{0,8}(?:들|든|듦|올리)", "고개 들기"),
+    "camera_approach": (
+        r"카메라.{0,18}(?:가까|다가|접근|얼굴)|(?:가까|다가|접근).{0,18}카메라",
+        "카메라 접근",
+    ),
 }
 COUNT_PATTERN = re.compile(r"몇\s*(?:번|회)|횟수", re.I)
 UNCERTAIN_PATTERN = re.compile(r"마시지\s*않|먹지\s*않|마시는지|먹는지|근처|주변|앞에|옆에", re.I)
@@ -71,6 +75,9 @@ def event_matches_action(event: dict[str, Any], action: str) -> bool:
         return True
     if action == "water_enter":
         return bool(re.search(ACTION_PATTERNS[action][0], description, re.I))
+    if action == "camera_approach":
+        # Merely looking toward a camera is not an approach.
+        return bool(re.search(r"카메라.{0,16}(?:다가|접근|가까)", description, re.I))
     if action in {"front_paw_raise", "head_lift"}:
         return bool(re.search(ACTION_PATTERNS[action][0], description, re.I))
     if UNCERTAIN_PATTERN.search(description):

@@ -12,7 +12,13 @@ _FRAME_CHUNK = re.compile(r"_(\d{3})_frame_[0-9.]+\.jpg$")
 def _presence_subject(query):
     compact = re.sub(r"[\s?!.,]+", "", query or "")
     for name, label in _SUBJECTS.items():
-        pattern = rf"^{name}(?:가|이)?(?:보이는|나오는|등장하는|있는)(?:장면(?:이)?)?(?:보여줘|보여주세요|찾아줘|찾아주세요|있어|있나요)?$"
+        pattern = (
+            rf"^{name}(?:가|이)?(?:"
+            r"(?:보이는|나오는|등장하는|있는)(?:장면(?:이)?)?"
+            r"(?:보여줘|보여주세요|찾아줘|찾아주세요|있어|있나요)?"
+            r"|있어|있니|있나요|나와|나오니|보여|보이나요)"
+            r"$"
+        )
         if re.fullmatch(pattern, compact):
             return name, label
     return None
