@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import List, Set
 
 from ultralytics import YOLO
+from pipeline.models import species_verifier
 from pipeline.observability.metrics import measure_stage
 
 
@@ -108,6 +109,14 @@ def detect_objects(
                     continue
 
                 if label not in labels_filter:
+                    continue
+
+                if (
+                    label == "dog"
+                    and species_verifier.enabled()
+                    and species_verifier.needs_check(confidence)
+                    and not species_verifier.looks_like_dog(frame_path, box.xyxy[0].tolist())
+                ):
                     continue
 
                 detected_labels.add(label)
