@@ -42,6 +42,7 @@ services:
     volumes:
       - clip-cache:/root/.cache/clip
       - frames:/app/pipeline/frames
+      - ./video-event-shadow:/tmp/video_event_shadow
 
 volumes:
   rabbit-data:

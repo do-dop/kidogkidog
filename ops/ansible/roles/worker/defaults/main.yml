@@ -7,3 +7,4 @@ rabbitmq_vhost: kidog_lab
 chroma_collection: petcam_frames_lab
 health_check_retries: 30
 health_check_delay: 5
+behavior_event_source: frames
