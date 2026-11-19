@@ -1,0 +1,46 @@
+﻿section,metric,value,n,note
+Semantic/영상 단위(전체 영상 검색),Hit@1,,0,
+Semantic/영상 단위(전체 영상 검색),Recall@1,,0,
+Semantic/영상 단위(전체 영상 검색),Hit@3,,0,
+Semantic/영상 단위(전체 영상 검색),Recall@3,,0,
+Semantic/영상 단위(전체 영상 검색),Hit@5,,0,
+Semantic/영상 단위(전체 영상 검색),Recall@5,,0,
+Semantic/영상 단위(전체 영상 검색),MRR,,0,
+Semantic/구간 단위(전체 영상 검색),Hit@1,,0,IoU≥0.5
+Semantic/구간 단위(전체 영상 검색),Recall@1,,0,
+Semantic/구간 단위(전체 영상 검색),Hit@3,,0,IoU≥0.5
+Semantic/구간 단위(전체 영상 검색),Recall@3,,0,
+Semantic/구간 단위(전체 영상 검색),Hit@5,,0,IoU≥0.5
+Semantic/구간 단위(전체 영상 검색),Recall@5,,0,
+Semantic/구간 단위(전체 영상 검색),MRR,,0,
+Semantic/구간 단위(전체 영상 검색),Overlap Hit@1,,0,정답 구간과 1프레임이라도 겹치면 적중(IoU보다 느슨함)
+Semantic/구간 단위(전체 영상 검색),Overlap Hit@3,,0,정답 구간과 1프레임이라도 겹치면 적중(IoU보다 느슨함)
+Semantic/구간 단위(전체 영상 검색),Overlap Hit@5,,0,정답 구간과 1프레임이라도 겹치면 적중(IoU보다 느슨함)
+Semantic/구간 단위(전체 영상 검색),1위 재생 구간 평균 길이(초),,0,
+Semantic/구간 단위(영상 한정 검색),Hit@1,,0,IoU≥0.5
+Semantic/구간 단위(영상 한정 검색),Recall@1,,0,
+Semantic/구간 단위(영상 한정 검색),Hit@3,,0,IoU≥0.5
+Semantic/구간 단위(영상 한정 검색),Recall@3,,0,
+Semantic/구간 단위(영상 한정 검색),Hit@5,,0,IoU≥0.5
+Semantic/구간 단위(영상 한정 검색),Recall@5,,0,
+Semantic/구간 단위(영상 한정 검색),MRR,,0,
+Semantic/구간 단위(영상 한정 검색),Overlap Hit@1,,0,정답 구간과 1프레임이라도 겹치면 적중(IoU보다 느슨함)
+Semantic/구간 단위(영상 한정 검색),Overlap Hit@3,,0,정답 구간과 1프레임이라도 겹치면 적중(IoU보다 느슨함)
+Semantic/구간 단위(영상 한정 검색),Overlap Hit@5,,0,정답 구간과 1프레임이라도 겹치면 적중(IoU보다 느슨함)
+Semantic/구간 단위(영상 한정 검색),1위 재생 구간 평균 길이(초),,0,
+Sequence,Exact Match,0.3333333333333333,6,
+Sequence,Order Accuracy(쌍 단위),0.5263157894736842,6,정답 단계가 2개 이상인 케이스의 단계 쌍. 못 찾은 단계가 낀 쌍은 오답
+Sequence,Temporal Localization(IoU≥0.5인 단계 비율),0.4583333333333333,24,분모=정답 단계 수
+Sequence,Temporal Localization(평균 최고 IoU),0.4322895960754332,6,
+Aggregation,Answer Coverage(계산 가능 응답 비율),,0,계산 불가 응답은 0회로 세지 않음
+Aggregation,Exact Count Accuracy(응답한 질문 기준),,0,
+Aggregation,Count MAE(응답한 질문 기준),,0,단위: 회
+Aggregation,End-to-end Exact(계산 불가를 오답으로 봄),,0,Coverage×Accuracy와 같음
+Grounding/sequence,Correct,0.6666666666666666,6,4건
+Grounding/sequence,Partial,0.16666666666666666,6,1건
+Grounding/sequence,Incorrect,0.16666666666666666,6,1건
+Grounding/sequence,Unverifiable,0.0,6,0건
+Latency/sequence,P50(ms),189.4,6,표본 20 미만: P95 신뢰 낮음
+Latency/sequence,P95(ms),252.3,6,표본 20 미만: P95 신뢰 낮음
+Latency/all,P50(ms),189.4,6,nearest-rank
+Latency/all,P95(ms),252.3,6,nearest-rank

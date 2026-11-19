@@ -1,0 +1,46 @@
+﻿case_id,task,query,search_video_id,gold_idx,gold_video_id,gold_event_id,gold_action,gold_start_s,gold_end_s,gold_order,expected_count,expected_answer,label_status,labeler,notes
+sem-smartbench_0642-1,semantic,검은 개들이 연못 돌 옆에 있음 장면 보여줘,,1,smartbench_0642,,검은 개들이 연못 돌 옆에 있음,0,4,,,,verified,human-review,"검수 메모: 검은 개가 연못에 들어 감 → 행동 설명 정정 반영 | 영상 프레임 확인(Claude): 0~3초는 연못가 돌 옆, 연못 입수는 4초 이후라 #2 구간. 원래 설명으로 복원"
+sem-smartbench_0642-2,semantic,개가 연못 물에 들어감 장면 보여줘,,1,smartbench_0642,,개가 연못 물에 들어감,4,6,,,,verified,human-review,카메라 확대 전환 있음
+sem-smartbench_0642-3,semantic,개들이 연못 물속에서 헤엄치거나 놂 장면 보여줘,,1,smartbench_0642,,개들이 연못 물속에서 헤엄치거나 놂,6,12,,,,verified,human-review,
+sem-smartbench_0642-4,semantic,개가 계속 연못에서 헤엄침 장면 보여줘,,1,smartbench_0642,,개가 계속 연못에서 헤엄침,12,15,,,,verified,human-review,검수 메모: 개가 계속 연못에서 헤엄치고 있음 → 행동 설명 정정 반영
+sem-smartbench_0608-1,semantic,강아지가 수영장 가장자리에서 물에 들어가 헤엄침 장면 보여줘,,1,smartbench_0608,,강아지가 수영장 가장자리에서 물에 들어가 헤엄침,0,3,,,,verified,human-review,
+sem-smartbench_0608-2,semantic,강아지가 얕은 곳에서 계단으로 나와 데크로 올라옴 장면 보여줘,,1,smartbench_0608,,강아지가 얕은 곳에서 계단으로 나와 데크로 올라옴,4,9,,,,verified,human-review,
+sem-smartbench_0608-3,semantic,강아지가 수영장 데크를 따라 걷거나 달림 장면 보여줘,,1,smartbench_0608,,강아지가 수영장 데크를 따라 걷거나 달림,10,18,,,,verified,human-review,
+sem-smartbench_0608-4,semantic,강아지가 물에 뛰어들어 헤엄침 장면 보여줘,,1,smartbench_0608,,강아지가 물에 뛰어들어 헤엄침,20,25,,,,verified,human-review,
+seq-smartbench_0642,sequence,강아지 행동을 시간순으로 알려줘,smartbench_0642,1,smartbench_0642,,검은 개들이 연못 돌 옆에 있음,0,4,1,,,verified,human-review,2026-11-19 원본 프레임 대조로 정답 구간 유효 확인.
+seq-smartbench_0642,sequence,강아지 행동을 시간순으로 알려줘,smartbench_0642,2,smartbench_0642,,개가 연못 물에 들어감,4,6,2,,,verified,human-review,2026-11-19 원본 프레임 대조로 정답 구간 유효 확인.
+seq-smartbench_0642,sequence,강아지 행동을 시간순으로 알려줘,smartbench_0642,3,smartbench_0642,,개들이 연못 물속에서 헤엄치거나 놂,6,12,3,,,verified,human-review,2026-11-19 원본 프레임 대조로 정답 구간 유효 확인.
+seq-smartbench_0642,sequence,강아지 행동을 시간순으로 알려줘,smartbench_0642,4,smartbench_0642,,개가 계속 연못에서 헤엄침,12,15,4,,,verified,human-review,2026-11-19 원본 프레임 대조로 정답 구간 유효 확인.
+seq-smartbench_0608,sequence,강아지 행동을 시간순으로 알려줘,smartbench_0608,1,smartbench_0608,,강아지가 수영장 가장자리에서 물에 들어가 헤엄침,0,3,1,,,verified,human-review,2026-11-19 원본 프레임 대조로 정답 구간 유효 확인.
+seq-smartbench_0608,sequence,강아지 행동을 시간순으로 알려줘,smartbench_0608,2,smartbench_0608,,강아지가 얕은 곳에서 계단으로 나와 데크로 올라옴,4,9,2,,,verified,human-review,2026-11-19 원본 프레임 대조로 정답 구간 유효 확인.
+seq-smartbench_0608,sequence,강아지 행동을 시간순으로 알려줘,smartbench_0608,3,smartbench_0608,,강아지가 수영장 데크를 따라 걷거나 달림,10,18,3,,,verified,human-review,2026-11-19 원본 프레임 대조로 정답 구간 유효 확인.
+seq-smartbench_0608,sequence,강아지 행동을 시간순으로 알려줘,smartbench_0608,4,smartbench_0608,,강아지가 물에 뛰어들어 헤엄침,20,25,4,,,verified,human-review,2026-11-19 원본 프레임 대조로 정답 구간 유효 확인.
+sem-smartbench_0065-1,semantic,검은 개가 소파에서 내려감 장면 보여줘,,1,smartbench_0065,,검은 개가 소파에서 내려감,0,2,,,,verified,human-review,검수 메모: 쇼파에서 내려 감  → 행동 설명 정정 반영
+sem-smartbench_0065-2,semantic,검은 개가 소파에 한 번 오르고 거실 바닥을 달려 지나감 장면 보여줘,,1,smartbench_0065,,검은 개가 소파에 한 번 오르고 거실 바닥을 달려 지나감,7,9,,,,verified,human-review,검수 메모: 검은 개가 쇼파에 한 번 오르고 거실 바닥을 달려 지나감 → 행동 설명 정정 반영
+sem-smartbench_0065-3,semantic,검은 개가 소파 등받이 위에 앉아 앞을 바라봄 장면 보여줘,,1,smartbench_0065,,검은 개가 소파 등받이 위에 앉아 앞을 바라봄,18,24,,,,verified,human-review,
+sem-smartbench_0188-1,semantic,강아지가 울타리 앞에 서서 앞발을 울타리에 걸침 장면 보여줘,,1,smartbench_0188,,강아지가 울타리 앞에 서서 앞발을 울타리에 걸침,4,6,,,,verified,human-review,2초 간격 프레임 기준 초안
+sem-smartbench_0188-2,semantic,강아지가 울타리 위로 올라타 넘어가려 함 장면 보여줘,,1,smartbench_0188,,강아지가 울타리 위로 올라타 넘어가려 함,8,14,,,,verified,human-review,
+sem-smartbench_0188-3,semantic,강아지가 울타리에 다시 올라타 넘어가려 함 장면 보여줘,,1,smartbench_0188,,강아지가 울타리에 다시 올라타 넘어가려 함,26,30,,,,verified,human-review,36초 이후는 다른 영상 클립(Ring 광고 등)이라 제외
+sem-IMG_8450_2-1,semantic,고양이가 오른쪽에서 걸어와 급식기 쪽으로 이동함 장면 보여줘,,1,IMG_8450_2,,고양이가 오른쪽에서 걸어와 급식기 쪽으로 이동함,4,14,,,,verified,human-review,"2초 간격 프레임 기준 초안. 첫 청크(_000)만 라벨, 시간은 청크 기준"
+sem-IMG_8450_2-2,semantic,고양이가 방 가운데 러그에 서서 주변을 둘러봄 장면 보여줘,,1,IMG_8450_2,,고양이가 방 가운데 러그에 서서 주변을 둘러봄,16,26,,,,verified,human-review,
+sem-IMG_8450_2-3,semantic,흰 고양이가 러그 위에서 카메라를 보며 울다가 고개를 숙임 장면 보여줘,,1,IMG_8450_2,,흰 고양이가 러그 위에서 카메라를 보며 울다가 고개를 숙임,38,46,,,,verified,human-review,검수 메모: 줄무늬 고양이는 없어 → 행동 설명 정정 반영 | 프레임 확인(Claude): 38~44초 러그 위 고양이가 카메라를 보며 울고 46초에 고개를 숙임
+sem-dog_drinking_water-1,semantic,개가 초록 그릇에 고개를 숙이고 물을 마심 장면 보여줘,,1,dog_drinking_water,,개가 초록 그릇에 고개를 숙이고 물을 마심,0,64.9,,,,verified,human-review,첫 청크(_000)만 라벨. 영상 내내 개가 그릇을 떠나지 않아 구간을 더 나누기 어려움
+agg-smartbench_0188-gate,aggregate,울타리에 몇 번 올라탔어?,smartbench_0188,1,smartbench_0188,,,4,14,,2,,excluded,draft:claude-frames,"초안 2회(4~14초, 26~30초). 12~14초 사이 올라탔다 내려온 뒤 다시 올랐다면 3회일 수 있어 직접 세어야 함 | 발표 평가에서 집계 제외(정답 횟수 기준 미확정)"
+agg-smartbench_0188-gate,aggregate,울타리에 몇 번 올라탔어?,smartbench_0188,2,smartbench_0188,,,26,30,,2,,excluded,draft:claude-frames,"초안 2회(4~14초, 26~30초). 12~14초 사이 올라탔다 내려온 뒤 다시 올랐다면 3회일 수 있어 직접 세어야 함 | 발표 평가에서 집계 제외(정답 횟수 기준 미확정)"
+agg-dog_drinking_water-drink,aggregate,물 몇 번 마셨어?,dog_drinking_water,1,dog_drinking_water,,,,,,,,excluded,draft:claude-frames,정답 횟수 미정: 4개 청크(약 213초) 내내 개가 그릇에서 안 떠나 연속 1회로 볼지 고개를 든 횟수로 셀지 사람이 기준을 정해야 함 | 발표 평가에서 집계 제외(정답 횟수 기준 미확정)
+seq-smartbench_0188,sequence,강아지 행동을 시간순으로 알려줘,smartbench_0188,1,smartbench_0188,,강아지가 울타리 앞에 서서 앞발을 울타리에 걸침,4,6,1,,,verified,human-review,2026-11-19 원본 프레임 대조로 정답 구간 유효 확인. semantic 검수 구간을 시간순으로 이은 것
+seq-smartbench_0188,sequence,강아지 행동을 시간순으로 알려줘,smartbench_0188,2,smartbench_0188,,강아지가 울타리 위로 올라타 넘어가려 함,8,14,2,,,verified,human-review,2026-11-19 원본 프레임 대조로 정답 구간 유효 확인.
+seq-smartbench_0188,sequence,강아지 행동을 시간순으로 알려줘,smartbench_0188,3,smartbench_0188,,강아지가 울타리에 다시 올라타 넘어가려 함,26,30,3,,,verified,human-review,2026-11-19 원본 프레임 대조로 정답 구간 유효 확인.
+seq-IMG_8450_2,sequence,고양이 행동을 시간순으로 알려줘,IMG_8450_2,1,IMG_8450_2,,고양이가 오른쪽에서 걸어와 급식기 쪽으로 이동함,4,14,1,,,verified,human-review,2026-11-19 원본 프레임 대조로 정답 구간 유효 확인. semantic 검수 구간을 시간순으로 이은 것
+seq-IMG_8450_2,sequence,고양이 행동을 시간순으로 알려줘,IMG_8450_2,2,IMG_8450_2,,고양이가 방 가운데 러그에 서서 주변을 둘러봄,16,26,2,,,verified,human-review,2026-11-19 원본 프레임 대조로 정답 구간 유효 확인.
+seq-IMG_8450_2,sequence,고양이 행동을 시간순으로 알려줘,IMG_8450_2,3,IMG_8450_2,,흰 고양이가 러그 위에서 카메라를 보며 울다가 고개를 숙임,38,46,3,,,verified,human-review,2026-11-19 원본 프레임 대조로 정답 구간 유효 확인.
+seq-smartbench_0065,sequence,강아지 행동을 시간순으로 알려줘,smartbench_0065,1,smartbench_0065,,강아지가 거실 바닥을 지나감,1.5,2.5,1,,,verified,human-review,2026-11-19 원본 프레임 재검수(notebooks/smarthome-bench-evidence)
+seq-smartbench_0065,sequence,강아지 행동을 시간순으로 알려줘,smartbench_0065,2,smartbench_0065,,강아지가 소파 위에 있음,5.5,7.5,2,,,verified,human-review,2026-11-19 원본 프레임 재검수(notebooks/smarthome-bench-evidence)
+seq-smartbench_0065,sequence,강아지 행동을 시간순으로 알려줘,smartbench_0065,3,smartbench_0065,,강아지가 소파에서 내려와 거실 바닥을 지나감,8.5,9.5,3,,,verified,human-review,2026-11-19 원본 프레임 재검수(notebooks/smarthome-bench-evidence)
+seq-smartbench_0065,sequence,강아지 행동을 시간순으로 알려줘,smartbench_0065,4,smartbench_0065,,강아지가 거실 바닥에 다시 나타남,17.5,18.5,4,,,verified,human-review,2026-11-19 원본 프레임 재검수(notebooks/smarthome-bench-evidence)
+seq-smartbench_0065,sequence,강아지 행동을 시간순으로 알려줘,smartbench_0065,5,smartbench_0065,,강아지가 소파 위에 다시 있음,21.5,22.5,5,,,verified,human-review,2026-11-19 원본 프레임 재검수(notebooks/smarthome-bench-evidence)
+seq-smartbench_0142,sequence,고양이 행동을 시간순으로 알려줘,smartbench_0142,1,smartbench_0142,,고양이가 그릇에서 먹음,4,9.5,1,,,verified,human-review,2026-11-19 원본 프레임 재검수(notebooks/smarthome-bench-evidence)
+seq-smartbench_0142,sequence,고양이 행동을 시간순으로 알려줘,smartbench_0142,2,smartbench_0142,,고양이가 그릇에서 고개를 듦,10.5,18.5,2,,,verified,human-review,2026-11-19 원본 프레임 재검수(notebooks/smarthome-bench-evidence)
+seq-smartbench_0142,sequence,고양이 행동을 시간순으로 알려줘,smartbench_0142,3,smartbench_0142,,고양이가 다시 그릇에서 먹음,19,24.25,3,,,verified,human-review,2026-11-19 원본 프레임 재검수(notebooks/smarthome-bench-evidence)
+seq-smartbench_0142,sequence,고양이 행동을 시간순으로 알려줘,smartbench_0142,4,smartbench_0142,,고양이가 다시 고개를 듦,25,27.5,4,,,verified,human-review,2026-11-19 원본 프레임 재검수(notebooks/smarthome-bench-evidence)
+seq-smartbench_0142,sequence,고양이 행동을 시간순으로 알려줘,smartbench_0142,5,smartbench_0142,,고양이가 다시 그릇에서 먹음,28,33.5,5,,,verified,human-review,2026-11-19 원본 프레임 재검수(notebooks/smarthome-bench-evidence)
