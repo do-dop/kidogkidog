@@ -1787,6 +1787,16 @@ button {
   object-fit: cover;
 }
 
+/* 세로 영상: 영상 비율(--video-ar)대로 패널을 세우고 화면 높이를 넘지 않게 한다. 위아래를 자르지 않는다. */
+.video-panel.portrait {
+  width: min(100%, calc(min(72vh, 720px) * var(--video-ar)));
+  margin-inline: auto;
+}
+
+.video-panel.portrait .video-player {
+  object-fit: contain;
+}
+
 .video-gradient {
   width: 100%;
   height: 100%;
