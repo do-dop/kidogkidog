@@ -2,7 +2,6 @@ import chromadb
 from pipeline.models.clip_embedder import embed_image, embed_text
 from pipeline.observability.metrics import measure_stage
 from pathlib import Path
-from datetime import datetime, timedelta
 from threading import Lock
 import json
 import os
@@ -24,30 +23,11 @@ _QUERY_REWRITE_MODEL = os.getenv("QUERY_REWRITE_MODEL", "gpt-4o-mini")
 
 
 def _frame_recorded_at(metadata):
-    recorded_at = metadata.get("recorded_at")
-    if recorded_at:
-        try:
-            return datetime.fromisoformat(str(recorded_at).replace("Z", "+00:00"))
-        except ValueError:
-            pass
-
-    s3_key = metadata.get("s3_key") or metadata.get("frame_path") or ""
-    filename = Path(s3_key).name
-    match = re.search(
-        r"petcam_(\d{8})_(\d{6})_(\d{3})_frame_([0-9.]+)\.jpg$",
-        filename,
-    )
-
-    if not match:
-        return None
-
-    base = datetime.strptime(
-        f"{match.group(1)}{match.group(2)}",
-        "%Y%m%d%H%M%S",
-    )
-    chunk_offset = int(match.group(3)) * 60
-    frame_offset = float(match.group(4))
-    return base + timedelta(seconds=chunk_offset + frame_offset)
+    from pipeline.storage.capture_time import trusted_capture_time
+    return trusted_capture_time({
+        "source_type": metadata.get("capture_time_source"),
+        "captured_at": metadata.get("recorded_at"),
+    })
 
 
 def _matches_datetime_filter(metadata, recording_date=None, time_range=None):
@@ -150,7 +130,9 @@ def _normalize_object_labels(object_labels):
     return ",".join(str(label) for label in object_labels)
 
 
-def _frame_metadata(frame_path, video_id, s3_key, object_labels, recorded_at, timestamp):
+def _frame_metadata(
+    frame_path, video_id, s3_key, object_labels, recorded_at, timestamp, capture_time_source=None
+):
     metadata = {
         "frame_path": str(frame_path),
         "timestamp": (
@@ -164,6 +146,8 @@ def _frame_metadata(frame_path, video_id, s3_key, object_labels, recorded_at, ti
         metadata["s3_key"] = s3_key
     if recorded_at:
         metadata["recorded_at"] = str(recorded_at)
+        if capture_time_source:
+            metadata["capture_time_source"] = capture_time_source
     return metadata
 
 
@@ -174,6 +158,7 @@ def index_frame(
     s3_key=None,
     object_labels=None,
     recorded_at=None,
+    capture_time_source=None,
     timestamp=None,
 ):
     """
@@ -190,7 +175,8 @@ def index_frame(
     if existing["ids"]:
         # 임베딩은 재계산하지 않고, 재처리로 바뀔 수 있는 메타데이터만 갱신한다.
         refreshed = _frame_metadata(
-            frame_path, frame_video_id, s3_key, object_labels, recorded_at, timestamp
+            frame_path, frame_video_id, s3_key, object_labels, recorded_at, timestamp,
+            capture_time_source,
         )
         collection.update(ids=[frame_id], metadatas=[refreshed])
         print(f"ChromaDB 기존 프레임 메타데이터 갱신: {frame_id}", flush=True)
@@ -202,7 +188,8 @@ def index_frame(
     print(f"CLIP 이미지 임베딩 완료: {frame_path}", flush=True)
 
     metadata = _frame_metadata(
-        frame_path, frame_video_id, s3_key, object_labels, recorded_at, timestamp
+        frame_path, frame_video_id, s3_key, object_labels, recorded_at, timestamp,
+        capture_time_source,
     )
 
     print(f"ChromaDB add 시작: {frame_id}", flush=True)

@@ -60,7 +60,9 @@ class BehaviorEventLabelTests(unittest.TestCase):
 
     def test_labels_survive_storage_and_drive_sequence_grouping(self):
         frames = [
-            {**frame, "frame_id": f"clip__petcam_20261115_100000_000_frame_{frame['timestamp']:.2f}",
+            {**frame, "source_type": "petcam",
+             "captured_at": f"2026-11-15T10:00:{int(frame['timestamp']):02d}+00:00",
+             "frame_id": f"clip__petcam_20261115_100000_000_frame_{frame['timestamp']:.2f}",
              "s3_key": f"frames/clip/petcam_20261115_100000_000_frame_{frame['timestamp']:.2f}.jpg"}
             for frame in window()
         ]

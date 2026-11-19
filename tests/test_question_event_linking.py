@@ -183,6 +183,29 @@ class QuestionEventLinkingTests(unittest.TestCase):
                                     ['분수 근처에서 움직인 장면 찾아줘', '분수을 살펴보는 장면 있어?'])
         self.assertEqual([item['question'] for item in items], ['분수 물속으로 들어간 장면이 있어?'])
 
+    def test_pool_scene_question_includes_later_reentry_with_or_without_suggestion(self):
+        first = event(155, video_id='smartbench_0608', start_time=2.0, end_time=2.1,
+                      action='강아지가 수영장 물속으로 들어감', summary='영상 초반에 수영장에 들어감',
+                      source_frames=[{'timestamp': 2.0, 's3_key': 'frames/smartbench_0608/2.jpg'}])
+        exit_event = event(156, video_id='smartbench_0608', start_time=7.5, end_time=8.0,
+                           action='강아지가 수영장에서 나옴', summary='수영장에서 나옴',
+                           source_frames=[{'timestamp': 8.0, 's3_key': 'frames/smartbench_0608/8.jpg'}])
+        last = event(158, video_id='smartbench_0608', start_time=20.25, end_time=20.35,
+                     action='강아지가 수영장 물속으로 다시 들어감', summary='영상 마지막에 다시 들어감',
+                     source_frames=[{'timestamp': 20.0, 's3_key': 'frames/smartbench_0608/20.jpg'}])
+        with patch.object(rag, 'get_behavior_event_by_id', return_value=first), \
+             patch.object(rag, 'get_behavior_events_for_aggregation', return_value=[first, exit_event, last]), \
+             patch.object(rag, '_generate_answer_with_langchain',
+                          side_effect=AssertionError('reviewed event evidence should decide')):
+            suggested = rag.run_rag_query('수영장 물속으로 들어간 장면이 있어?',
+                                          video_id='smartbench_0608', source_event_id=155)
+            typed = rag.run_rag_query('수영장 물속으로 들어간 장면이 있어?',
+                                      video_id='smartbench_0608')
+        for result in (suggested, typed):
+            self.assertEqual([row['source_event_id'] for row in result['results']], [155, 158])
+            self.assertIn('00:02, 00:20', result['answer'])
+            self.assertEqual([event['id'] for event in result['behavior_events']], [155, 158])
+
 
 if __name__ == '__main__':
     unittest.main()

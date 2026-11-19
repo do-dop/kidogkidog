@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
+from pipeline.storage.capture_time import trusted_capture_time
 
 MAX_STEP_FRAMES = 4
 # 순서 질문임을 알려 주는 낱말. 짧아서 다른 낱말 속에 섞이기 쉬운 '전/후/뒤' 계열은 아래 경계 정규식으로 따로 본다.
@@ -82,13 +83,11 @@ def _recorded_at(event: dict[str, Any]) -> datetime | None:
     for frame in event.get("source_frames") or []:
         if not isinstance(frame, dict):
             continue
-        match = _FRAME_KEY.search(str(frame.get("s3_key") or ""))
-        if not match:
-            continue
-        chunk_start = datetime.strptime(match.group(1) + match.group(2), "%Y%m%d%H%M%S")
-        chunk_start += timedelta(minutes=int(match.group(3)))
-        event_start = float(event.get("start_time") or 0)
-        return chunk_start + timedelta(seconds=event_start)
+        captured_at = trusted_capture_time(frame)
+        if captured_at:
+            frame_offset = float(frame.get("timestamp") or event.get("start_time") or 0)
+            event_offset = float(event.get("start_time") or 0)
+            return captured_at + timedelta(seconds=event_offset - frame_offset)
     return None
 
 
@@ -199,7 +198,7 @@ def _clock_text(moment: datetime | None) -> str:
     return f"{period} {moment.hour % 12 or 12}시 {moment.minute}분 {moment.second}초쯤"
 
 
-# 촬영 시각을 키에서 읽을 수 없는 영상(petcam_ 형식이 아닌 이름)은 청크 번호와 청크 안 시각으로 영상 안의 위치를 말한다.
+# 촬영 시각이 검증되지 않은 영상은 청크 번호와 청크 안 시각으로 영상 안의 위치를 말한다.
 _CHUNK_FRAME_KEY = re.compile(r"_(\d{3})_frame_[0-9.]+\.jpg$")
 CHUNK_SECONDS = 60
 
@@ -532,6 +531,12 @@ def _group_consecutive(rows: list[tuple[datetime | None, dict]]) -> list[list[tu
                 and recorded_at is not None
                 and (recorded_at - last_end).total_seconds() <= MAX_MERGE_GAP_SECONDS
             )
+            if last_recorded is None and recorded_at is None:
+                last_seconds = _video_seconds(last_event)
+                next_seconds = _video_seconds(event)
+                if last_seconds is not None and next_seconds is not None:
+                    last_duration = max(float(last_event.get("end_time") or 0) - float(last_event.get("start_time") or 0), 0)
+                    close = next_seconds - (last_seconds + last_duration) <= MAX_MERGE_GAP_SECONDS
             if same_video and close and _same_action(last_event, event):
                 groups[-1].append(row)
                 continue
