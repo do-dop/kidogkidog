@@ -7,6 +7,8 @@ from pipeline.storage.vector_store import get_indexed_frames
 
 _SUBJECTS = {"고양이": "cat", "강아지": "dog", "사람": "person"}
 _FRAME_CHUNK = re.compile(r"_(\d{3})_frame_[0-9.]+\.jpg$")
+_ACTION_WORDS = re.compile(r"먹|마시|올라|들어|나가|뛰|달리|다가|가까|이동|움직|떨어|숙이|바라|앞발|몇\s*(?:번|회)|횟수")
+_STATIC_QUESTION = re.compile(r"있어|있니|있나요|있는|보여|보이|나와|나오|장면")
 
 
 def _presence_subject(query):
@@ -88,3 +90,26 @@ def find_presence_scenes(query, video_id, top_k, recording_date=None, time_range
         "match_level": "object_label",
         "used_llm": False,
     }
+
+
+def find_qualified_presence_candidates(query, video_id, top_k, recording_date=None, time_range=None):
+    """Show the detected pet without claiming an unverified place or attribute."""
+    if not video_id or _presence_subject(query) or not _STATIC_QUESTION.search(query) or _ACTION_WORDS.search(query):
+        return None
+    subjects = [name for name in _SUBJECTS if name in query]
+    if len(subjects) != 1:
+        return None
+    name = subjects[0]
+    result = find_presence_scenes(
+        f"{name}가 보이는 장면 보여줘", video_id, top_k,
+        recording_date=recording_date, time_range=time_range,
+    )
+    if result is None:
+        return None
+    result["query"] = query
+    result["answer"] = (
+        f"{name}가 감지된 영상 후보를 찾았어요. "
+        "질문에 포함된 위치나 물건·상태까지는 이 감지 결과만으로 확인할 수 없으니 "
+        "아래 영상을 재생해 확인해 주세요."
+    )
+    return result
