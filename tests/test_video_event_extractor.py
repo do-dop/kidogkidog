@@ -192,6 +192,30 @@ class DispatchTests(unittest.TestCase):
             self.assertEqual(len(files), 1)
             self.assertEqual(json.loads(files[0].read_text())["events"], [{"action": "a"}])
 
+class DeadlineTests(unittest.TestCase):
+    def test_returns_none_when_total_time_exceeded(self):
+        def slow(_path):
+            vee.time.sleep(1.0)
+            return "[]"
+        with patch.dict(os.environ, {"VIDEO_EVENT_DEADLINE_SECONDS": "0.05"}), \
+             patch.object(vee, "_call_gemini_video_unbounded", side_effect=slow):
+            started = vee.time.monotonic()
+            self.assertIsNone(vee._call_gemini_video("c.mp4"))
+            self.assertLess(vee.time.monotonic() - started, 0.8)
+
+    def test_returns_text_within_deadline(self):
+        with patch.object(vee, "_call_gemini_video_unbounded", return_value="[]"):
+            self.assertEqual(vee._call_gemini_video("c.mp4"), "[]")
+
+    def test_exception_inside_call_becomes_none(self):
+        with patch.object(vee, "_call_gemini_video_unbounded", side_effect=RuntimeError("boom")):
+            self.assertIsNone(vee._call_gemini_video("c.mp4"))
+
+    def test_invalid_deadline_falls_back_to_default(self):
+        for bad in ("abc", "0", "-1"):
+            with patch.dict(os.environ, {"VIDEO_EVENT_DEADLINE_SECONDS": bad}):
+                self.assertEqual(vee._deadline_seconds(), vee.TOTAL_DEADLINE_SECONDS)
+
 
 if __name__ == "__main__":
     unittest.main()

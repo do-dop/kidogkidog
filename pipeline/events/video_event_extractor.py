@@ -15,6 +15,7 @@ import base64
 import json
 import os
 import re
+import threading
 import time
 from pathlib import Path
 from typing import Any
@@ -36,6 +37,9 @@ RETRY_DELAY_SECONDS = 5.0
 # base64로 부풀기 때문에 요청 한도(20MB)보다 작게 잡는다. 이보다 크면 Files API로 올린다.
 INLINE_MAX_BYTES = 12 * 1024 * 1024
 FILE_ACTIVE_WAIT_SECONDS = 60.0
+# 업로드·생성·재시도를 모두 합친 호출 전체의 시간 상한. 요청 단위 타임아웃만으로는 응답이 멈추면 청크 하나가 수십 분 걸릴 수 있다
+# (로컬 측정에서 호출 한 번이 1,193초 걸린 적이 있다). 넘기면 None을 돌려 프레임 방식으로 대체되게 한다.
+TOTAL_DEADLINE_SECONDS = 300.0
 # 이벤트 구간 안에 색인 프레임이 없을 때, 이 거리 안의 가장 가까운 프레임까지 구간을 넓혀 근거 프레임을 잡는다.
 EVIDENCE_SNAP_SECONDS = 2.0
 
@@ -159,7 +163,37 @@ def _generate(video_part: dict[str, Any]) -> str | None:
     return None
 
 
+def _deadline_seconds() -> float:
+    try:
+        value = float(os.getenv("VIDEO_EVENT_DEADLINE_SECONDS", str(TOTAL_DEADLINE_SECONDS)))
+    except ValueError:
+        return TOTAL_DEADLINE_SECONDS
+    return value if value > 0 else TOTAL_DEADLINE_SECONDS
+
+
 def _call_gemini_video(video_path: str) -> str | None:
+    """호출 전체에 시간 상한을 둔다. 넘기면 None. 남은 작업은 백그라운드에서 끝나며 올린 파일은 거기서 삭제된다."""
+    outcome: dict[str, Any] = {}
+
+    def run() -> None:
+        try:
+            outcome["text"] = _call_gemini_video_unbounded(video_path)
+        except Exception as exc:  # 이 단계가 청크 처리를 막으면 안 된다
+            outcome["error"] = type(exc).__name__
+
+    thread = threading.Thread(target=run, daemon=True)
+    thread.start()
+    thread.join(_deadline_seconds())
+    if thread.is_alive():
+        print(f"영상 이벤트 추출 시간 초과({_deadline_seconds():.0f}초)", flush=True)
+        return None
+    if "error" in outcome:
+        print(f"영상 이벤트 추출 실패: {outcome['error']}", flush=True)
+        return None
+    return outcome.get("text")
+
+
+def _call_gemini_video_unbounded(video_path: str) -> str | None:
     path = Path(video_path)
     if not path.exists() or not is_available():
         return None
