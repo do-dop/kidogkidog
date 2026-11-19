@@ -42,6 +42,34 @@ class CheckQuestionFitTests(unittest.TestCase):
         self.assertFalse(decision.fit)
         ask.assert_called_once()
 
+    def test_sequence_and_count_questions_pass_without_the_llm(self):
+        # 동물 단어가 없어도 순서·횟수 질문은 이 서비스의 핵심 질문이다.
+        for query in ("처음에는 뭐 했어?", "마지막에는 뭐 했어?", "그 다음에는 뭐가 나와?", "물 몇 번 마셨어?", "가장 오래 쉬었던 때는 언제야?"):
+            with llm_says('{"fit": false}') as ask:
+                decision = gate.check_question_fit(query)
+            self.assertTrue(decision.fit, query)
+            self.assertEqual(decision.source, "rules", query)
+            ask.assert_not_called()
+
+    def test_time_word_alone_does_not_bypass_the_llm(self):
+        # "오늘"만으로 통과시키면 "오늘 서울 날씨 알려줘"도 통과한다.
+        with llm_says('{"fit": false, "reason": "날씨"}') as ask:
+            decision = gate.check_question_fit("오늘 서울 날씨 알려줘")
+        self.assertFalse(decision.fit)
+        ask.assert_called_once()
+
+    def test_counting_word_gae_is_not_taken_for_a_dog(self):
+        # "개"는 강아지일 때만 도메인 단어다. "한 개", "개인"에는 반응하지 않는다.
+        for query in ("사과 한 개 먹는 장면", "개인 정보 알려줘"):
+            with llm_says('{"fit": false, "reason": "무관"}') as ask:
+                decision = gate.check_question_fit(query)
+            self.assertFalse(decision.fit, query)
+            ask.assert_called_once()
+
+    def test_empty_question_is_not_blocked(self):
+        for query in ("", "   ", None):
+            self.assertTrue(gate.check_question_fit(query).fit)
+
     def test_ambiguous_question_follows_the_llm_but_defaults_to_fit(self):
         with llm_says('{"fit": true, "reason": "사람이 나올 수 있음"}'):
             self.assertTrue(gate.check_question_fit("사람이 요리하는 장면").fit)
@@ -81,6 +109,33 @@ class CheckQuestionFitTests(unittest.TestCase):
 
 
 RAG_RESULT = {"answer": "검색 답변", "results": [], "evidence_items": [], "behavior_events": [], "used_llm": False}
+
+
+class GateCaseFileTests(unittest.TestCase):
+    """evaluation/data/question_gate_cases.json이 평가 스크립트가 기대하는 모양인지, 단어 규칙이 막으면 안 되는 질문을 막지 않는지 확인한다."""
+
+    def setUp(self):
+        gate._cache.clear()
+        import json
+        from pathlib import Path
+
+        path = Path(__file__).resolve().parents[1] / "evaluation/data/question_gate_cases.json"
+        self.cases = json.loads(path.read_text(encoding="utf-8"))["cases"]
+
+    def test_cases_are_well_formed_and_cover_both_sides(self):
+        self.assertTrue(all(isinstance(case["query"], str) and isinstance(case["fit"], bool) and case["category"] for case in self.cases))
+        self.assertGreater(sum(case["fit"] for case in self.cases), 10)
+        self.assertGreater(sum(not case["fit"] for case in self.cases), 10)
+        self.assertEqual(len({case["query"] for case in self.cases}), len(self.cases))
+
+    def test_rules_never_wave_through_a_question_that_must_be_blocked(self):
+        # LLM이 없는 상태(키 없음)에서도, 규칙만으로 통과되는 질문이 막아야 하는 질문 목록에 있으면 안 된다.
+        with patch.dict(os.environ, {"OPENAI_API_KEY": ""}):
+            for case in self.cases:
+                if case["fit"]:
+                    continue
+                decision = gate.check_question_fit(case["query"])
+                self.assertNotEqual(decision.source, "rules", case["query"])
 
 
 class SearchRouterGateTests(unittest.TestCase):

@@ -26,6 +26,9 @@ DOMAIN_PATTERN = re.compile(
     r"짖|꼬리|애완|코코|배변|간식|캣타워|켄넬|울타리|거실|동물|연못|수영장|마당|현관"
 )
 
+# "한 개", "몇 개"의 "개"는 강아지가 아니라 세는 단위다.
+_COUNT_UNIT = re.compile(r"(?:몇|\d+|한|두|세|네|여러)\s*개")
+
 OUT_OF_SCOPE_ANSWER = (
     "반려동물 영상에서 찾을 수 있는 질문이 아니에요. "
     "'강아지가 밥 먹는 장면', '고양이가 소파에 올라간 장면'처럼 물어보세요."
@@ -40,6 +43,7 @@ _PROMPT = """너는 반려동물 펫캠 영상 검색 서비스의 질문 분류
 
 규칙:
 - 질문이 동물이나 사람이 나오는 카메라 영상에서 찾을 수 있는 일이면 fit=true. 실내인지 야외인지는 따지지 않는다.
+- "오늘 뭐했어", "처음에는 뭐 했어", "그 다음에는 뭐가 나와", "몇 번 했어", "언제 했어"처럼 영상에서 일어난 일을 묻는 질문은 대상이 없어도 fit=true.
 - 애매하면 fit=true. 사람, 가구, 물건, 집이나 마당의 상황에 관한 질문도 fit=true.
 - 카메라 영상 검색과 명백히 무관한 질문(우주선, 자동차 주행, 스포츠 경기, 결혼식, 요리 레시피, 코딩, 날씨 문의, 주식, 영화 추천, 일반 상식 등)만 fit=false.
 - JSON 한 줄만 출력한다: {"fit": true 또는 false, "reason": "짧은 이유"}
@@ -92,11 +96,28 @@ def _ask_llm(query: str) -> str:
     return model.invoke(_PROMPT + query.strip()).content
 
 
+def _is_recording_question(text: str) -> bool:
+    """"오늘 뭐했어", "처음에는 뭐 했어", "몇 번 마셨어"처럼 영상에서 일어난 일을 묻는 질문 유형.
+
+    동물 단어가 없어도 이 서비스의 핵심 질문이라 LLM에 맡기지 않고 통과시킨다(순서·횟수 질문).
+    "오늘"처럼 시간 단어만 있는 질문은 "오늘 서울 날씨"와 구분되지 않아 규칙으로 통과시키지 않고 LLM에 묻는다.
+    """
+    try:
+        from pipeline.search.question_router import QuestionType, classify_with_rules
+
+        decision = classify_with_rules(text)
+        return decision.question_type in {QuestionType.SEQUENCE, QuestionType.AGGREGATE}
+    except Exception:
+        return False
+
+
 def check_question_fit(query: str) -> GateDecision:
     """질문 적합성을 판단한다. 어떤 실패도 예외로 내보내지 않고 통과(fit=True)로 처리한다."""
     text = re.sub(r"\s+", " ", (query or "").strip())
-    if not text or DOMAIN_PATTERN.search(text):
+    if not text or DOMAIN_PATTERN.search(_COUNT_UNIT.sub(" ", text)):
         return GateDecision(fit=True, source="rules", reason="반려동물·집 관련 단어")
+    if _is_recording_question(text):
+        return GateDecision(fit=True, source="rules", reason="순서·횟수 질문")
     if text in _cache:
         _cache.move_to_end(text)
         cached = _cache[text]
