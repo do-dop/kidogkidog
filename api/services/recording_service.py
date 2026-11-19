@@ -3,6 +3,7 @@ from pathlib import Path
 import re
 from zoneinfo import ZoneInfo
 
+from pipeline.chunking import CHUNK_SECONDS
 from db.scenes import get_scene_records
 from db.processed_chunks import get_chunk_processing_statuses
 from pipeline.storage.gcs_uploader import create_presigned_url, list_objects
@@ -85,7 +86,7 @@ def list_s3_recording_chunks(video_id: str | None = None):
         parts = Path(key).parts
         chunk_video_id = parts[1] if len(parts) >= 2 and parts[0] == "chunks" else "unknown"
         index = get_chunk_index(key)
-        start_seconds = index * 60
+        start_seconds = index * CHUNK_SECONDS
         recorded_at = get_chunk_recorded_at(key, obj.get("LastModified"), obj.get("Metadata"))
         if recorded_at:
             recorded_at = recorded_at.astimezone(ZoneInfo("Asia/Seoul"))
