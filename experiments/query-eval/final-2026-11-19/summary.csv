@@ -1,0 +1,58 @@
+﻿section,metric,value,n,note
+Semantic/영상 단위(전체 영상 검색),Hit@1,0.6111111111111112,18,
+Semantic/영상 단위(전체 영상 검색),Recall@1,0.6111111111111112,18,
+Semantic/영상 단위(전체 영상 검색),Hit@3,0.6666666666666666,18,
+Semantic/영상 단위(전체 영상 검색),Recall@3,0.6666666666666666,18,
+Semantic/영상 단위(전체 영상 검색),Hit@5,0.6666666666666666,18,
+Semantic/영상 단위(전체 영상 검색),Recall@5,0.6666666666666666,18,
+Semantic/영상 단위(전체 영상 검색),MRR,0.6388888888888888,18,
+Semantic/구간 단위(전체 영상 검색),Hit@1,0.05555555555555555,18,IoU≥0.5
+Semantic/구간 단위(전체 영상 검색),Recall@1,0.05555555555555555,18,
+Semantic/구간 단위(전체 영상 검색),Hit@3,0.2777777777777778,18,IoU≥0.5
+Semantic/구간 단위(전체 영상 검색),Recall@3,0.2777777777777778,18,
+Semantic/구간 단위(전체 영상 검색),Hit@5,0.2777777777777778,18,IoU≥0.5
+Semantic/구간 단위(전체 영상 검색),Recall@5,0.2777777777777778,18,
+Semantic/구간 단위(전체 영상 검색),MRR,0.16666666666666666,18,
+Semantic/구간 단위(전체 영상 검색),Overlap Hit@1,0.16666666666666666,18,정답 구간과 1프레임이라도 겹치면 적중(IoU보다 느슨함)
+Semantic/구간 단위(전체 영상 검색),Overlap Hit@3,0.6111111111111112,18,정답 구간과 1프레임이라도 겹치면 적중(IoU보다 느슨함)
+Semantic/구간 단위(전체 영상 검색),Overlap Hit@5,0.6666666666666666,18,정답 구간과 1프레임이라도 겹치면 적중(IoU보다 느슨함)
+Semantic/구간 단위(전체 영상 검색),1위 재생 구간 평균 길이(초),6.392857142857143,14,정답 구간 평균 8.4초. 재생 구간이 길면 IoU가 낮아짐
+Semantic/구간 단위(영상 한정 검색),Hit@1,,0,IoU≥0.5
+Semantic/구간 단위(영상 한정 검색),Recall@1,,0,
+Semantic/구간 단위(영상 한정 검색),Hit@3,,0,IoU≥0.5
+Semantic/구간 단위(영상 한정 검색),Recall@3,,0,
+Semantic/구간 단위(영상 한정 검색),Hit@5,,0,IoU≥0.5
+Semantic/구간 단위(영상 한정 검색),Recall@5,,0,
+Semantic/구간 단위(영상 한정 검색),MRR,,0,
+Semantic/구간 단위(영상 한정 검색),Overlap Hit@1,,0,정답 구간과 1프레임이라도 겹치면 적중(IoU보다 느슨함)
+Semantic/구간 단위(영상 한정 검색),Overlap Hit@3,,0,정답 구간과 1프레임이라도 겹치면 적중(IoU보다 느슨함)
+Semantic/구간 단위(영상 한정 검색),Overlap Hit@5,,0,정답 구간과 1프레임이라도 겹치면 적중(IoU보다 느슨함)
+Semantic/구간 단위(영상 한정 검색),1위 재생 구간 평균 길이(초),,0,
+Sequence,Exact Match,0.0,5,
+Sequence,Order Accuracy(쌍 단위),0.0,5,정답 단계가 2개 이상인 케이스의 단계 쌍. 못 찾은 단계가 낀 쌍은 오답
+Sequence,Temporal Localization(IoU≥0.5인 단계 비율),0.058823529411764705,17,분모=정답 단계 수
+Sequence,Temporal Localization(평균 최고 IoU),0.15652529306829766,5,
+Aggregation,Answer Coverage(계산 가능 응답 비율),,0,계산 불가 응답은 0회로 세지 않음
+Aggregation,Exact Count Accuracy(응답한 질문 기준),,0,
+Aggregation,Count MAE(응답한 질문 기준),,0,단위: 회
+Aggregation,End-to-end Exact(계산 불가를 오답으로 봄),,0,Coverage×Accuracy와 같음
+Grounding/semantic,Correct,0.05555555555555555,18,1건
+Grounding/semantic,Partial,0.16666666666666666,18,3건
+Grounding/semantic,Incorrect,0.6111111111111112,18,11건
+Grounding/semantic,Unverifiable,0.16666666666666666,18,3건
+Grounding/sequence,Correct,0.6,5,3건
+Grounding/sequence,Partial,0.2,5,1건
+Grounding/sequence,Incorrect,0.2,5,1건
+Grounding/sequence,Unverifiable,0.0,5,0건
+Grounding/aggregate,Correct,0.0,2,0건
+Grounding/aggregate,Partial,0.0,2,0건
+Grounding/aggregate,Incorrect,0.0,2,0건
+Grounding/aggregate,Unverifiable,1.0,2,2건
+Latency/semantic,P50(ms),3860.5,18,표본 20 미만: P95 신뢰 낮음
+Latency/semantic,P95(ms),23585.0,18,표본 20 미만: P95 신뢰 낮음
+Latency/sequence,P50(ms),171.9,5,표본 20 미만: P95 신뢰 낮음
+Latency/sequence,P95(ms),927.8,5,표본 20 미만: P95 신뢰 낮음
+Latency/aggregate,P50(ms),166.0,2,표본 20 미만: P95 신뢰 낮음
+Latency/aggregate,P95(ms),476.8,2,표본 20 미만: P95 신뢰 낮음
+Latency/all,P50(ms),3576.7,25,nearest-rank
+Latency/all,P95(ms),4929.8,25,nearest-rank

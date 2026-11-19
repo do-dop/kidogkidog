@@ -610,6 +610,42 @@ def _card(event: dict[str, Any], merged_count: int = 1, role: str | None = None)
     return card
 
 
+# 모션·장면 변화로 만든 이벤트는 "순간"(0.1초)만 기록하는 경우가 많다. 그 상태는 실제로는 그 앞뒤로 이어지므로
+# 길이가 INSTANT_EVENT_SECONDS 이하인 순간 이벤트만 카드 구간(event_start/event_end)을 MIN_STEP_SPAN_SECONDS까지
+# 넓힌다. 이미 구간을 가진 이벤트는 건드리지 않는다. 이웃 단계와는 겹치지 않게 중간에서 끊는다.
+INSTANT_EVENT_SECONDS = 0.6
+MIN_STEP_SPAN_SECONDS = 3.0
+
+
+def _widen_step_spans(cards: list[dict[str, Any]], groups: list[list[tuple[datetime | None, dict]]]) -> None:
+    """순간 이벤트의 구간을 앞뒤로 넓힌다. 원본 이벤트 값은 raw_event_start/raw_event_end에 남긴다."""
+    spans: list[tuple[float, float] | None] = []
+    for card, group in zip(cards, groups):
+        try:
+            start = float(card.get("event_start"))
+            end = max(float(member.get("end_time") if member.get("end_time") is not None else start) for _, member in group)
+        except (TypeError, ValueError):
+            spans.append(None)
+            continue
+        spans.append((start, max(end, start)))
+    for index, (card, span) in enumerate(zip(cards, spans)):
+        if span is None:
+            continue
+        start, end = span
+        card["raw_event_start"], card["raw_event_end"] = card.get("event_start"), card.get("event_end")
+        new_start, new_end = start, end
+        missing = MIN_STEP_SPAN_SECONDS - (end - start)
+        if end - start <= INSTANT_EVENT_SECONDS and missing > 0:
+            new_start, new_end = start - missing / 2, end + missing / 2
+        # 같은 영상의 이웃 단계와 겹치면 두 구간 사이 중간에서 끊는다.
+        if index > 0 and spans[index - 1] and cards[index - 1].get("video_id") == card.get("video_id"):
+            new_start = max(new_start, min(start, (spans[index - 1][1] + start) / 2))
+        if index + 1 < len(cards) and spans[index + 1] and cards[index + 1].get("video_id") == card.get("video_id"):
+            new_end = min(new_end, max(end, (end + spans[index + 1][0]) / 2))
+        card["event_start"] = round(max(new_start, 0.0), 2)
+        card["event_end"] = round(max(new_end, card["event_start"]), 2)
+
+
 def run_sequence_query(
     query: str,
     video_id: str | None = None,
@@ -766,6 +802,7 @@ def run_sequence_query(
         for card, group in zip(results, selected_groups):
             if len(group) > 1:
                 card["merged_summaries"] = [_spoken_description(member) for _, member in group]
+        _widen_step_spans(results, selected_groups)
         evidence_items = results
 
     anchor_event = rows[anchor_span[0]][1] if anchor_span is not None else None

@@ -530,5 +530,52 @@ class RouterAgreesWithSequenceHandlerTests(unittest.TestCase):
         self.assertEqual(classify_with_rules("물을 몇 번 마시고 나서 쉬었어?").question_type, QuestionType.AGGREGATE)
 
 
+
+class WidenStepSpanTests(unittest.TestCase):
+    def _card(self, video, start, end):
+        return {"video_id": video, "event_start": start, "event_end": end}
+
+    def _group(self, end):
+        return [(None, {"end_time": end})]
+
+    def test_instant_event_is_widened_symmetrically(self):
+        from pipeline.search.sequence_query import _widen_step_spans
+
+        cards = [self._card("v", 10.0, 10.1)]
+        _widen_step_spans(cards, [self._group(10.1)])
+        self.assertAlmostEqual(cards[0]["event_start"], 8.55, places=2)
+        self.assertAlmostEqual(cards[0]["event_end"], 11.55, places=2)
+        self.assertEqual(cards[0]["raw_event_start"], 10.0)
+
+    def test_neighbouring_steps_do_not_overlap(self):
+        from pipeline.search.sequence_query import _widen_step_spans
+
+        cards = [self._card("v", 2.0, 2.1), self._card("v", 3.0, 3.1)]
+        _widen_step_spans(cards, [self._group(2.1), self._group(3.1)])
+        self.assertLess(cards[0]["event_end"], 3.0)
+        self.assertLessEqual(cards[0]["event_end"], cards[1]["event_start"])
+
+    def test_long_event_and_start_of_video_are_kept(self):
+        from pipeline.search.sequence_query import _widen_step_spans
+
+        cards = [self._card("v", 0.0, 0.1), self._card("v", 20.0, 30.0)]
+        _widen_step_spans(cards, [self._group(0.1), self._group(30.0)])
+        self.assertEqual(cards[0]["event_start"], 0.0)
+        self.assertEqual((cards[1]["event_start"], cards[1]["event_end"]), (20.0, 30.0))
+
+    def test_event_with_real_span_is_not_widened(self):
+        from pipeline.search.sequence_query import _widen_step_spans
+
+        cards = [self._card("v", 5.5, 7.5)]
+        _widen_step_spans(cards, [self._group(7.5)])
+        self.assertEqual((cards[0]["event_start"], cards[0]["event_end"]), (5.5, 7.5))
+
+    def test_merged_group_uses_last_member_end(self):
+        from pipeline.search.sequence_query import _widen_step_spans
+
+        cards = [self._card("v", 5.0, 9.0)]
+        _widen_step_spans(cards, [[(None, {"end_time": 9.0}), (None, {"end_time": 14.0})]])
+        self.assertEqual(cards[0]["event_end"], 14.0)
+
 if __name__ == "__main__":
     unittest.main()
