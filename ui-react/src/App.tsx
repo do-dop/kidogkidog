@@ -50,6 +50,7 @@ type SearchResult = {
   chunkLabel?: string;
   duration: string;
   score: number;
+  matchLevel?: string;
   note: string;
   thumb: number;
   objects: Tag[];
@@ -90,6 +91,7 @@ type ApiSearchFrame = {
     video_id?: string;
     timestamp?: number;
     score?: number;
+    match_level?: string;
     object_labels?: string | string[];
     frame_id?: string;
     frame_path?: string;
@@ -443,6 +445,7 @@ function mapApiResults(payload: ApiQueryResult, items: Recording[] = []): Search
       chunkLabel: dateTime.chunkLabel,
       duration: formatDuration(Math.max(0, (playbackEndSeconds ?? playbackStartSeconds + 10) - playbackStartSeconds)),
       score: result.score ?? 0,
+      matchLevel: result.match_level,
       note: noteParts.join(" · ") || (result.object_labels ? `감지 객체: ${result.object_labels}` : "검색어와 유사한 장면"),
       thumb: index % gradients.length,
       objects: labelsToTags(result.object_labels),
@@ -1903,7 +1906,7 @@ export default function App() {
                           <>
                             <div className="result-header">
                               <strong>관련 영상 {visibleResults.length}개</strong>
-                              <span>유사도 순</span>
+                              <span>{visibleResults.some((result) => result.matchLevel === "object_label") ? "객체 감지 장면" : "유사도 순"}</span>
                             </div>
                             <div className="result-grid">
                               {visibleResults.map((result) => (
@@ -2801,7 +2804,7 @@ function ResultCard({ result, active = false, onOpen }: { result: SearchResult; 
           {result.dateLabel && <small>{result.dateLabel}</small>}
           <strong>{result.clockTime || result.time}</strong>
         </span>
-        <span className="score-pill">유사도 {score}</span>
+        <span className="score-pill">{result.matchLevel === "object_label" ? "객체 감지" : `유사도 ${score}`}</span>
         <div className="play-circle"><Icon filled>play_arrow</Icon></div>
       </div>
       <div className="result-body">
