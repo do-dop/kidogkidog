@@ -1777,7 +1777,7 @@ export default function App() {
                     {selectedSearchVideoId && indexedFrameCount === 0 ? (
                       <div className="suggestion-loading suggestion-message">
                         <Icon>info</Icon>
-                        <strong>로컬에서 이 영상을 먼저 인덱싱해주세요</strong>
+                        <strong>이 영상의 검색용 분석이 아직 완료되지 않았어요</strong>
                       </div>
                     ) : suggestionStatus === "loading" ? (
                       <div className="suggestion-loading">
