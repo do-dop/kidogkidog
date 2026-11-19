@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
+from pipeline.chunking import CHUNK_SECONDS
 from pipeline.storage.capture_time import trusted_capture_time
 
 MAX_STEP_FRAMES = 4
@@ -200,7 +201,6 @@ def _clock_text(moment: datetime | None) -> str:
 
 # 촬영 시각이 검증되지 않은 영상은 청크 번호와 청크 안 시각으로 영상 안의 위치를 말한다.
 _CHUNK_FRAME_KEY = re.compile(r"_(\d{3})_frame_[0-9.]+\.jpg$")
-CHUNK_SECONDS = 60
 
 
 def _video_seconds(event: dict[str, Any]) -> float | None:

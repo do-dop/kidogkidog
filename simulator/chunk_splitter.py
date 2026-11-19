@@ -2,14 +2,16 @@ import subprocess
 from pathlib import Path
 from datetime import datetime
 
+from pipeline.chunking import CHUNK_SECONDS
 
-def split_video_into_chunks(video_path, chunk_duration=60, output_dir="simulator/chunks"):
+
+def split_video_into_chunks(video_path, chunk_duration=CHUNK_SECONDS, output_dir="simulator/chunks"):
     """
-    영상을 5분(300초) 단위로 청크 분할
+    영상을 CHUNK_SECONDS(기본 60초) 단위로 청크 분할
 
     Args:
         video_path: 원본 영상 경로
-        chunk_duration: 청크 길이 (초, 기본 5분)
+        chunk_duration: 청크 길이 (초, 기본 CHUNK_SECONDS)
         output_dir: 청크 저장 폴더
     """
     video_path = Path(video_path)
