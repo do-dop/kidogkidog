@@ -10,12 +10,14 @@ from typing import Any
 
 from pipeline.search.query_analyzer import build_prompt_hint
 from db.behavior_events import (
+    get_behavior_events,
     get_behavior_event_by_id,
     get_behavior_events_for_aggregation,
     get_top_behavior_events,
     get_behavior_events_overlapping,
 )
 from pipeline.search.aggregate_query import ACTION_PATTERNS, count_episodes, event_matches_action, is_scene_event, parse_count_action
+from pipeline.search.event_text_search import best_specific_event, event_as_search_result
 from pipeline.search.question_router import QuestionType, classify_with_rules
 from pipeline.search.sequence_query import is_sequence_query, run_sequence_query
 from pipeline.storage.capture_time import trusted_capture_time
@@ -31,6 +33,11 @@ DEFAULT_FALLBACK_MESSAGE = (
 # 스테이징 영상으로 측정한 CLIP(ViT-L/14) 최상위 유사도: 관련 질문 0.249~0.285, 무관한 질문 0.161~0.214.
 # 둘 사이의 중간값을 기본 기준으로 쓴다. 영상이나 모델이 바뀌면 SEARCH_MIN_SCORE로 조정한다.
 DEFAULT_MIN_SEARCH_SCORE = 0.23
+
+# 기준 점수에는 못 미치지만 가장 가까운 장면을 "비슷한 장면"으로 보여 줄 하한. 무관한 질문의 최고 점수가
+# 0.161~0.214까지 나왔으므로 정확히 맞는 장면으로 말하지 않고, 결과와 답변에 정확하지 않다고 밝힌다. 0이면 끈다.
+DEFAULT_RELATED_MIN_SCORE = 0.20
+MAX_RELATED_FRAMES = 3
 
 # 행동 이벤트가 질문과 맞는다고 보려면 _behavior_query_score의 키워드 그룹이 하나 이상 일치해야 한다.
 # 0.3점짜리 단어 일치("장면" 같은 흔한 단어)만으로는 근거로 삼지 않는다.
@@ -85,6 +92,13 @@ def _apply_frame_count_penalty(frames: list[dict[str, Any]], video_id: str | Non
             frame = {**frame, "clip_score": score, "score": score - beta * math.log(size)}
         adjusted.append(frame)
     return sorted(adjusted, key=lambda item: float(item.get("score") or 0.0), reverse=True)
+
+
+def _related_min_score() -> float:
+    try:
+        return float(os.getenv("SEARCH_RELATED_MIN_SCORE", DEFAULT_RELATED_MIN_SCORE))
+    except ValueError:
+        return DEFAULT_RELATED_MIN_SCORE
 
 
 def _min_search_score() -> float:
@@ -174,6 +188,7 @@ def run_rag_query(
 
     search_succeeded = True
     candidate_count = 0
+    related_candidates: list[dict[str, Any]] = []
 
     try:
         from pipeline.storage.vector_store import search_with_query_expansion
@@ -194,12 +209,52 @@ def run_rag_query(
             if float(frame.get("score") or 0.0) >= _min_search_score()
         ]
         retrieved_frames = _apply_frame_count_penalty(retrieved_frames, video_id)
+        related_floor = _related_min_score()
+        if related_floor > 0:
+            related_candidates = sorted(
+                (
+                    {**frame, "match_level": "related"}
+                    for frame in candidates
+                    if related_floor <= float(frame.get("score") or 0.0) < _min_search_score()
+                ),
+                key=lambda frame: float(frame.get("score") or 0.0),
+                reverse=True,
+            )[:MAX_RELATED_FRAMES]
     except Exception as exc:
         # ChromaDB가 깨졌거나 인덱스 파일이 불안정할 때도
         # behavior_events 기반 답변은 가능하도록 앱 전체를 죽이지 않는다.
         print(f"ChromaDB 검색 실패: {exc}", flush=True)
         search_succeeded = False
         retrieved_frames = []
+
+    # Detailed event descriptions carry action and time information that CLIP
+    # image similarity cannot distinguish (for example, entering vs leaving a
+    # pool). Only a clear text match may move ahead of the visual candidates.
+    promoted_event = None
+    try:
+        all_events = get_behavior_events(video_id=video_id, limit=300)
+        all_events = _filter_events_by_datetime(all_events, recording_date, time_range)
+        match = best_specific_event(query, all_events)
+        if match:
+            promoted_event, text_score = match
+            event_result = event_as_search_result(
+                promoted_event,
+                max(text_score, max((float(frame.get("score") or 0) for frame in retrieved_frames), default=0) + 0.01),
+            )
+            if event_result:
+                retrieved_frames = [event_result, *retrieved_frames]
+            else:
+                promoted_event = None
+    except Exception as exc:
+        print(f"이벤트 텍스트 검색 실패: {exc}", flush=True)
+
+    # 질문이 고양이/강아지 중 하나만 말하는데 반대 동물만 감지된 장면은 근거로 쓰지 않는다.
+    # 시각적으로 비슷한 다른 영상이 그럴듯한 답변의 근거로 올라오는 것을 막는다.
+    retrieved_frames = _drop_species_mismatch(query, retrieved_frames)
+    if promoted_event and not any(
+        frame.get("source_event_id") == promoted_event.get("id") for frame in retrieved_frames
+    ):
+        promoted_event = None
 
     behavior_events = _get_relevant_behavior_events(
         query=query,
@@ -209,9 +264,11 @@ def run_rag_query(
         time_range=time_range,
         limit=5,
     )
+    if promoted_event:
+        behavior_events = _deduplicate_behavior_events([promoted_event, *behavior_events])[:5]
 
-    if search_succeeded and not retrieved_frames:
-        # 관련 프레임이 없으면 질문과 단어가 맞는 이벤트만 근거로 쓴다.
+    if not retrieved_frames:
+        # 관련 프레임이 없으면 질문과 단어가 맞는 이벤트만 근거로 쓴다. 검색 서버가 실패한 경우도 같다.
         # 그렇지 않으면 "주요 행동 이벤트"가 무관한 질문에도 결과로 채워진다.
         behavior_events = [
             event for event in behavior_events
@@ -225,18 +282,43 @@ def run_rag_query(
             limit=top_k,
         )
 
-    if not search_succeeded and not retrieved_frames and not behavior_events:
-        # 검색 자체가 실패했을 때만 인덱스에 있는 프레임을 대신 보여준다.
-        # 검색이 정상이었는데 맞는 장면이 없으면 임의의 프레임을 내놓지 않는다.
-        retrieved_frames = _fallback_indexed_frames(
-            video_id=video_id,
-            limit=top_k,
-            recording_date=recording_date,
-            time_range=time_range,
-        )
+    if not search_succeeded and behavior_events and retrieved_frames:
+        # 유사도 검색을 못 했으므로 LLM이 장면을 확정하듯 말하지 않게 하고, 단어가 맞는 분석 결과만 후보로 보여 준다.
+        return {
+            "query": query,
+            "video_id": video_id,
+            "answer": (
+                "검색 서버에 연결하지 못해 장면을 직접 찾지는 못했어요. "
+                "대신 질문과 단어가 맞는 분석 결과를 후보로 보여드려요. "
+                + _build_fallback_answer(query=query, retrieved_frames=retrieved_frames, behavior_events=behavior_events)
+            ),
+            "results": retrieved_frames,
+            "evidence_items": retrieved_frames,
+            "behavior_events": behavior_events,
+            "used_llm": False,
+            "match_level": "related_events",
+        }
+
+    related_candidates = _drop_species_mismatch(query, related_candidates)
+    if not retrieved_frames and not behavior_events and search_succeeded and related_candidates:
+        return {
+            "query": query,
+            "video_id": video_id,
+            "answer": (
+                f"'{query}'과 정확히 맞는 장면은 찾지 못했어요. "
+                f"대신 가장 비슷한 장면 {len(related_candidates)}개를 보여드려요. 정확히 일치하지 않을 수 있어요."
+            ),
+            "results": related_candidates,
+            "evidence_items": related_candidates,
+            "behavior_events": [],
+            "used_llm": False,
+            "match_level": "related",
+        }
 
     if not retrieved_frames and not behavior_events:
-        if _has_datetime_filter(recording_date, time_range):
+        if not search_succeeded:
+            answer = "검색 서버에 연결하지 못해 장면을 확인할 수 없어요. 잠시 후 다시 검색해주세요."
+        elif _has_datetime_filter(recording_date, time_range):
             answer = (
                 f"선택한 날짜와 시간대에서는 '{query}'과 맞는 장면을 찾지 못했어요. "
                 "다른 날짜나 시간대를 선택해서 다시 검색해보세요."
@@ -291,6 +373,39 @@ def run_rag_query(
         "behavior_events": behavior_events,
         "used_llm": used_llm,
     }
+
+
+_CAT_WORDS = re.compile(r"고양이|냥이|캣")
+_DOG_WORDS = re.compile(r"강아지|멍멍이|(?<![가-힣])개(?:들)?(?:가|는|를|도|의|와|랑|이)?(?![가-힣])")
+_COUNT_WORDS = re.compile(r"(?:몇|\d+)\s*개")
+
+
+def _query_species(query: str) -> str | None:
+    """질문이 고양이 또는 강아지 한쪽만 말하면 'cat'/'dog', 아니면 None."""
+    text = _COUNT_WORDS.sub(" ", query)
+    has_cat = bool(_CAT_WORDS.search(text))
+    has_dog = bool(_DOG_WORDS.search(text))
+    if has_cat == has_dog:
+        return None
+    return "cat" if has_cat else "dog"
+
+
+def _drop_species_mismatch(query: str, frames: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """질문한 동물이 없고 반대 동물만 감지된 프레임을 제외한다. 감지 결과가 없으면 그대로 둔다."""
+    if os.getenv("SEARCH_SPECIES_FILTER", "1").strip() == "0":
+        return frames
+    wanted = _query_species(query)
+    if wanted is None:
+        return frames
+    other = "dog" if wanted == "cat" else "cat"
+
+    kept = []
+    for frame in frames:
+        labels = {part.strip().lower() for part in _normalize_labels(frame.get("object_labels")).split(",")}
+        if other in labels and wanted not in labels:
+            continue
+        kept.append(frame)
+    return kept
 
 
 def _run_gate_climb_scene_query(

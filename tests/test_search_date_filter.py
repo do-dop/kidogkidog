@@ -88,17 +88,20 @@ class SearchDateFilterTests(unittest.TestCase):
         self.assertEqual(top.call_args.kwargs["limit"], 10)
         self.assertEqual(result["results"], [])
 
-    def test_indexed_frames_are_used_only_when_search_itself_fails(self):
+    def test_search_failure_does_not_fill_in_frames_from_other_dates(self):
+        # 검색 서버가 실패해도 질문과 무관한 인덱스 프레임을 대신 보여 주지 않는다.
+        # 질문과 단어가 맞는 분석 결과가 있을 때만 후보로 보여 준다(test_search_relevance 참고).
         with ExitStack() as stack:
             stack.enter_context(patch.object(vs, "search_with_query_expansion", side_effect=RuntimeError("chroma down")))
+            stack.enter_context(patch.object(rag, "get_behavior_events", return_value=[]))
             stack.enter_context(patch.object(rag, "get_behavior_events_overlapping", return_value=[]))
             stack.enter_context(patch.object(rag, "get_top_behavior_events", return_value=[]))
             stack.enter_context(patch.object(vs, "get_collection", return_value=collection_with(OTHER_DATE_KEY)))
             stack.enter_context(patch.object(rag, "build_prompt_hint", return_value=""))
             stack.enter_context(patch.dict("os.environ", {"OPENAI_API_KEY": ""}))
             result = rag.run_rag_query(query="물 마셨어?", video_id="video")
-        self.assertEqual([frame["s3_key"] for frame in result["results"]], [OTHER_DATE_KEY])
-
+        self.assertEqual(result["results"], [])
+        self.assertIn("연결하지 못해", result["answer"])
 
 if __name__ == "__main__":
     unittest.main()
