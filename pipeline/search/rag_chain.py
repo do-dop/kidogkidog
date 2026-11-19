@@ -21,6 +21,7 @@ from pipeline.search.event_text_search import best_specific_event, event_as_sear
 from pipeline.search.question_router import QuestionType, classify_with_rules
 from pipeline.search.sequence_query import is_sequence_query, run_sequence_query
 from pipeline.search.object_presence import find_presence_scenes
+from pipeline.search.grounded_action_search import find_grounded_action_scenes
 from pipeline.storage.capture_time import trusted_capture_time
 
 SEQUENCE_MIN_RESULTS = 10
@@ -196,6 +197,16 @@ def run_rag_query(
     )
     if presence_scenes is not None:
         return presence_scenes
+
+    grounded_scenes = find_grounded_action_scenes(
+        query=query,
+        video_id=video_id,
+        top_k=top_k,
+        recording_date=recording_date,
+        time_range=time_range,
+    )
+    if grounded_scenes is not None:
+        return grounded_scenes
 
     search_succeeded = True
     candidate_count = 0
@@ -623,12 +634,33 @@ def _run_aggregate_query(
                 frame["source_event_id"] = episode["event_ids"][0]
                 result_frames.append(frame)
 
+    if action == "camera_approach" and any(
+        0 <= following["start_time"] - previous["end_time"] < 10
+        for previous, following in zip(episodes, episodes[1:])
+    ):
+        first, last = episodes[0]["start_time"], episodes[-1]["end_time"]
+        return {
+            "query": query,
+            "video_id": video_id,
+            "answer": (
+                f"카메라에 가까이 나타난 장면이 약 {first:.0f}~{last:.0f}초 사이에 기록됐어요. "
+                f"분석 기록은 {len(episodes)}개 구간으로 나뉘지만 이어진 움직임일 수 있어 "
+                "정확한 접근 횟수는 단정하기 어려워요. 아래 영상을 확인해 주세요."
+            ),
+            "results": result_frames,
+            "evidence_items": result_frames,
+            "behavior_events": matched,
+            "used_llm": False,
+            "aggregate_result": None,
+        }
+
     action_phrase = {
         "drink": "물을 마시는",
         "eat": "음식을 먹는",
         "gate_climb": "울타리에 올라타는",
         "water_enter": "물속에 들어가는",
         "front_paw_raise": "앞발을 들어 올리는",
+        "camera_approach": "카메라 쪽으로 다가오는",
     }.get(action, f"{action_label} 관련")
     answer = (
         f"{action_phrase} 장면이 {len(evidence)}개 구간에서 확인됐어요. "

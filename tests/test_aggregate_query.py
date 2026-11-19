@@ -60,6 +60,15 @@ class AggregateQueryTests(unittest.TestCase):
         self.assertEqual(len(episodes), 3)
         self.assertEqual(episodes[0]["event_ids"], [1, 2])
 
+    def test_camera_face_count_uses_approaches_not_looks(self):
+        self.assertEqual(parse_count_action("고양이가 카메라에 얼굴 몇 번 가까이해?"),
+                         ("camera_approach", "카메라 접근"))
+        self.assertTrue(event_matches_action({"action": "반려동물이 카메라 쪽으로 다가옴"}, "camera_approach"))
+        self.assertFalse(event_matches_action({"action": "반려동물이 카메라를 바라봄"}, "camera_approach"))
+        self.assertTrue(event_matches_action({"action": "반려동물이 앞발을 올림"}, "front_paw_raise"))
+        self.assertEqual(parse_count_action("고양이가 앞발을 몇 번 올린 거야?"),
+                         ("front_paw_raise", "앞발 들기"))
+
 
 if __name__ == "__main__":
     unittest.main()
