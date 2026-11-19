@@ -6,12 +6,23 @@ from pipeline.storage.vector_store import get_indexed_frames
 
 
 router = APIRouter(prefix="/recordings", tags=["recordings"])
+_SUPERSEDED_RECORDINGS = {"smartbench_0518": "smartbench_0518_rerun"}
 
 
 @router.get("/chunks")
 def list_recording_chunks(video_id: str | None = None):
     try:
-        return list_s3_recording_chunks(video_id=video_id)
+        response = list_s3_recording_chunks(video_id=video_id)
+        if video_id is not None:
+            return response
+        chunks = response["chunks"]
+        available_ids = {chunk["video_id"] for chunk in chunks}
+        hidden_ids = {
+            original for original, replacement in _SUPERSEDED_RECORDINGS.items()
+            if replacement in available_ids
+        }
+        visible_chunks = [chunk for chunk in chunks if chunk["video_id"] not in hidden_ids]
+        return {**response, "count": len(visible_chunks), "chunks": visible_chunks}
     except Exception as exc:
         raise HTTPException(
             status_code=500,
