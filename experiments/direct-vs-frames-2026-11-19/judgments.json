@@ -1,0 +1,3 @@
+{"note":"Claude가 정답(gold.csv)과 파이프라인 이벤트를 보고 판정. 이전 Gemini 판정과 달리 가리지 않은(non-blind) 판정이다.",
+ "per_clip_strict_loose_of_gold":{"smartbench_0037":[0,1,5],"smartbench_0142":[4,5,5],"smartbench_0518":[1,4,5],"smartbench_0608":[1,2,4],"smartbench_0642":[1,2,4],"smartbench_0949":[1,3,4]},
+ "events_produced":{"smartbench_0037":2,"smartbench_0142":5,"smartbench_0518":5,"smartbench_0608":4,"smartbench_0642":2,"smartbench_0949":5}}

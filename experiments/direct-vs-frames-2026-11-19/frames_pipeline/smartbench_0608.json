@@ -1,0 +1,39 @@
+{
+ "clip": "smartbench_0608",
+ "frames": 19,
+ "seconds": 42.5,
+ "events": [
+  {
+   "action": "반려동물이 수영장 가장자리에서 장난감을 물고 있음",
+   "start_time": 18.0,
+   "end_time": 20.0,
+   "subject": "반려동물",
+   "subject_type": null,
+   "confidence": 0.8
+  },
+  {
+   "action": "반려동물이 수영장에 뛰어들어감",
+   "start_time": 21.0,
+   "end_time": 23.0,
+   "subject": "반려동물",
+   "subject_type": null,
+   "confidence": 0.9
+  },
+  {
+   "action": "반려동물이 수영장 가장자리에서 물속을 바라봄",
+   "start_time": 8.0,
+   "end_time": 10.0,
+   "subject": "반려동물",
+   "subject_type": null,
+   "confidence": 0.8
+  },
+  {
+   "action": "반려동물이 수영장 가장자리에서 몸을 낮춤",
+   "start_time": 13.0,
+   "end_time": 15.0,
+   "subject": "반려동물",
+   "subject_type": null,
+   "confidence": 0.7
+  }
+ ]
+}
