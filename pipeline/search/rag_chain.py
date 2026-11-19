@@ -20,6 +20,7 @@ from pipeline.search.aggregate_query import ACTION_PATTERNS, count_episodes, eve
 from pipeline.search.event_text_search import best_specific_event, event_as_search_result
 from pipeline.search.question_router import QuestionType, classify_with_rules
 from pipeline.search.sequence_query import is_sequence_query, run_sequence_query
+from pipeline.search.object_presence import find_presence_scenes
 from pipeline.storage.capture_time import trusted_capture_time
 
 SEQUENCE_MIN_RESULTS = 10
@@ -185,6 +186,16 @@ def run_rag_query(
             recording_date=recording_date,
             time_range=time_range,
         )
+
+    presence_scenes = find_presence_scenes(
+        query=query,
+        video_id=video_id,
+        top_k=top_k,
+        recording_date=recording_date,
+        time_range=time_range,
+    )
+    if presence_scenes is not None:
+        return presence_scenes
 
     search_succeeded = True
     candidate_count = 0
