@@ -54,12 +54,12 @@ class AnswerSceneGroundingTests(unittest.TestCase):
         text = rag._format_scene_range(
             frame(18.0, playback_start=11.0, playback_end=23.0, representative_timestamp=18.0)
         )
-        self.assertEqual(text, "00:11~00:23 (가장 비슷한 순간 00:18)")
+        self.assertEqual(text, "01:11~01:23 (가장 비슷한 순간 01:18)")
 
     def test_scene_range_falls_back_to_timestamp_window(self):
         self.assertEqual(
             rag._format_scene_range(frame(18.0)),
-            "00:15~00:23 (가장 비슷한 순간 00:18)",
+            "01:15~01:23 (가장 비슷한 순간 01:18)",
         )
 
     def test_fallback_answer_uses_frame_ranges_not_wide_event_range(self):
@@ -68,7 +68,7 @@ class AnswerSceneGroundingTests(unittest.TestCase):
             retrieved_frames=[frame(18.0, playback_start=15.0, playback_end=23.0)],
             behavior_events=[wide_event()],
         )
-        self.assertIn("00:15~00:23", answer)
+        self.assertIn("01:15~01:23", answer)
         self.assertNotIn("58", answer)
         self.assertNotIn("호기심", answer)
 

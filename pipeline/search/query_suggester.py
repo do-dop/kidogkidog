@@ -2,6 +2,7 @@ from db.behavior_events import get_top_behavior_events
 from pipeline.search.grounded_event_questions import grounded_event_question_items
 from pipeline.search.question_generator import generate_question_items_from_behavior_events
 from pipeline.storage.vector_store import get_indexed_frames
+from pipeline.search.species_verification import has_confirmed_cat
 
 def _event_text(event: dict) -> str:
     """행동 이벤트에서 분류에 쓸 텍스트를 모은다."""
@@ -355,6 +356,9 @@ def _generate_video_specific_questions(
     if len(labels) < 2:
         labels.extend(_labels_from_indexed_frames(video_id=video_id))
 
+    if "cat" in labels and not has_confirmed_cat(video_id):
+        labels = [label for label in labels if label != "cat"]
+
     questions = []
 
     for label in labels:
@@ -582,6 +586,8 @@ def _generate_questions_from_indexed_frames(
             reverse=True,
         )
     ]
+    if "cat" in sorted_labels and not has_confirmed_cat(video_id, frames=frames):
+        sorted_labels = [label for label in sorted_labels if label != "cat"]
 
     questions = []
 
