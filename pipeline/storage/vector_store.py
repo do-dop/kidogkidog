@@ -16,6 +16,7 @@ CHROMA_COLLECTION = os.getenv("CHROMA_COLLECTION", "petcam_frames")
 
 _client = None
 _collection = None
+_event_collection = None
 _QUERY_REWRITE_CACHE = {}
 _QUERY_REWRITE_CACHE_LOCK = Lock()
 _QUERY_REWRITE_CACHE_LIMIT = 256
@@ -94,6 +95,18 @@ def get_collection():
         )
         print("ChromaDB 연결 완료", flush=True)
     return _collection
+
+
+def get_event_collection():
+    """Separate text-vector collection for recorded behavior events."""
+    global _event_collection
+    if _event_collection is None:
+        get_collection()  # Reuse the configured local or remote Chroma client.
+        _event_collection = _client.get_or_create_collection(
+            name=os.getenv("CHROMA_EVENT_COLLECTION", "petcam_behavior_events_v1"),
+            metadata={"hnsw:space": "cosine"},
+        )
+    return _event_collection
 
 
 def _timestamp_from_frame_path(frame_path):

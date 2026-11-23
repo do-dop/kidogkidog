@@ -12,6 +12,7 @@ from db.behavior_events import get_behavior_events_for_aggregation
 from pipeline.search.aggregate_query import count_episodes
 from pipeline.search.event_text_search import event_as_search_result
 from pipeline.search.video_time import format_frame_time, frame_video_seconds
+from pipeline.storage.capture_time import trusted_capture_time
 
 
 _UNCERTAIN = re.compile(r"않|못|없|싶|추정|하려|려고")
@@ -59,6 +60,39 @@ def _supports_explicit_constraints(query, event):
     return True
 
 
+def _event_in_datetime(event, recording_date, time_range):
+    if not recording_date and not time_range:
+        return True
+    start_hour, end_hour = None, None
+    if time_range:
+        try:
+            start_hour = int(time_range.get("start_hour"))
+            end_hour = int(time_range.get("end_hour"))
+        except (TypeError, ValueError):
+            pass
+    if start_hour is not None and start_hour <= 0 and end_hour >= 24:
+        start_hour = end_hour = None
+    if not recording_date and start_hour is None:
+        return True
+    for frame in event.get("source_frames") or []:
+        captured = trusted_capture_time({
+            "source_type": frame.get("capture_time_source") or frame.get("source_type"),
+            "captured_at": frame.get("recorded_at") or frame.get("captured_at"),
+        }) if isinstance(frame, dict) else None
+        if captured is None:
+            continue
+        if recording_date and captured.date().isoformat() != recording_date:
+            continue
+        if start_hour is None:
+            return True
+        hour = captured.hour + captured.minute / 60 + captured.second / 3600
+        if (start_hour <= end_hour and start_hour <= hour < end_hour) or (
+            start_hour > end_hour and (hour >= start_hour or hour < end_hour)
+        ):
+            return True
+    return False
+
+
 def _select_matching_events(query, events):
     """Ask one general matcher to compare the requested action with recorded events.
 
@@ -75,12 +109,13 @@ def _select_matching_events(query, events):
         for index, event in enumerate(events)
     ]
     prompt = (
-        "영상 질문과 관찰된 행동 이벤트를 비교해 정확히 같은 행동을 담은 row 번호만 고르세요. "
+        "영상 질문과 관찰된 행동 이벤트를 비교하세요. 행동과 질문의 세부 조건이 모두 명확히 맞으면 rows, "
+        "핵심 행동은 같지만 주체의 종류·관계 같은 세부 조건이 기록에 없어 확정할 수 없으면 related_rows에 넣으세요. "
         "행동의 대상과 방향을 구분하세요(예: 들어가기/나오기, 젖 먹기/사료 먹기). "
         "동물의 존재만으로 행동을 입증하지 마세요. 추정·부정·의도 표현은 확정 근거가 아닙니다. "
-        "반복된 같은 행동은 해당 row를 모두 고르세요. 질문이 단순 객체 존재/일반 이동이거나 "
-        "명확한 행동 일치가 없으면 빈 배열을 반환하세요. "
-        "오직 JSON {\"rows\":[정수,...]} 형식으로 답하세요.\n"
+        "서로 다른 행동·대상·방향은 related_rows에도 넣지 마세요. 반복된 같은 행동은 해당 row를 모두 고르세요. "
+        "질문이 단순 객체 존재/일반 이동이거나 핵심 행동 일치가 없으면 두 배열을 모두 비우세요. "
+        "오직 JSON {\"rows\":[정수,...],\"related_rows\":[정수,...]} 형식으로 답하세요.\n"
         f"질문: {query}\n이벤트: {json.dumps(rows, ensure_ascii=False)}"
     )
     response = OpenAI().responses.create(
@@ -89,17 +124,26 @@ def _select_matching_events(query, events):
         text={"format": {"type": "json_object"}},
         temperature=0,
     )
-    selected = json.loads(response.output_text).get("rows", [])
-    if not isinstance(selected, list):
-        return []
-    indices = {row for row in selected if type(row) is int and 0 <= row < len(events)}
-    return [event for index, event in enumerate(events) if index in indices]
+    parsed = json.loads(response.output_text)
+    def selected_rows(key):
+        values = parsed.get(key, [])
+        if not isinstance(values, list):
+            return []
+        indices = {row for row in values if type(row) is int and 0 <= row < len(events)}
+        return [event for index, event in enumerate(events) if index in indices]
+    exact = selected_rows("rows")
+    exact_ids = {event.get("id") for event in exact}
+    related = [event for event in selected_rows("related_rows") if event.get("id") not in exact_ids]
+    return {"exact": exact, "related": related}
 
 
 def find_action_event_scenes(query, video_id, top_k, source_event=None,
                              recording_date=None, time_range=None):
     """Find any recorded action across chunks, with event-backed playback times."""
-    if not video_id or recording_date or time_range or not re.search(r"장면|구간|보여|찾아|있어|언제", query):
+    if not re.search(r"장면|구간|보여|찾아|있어|언제", query):
+        return None
+    from pipeline.search.object_presence import _presence_subject
+    if _presence_subject(query):
         return None
     # Before/after questions need sequence anchoring, not an action-only result.
     from pipeline.search.sequence_query import is_sequence_query
@@ -110,24 +154,35 @@ def find_action_event_scenes(query, video_id, top_k, source_event=None,
     except Exception as exc:
         print(f"행동 장면 조회 실패: {exc}", flush=True)
         return None
-    candidates = [event for event in events if event.get("source_frames") and not _UNCERTAIN.search(
+    candidates = [event for event in events if event.get("source_frames")
+                  and _event_in_datetime(event, recording_date, time_range)
+                  and not _UNCERTAIN.search(
         " ".join(str(event.get(key) or "") for key in ("action", "summary", "target_object"))
     )]
     if not candidates:
         return None
-    # Keep large recordings bounded. The lexical stage is only a shortlist;
-    # the model decides whether the action and its target really agree.
-    if len(candidates) > 120:
+    from pipeline.search.action_event_index import semantic_event_candidates
+    ranked = semantic_event_candidates(query, candidates, video_id=video_id)
+    if ranked is not None:
+        candidates = ranked
+    elif len(candidates) > 120:
+        # Existing recordings without a complete index keep the prior path.
         from pipeline.search.event_text_search import rank_events_by_text
         candidates = rank_events_by_text(query, candidates)[:120]
     try:
-        matched = _select_matching_events(query, candidates)
+        selection = _select_matching_events(query, candidates)
     except Exception as exc:
         print(f"행동 이벤트 의미 비교 실패: {exc}", flush=True)
         return None
-    if matched is None:
+    if selection is None:
         return None
-    matched = [event for event in matched if _supports_explicit_constraints(query, event)]
+    # Older callers and tests may still provide a plain list of exact matches.
+    exact = selection.get("exact", []) if isinstance(selection, dict) else selection
+    related = selection.get("related", []) if isinstance(selection, dict) else []
+    matched = [event for event in exact if _supports_explicit_constraints(query, event)]
+    uncertain = not matched
+    if uncertain:
+        matched = [event for event in related if _supports_explicit_constraints(query, event)]
     if not matched:
         return {
             "query": query,
@@ -140,10 +195,11 @@ def find_action_event_scenes(query, video_id, top_k, source_event=None,
             "match_level": "unverified_action",
         }
 
-    matched.sort(key=lambda event: (
-        frame_video_seconds((event.get("source_frames") or [{}])[0], event.get("start_time") or 0) or 0,
-        float(event.get("end_time") or 0),
-    ))
+    if video_id:
+        matched.sort(key=lambda event: (
+            frame_video_seconds((event.get("source_frames") or [{}])[0], event.get("start_time") or 0) or 0,
+            float(event.get("end_time") or 0),
+        ))
     episodes = []
     for event in matched:
         try:
@@ -166,24 +222,30 @@ def find_action_event_scenes(query, video_id, top_k, source_event=None,
             continue
         result["playback_start"] = max(0.0, episode["start"] - 1)
         result["playback_end"] = episode["end"] + 1
-        result["match_level"] = "behavior_event"
+        result["match_level"] = "related_event" if uncertain else "behavior_event"
         results.append(result)
         if len(results) >= max(1, top_k):
             break
     if not results:
         return None
-    positions = ", ".join(format_frame_time(item, float(item["timestamp"])) for item in results[:3])
+    positions = ", ".join(
+        (f"{item['video_id']} " if not video_id else "") + format_frame_time(item, float(item["timestamp"]))
+        for item in results[:3]
+    )
     if len(results) > 3:
         positions += " 등"
     return {
         "query": query,
         "video_id": video_id,
-        "answer": f"질문한 행동은 {positions} 근처에서 확인할 수 있어요.",
+        "answer": (
+            f"관련 행동 기록은 {positions} 근처에 있지만 질문의 세부 조건까지는 확인하지 못했어요."
+            if uncertain else f"질문한 행동은 {positions} 근처에서 확인할 수 있어요."
+        ),
         "results": results,
         "evidence_items": results,
         "behavior_events": matched,
         "used_llm": False,
-        "match_level": "behavior_event",
+        "match_level": "related_event" if uncertain else "behavior_event",
     }
 
 
