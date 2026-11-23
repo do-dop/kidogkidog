@@ -101,6 +101,44 @@ class LongVideoSearchFixes(unittest.TestCase):
         self.assertEqual(result["results"][0]["source_event_id"], 1)
         self.assertIn("세부 조건까지는 확인하지 못했어요", result["answer"])
 
+    def test_default_ui_time_range_still_uses_action_index(self):
+        shaking = event(1, 0, 11, 13, "강아지가 몸을 털음")
+        with patch.object(grounded_action_search, "get_behavior_events_for_aggregation", return_value=[shaking]), \
+             patch("pipeline.search.action_event_index.semantic_event_candidates", return_value=[shaking]) as index, \
+             patch.object(grounded_action_search, "_select_matching_events", return_value=[shaking]):
+            result = grounded_action_search.find_action_event_scenes(
+                "강아지가 몸을 터는 장면 보여줘", "long", 3,
+                time_range={"start_hour": 0, "end_hour": 24})
+        self.assertEqual(result["results"][0]["source_event_id"], 1)
+        index.assert_called_once()
+
+    def test_global_action_search_can_find_a_new_video(self):
+        shaking = event(1, 0, 11, 13, "강아지가 몸을 털음")
+        shaking["video_id"] = "new-video"
+        with patch.object(grounded_action_search, "get_behavior_events_for_aggregation", return_value=[shaking]) as timeline, \
+             patch("pipeline.search.action_event_index.semantic_event_candidates", return_value=[shaking]), \
+             patch.object(grounded_action_search, "_select_matching_events", return_value=[shaking]):
+            result = grounded_action_search.find_action_event_scenes("강아지가 몸을 터는 장면 보여줘", None, 3)
+        timeline.assert_called_once_with(video_id=None)
+        self.assertEqual(result["results"][0]["video_id"], "new-video")
+        self.assertIn("new-video", result["answer"])
+
+    def test_petcam_date_filter_uses_trusted_capture_time(self):
+        shaking = event(1, 0, 11, 13, "강아지가 몸을 털음")
+        shaking["source_frames"][0].update(
+            source_type="petcam", captured_at="2026-11-24T09:30:11+09:00")
+        with patch.object(grounded_action_search, "get_behavior_events_for_aggregation", return_value=[shaking]), \
+             patch("pipeline.search.action_event_index.semantic_event_candidates", return_value=[shaking]), \
+             patch.object(grounded_action_search, "_select_matching_events", return_value=[shaking]):
+            correct = grounded_action_search.find_action_event_scenes(
+                "강아지가 몸을 터는 장면 보여줘", "long", 3,
+                recording_date="2026-11-24", time_range={"start_hour": 9, "end_hour": 10})
+            wrong = grounded_action_search.find_action_event_scenes(
+                "강아지가 몸을 터는 장면 보여줘", "long", 3,
+                recording_date="2026-11-23", time_range={"start_hour": 9, "end_hour": 10})
+        self.assertEqual(correct["results"][0]["source_event_id"], 1)
+        self.assertIsNone(wrong)
+
     def test_cat_verification_rejects_dog_and_keeps_cat(self):
         class Collection:
             def get(self, ids, include):

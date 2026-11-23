@@ -64,7 +64,8 @@ def index_behavior_events(events: list[dict]) -> int:
     return indexed
 
 
-def semantic_event_candidates(query: str, events: list[dict], limit: int = 48) -> list[dict] | None:
+def semantic_event_candidates(query: str, events: list[dict], limit: int = 48,
+                              video_id: str | None = None) -> list[dict] | None:
     """Return ranked candidates, or None when the index is incomplete/unavailable."""
     if not events or not os.getenv("OPENAI_API_KEY"):
         return None
@@ -77,12 +78,14 @@ def semantic_event_candidates(query: str, events: list[dict], limit: int = 48) -
 
         from openai import OpenAI
         vector = _embed(OpenAI(), [query])[0]
-        result = collection.query(
+        query_args = dict(
             query_embeddings=[vector],
             n_results=min(max(1, limit), len(events)),
-            where={"video_id": str(events[0]["video_id"])},
             include=["distances"],
         )
+        if video_id:
+            query_args["where"] = {"video_id": video_id}
+        result = collection.query(**query_args)
         by_id = {_event_id(event): event for event in events}
         found = [by_id[item] for item in (result.get("ids") or [[]])[0] if item in by_id]
         return found or None

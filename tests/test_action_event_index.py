@@ -20,10 +20,11 @@ class FakeCollection:
     def get(self, ids, include):
         return {"ids": [key for key in ids if key in self.rows]}
 
-    def query(self, query_embeddings, n_results, where, include):
+    def query(self, query_embeddings, n_results, include, where=None):
         ranked = sorted(
             ((sum(a * b for a, b in zip(query_embeddings[0], value[0])), key)
-             for key, value in self.rows.items() if value[2]["video_id"] == where["video_id"]),
+             for key, value in self.rows.items()
+             if where is None or value[2]["video_id"] == where["video_id"]),
             reverse=True,
         )
         return {"ids": [[key for _, key in ranked[:n_results]]]}
@@ -55,6 +56,19 @@ class ActionEventIndexTests(unittest.TestCase):
         with patch.object(action_event_index, "get_event_collection", return_value=collection), \
              patch.dict("os.environ", {"OPENAI_API_KEY": "test"}):
             self.assertIsNone(action_event_index.semantic_event_candidates("잠자는 장면", events))
+
+    def test_global_search_queries_across_video_ids(self):
+        collection = FakeCollection()
+        first = event(1, "잠을 잠")
+        second = {**event(2, "몸을 털음"), "video_id": "new-video"}
+        events = [first, second]
+        with patch.object(action_event_index, "get_event_collection", return_value=collection), \
+             patch.object(action_event_index, "_embed", side_effect=lambda client, texts: [
+                 [0.0, 1.0] if "털" in text or "터는" in text else [1.0, 0.0] for text in texts
+             ]), patch("openai.OpenAI"), patch.dict("os.environ", {"OPENAI_API_KEY": "test"}):
+            action_event_index.index_behavior_events(events)
+            ranked = action_event_index.semantic_event_candidates("몸을 터는 장면", events)
+        self.assertEqual(ranked[0]["video_id"], "new-video")
 
 
 if __name__ == "__main__":

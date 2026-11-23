@@ -12,6 +12,7 @@ from db.behavior_events import get_behavior_events_for_aggregation
 from pipeline.search.aggregate_query import count_episodes
 from pipeline.search.event_text_search import event_as_search_result
 from pipeline.search.video_time import format_frame_time, frame_video_seconds
+from pipeline.storage.capture_time import trusted_capture_time
 
 
 _UNCERTAIN = re.compile(r"않|못|없|싶|추정|하려|려고")
@@ -57,6 +58,39 @@ def _supports_explicit_constraints(query, event):
         if place and place.group(1) not in description:
             return False
     return True
+
+
+def _event_in_datetime(event, recording_date, time_range):
+    if not recording_date and not time_range:
+        return True
+    start_hour, end_hour = None, None
+    if time_range:
+        try:
+            start_hour = int(time_range.get("start_hour"))
+            end_hour = int(time_range.get("end_hour"))
+        except (TypeError, ValueError):
+            pass
+    if start_hour is not None and start_hour <= 0 and end_hour >= 24:
+        start_hour = end_hour = None
+    if not recording_date and start_hour is None:
+        return True
+    for frame in event.get("source_frames") or []:
+        captured = trusted_capture_time({
+            "source_type": frame.get("capture_time_source") or frame.get("source_type"),
+            "captured_at": frame.get("recorded_at") or frame.get("captured_at"),
+        }) if isinstance(frame, dict) else None
+        if captured is None:
+            continue
+        if recording_date and captured.date().isoformat() != recording_date:
+            continue
+        if start_hour is None:
+            return True
+        hour = captured.hour + captured.minute / 60 + captured.second / 3600
+        if (start_hour <= end_hour and start_hour <= hour < end_hour) or (
+            start_hour > end_hour and (hour >= start_hour or hour < end_hour)
+        ):
+            return True
+    return False
 
 
 def _select_matching_events(query, events):
@@ -106,7 +140,10 @@ def _select_matching_events(query, events):
 def find_action_event_scenes(query, video_id, top_k, source_event=None,
                              recording_date=None, time_range=None):
     """Find any recorded action across chunks, with event-backed playback times."""
-    if not video_id or recording_date or time_range or not re.search(r"장면|구간|보여|찾아|있어|언제", query):
+    if not re.search(r"장면|구간|보여|찾아|있어|언제", query):
+        return None
+    from pipeline.search.object_presence import _presence_subject
+    if _presence_subject(query):
         return None
     # Before/after questions need sequence anchoring, not an action-only result.
     from pipeline.search.sequence_query import is_sequence_query
@@ -117,13 +154,15 @@ def find_action_event_scenes(query, video_id, top_k, source_event=None,
     except Exception as exc:
         print(f"행동 장면 조회 실패: {exc}", flush=True)
         return None
-    candidates = [event for event in events if event.get("source_frames") and not _UNCERTAIN.search(
+    candidates = [event for event in events if event.get("source_frames")
+                  and _event_in_datetime(event, recording_date, time_range)
+                  and not _UNCERTAIN.search(
         " ".join(str(event.get(key) or "") for key in ("action", "summary", "target_object"))
     )]
     if not candidates:
         return None
     from pipeline.search.action_event_index import semantic_event_candidates
-    ranked = semantic_event_candidates(query, candidates)
+    ranked = semantic_event_candidates(query, candidates, video_id=video_id)
     if ranked is not None:
         candidates = ranked
     elif len(candidates) > 120:
@@ -156,10 +195,11 @@ def find_action_event_scenes(query, video_id, top_k, source_event=None,
             "match_level": "unverified_action",
         }
 
-    matched.sort(key=lambda event: (
-        frame_video_seconds((event.get("source_frames") or [{}])[0], event.get("start_time") or 0) or 0,
-        float(event.get("end_time") or 0),
-    ))
+    if video_id:
+        matched.sort(key=lambda event: (
+            frame_video_seconds((event.get("source_frames") or [{}])[0], event.get("start_time") or 0) or 0,
+            float(event.get("end_time") or 0),
+        ))
     episodes = []
     for event in matched:
         try:
@@ -188,7 +228,10 @@ def find_action_event_scenes(query, video_id, top_k, source_event=None,
             break
     if not results:
         return None
-    positions = ", ".join(format_frame_time(item, float(item["timestamp"])) for item in results[:3])
+    positions = ", ".join(
+        (f"{item['video_id']} " if not video_id else "") + format_frame_time(item, float(item["timestamp"]))
+        for item in results[:3]
+    )
     if len(results) > 3:
         positions += " 등"
     return {
