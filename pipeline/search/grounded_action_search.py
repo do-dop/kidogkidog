@@ -4,6 +4,8 @@ This path requires both the requested object/place and an observed action.  It
 does not turn a video title or a detected object into proof of an action.
 """
 
+import json
+import os
 import re
 
 from db.behavior_events import get_behavior_events_for_aggregation
@@ -28,19 +30,6 @@ _INTENTS = (
      re.compile(r"소파|쇼파"), re.compile(r"이동|다가|접근|걸어")),
 )
 
-# These actions are present in event text but are not count-action categories.
-# Match the object and action together so a generic pet frame cannot prove them.
-_PRECISE_ACTIONS = (
-    ("수유", re.compile(r"젖.{0,12}먹|수유"), re.compile(r"젖.{0,12}먹|수유")),
-    ("사료 먹기", re.compile(r"(?:사료|밥그릇|그릇).{0,12}먹|먹.{0,12}(?:사료|밥그릇|그릇)"),
-     re.compile(r"(?:사료|밥그릇|그릇).{0,12}먹|먹.{0,12}(?:사료|밥그릇|그릇)")),
-    ("목욕", re.compile(r"목욕|욕조.{0,8}씻|씻.{0,8}욕조"), re.compile(r"목욕|욕조.{0,8}씻|씻.{0,8}욕조")),
-    ("잠자기", re.compile(r"잠|수면|자고|자는"), re.compile(r"잠|수면|자고|자는")),
-    ("수건 놀이", re.compile(r"(?:수건|천).{0,12}(?:물|놀)|(?:물|놀).{0,12}(?:수건|천)"),
-     re.compile(r"(?:수건|천).{0,12}(?:물|놀)|(?:물|놀).{0,12}(?:수건|천)")),
-)
-
-
 def _source_chunk(event):
     for frame in event.get("source_frames") or []:
         if isinstance(frame, dict) and frame.get("s3_key"):
@@ -48,39 +37,102 @@ def _source_chunk(event):
     return str(event.get("video_id") or "")
 
 
-def find_precise_action_scenes(query, video_id, top_k, source_event=None,
-                               recording_date=None, time_range=None):
-    """Find explicit actions across chunks, keeping episode times chunk-local for playback."""
+def _supports_explicit_constraints(query, event):
+    """Reject contradictions the model might overlook in species or direction."""
+    description = " ".join(str(event.get(key) or "") for key in ("subject", "action", "summary"))
+    labels = set()
+    for frame in event.get("source_frames") or []:
+        raw = frame.get("object_labels") or []
+        labels.update(str(item).lower() for item in (raw if isinstance(raw, list) else str(raw).split(",")))
+    for korean, label, opposite in (("고양이", "cat", "강아지"), ("강아지", "dog", "고양이")):
+        if korean in query and (opposite in description or (labels and label not in labels)):
+            return False
+    for direction in ("안으로", "밖으로"):
+        if direction not in query:
+            continue
+        if direction not in description:
+            return False
+        # Leaving the camera frame does not prove leaving a door or pool.
+        place = re.search(r"([가-힣]{1,12})\s+" + direction, query)
+        if place and place.group(1) not in description:
+            return False
+    return True
+
+
+def _select_matching_events(query, events):
+    """Ask one general matcher to compare the requested action with recorded events.
+
+    The model only returns row numbers. Times, descriptions and playback frames
+    always come from the database, never from generated text.
+    """
+    if not os.getenv("OPENAI_API_KEY"):
+        return None
+    from openai import OpenAI
+
+    rows = [
+        {"row": index, "subject": event.get("subject"), "action": event.get("action"),
+         "target": event.get("target_object"), "summary": event.get("summary")}
+        for index, event in enumerate(events)
+    ]
+    prompt = (
+        "영상 질문과 관찰된 행동 이벤트를 비교해 정확히 같은 행동을 담은 row 번호만 고르세요. "
+        "행동의 대상과 방향을 구분하세요(예: 들어가기/나오기, 젖 먹기/사료 먹기). "
+        "동물의 존재만으로 행동을 입증하지 마세요. 추정·부정·의도 표현은 확정 근거가 아닙니다. "
+        "반복된 같은 행동은 해당 row를 모두 고르세요. 질문이 단순 객체 존재/일반 이동이거나 "
+        "명확한 행동 일치가 없으면 빈 배열을 반환하세요. "
+        "오직 JSON {\"rows\":[정수,...]} 형식으로 답하세요.\n"
+        f"질문: {query}\n이벤트: {json.dumps(rows, ensure_ascii=False)}"
+    )
+    response = OpenAI().responses.create(
+        model=os.getenv("ACTION_EVENT_MATCH_MODEL", "gpt-4o-mini"),
+        input=prompt,
+        text={"format": {"type": "json_object"}},
+        temperature=0,
+    )
+    selected = json.loads(response.output_text).get("rows", [])
+    if not isinstance(selected, list):
+        return []
+    indices = {row for row in selected if type(row) is int and 0 <= row < len(events)}
+    return [event for index, event in enumerate(events) if index in indices]
+
+
+def find_action_event_scenes(query, video_id, top_k, source_event=None,
+                             recording_date=None, time_range=None):
+    """Find any recorded action across chunks, with event-backed playback times."""
     if not video_id or recording_date or time_range or not re.search(r"장면|구간|보여|찾아|있어|언제", query):
         return None
     # Before/after questions need sequence anchoring, not an action-only result.
     from pipeline.search.sequence_query import is_sequence_query
     if is_sequence_query(query):
         return None
-    intents = [item for item in _PRECISE_ACTIONS if item[1].search(query)]
-    if len(intents) != 1:
-        return None
-    label, _, event_pattern = intents[0]
-    if source_event is not None:
-        source_text = " ".join(str(source_event.get(key) or "") for key in ("action", "summary", "target_object"))
-        if not event_pattern.search(source_text):
-            return None
-
     try:
         events = get_behavior_events_for_aggregation(video_id=video_id)
     except Exception as exc:
         print(f"행동 장면 조회 실패: {exc}", flush=True)
         return None
-    matched = []
-    for event in events:
-        description = " ".join(str(event.get(key) or "") for key in ("action", "summary", "target_object"))
-        if event_pattern.search(description) and not _UNCERTAIN.search(description) and event.get("source_frames"):
-            matched.append(event)
+    candidates = [event for event in events if event.get("source_frames") and not _UNCERTAIN.search(
+        " ".join(str(event.get(key) or "") for key in ("action", "summary", "target_object"))
+    )]
+    if not candidates:
+        return None
+    # Keep large recordings bounded. The lexical stage is only a shortlist;
+    # the model decides whether the action and its target really agree.
+    if len(candidates) > 120:
+        from pipeline.search.event_text_search import rank_events_by_text
+        candidates = rank_events_by_text(query, candidates)[:120]
+    try:
+        matched = _select_matching_events(query, candidates)
+    except Exception as exc:
+        print(f"행동 이벤트 의미 비교 실패: {exc}", flush=True)
+        return None
+    if matched is None:
+        return None
+    matched = [event for event in matched if _supports_explicit_constraints(query, event)]
     if not matched:
         return {
             "query": query,
             "video_id": video_id,
-            "answer": f"{label} 장면은 저장된 행동 기록에서 확인하지 못했어요. 원본 영상을 확인해 주세요.",
+            "answer": "질문한 행동은 저장된 행동 기록에서 확인하지 못했어요. 원본 영상을 확인해 주세요.",
             "results": [],
             "evidence_items": [],
             "behavior_events": [],
@@ -126,7 +178,7 @@ def find_precise_action_scenes(query, video_id, top_k, source_event=None,
     return {
         "query": query,
         "video_id": video_id,
-        "answer": f"{label} 장면은 {positions} 근처에서 확인할 수 있어요.",
+        "answer": f"질문한 행동은 {positions} 근처에서 확인할 수 있어요.",
         "results": results,
         "evidence_items": results,
         "behavior_events": matched,

@@ -36,10 +36,13 @@ class LongVideoSearchFixes(unittest.TestCase):
             event(1, 1, 29, 32, "새끼 강아지가 젖을 먹고 있음"),
             event(2, 1, 47, 49, "강아지가 그릇에서 사료를 먹고 있음"),
         ]
-        with patch.object(grounded_action_search, "get_behavior_events_for_aggregation", return_value=events):
-            nursing = grounded_action_search.find_precise_action_scenes(
+        def matching(query, candidates):
+            return [row for row in candidates if ("젖" in row["action"] if "젖" in query else "사료" in row["action"])]
+        with patch.object(grounded_action_search, "get_behavior_events_for_aggregation", return_value=events), \
+             patch.object(grounded_action_search, "_select_matching_events", side_effect=matching):
+            nursing = grounded_action_search.find_action_event_scenes(
                 "새끼 강아지가 어미 젖을 먹는 장면은 언제야?", "long", 5)
-            food = grounded_action_search.find_precise_action_scenes(
+            food = grounded_action_search.find_action_event_scenes(
                 "강아지가 그릇에서 사료를 먹는 장면은 언제야?", "long", 5)
         self.assertEqual([row["source_event_id"] for row in nursing["results"]], [1])
         self.assertEqual([row["source_event_id"] for row in food["results"]], [2])
@@ -51,13 +54,41 @@ class LongVideoSearchFixes(unittest.TestCase):
             event(1, 4, 9, 12, "강아지가 욕조에서 목욕을 하고 있음"),
             event(2, 4, 42, 46, "강아지가 잠을 자고 있음"),
         ]
-        with patch.object(grounded_action_search, "get_behavior_events_for_aggregation", return_value=events):
-            bath = grounded_action_search.find_precise_action_scenes("강아지가 목욕하는 장면은 언제야?", "long", 5)
-            sleep = grounded_action_search.find_precise_action_scenes("강아지가 잠자는 장면은 언제야?", "long", 5)
+        def matching(query, candidates):
+            return [row for row in candidates if ("목욕" in row["action"] if "목욕" in query else "잠" in row["action"])]
+        with patch.object(grounded_action_search, "get_behavior_events_for_aggregation", return_value=events), \
+             patch.object(grounded_action_search, "_select_matching_events", side_effect=matching):
+            bath = grounded_action_search.find_action_event_scenes("강아지가 목욕하는 장면은 언제야?", "long", 5)
+            sleep = grounded_action_search.find_action_event_scenes("강아지가 잠자는 장면은 언제야?", "long", 5)
         self.assertEqual(bath["results"][0]["source_event_id"], 1)
         self.assertEqual(sleep["results"][0]["source_event_id"], 2)
         self.assertIn("04:10", bath["answer"])
         self.assertIn("04:44", sleep["answer"])
+
+    def test_unseen_action_can_be_grounded_without_adding_a_category(self):
+        events = [
+            event(1, 0, 45, 49, "사람이 강아지를 들어 올림"),
+            event(2, 0, 52, 55, "강아지가 바닥에서 구름"),
+        ]
+        with patch.object(grounded_action_search, "get_behavior_events_for_aggregation", return_value=events), \
+             patch.object(grounded_action_search, "_select_matching_events", return_value=[events[0]]):
+            result = grounded_action_search.find_action_event_scenes("사람이 강아지를 들어 올리는 장면 보여줘", "long", 5)
+        self.assertEqual([row["source_event_id"] for row in result["results"]], [1])
+        self.assertIn("00:47", result["answer"])
+
+    def test_species_and_direction_conflicts_are_not_presented_as_evidence(self):
+        bath = event(1, 0, 10, 12, "반려동물이 욕조에서 목욕함")
+        bath["source_frames"][0]["object_labels"] = ["dog"]
+        leaving_screen = event(2, 0, 20, 22, "반려동물이 화면 밖으로 나감")
+        leaving_screen["target_object"] = "문"
+        events = [bath, leaving_screen]
+        with patch.object(grounded_action_search, "get_behavior_events_for_aggregation", return_value=events), \
+             patch.object(grounded_action_search, "_select_matching_events",
+                          side_effect=lambda query, rows: [bath] if "목욕" in query else [leaving_screen]):
+            cat = grounded_action_search.find_action_event_scenes("고양이가 목욕하는 장면 있어?", "long", 5)
+            door = grounded_action_search.find_action_event_scenes("강아지가 문 밖으로 나가는 장면 있어?", "long", 5)
+        self.assertEqual(cat["results"], [])
+        self.assertEqual(door["results"], [])
 
     def test_cat_verification_rejects_dog_and_keeps_cat(self):
         class Collection:

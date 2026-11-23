@@ -21,7 +21,7 @@ from pipeline.search.event_text_search import best_specific_event, event_as_sear
 from pipeline.search.question_router import QuestionType, classify_with_rules
 from pipeline.search.sequence_query import is_sequence_query, run_sequence_query
 from pipeline.search.object_presence import find_presence_scenes, find_qualified_presence_candidates
-from pipeline.search.grounded_action_search import find_grounded_action_scenes, find_precise_action_scenes
+from pipeline.search.grounded_action_search import find_grounded_action_scenes, find_action_event_scenes
 from pipeline.search.video_time import format_event_time, format_frame_time
 from pipeline.search.species_verification import confirmed_cat_frame_ids
 from pipeline.storage.capture_time import trusted_capture_time
@@ -162,7 +162,17 @@ def run_rag_query(
     if gate_scene_result is not None:
         return gate_scene_result
 
-    precise_action_result = find_precise_action_scenes(
+    presence_scenes = find_presence_scenes(
+        query=query,
+        video_id=video_id,
+        top_k=top_k,
+        recording_date=recording_date,
+        time_range=time_range,
+    )
+    if presence_scenes is not None:
+        return presence_scenes
+
+    action_event_result = find_action_event_scenes(
         query=query,
         video_id=video_id or (source_event or {}).get("video_id"),
         top_k=top_k,
@@ -170,8 +180,8 @@ def run_rag_query(
         recording_date=recording_date,
         time_range=time_range,
     )
-    if precise_action_result is not None:
-        return precise_action_result
+    if action_event_result is not None:
+        return action_event_result
 
     action_scene_result = _run_action_scene_query(
         query=query,
@@ -200,16 +210,6 @@ def run_rag_query(
             recording_date=recording_date,
             time_range=time_range,
         )
-
-    presence_scenes = find_presence_scenes(
-        query=query,
-        video_id=video_id,
-        top_k=top_k,
-        recording_date=recording_date,
-        time_range=time_range,
-    )
-    if presence_scenes is not None:
-        return presence_scenes
 
     grounded_scenes = find_grounded_action_scenes(
         query=query,
