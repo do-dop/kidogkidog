@@ -21,7 +21,9 @@ from pipeline.search.event_text_search import best_specific_event, event_as_sear
 from pipeline.search.question_router import QuestionType, classify_with_rules
 from pipeline.search.sequence_query import is_sequence_query, run_sequence_query
 from pipeline.search.object_presence import find_presence_scenes, find_qualified_presence_candidates
-from pipeline.search.grounded_action_search import find_grounded_action_scenes
+from pipeline.search.grounded_action_search import find_grounded_action_scenes, find_action_event_scenes
+from pipeline.search.video_time import format_event_time, format_frame_time
+from pipeline.search.species_verification import confirmed_cat_frame_ids
 from pipeline.storage.capture_time import trusted_capture_time
 
 SEQUENCE_MIN_RESULTS = 10
@@ -160,6 +162,27 @@ def run_rag_query(
     if gate_scene_result is not None:
         return gate_scene_result
 
+    presence_scenes = find_presence_scenes(
+        query=query,
+        video_id=video_id,
+        top_k=top_k,
+        recording_date=recording_date,
+        time_range=time_range,
+    )
+    if presence_scenes is not None:
+        return presence_scenes
+
+    action_event_result = find_action_event_scenes(
+        query=query,
+        video_id=video_id or (source_event or {}).get("video_id"),
+        top_k=top_k,
+        source_event=source_event,
+        recording_date=recording_date,
+        time_range=time_range,
+    )
+    if action_event_result is not None:
+        return action_event_result
+
     action_scene_result = _run_action_scene_query(
         query=query,
         video_id=video_id or (source_event or {}).get("video_id"),
@@ -187,16 +210,6 @@ def run_rag_query(
             recording_date=recording_date,
             time_range=time_range,
         )
-
-    presence_scenes = find_presence_scenes(
-        query=query,
-        video_id=video_id,
-        top_k=top_k,
-        recording_date=recording_date,
-        time_range=time_range,
-    )
-    if presence_scenes is not None:
-        return presence_scenes
 
     grounded_scenes = find_grounded_action_scenes(
         query=query,
@@ -429,6 +442,13 @@ def _drop_species_mismatch(query: str, frames: list[dict[str, Any]]) -> list[dic
     wanted = _query_species(query)
     if wanted is None:
         return frames
+    if wanted == "cat":
+        labelled = [
+            frame for frame in frames
+            if "cat" in {part.strip().lower() for part in _normalize_labels(frame.get("object_labels")).split(",")}
+        ]
+        confirmed = confirmed_cat_frame_ids(frame.get("frame_id") for frame in labelled)
+        return [frame for frame in labelled if frame.get("frame_id") in confirmed] if confirmed is not None else []
     other = "dog" if wanted == "cat" else "cat"
 
     kept = []
@@ -557,7 +577,7 @@ def _run_action_scene_query(
 
     if not evidence:
         return None
-    moments = ", ".join(f"{int(float(item['timestamp']) // 60):02d}:{int(float(item['timestamp']) % 60):02d}"
+    moments = ", ".join(format_frame_time(item, float(item["timestamp"]))
                         for item in evidence[:3])
     if len(evidence) > 3:
         moments += " 등"
@@ -1244,7 +1264,7 @@ def _build_behavior_event_context(behavior_events: list[dict[str, Any]]) -> str:
         end_time = event.get("end_time")
 
         if start_time is not None and end_time is not None:
-            time_text = f"{float(start_time):.2f}초~{float(end_time):.2f}초"
+            time_text = f"{format_event_time(event, start_time)}~{format_event_time(event, end_time)}"
         else:
             time_text = "시간 정보 없음"
 
@@ -1259,7 +1279,7 @@ def _build_behavior_event_context(behavior_events: list[dict[str, Any]]) -> str:
         frame_text_items = []
         for frame in source_frames[:5]:
             timestamp = frame.get("timestamp")
-            timestamp_text = f"{float(timestamp):.2f}초" if timestamp is not None else "시간 없음"
+            timestamp_text = format_frame_time(frame, timestamp) if timestamp is not None else "시간 없음"
             labels = frame.get("object_labels") or []
             frame_text_items.append(f"{timestamp_text}: {labels}")
 
@@ -1283,12 +1303,6 @@ def _build_behavior_event_context(behavior_events: list[dict[str, Any]]) -> str:
     return "\n".join(lines)
 
 
-def _format_clock(value) -> str:
-    seconds = max(0, int(round(float(value))))
-    minutes, remaining_seconds = divmod(seconds, 60)
-    return f"{minutes:02d}:{remaining_seconds:02d}"
-
-
 def _format_scene_range(frame: dict[str, Any]) -> str:
     """결과 카드에 표시되는 '재생 구간'과 같은 MM:SS 형식으로 장면 구간을 만든다."""
     start = _safe_float(frame.get("playback_start"))
@@ -1304,9 +1318,9 @@ def _format_scene_range(frame: dict[str, Any]) -> str:
     if start is None or end is None:
         return "알 수 없음"
 
-    text = f"{_format_clock(start)}~{_format_clock(end)}"
+    text = f"{format_frame_time(frame, start)}~{format_frame_time(frame, end)}"
     if representative is not None:
-        text += f" (가장 비슷한 순간 {_format_clock(representative)})"
+        text += f" (가장 비슷한 순간 {format_frame_time(frame, representative)})"
     return text
 
 
@@ -1321,7 +1335,7 @@ def _build_retrieved_context(retrieved_frames: list[dict[str, Any]]) -> str:
 
     for idx, frame in enumerate(retrieved_frames, start=1):
         timestamp = frame.get("timestamp")
-        timestamp_text = f"{float(timestamp):.2f}초" if timestamp is not None else "알 수 없음"
+        timestamp_text = format_frame_time(frame, timestamp) if timestamp is not None else "알 수 없음"
 
         object_labels = frame.get("object_labels") or "감지 객체 없음"
         score = frame.get("score")
@@ -1383,7 +1397,7 @@ def _generate_answer_with_langchain(
 답변 규칙:
 - 사용자는 내부 분석 로그가 아니라 "어느 장면을 보면 되는지"를 알고 싶어 한다.
 - 첫 문장은 질문에 직접 답한다. 예: "고양이가 보이는 장면은 00:02 근처에서 확인할 수 있어요."
-- 시간은 반드시 "검색된 프레임 근거"의 "화면에 표시되는 재생 구간"(MM:SS)만 사용한다. 사용자 화면의 결과 카드와 같은 구간이어야 한다.
+- 시간은 반드시 "검색된 프레임 근거"의 재생 구간을 사용한다. 가져온 영상은 전체 영상 시작 기준 MM:SS, 검증된 펫캠 촬영 시각은 HH:MM:SS로 표현한다. 청크 안의 상대 시각을 전체 영상 시각처럼 말하지 않는다.
 - 행동 이벤트의 time_range(영상 전체 길이에 걸친 넓은 구간)를 그대로 말하지 않는다. 2초~58초처럼 넓은 구간을 안내하지 않는다.
 - 질문에 나온 대상이나 행동(예: 쓰레기통, 뒤지기)이 summary, evidence, target_object, object_labels 어디에도 직접 나오지 않으면, 있다고 말하지 않는다. 이때는 "정확히 그 장면이라고 확신하긴 어렵지만 가장 비슷한 후보는 ~예요"처럼 후보라고 말한다.
 - 근거에 없는 해석(호기심, 감정, 의도 등)을 덧붙이지 않는다. 화면에 보이는 것만 말한다.
@@ -1467,7 +1481,13 @@ def _build_fallback_answer(
 
     if behavior_events:
         event = _deduplicate_answer_events(behavior_events)[0]
-        time_text = _format_user_time_range(event.get("start_time"), event.get("end_time"))
+        start = event.get("start_time")
+        end = event.get("end_time")
+        time_text = (
+            f"{format_event_time(event, start)}~{format_event_time(event, end)}"
+            if start is not None and end is not None
+            else "확인 가능한 구간"
+        )
         return f"{time_text}에 {_friendly_event_summary(event).rstrip('.')}."
 
     if retrieved_frames:

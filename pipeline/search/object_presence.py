@@ -3,11 +3,12 @@
 import re
 
 from pipeline.storage.vector_store import get_indexed_frames
+from pipeline.search.species_verification import confirmed_cat_frame_ids
 
 
 _SUBJECTS = {"고양이": "cat", "강아지": "dog", "사람": "person"}
 _FRAME_CHUNK = re.compile(r"_(\d{3})_frame_[0-9.]+\.jpg$")
-_ACTION_WORDS = re.compile(r"먹|마시|올라|들어|나가|뛰|달리|다가|가까|이동|움직|떨어|숙이|바라|앞발|몇\s*(?:번|회)|횟수")
+_ACTION_WORDS = re.compile(r"먹|마시|올라|들어|나가|뛰|달리|걷|다가|가까|이동|움직|떨어|숙이|바라|앞발|목욕|씻|잠|자는|자고|수건|몇\s*(?:번|회)|횟수")
 _STATIC_QUESTION = re.compile(r"있어|있니|있나요|있는|보여|보이|나와|나오|장면")
 
 
@@ -51,6 +52,19 @@ def find_presence_scenes(query, video_id, top_k, recording_date=None, time_range
         and frame.get("s3_key")
         and frame.get("timestamp") is not None
     ]
+    if label == "cat":
+        confirmed = confirmed_cat_frame_ids(frame.get("frame_id") for frame in matches)
+        if confirmed is None:
+            answer = "고양이 장면의 종을 재검증하지 못했어요. 잠시 후 다시 확인해 주세요."
+        else:
+            matches = [frame for frame in matches if frame.get("frame_id") in confirmed]
+            answer = "고양이로 확인된 장면을 찾지 못했어요."
+        if not matches:
+            return {
+                "query": query, "video_id": video_id, "answer": answer,
+                "results": [], "evidence_items": [], "behavior_events": [],
+                "match_level": "unverified_species", "used_llm": False,
+            }
     matches.sort(key=_video_second)
     scenes = []
     for frame in matches:
@@ -107,6 +121,8 @@ def find_qualified_presence_candidates(query, video_id, top_k, recording_date=No
     if result is None:
         return None
     result["query"] = query
+    if not result.get("results"):
+        return result
     result["answer"] = (
         f"{name}가 감지된 영상 후보를 찾았어요. "
         "질문에 포함된 위치나 물건·상태까지는 이 감지 결과만으로 확인할 수 없으니 "

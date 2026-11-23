@@ -51,9 +51,17 @@ class SearchRelevanceTests(unittest.TestCase):
         dog = {**frame("dog", 0.30), "object_labels": "dog,couch"}
         cat = {**frame("cat", 0.28), "object_labels": "cat"}
         unknown = {**frame("unknown", 0.27), "object_labels": ""}
-        result, _ = self.run_query("고양이가 러그 위에서 주변을 둘러봄", [dog, cat, unknown])
+        with patch.object(rag, "confirmed_cat_frame_ids", return_value={"cat"}):
+            result, _ = self.run_query("고양이가 러그 위에서 주변을 둘러봄", [dog, cat, unknown])
 
-        self.assertEqual([item["frame_id"] for item in result["results"]], ["cat", "unknown"])
+        self.assertEqual([item["frame_id"] for item in result["results"]], ["cat"])
+
+    def test_cat_label_rejected_by_image_embedding_is_not_a_match(self):
+        wrong = {**frame("dog-as-cat", 0.30), "object_labels": "cat"}
+        with patch.object(rag, "confirmed_cat_frame_ids", return_value=set()):
+            result, answer = self.run_query("고양이가 러그 위에서 주변을 둘러봄", [wrong])
+        self.assertEqual(result["results"], [])
+        answer.assert_not_called()
 
     def test_cat_question_with_only_dog_frames_is_not_answered(self):
         dog = {**frame("dog", 0.30), "object_labels": "dog"}

@@ -62,6 +62,19 @@ def best_specific_event(query: str, events: list[dict[str, Any]]) -> tuple[dict[
     return events[best_index], best_score
 
 
+def rank_events_by_text(query: str, events: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Shortlist long timelines by weighted text overlap without fixing action names."""
+    query_grams = _grams(_QUERY_ENDINGS.sub("", query.strip()))
+    event_grams = [_grams(_description(event)) for event in events]
+    frequency = Counter(gram for grams in event_grams for gram in grams)
+    size = len(events)
+    return [event for _, event in sorted(
+        ((sum(log((size + 1) / (frequency[gram] + 1)) + 1
+              for gram in query_grams & grams), event) for event, grams in zip(events, event_grams)),
+        key=lambda item: item[0], reverse=True,
+    )]
+
+
 def event_as_search_result(event: dict[str, Any], score: float) -> dict[str, Any] | None:
     try:
         start = float(event["start_time"])
