@@ -115,9 +115,12 @@ def find_action_event_scenes(query, video_id, top_k, source_event=None,
     )]
     if not candidates:
         return None
-    # Keep large recordings bounded. The lexical stage is only a shortlist;
-    # the model decides whether the action and its target really agree.
-    if len(candidates) > 120:
+    from pipeline.search.action_event_index import semantic_event_candidates
+    ranked = semantic_event_candidates(query, candidates)
+    if ranked is not None:
+        candidates = ranked
+    elif len(candidates) > 120:
+        # Existing recordings without a complete index keep the prior path.
         from pipeline.search.event_text_search import rank_events_by_text
         candidates = rank_events_by_text(query, candidates)[:120]
     try:

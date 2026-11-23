@@ -285,6 +285,8 @@ def process_chunk(chunk_path, submitted_at=None, uploaded_at=None):
         # GCS 프레임 키와 ChromaDB 프레임 ID는 청크마다 결정적이라 재실행해도 덮어쓰거나
         # 건너뛰지만, MySQL은 insert라 중복될 수 있다. 완료 표시와 함께 커밋해
         # 재실행 시 전부 저장되었거나 전혀 저장되지 않은 상태만 남게 한다.
+        saved_event_ids = []
+
         def write_results(conn):
             for frame in indexed_frames:
                 insert_scene(
@@ -300,7 +302,7 @@ def process_chunk(chunk_path, submitted_at=None, uploaded_at=None):
                 )
 
             if behavior_events:
-                insert_behavior_events(behavior_events, conn=conn)
+                saved_event_ids.extend(insert_behavior_events(behavior_events, conn=conn))
 
         integrity = {
             "scene_count": len(indexed_frames),
@@ -322,6 +324,20 @@ def process_chunk(chunk_path, submitted_at=None, uploaded_at=None):
             record_chunk_integrity(chunk_path, video_id, integrity)
 
         if committed:
+            # MySQL commit must finish before its IDs are indexed in Chroma.
+            # If indexing fails, the existing event search remains available;
+            # scripts/backfill_action_event_index.py can repair the missing rows.
+            if saved_event_ids:
+                try:
+                    from pipeline.search.action_event_index import index_behavior_events
+
+                    indexed_event_count = index_behavior_events([
+                        {**event, "id": event_id}
+                        for event, event_id in zip(behavior_events, saved_event_ids)
+                    ])
+                    print(f"행동 이벤트 의미 색인 {indexed_event_count}개 저장 완료", flush=True)
+                except Exception as exc:
+                    print(f"행동 이벤트 의미 색인 실패(재색인 가능): {exc}", flush=True)
             print(
                 f"scenes {len(indexed_frames)}개, 행동 이벤트 {len(behavior_events)}개 저장 완료!",
                 flush=True,
