@@ -90,6 +90,17 @@ class LongVideoSearchFixes(unittest.TestCase):
         self.assertEqual(cat["results"], [])
         self.assertEqual(door["results"], [])
 
+    def test_core_action_with_unverified_detail_is_marked_related(self):
+        nursing = event(1, 1, 29, 32, "반려동물이 다른 반려동물에게 젖을 먹고 있음")
+        with patch.object(grounded_action_search, "get_behavior_events_for_aggregation", return_value=[nursing]), \
+             patch.object(grounded_action_search, "_select_matching_events",
+                          return_value={"exact": [], "related": [nursing]}):
+            result = grounded_action_search.find_action_event_scenes(
+                "강아지가 어미 젖을 먹는 장면 보여줘", "long", 5)
+        self.assertEqual(result["match_level"], "related_event")
+        self.assertEqual(result["results"][0]["source_event_id"], 1)
+        self.assertIn("세부 조건까지는 확인하지 못했어요", result["answer"])
+
     def test_cat_verification_rejects_dog_and_keeps_cat(self):
         class Collection:
             def get(self, ids, include):

@@ -75,12 +75,13 @@ def _select_matching_events(query, events):
         for index, event in enumerate(events)
     ]
     prompt = (
-        "영상 질문과 관찰된 행동 이벤트를 비교해 정확히 같은 행동을 담은 row 번호만 고르세요. "
+        "영상 질문과 관찰된 행동 이벤트를 비교하세요. 행동과 질문의 세부 조건이 모두 명확히 맞으면 rows, "
+        "핵심 행동은 같지만 주체의 종류·관계 같은 세부 조건이 기록에 없어 확정할 수 없으면 related_rows에 넣으세요. "
         "행동의 대상과 방향을 구분하세요(예: 들어가기/나오기, 젖 먹기/사료 먹기). "
         "동물의 존재만으로 행동을 입증하지 마세요. 추정·부정·의도 표현은 확정 근거가 아닙니다. "
-        "반복된 같은 행동은 해당 row를 모두 고르세요. 질문이 단순 객체 존재/일반 이동이거나 "
-        "명확한 행동 일치가 없으면 빈 배열을 반환하세요. "
-        "오직 JSON {\"rows\":[정수,...]} 형식으로 답하세요.\n"
+        "서로 다른 행동·대상·방향은 related_rows에도 넣지 마세요. 반복된 같은 행동은 해당 row를 모두 고르세요. "
+        "질문이 단순 객체 존재/일반 이동이거나 핵심 행동 일치가 없으면 두 배열을 모두 비우세요. "
+        "오직 JSON {\"rows\":[정수,...],\"related_rows\":[정수,...]} 형식으로 답하세요.\n"
         f"질문: {query}\n이벤트: {json.dumps(rows, ensure_ascii=False)}"
     )
     response = OpenAI().responses.create(
@@ -89,11 +90,17 @@ def _select_matching_events(query, events):
         text={"format": {"type": "json_object"}},
         temperature=0,
     )
-    selected = json.loads(response.output_text).get("rows", [])
-    if not isinstance(selected, list):
-        return []
-    indices = {row for row in selected if type(row) is int and 0 <= row < len(events)}
-    return [event for index, event in enumerate(events) if index in indices]
+    parsed = json.loads(response.output_text)
+    def selected_rows(key):
+        values = parsed.get(key, [])
+        if not isinstance(values, list):
+            return []
+        indices = {row for row in values if type(row) is int and 0 <= row < len(events)}
+        return [event for index, event in enumerate(events) if index in indices]
+    exact = selected_rows("rows")
+    exact_ids = {event.get("id") for event in exact}
+    related = [event for event in selected_rows("related_rows") if event.get("id") not in exact_ids]
+    return {"exact": exact, "related": related}
 
 
 def find_action_event_scenes(query, video_id, top_k, source_event=None,
@@ -124,13 +131,19 @@ def find_action_event_scenes(query, video_id, top_k, source_event=None,
         from pipeline.search.event_text_search import rank_events_by_text
         candidates = rank_events_by_text(query, candidates)[:120]
     try:
-        matched = _select_matching_events(query, candidates)
+        selection = _select_matching_events(query, candidates)
     except Exception as exc:
         print(f"행동 이벤트 의미 비교 실패: {exc}", flush=True)
         return None
-    if matched is None:
+    if selection is None:
         return None
-    matched = [event for event in matched if _supports_explicit_constraints(query, event)]
+    # Older callers and tests may still provide a plain list of exact matches.
+    exact = selection.get("exact", []) if isinstance(selection, dict) else selection
+    related = selection.get("related", []) if isinstance(selection, dict) else []
+    matched = [event for event in exact if _supports_explicit_constraints(query, event)]
+    uncertain = not matched
+    if uncertain:
+        matched = [event for event in related if _supports_explicit_constraints(query, event)]
     if not matched:
         return {
             "query": query,
@@ -169,7 +182,7 @@ def find_action_event_scenes(query, video_id, top_k, source_event=None,
             continue
         result["playback_start"] = max(0.0, episode["start"] - 1)
         result["playback_end"] = episode["end"] + 1
-        result["match_level"] = "behavior_event"
+        result["match_level"] = "related_event" if uncertain else "behavior_event"
         results.append(result)
         if len(results) >= max(1, top_k):
             break
@@ -181,12 +194,15 @@ def find_action_event_scenes(query, video_id, top_k, source_event=None,
     return {
         "query": query,
         "video_id": video_id,
-        "answer": f"질문한 행동은 {positions} 근처에서 확인할 수 있어요.",
+        "answer": (
+            f"관련 행동 기록은 {positions} 근처에 있지만 질문의 세부 조건까지는 확인하지 못했어요."
+            if uncertain else f"질문한 행동은 {positions} 근처에서 확인할 수 있어요."
+        ),
         "results": results,
         "evidence_items": results,
         "behavior_events": matched,
         "used_llm": False,
-        "match_level": "behavior_event",
+        "match_level": "related_event" if uncertain else "behavior_event",
     }
 
 
