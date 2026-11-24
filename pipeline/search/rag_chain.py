@@ -125,6 +125,21 @@ def run_rag_query(
     event_start: float | None = None,
     event_end: float | None = None,
 ) -> dict:
+    # Question meaning is assessed before retrieval. An unrelated event must
+    # never become an answer just because it has the highest similarity score.
+    from pipeline.search.query_clarification import needs_scene_clarification
+    from pipeline.search.question_understanding import question_is_understood
+
+    if (classify_with_rules(query).question_type != QuestionType.AGGREGATE
+            and not needs_scene_clarification(query)
+            and not question_is_understood(query.strip())):
+        clarification = {
+            "question": "질문을 정확히 이해하지 못했어요. 어떤 행동이나 장면을 찾으시나요?",
+            "options": [],
+        }
+        result = _empty_aggregate_result(query, video_id, clarification["question"])
+        result["clarification"] = clarification
+        return result
     color_query = asks_about_color(query)
     result = _run_rag_query(
         query=query,
