@@ -19,6 +19,24 @@ def _result(second, start=None, end=None):
 
 
 class SceneVerificationTests(unittest.TestCase):
+    def test_intent_and_transition_states_share_one_request(self):
+        with patch("openai.OpenAI") as client:
+            client.return_value.responses.create.return_value = SimpleNamespace(
+                output_text=json.dumps({"mode": "transition", "source": "inside",
+                                        "intermediate": "on fence", "target": "outside"})
+            )
+            self.assertEqual(scene_verification._verification_plan("test transition"),
+                             ("transition", {"source": "inside", "intermediate": "on fence", "target": "outside"}))
+            client.return_value.responses.create.assert_called_once()
+
+    def test_transition_without_clear_target_uses_motion_check(self):
+        with patch("openai.OpenAI") as client:
+            client.return_value.responses.create.return_value = SimpleNamespace(
+                output_text=json.dumps({"mode": "transition", "source": "inside",
+                                        "intermediate": "on fence", "target": None})
+            )
+            self.assertEqual(scene_verification._verification_plan("test unclear transition"), ("motion", None))
+
     def test_uncertain_event_and_visual_hit_both_enter_shortlist(self):
         payload = {"results": [_result(9, 3, 15)]}
         with patch("db.behavior_events.get_behavior_events_for_aggregation", return_value=[]), patch(
@@ -83,7 +101,7 @@ class SceneVerificationTests(unittest.TestCase):
         with patch.dict("os.environ", {"OPENAI_API_KEY": "test"}), patch.object(
             scene_verification, "_candidate_windows",
             return_value=[scene_verification._window(original["results"][0])]
-        ), patch.object(scene_verification, "_verification_mode", return_value="motion"), patch(
+        ), patch.object(scene_verification, "_verification_plan", return_value=("motion", None)), patch(
             "pipeline.storage.gcs_uploader.download_video"
         ), patch(
             "pipeline.search.video_aggregate.video_duration", return_value=42
@@ -103,7 +121,7 @@ class SceneVerificationTests(unittest.TestCase):
         with patch.dict("os.environ", {"OPENAI_API_KEY": "test"}), patch.object(
             scene_verification, "_candidate_windows",
             return_value=[scene_verification._window(original["results"][0])]
-        ), patch.object(scene_verification, "_verification_mode", return_value="motion"), patch(
+        ), patch.object(scene_verification, "_verification_plan", return_value=("motion", None)), patch(
             "pipeline.storage.gcs_uploader.download_video"
         ), patch(
             "pipeline.search.video_aggregate.video_duration", return_value=42
@@ -118,7 +136,7 @@ class SceneVerificationTests(unittest.TestCase):
         frames = [{"time": 3.0, "jpeg": b"image"}]
         with patch.dict("os.environ", {"OPENAI_API_KEY": "test"}), patch.object(
             scene_verification, "_candidate_windows", return_value=[window]
-        ), patch.object(scene_verification, "_verification_mode", return_value="static"), patch(
+        ), patch.object(scene_verification, "_verification_plan", return_value=("static", None)), patch(
             "pipeline.storage.gcs_uploader.download_video"
         ), patch(
             "pipeline.search.video_aggregate.video_duration", return_value=42
@@ -137,7 +155,7 @@ class SceneVerificationTests(unittest.TestCase):
         frames = [{"time": 2.0, "jpeg": b"image"}]
         with patch.dict("os.environ", {"OPENAI_API_KEY": "test"}), patch.object(
             scene_verification, "_candidate_windows", return_value=windows
-        ), patch.object(scene_verification, "_verification_mode", return_value="static"), patch(
+        ), patch.object(scene_verification, "_verification_plan", return_value=("static", None)), patch(
             "pipeline.storage.gcs_uploader.download_video"
         ), patch("pipeline.search.video_aggregate.video_duration", return_value=42), patch(
             "pipeline.search.video_aggregate.sample_frames", return_value=frames
@@ -161,7 +179,7 @@ class SceneVerificationTests(unittest.TestCase):
         windows = [scene_verification._window(_result(second)) for second in (2, 3, 9)]
         with patch.dict("os.environ", {"OPENAI_API_KEY": "test"}), patch.object(
             scene_verification, "_candidate_windows", return_value=windows
-        ), patch.object(scene_verification, "_verification_mode", return_value="static"), patch(
+        ), patch.object(scene_verification, "_verification_plan", return_value=("static", None)), patch(
             "pipeline.storage.gcs_uploader.download_video"
         ), patch("pipeline.search.video_aggregate.video_duration", return_value=42), patch(
             "pipeline.search.video_aggregate.sample_frames", return_value=[{"time": 2.0, "jpeg": b"image"}]
