@@ -29,6 +29,8 @@ _WHOLE_RANGE = re.compile(r"처음부터|처음에서|시작부터|끝까지|전
 _FIRST = re.compile(r"처음|첫\s*번째|첫째|(?:제일|가장|맨)\s*먼저")
 _EARLY = re.compile(r"먼저")
 _ORDER_WORDS = re.compile(r"순서|시간순|차례|흐름|타임라인")
+_SUMMARY_WORDS = re.compile(r"(?:오늘|하루|전체).{0,15}요약|(?:행동|뭐했|무엇을 했).{0,15}(?:요약|정리)|(?:요약|정리).{0,15}행동")
+_BROAD_DAY_ACTIONS = re.compile(r"(?:오늘|하루|어제).{0,25}(?:뭐했|무엇을 했|어떤 행동|행동했|행동을 했)")
 _LAST = re.compile(rf"마지막|맨\s*끝|(?:제일|가장)\s*나중|끝(?:에는|에|엔){_END}")
 _ASKS_ABOUT_ACTION = re.compile(r"뭐|무엇|무슨|행동|했|어땠|어떻")
 
@@ -74,6 +76,8 @@ def is_sequence_query(query: str) -> bool:
     if _WHEN.search(compact) and _SCENE_CHANGE.search(compact):
         return True
     if _is_scene_change_statement(query):
+        return True
+    if _SUMMARY_WORDS.search(query):
         return True
     if any(re.sub(r"\s+", "", word) in compact for word in _SEQUENCE_WORDS):
         return True
@@ -577,6 +581,46 @@ def _group_consecutive(rows: list[tuple[datetime | None, dict]]) -> list[list[tu
     return groups
 
 
+def _collapse_same_moment(rows: list[tuple[datetime | None, dict]]) -> list[tuple[datetime | None, dict]]:
+    """Show one representative event per video second in a broad timeline."""
+    from pipeline.search.query_suggester import _event_score
+
+    chosen: dict[tuple[str, int], tuple[datetime | None, dict]] = {}
+    for row in rows:
+        recorded_at, event = row
+        seconds = _video_seconds(event)
+        if seconds is None and recorded_at is None:
+            # No reliable instant: keep the event rather than inventing a duplicate.
+            chosen[(str(event.get("video_id")), -int(event.get("id") or id(event)))] = row
+            continue
+        moment = int(recorded_at.timestamp()) if recorded_at is not None else int(seconds)
+        key = (str(event.get("video_id")), moment)
+        previous = chosen.get(key)
+        if previous is None or (
+            _event_score(event), len(_description(event))
+        ) > (
+            _event_score(previous[1]), len(_description(previous[1]))
+        ):
+            chosen[key] = row
+    kept = {id(row[1]) for row in chosen.values()}
+    return [row for row in rows if id(row[1]) in kept]
+
+
+def _summary_groups(groups: list[list[tuple[datetime | None, dict]]], limit: int = 5):
+    """Pick diverse, well supported actions across the whole timeline."""
+    from pipeline.search.query_suggester import _dedupe_events_by_category, _event_score
+
+    representatives = [group[0][1] for group in groups]
+    selected = {id(event) for event in _dedupe_events_by_category(representatives, limit)}
+    # When fewer than five broad categories occur, show other distinct moments
+    # rather than leaving useful summary slots empty.
+    for event in sorted(representatives, key=_event_score, reverse=True):
+        if len(selected) >= min(limit, len(representatives)):
+            break
+        selected.add(id(event))
+    return [group for group in groups if id(group[0][1]) in selected]
+
+
 def _episode_spans(rows: list[tuple[datetime | None, dict]]) -> list[tuple[int, int]]:
     """FULL 타임라인과 같은 묶음(에피소드)의 [시작, 끝] 위치. 앞/뒤 질문도 이 단위로 이웃을 정한다."""
     spans, start = [], 0
@@ -635,7 +679,7 @@ def _card(event: dict[str, Any], merged_count: int = 1, role: str | None = None)
         "event_start": event.get("start_time"),
         "event_end": event.get("end_time"),
         "representative_timestamp": timestamp,
-        "playback_start": max(timestamp - 3, 0),
+        "playback_start": max(timestamp, 0),
         "playback_end": timestamp + 5,
     }
     if role:
@@ -734,6 +778,12 @@ def run_sequence_query(
         int(row[1].get("id") or 0),
     ))
     intent, anchor = _sequence_intent(query)
+    summary_request = intent == "timeline" and bool(
+        re.search(r"요약|주요\s*행동|대표\s*행동", query)
+        or (_BROAD_DAY_ACTIONS.search(query) and not _ORDER_WORDS.search(query))
+    )
+    if intent == "timeline":
+        rows = _collapse_same_moment(rows)
     all_rows = rows
     unplayable_count = 0
     if intent != "timeline":
@@ -795,7 +845,7 @@ def run_sequence_query(
         if not terms:
             intent = "timeline"
             groups = _group_consecutive(rows)
-            selected_groups = groups[:top_k]
+            selected_groups = _summary_groups(groups) if summary_request else groups[:top_k]
             selected = [group[0] for group in selected_groups]
             step_total = len(groups)
         else:
@@ -821,7 +871,7 @@ def run_sequence_query(
                 selected = [rows[picked]]
     else:
         groups = _group_consecutive(rows)
-        selected_groups = groups[:top_k]
+        selected_groups = _summary_groups(groups) if summary_request else groups[:top_k]
         selected = [group[0] for group in selected_groups]
         step_total = len(groups)
     if selected_groups is None:
@@ -933,7 +983,10 @@ def run_sequence_query(
             sentences.append(sentence)
         answer = " ".join(sentences)
         if len(selected) < step_total:
-            answer += f"\n전체 {step_total}개 장면 중 처음 {len(selected)}개만 보여드려요."
+            if summary_request:
+                answer += f"\n전체 {step_total}개 장면 중 대표 행동 {len(selected)}개를 보여드려요."
+            else:
+                answer += f"\n전체 {step_total}개 장면 중 처음 {len(selected)}개만 보여드려요."
         if place_terms:
             place = "·".join(place_terms)
             answer = f"{place}{_place_particle(place)} 관련된 행동을 모았어요. " + answer
