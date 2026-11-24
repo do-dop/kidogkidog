@@ -25,6 +25,7 @@ from pipeline.search.grounded_action_search import find_grounded_action_scenes, 
 from pipeline.search.video_time import format_event_time, format_frame_time
 from pipeline.search.species_verification import confirmed_cat_frame_ids
 from pipeline.search.color_grounding import asks_about_color, include_explicit_color_events, verify_color_results
+from pipeline.search.scene_verification import verify_uncertain_scene
 from pipeline.storage.capture_time import trusted_capture_time
 
 SEQUENCE_MIN_RESULTS = 10
@@ -137,7 +138,7 @@ def run_rag_query(
         event_end=event_end,
     )
     if not color_query:
-        return result
+        return verify_uncertain_scene(query, video_id, result, top_k)
     result = include_explicit_color_events(query, result, video_id, recording_date, time_range)
     return verify_color_results(query, result, top_k)
 
