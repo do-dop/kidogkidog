@@ -183,6 +183,21 @@ def _run_rag_query(
             time_range=time_range,
         )
 
+    from pipeline.search.query_clarification import build_scene_clarification, needs_scene_clarification
+
+    if needs_scene_clarification(query):
+        events = []
+        if video_id:
+            try:
+                events = get_behavior_events_for_aggregation(video_id=video_id)
+                events = _filter_events_by_datetime(events, recording_date, time_range)
+            except Exception as exc:
+                print(f"장면 재질의 후보 조회 실패: {exc}", flush=True)
+        clarification = build_scene_clarification(query, events)
+        result = _empty_aggregate_result(query, video_id, clarification["question"])
+        result["clarification"] = clarification
+        return result
+
     gate_scene_result = _run_gate_climb_scene_query(
         query=query,
         video_id=video_id or (source_event or {}).get("video_id"),

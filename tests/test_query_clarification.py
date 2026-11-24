@@ -6,7 +6,11 @@ from fastapi.testclient import TestClient
 
 from api.routers.search import router
 from pipeline.search.aggregate_query import parse_count_action
-from pipeline.search.query_clarification import build_count_clarification
+from pipeline.search.query_clarification import (
+    build_count_clarification,
+    build_scene_clarification,
+    needs_scene_clarification,
+)
 from pipeline.search.rag_chain import run_rag_query
 
 
@@ -39,6 +43,28 @@ class QueryClarificationTests(unittest.TestCase):
         self.assertEqual(len(clarification["options"]), 2)
         self.assertEqual({parse_count_action(item["query"])[0] for item in clarification["options"]},
                          {"drink", "eat"})
+
+    def test_vague_scene_question_offers_concrete_recorded_action(self):
+        events = [{"action": "반려동물이 유리문 앞에서 두 앞발을 들어 올림",
+                   "target_object": "유리문"}]
+        with patch("pipeline.search.rag_chain.get_behavior_events_for_aggregation", return_value=events):
+            result = run_rag_query("유리문 앞에서 그거 보여줘", video_id="example_video")
+        self.assertIn("유리문 앞에서 앞발을 들어 올리는 장면", result["clarification"]["question"])
+        self.assertEqual(result["clarification"]["options"][0]["query"],
+                         "유리문 앞에서 앞발을 들어 올리는 장면 보여줘")
+        self.assertEqual(result["results"], [])
+
+    def test_concrete_question_or_daily_overview_is_not_rewritten(self):
+        for question in ("강아지가 소파에 올라간 장면 보여줘", "그 장면에서 두 마리야?",
+                         "오늘 강아지가 뭐 했어?"):
+            with self.subTest(question=question):
+                self.assertFalse(needs_scene_clarification(question))
+        self.assertTrue(needs_scene_clarification("그거 보여줘"))
+
+    def test_generic_vague_question_without_video_asks_for_details(self):
+        clarification = build_scene_clarification("그거 보여줘", [])
+        self.assertEqual(clarification["options"], [])
+        self.assertIn("어떤 장면", clarification["question"])
 
     def test_api_exposes_clarification_to_search_screen(self):
         app = FastAPI()
