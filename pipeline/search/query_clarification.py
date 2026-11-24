@@ -14,7 +14,7 @@ _ACTION_CLUES = {
     "eat": r"먹|밥|사료|간식|음식",
     "gate_climb": r"울타리|펜스|우리|넘|기어",
     "water_enter": r"수영장|분수|물속|입수",
-    "front_paw_raise": r"앞발|발을\s*들|발\s*듦",
+    "front_paw_raise": r"앞\s*발|발을\s*들|발\s*듦",
     "sofa_up": r"소파|쇼파",
     "head_lift": r"고개|머리\s*들",
     "camera_approach": r"카메라|렌즈",
@@ -77,24 +77,27 @@ def _option(action: str, events: list[dict[str, Any]]) -> dict[str, str]:
 
 
 def build_count_clarification(query: str, events: list[dict[str, Any]]) -> dict[str, Any]:
-    """Rank supported actions using the user's words and this video's events."""
+    """Only suggest an action named in the question; events supply its context."""
     ranked = []
     for action in ACTION_PATTERNS:
         clue = bool(re.search(_ACTION_CLUES[action], query, re.I))
+        if not clue:
+            continue
         evidence_count = sum(event_matches_action(event, action) for event in events)
-        if clue or evidence_count:
-            ranked.append((int(clue), evidence_count, action))
-    ranked.sort(key=lambda item: (-item[0], -item[1], item[2]))
-    options = [_option(action, events) for _, _, action in ranked[:3]]
+        ranked.append((evidence_count, action))
+    ranked.sort(key=lambda item: (-item[0], item[1]))
+    options = [_option(action, events) for _, action in ranked[:3]]
     if len(options) == 1:
-        action = ranked[0][2]
+        action = ranked[0][1]
         target = _target_for(action, events)
         if action == "front_paw_raise" and target:
             prompt = f"{target} 앞에서 앞발을 든 횟수를 물으셨나요?"
         else:
             prompt = f"{ACTION_PATTERNS[action][1]} 횟수를 물으셨나요?"
-    else:
+    elif options:
         prompt = "어떤 행동의 횟수를 물으셨나요? 아래 질문을 선택하거나 직접 고쳐 입력해 주세요."
+    else:
+        prompt = "어떤 행동의 횟수를 세어드릴까요? 행동과 세는 기준을 알려 주세요."
     return {"question": prompt, "options": options}
 
 
@@ -113,6 +116,8 @@ def build_scene_clarification(query: str, events: list[dict[str, Any]]) -> dict[
     clues = re.sub(_VAGUE_REFERENCE, " ", query)
     clues = re.sub(r"보여\s*줘|찾아\s*줘|있어|했어|해줘|강아지|고양이|반려동물", " ", clues)
     clue_terms = [part for part in re.findall(r"[가-힣a-zA-Z]{2,}", clues) if len(part) >= 2]
+    if not clue_terms:
+        return {"question": "무엇을 보여드릴까요? 찾고 싶은 행동이나 장면을 알려 주세요.", "options": []}
     candidates: dict[str, tuple[int, str]] = {}
     for event in events:
         description = " ".join(str(event.get(key) or "") for key in ("action", "target_object", "summary"))

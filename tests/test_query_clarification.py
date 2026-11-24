@@ -19,7 +19,7 @@ class QueryClarificationTests(unittest.TestCase):
         events = [{"action": "반려동물이 유리문 앞에서 두 앞발을 들어 올림",
                    "target_object": "유리문"}]
         with patch("pipeline.search.rag_chain.get_behavior_events_for_aggregation", return_value=events):
-            result = run_rag_query("앞발 몇 번 듦?", video_id="example_video")
+            result = run_rag_query("앞 발 몇번 듦?", video_id="example_video")
         clarification = result["clarification"]
         self.assertEqual(clarification["question"], "유리문 앞에서 앞발을 든 횟수를 물으셨나요?")
         self.assertEqual(clarification["options"][0]["query"], "유리문 앞에서 앞발을 몇 번 들었어?")
@@ -33,13 +33,13 @@ class QueryClarificationTests(unittest.TestCase):
         self.assertNotIn("유리문", clarification["question"])
 
     def test_unknown_action_asks_for_clarification_without_false_answer(self):
-        clarification = build_count_clarification("몇 번 했어?", [])
+        clarification = build_count_clarification("몇 번 했어?", [{"action": "물을 마심"}])
         self.assertEqual(clarification["options"], [])
         self.assertIn("어떤 행동", clarification["question"])
 
     def test_multiple_recorded_actions_offer_distinct_requeries(self):
         events = [{"action": "물을 마심"}, {"action": "사료를 먹음"}]
-        clarification = build_count_clarification("몇 번 했어?", events)
+        clarification = build_count_clarification("물 마시기와 사료 먹기 횟수?", events)
         self.assertEqual(len(clarification["options"]), 2)
         self.assertEqual({parse_count_action(item["query"])[0] for item in clarification["options"]},
                          {"drink", "eat"})
@@ -62,9 +62,9 @@ class QueryClarificationTests(unittest.TestCase):
         self.assertTrue(needs_scene_clarification("그거 보여줘"))
 
     def test_generic_vague_question_without_video_asks_for_details(self):
-        clarification = build_scene_clarification("그거 보여줘", [])
+        clarification = build_scene_clarification("그거 보여줘", [{"action": "물을 마심"}])
         self.assertEqual(clarification["options"], [])
-        self.assertIn("어떤 장면", clarification["question"])
+        self.assertIn("무엇을 보여드릴까요", clarification["question"])
 
     def test_api_exposes_clarification_to_search_screen(self):
         app = FastAPI()
