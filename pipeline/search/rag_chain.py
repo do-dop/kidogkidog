@@ -634,8 +634,19 @@ def _run_aggregate_query(
 ) -> dict[str, Any]:
     parsed = parse_count_action(query)
     if parsed is None:
-        answer = "이 질문의 행동이나 계산 단위를 아직 정확히 셀 수 없어요. '물 몇 번 마셨어?'처럼 한 가지 행동의 횟수를 물어봐 주세요."
-        return _empty_aggregate_result(query, video_id, answer)
+        from pipeline.search.query_clarification import build_count_clarification
+
+        events = []
+        if video_id:
+            try:
+                events = get_behavior_events_for_aggregation(video_id=video_id)
+                events = _filter_events_by_datetime(events, recording_date, time_range)
+            except Exception as exc:
+                print(f"재질의 행동 후보 조회 실패: {exc}", flush=True)
+        clarification = build_count_clarification(query, events)
+        result = _empty_aggregate_result(query, video_id, clarification["question"])
+        result["clarification"] = clarification
+        return result
 
     action, action_label = parsed
     if not recording_date:
