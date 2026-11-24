@@ -1,8 +1,13 @@
+import re
+
 from db.behavior_events import get_top_behavior_events
 from pipeline.search.grounded_event_questions import grounded_event_question_items
 from pipeline.search.question_generator import generate_question_items_from_behavior_events
 from pipeline.storage.vector_store import get_indexed_frames
 from pipeline.search.species_verification import has_confirmed_cat
+
+_WATER_CONTEXT = re.compile(r"(?<![가-힣])물(?:을|이|에|에서|속|로|과|위|놀이|그릇|병|\s|$)|마시|수영|목욕|씻|water")
+_HEDGED_ACTION = re.compile(r"것으로 보임|것 같|추정|듯함")
 
 def _event_text(event: dict) -> str:
     """행동 이벤트에서 분류에 쓸 텍스트를 모은다."""
@@ -15,7 +20,7 @@ def _event_text(event: dict) -> str:
             "summary",
             "evidence",
         ]
-    ).lower()
+    ).lower().replace("반려동물", "")
 
 
 def _event_category(event: dict) -> str:
@@ -25,7 +30,6 @@ def _event_category(event: dict) -> str:
     vehicle_words = ["차", "차량", "자동차", "바퀴", "vehicle", "car", "wheel"]
     under_words = ["아래", "밑", "숨", "들어", "under", "hide", "enter"]
     food_words = ["먹", "음식", "먹이", "사료", "밥", "그릇", "bowl", "food"]
-    water_words = ["물", "마시", "water"]
     person_words = ["사람", "보호자", "손", "person", "human", "hand"]
 
     if any(word in text for word in vehicle_words) and any(word in text for word in under_words):
@@ -37,7 +41,7 @@ def _event_category(event: dict) -> str:
     if any(word in text for word in food_words):
         return "food"
 
-    if any(word in text for word in water_words):
+    if _WATER_CONTEXT.search(text):
         return "water"
 
     if any(word in text for word in person_words):
@@ -51,9 +55,12 @@ def _event_category(event: dict) -> str:
 
 def _event_score(event: dict) -> float:
     try:
-        return float(event.get("interestingness") or 0)
+        interest = float(event.get("interestingness") or 0)
+        confidence = float(event.get("confidence") or 0.5)
     except Exception:
         return 0.0
+    description = " ".join(str(event.get(key) or "") for key in ("action", "summary"))
+    return 0.8 * interest + 0.2 * confidence - (0.2 if _HEDGED_ACTION.search(description) else 0.0)
 
 
 def _dedupe_events_by_category(events: list[dict], limit: int) -> list[dict]:
@@ -443,30 +450,11 @@ def _sort_labels(label_counts: dict[str, int]) -> list[str]:
 
 
 def _behavior_event_signature(event: dict) -> str:
-    text = " ".join(
-        str(event.get(key) or "")
-        for key in ("action", "target_object", "summary")
-    ).lower().replace(" ", "")
-
-    keyword_groups = [
-        ("feeding", ["먹이", "음식", "밥", "그릇", "사료", "먹는", "섭취", "bowl", "food"]),
-        ("water", ["물", "마시", "water"]),
-        ("exploring", ["탐색", "살피", "주변환경"]),
-        ("movement", ["이동", "움직", "돌아다니", "걷"]),
-        ("person", ["사람", "보호자", "person"]),
-        ("vehicle", ["차량", "자동차", "차안", "차아래", "vehicle", "car"]),
-    ]
-
-    for group_name, keywords in keyword_groups:
-        if any(keyword in text for keyword in keywords):
-            return group_name
-
-    action = str(event.get("action") or "").strip()
-    target = str(event.get("target_object") or "").strip()
-    if action or target:
-        return f"{action}:{target}"
-
-    return str(event.get("id"))
+    # Only collapse the same recorded action here. Broad food/water/person
+    # categories are applied later, after each action can compete on evidence.
+    action = re.sub(r"\s+", "", str(event.get("action") or "").lower())
+    target = re.sub(r"\s+", "", str(event.get("target_object") or "").lower())
+    return f"{action}:{target}" if action or target else str(event.get("id"))
 
 
 def _deduplicate_keep_order(items: list[str]) -> list[str]:
