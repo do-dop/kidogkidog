@@ -435,8 +435,14 @@ function mapApiResults(payload: ApiQueryResult, items: Recording[] = []): Search
       return { ...sceneResult, id: scene.frame_id ?? `${result.frame_id ?? `api-result-${index}`}-scene-${sceneIndex}` };
     });
 
+    // Multiple sequence events can cite the same representative frame. Each
+    // step still needs its own UI identity so only the selected row is active.
+    const resultId = payload.query_type === "sequence"
+      ? `sequence-${result.video_id ?? "video"}-${result.source_event_id ?? result.frame_id ?? "frame"}-${index}`
+      : result.frame_id ?? `api-result-${index}`;
+
     return {
-      id: result.frame_id ?? `api-result-${index}`,
+      id: resultId,
       time: dateTime.clockTime,
       clockTime: dateTime.clockTime,
       displayDateTime: dateTime.displayDateTime,
