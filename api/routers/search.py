@@ -105,5 +105,7 @@ def query(request: QueryRequest, background_tasks: BackgroundTasks):
 
     if rag_result.get("aggregate_result") is not None:
         response["aggregate_result"] = rag_result["aggregate_result"]
+    if rag_result.get("clarification") is not None:
+        response["clarification"] = rag_result["clarification"]
 
     return response

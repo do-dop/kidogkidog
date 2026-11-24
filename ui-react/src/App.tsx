@@ -129,6 +129,10 @@ type AggregateResult = {
 
 type ApiQueryResult = {
   answer?: string;
+  clarification?: {
+    question: string;
+    options: { label: string; query: string }[];
+  } | null;
   query_type?: "sequence" | "search";
   sequence_intent?: "timeline" | "first" | "last" | "before" | "after";
   results?: ApiSearchFrame[];
@@ -810,6 +814,8 @@ export default function App() {
   const [excludedEventCount, setExcludedEventCount] = useState(0);
   const [resultSequenceIntent, setResultSequenceIntent] = useState<ApiQueryResult["sequence_intent"]>("timeline");
   const [answer, setAnswer] = useState("");
+  const [clarification, setClarification] = useState<ApiQueryResult["clarification"]>(null);
+  const [clarificationDraft, setClarificationDraft] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [submitted, setSubmitted] = useState(false);
   // 기본은 전체 날짜. 날짜 하나로 고정하면 다른 날짜의 영상이 검색에서 보이지 않는다.
@@ -1257,6 +1263,8 @@ export default function App() {
     setLoading(true);
     setApiNotice("");
     setAnswer("");
+    setClarification(null);
+    setClarificationDraft("");
     setResults([]);
     setActiveResult(null);
     setActiveScene(null);
@@ -1291,6 +1299,7 @@ export default function App() {
       const rankedResults = payload.query_type === "sequence" || aggregate ? mappedResults : pickRelevantResults(mappedResults);
       const nextResults = await clampResultsToMediaDuration(rankedResults, recordingItems);
       setAnswer(payload.answer || `${nextQuery}와 관련된 장면을 찾았어요.`);
+      setClarification(payload.clarification ?? null);
       setResultQueryType(payload.query_type === "sequence" ? "sequence" : aggregate ? "aggregate" : "search");
       setAggregateResult(aggregate);
       setExcludedEventCount(payload.excluded_event_count ?? 0);
@@ -1313,6 +1322,7 @@ export default function App() {
     } catch (error) {
       console.error("검색 결과 처리 실패", error);
       setAnswer(`"${nextQuery}" 검색 중 문제가 발생했습니다. 백엔드와 인덱스 상태를 확인해주세요.`);
+      setClarification(null);
       setAggregateResult(null);
       setResults([]);
       setActiveResult(null);
@@ -1338,6 +1348,8 @@ export default function App() {
     setActiveSuggestionSource(suggestionSources[text] ?? null);
     setSubmitted(false);
     setAnswer("");
+    setClarification(null);
+    setClarificationDraft("");
     setResults([]);
     setActiveResult(null);
     setActiveScene(null);
@@ -1876,7 +1888,7 @@ export default function App() {
                     {resultQueryType === "search" && <div className="answer-card">
                       <div className="brand-mark answer-mark"><PawMark /></div>
                       <div>
-                        <span>검색 답변</span>
+                        <span>{clarification ? "질문 확인" : "검색 답변"}</span>
                         {submittedQuery && <p className="answer-question">질문 · {submittedQuery}</p>}
                         {loading ? (
                           <p className="answer-loading">
@@ -1885,6 +1897,31 @@ export default function App() {
                           </p>
                         ) : (
                           <p>{answer}</p>
+                        )}
+                        {clarification && (
+                          <div className="clarification-flow" aria-label="질문 다시 확인하기">
+                            {clarification.options.length > 0 && (
+                              <div className="clarification-options">
+                                {clarification.options.map((option) => (
+                                  <button key={option.query} type="button" onClick={() => void runSearch(option.query)}>
+                                    {option.label}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                            <form className="clarification-form" onSubmit={(event) => {
+                              event.preventDefault();
+                              void runSearch(clarificationDraft);
+                            }}>
+                              <input
+                                aria-label="질문을 직접 고쳐 입력"
+                                value={clarificationDraft}
+                                onChange={(event) => setClarificationDraft(event.target.value)}
+                                placeholder="다른 뜻이라면 질문을 적어 주세요"
+                              />
+                              <button type="submit" disabled={!clarificationDraft.trim()}>다시 질문</button>
+                            </form>
+                          </div>
                         )}
                       </div>
                     </div>}

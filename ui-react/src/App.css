@@ -1029,6 +1029,56 @@ button {
   font-weight: 500;
 }
 
+.answer-card .clarification-flow {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.clarification-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.clarification-options button,
+.clarification-form button {
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  padding: 10px 14px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.clarification-options button:hover,
+.clarification-form button:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+.clarification-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.clarification-form input {
+  min-width: min(100%, 260px);
+  flex: 1;
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+}
+
+.clarification-form button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
 .empty-state {
   display: flex;
   flex-direction: column;
