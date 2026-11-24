@@ -13,6 +13,7 @@ from pipeline.search.aggregate_query import count_episodes
 from pipeline.search.event_text_search import event_as_search_result
 from pipeline.search.video_time import format_frame_time, frame_video_seconds
 from pipeline.storage.capture_time import trusted_capture_time
+from pipeline.search.color_grounding import asks_about_color, asks_about_colored_action, without_color_words
 
 
 _UNCERTAIN = re.compile(r"않|못|없|싶|추정|하려|려고")
@@ -140,7 +141,9 @@ def _select_matching_events(query, events):
 def find_action_event_scenes(query, video_id, top_k, source_event=None,
                              recording_date=None, time_range=None):
     """Find any recorded action across chunks, with event-backed playback times."""
-    if not re.search(r"장면|구간|보여|찾아|있어|언제", query):
+    if asks_about_color(query) and not asks_about_colored_action(query):
+        return None
+    if not re.search(r"장면|구간|보여|찾아|있어|언제", query) and not asks_about_colored_action(query):
         return None
     from pipeline.search.object_presence import _presence_subject
     if _presence_subject(query):
@@ -161,16 +164,19 @@ def find_action_event_scenes(query, video_id, top_k, source_event=None,
     )]
     if not candidates:
         return None
+    # A missing color in the stored event must not hide a matching action.
+    # The actual color is checked against the image before the result is shown.
+    action_query = without_color_words(query) if asks_about_color(query) else query
     from pipeline.search.action_event_index import semantic_event_candidates
-    ranked = semantic_event_candidates(query, candidates, video_id=video_id)
+    ranked = semantic_event_candidates(action_query, candidates, video_id=video_id)
     if ranked is not None:
         candidates = ranked
     elif len(candidates) > 120:
         # Existing recordings without a complete index keep the prior path.
         from pipeline.search.event_text_search import rank_events_by_text
-        candidates = rank_events_by_text(query, candidates)[:120]
+        candidates = rank_events_by_text(action_query, candidates)[:120]
     try:
-        selection = _select_matching_events(query, candidates)
+        selection = _select_matching_events(action_query, candidates)
     except Exception as exc:
         print(f"행동 이벤트 의미 비교 실패: {exc}", flush=True)
         return None
