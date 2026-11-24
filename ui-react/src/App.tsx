@@ -1917,7 +1917,7 @@ export default function App() {
                                 aria-label="질문을 직접 고쳐 입력"
                                 value={clarificationDraft}
                                 onChange={(event) => setClarificationDraft(event.target.value)}
-                                placeholder="다른 뜻이라면 질문을 적어 주세요"
+                                placeholder={clarification.options.length > 0 ? "다른 뜻이라면 질문을 적어 주세요" : "보고 싶은 행동이나 장면을 적어 주세요"}
                               />
                               <button type="submit" disabled={!clarificationDraft.trim()}>다시 질문</button>
                             </form>

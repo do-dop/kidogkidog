@@ -112,6 +112,34 @@ class LongVideoSearchFixes(unittest.TestCase):
         self.assertEqual(result["results"][0]["source_event_id"], 1)
         index.assert_called_once()
 
+    def test_compound_question_returns_only_later_action_at_its_onset(self):
+        entering = event(1, 0, 2, 2.1, "강아지가 수영장 물속으로 들어감")
+        shaking = event(2, 0, 11, 12.25, "강아지가 몸을 털음")
+        entering_again = event(3, 0, 20, 20.1, "강아지가 수영장 물속으로 다시 들어감")
+        events = [entering, shaking, entering_again]
+        def matching(question, rows):
+            return {"exact": [shaking] if "몸털" in question else [entering, entering_again], "related": []}
+        with patch.object(grounded_action_search, "get_behavior_events_for_aggregation", return_value=events), \
+             patch("pipeline.search.action_event_index.semantic_event_candidates", return_value=None), \
+             patch.object(grounded_action_search, "_select_matching_events", side_effect=matching):
+            result = grounded_action_search.find_action_event_scenes("수영하고 몸털었어?", "long", 3)
+        self.assertEqual([row["source_event_id"] for row in result["results"]], [2])
+        self.assertEqual([row["timestamp"] for row in result["results"]], [11])
+        self.assertEqual(result["results"][0]["playback_start"], 10)
+        self.assertIn("00:11", result["answer"])
+
+    def test_compound_question_does_not_claim_action_without_earlier_context(self):
+        shaking = event(1, 0, 11, 12, "강아지가 몸을 털음")
+        entering_later = event(2, 0, 20, 21, "강아지가 수영장 물속으로 들어감")
+        with patch.object(grounded_action_search, "get_behavior_events_for_aggregation",
+                          return_value=[shaking, entering_later]), \
+             patch("pipeline.search.action_event_index.semantic_event_candidates", return_value=None), \
+             patch.object(grounded_action_search, "_select_matching_events",
+                          side_effect=lambda question, rows: {"exact": [shaking] if "몸털" in question
+                                                                else [entering_later], "related": []}):
+            result = grounded_action_search.find_action_event_scenes("수영하고 몸털었어?", "long", 3)
+        self.assertEqual(result["results"], [])
+
     def test_global_action_search_can_find_a_new_video(self):
         shaking = event(1, 0, 11, 13, "강아지가 몸을 털음")
         shaking["video_id"] = "new-video"

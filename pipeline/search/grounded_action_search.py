@@ -17,6 +17,7 @@ from pipeline.search.color_grounding import asks_about_color, asks_about_colored
 
 
 _UNCERTAIN = re.compile(r"않|못|없|싶|추정|하려|려고")
+_COMPOUND_ACTION = re.compile(r"(?P<context>.+)(?:하고|(?<!하)고)\s+(?P<focus>[^?]{2,}\??)$")
 _INTENTS = (
     ("카메라 접근", re.compile(r"카메라"), re.compile(r"가까|다가|접근|얼굴"),
      re.compile(r"카메라"), re.compile(r"다가|접근|가까")),
@@ -94,6 +95,28 @@ def _event_in_datetime(event, recording_date, time_range):
     return False
 
 
+def _compound_action_parts(query):
+    """Separate the earlier context from the action the user asks to see."""
+    match = _COMPOUND_ACTION.search(query.strip())
+    return (match.group("context"), match.group("focus")) if match else (None, query)
+
+
+def _preceded_by_context(event, context_events):
+    try:
+        start = float(event["start_time"])
+    except (KeyError, TypeError, ValueError):
+        return False
+    for previous in context_events:
+        try:
+            if (previous.get("video_id") == event.get("video_id")
+                    and float(previous["end_time"]) <= start
+                    and previous.get("id") != event.get("id")):
+                return True
+        except (KeyError, TypeError, ValueError):
+            continue
+    return False
+
+
 def _select_matching_events(query, events):
     """Ask one general matcher to compare the requested action with recorded events.
 
@@ -112,6 +135,9 @@ def _select_matching_events(query, events):
     prompt = (
         "영상 질문과 관찰된 행동 이벤트를 비교하세요. 행동과 질문의 세부 조건이 모두 명확히 맞으면 rows, "
         "핵심 행동은 같지만 주체의 종류·관계 같은 세부 조건이 기록에 없어 확정할 수 없으면 related_rows에 넣으세요. "
+        "질문이 'A하고 B했어?'처럼 여러 행동을 말하면 B가 답으로 찾는 핵심 행동이고 A는 선행 맥락입니다. "
+        "선행 행동 A의 row는 답의 rows나 related_rows에 넣지 말고, B의 row만 고르세요. "
+        "선행 맥락이 실제로 B보다 앞에 있는지도 시간 순서로 확인하세요. "
         "행동의 대상과 방향을 구분하세요(예: 들어가기/나오기, 젖 먹기/사료 먹기). "
         "동물의 존재만으로 행동을 입증하지 마세요. 추정·부정·의도 표현은 확정 근거가 아닙니다. "
         "서로 다른 행동·대상·방향은 related_rows에도 넣지 마세요. 반복된 같은 행동은 해당 row를 모두 고르세요. "
@@ -143,7 +169,8 @@ def find_action_event_scenes(query, video_id, top_k, source_event=None,
     """Find any recorded action across chunks, with event-backed playback times."""
     if asks_about_color(query) and not asks_about_colored_action(query):
         return None
-    if not re.search(r"장면|구간|보여|찾아|있어|언제", query) and not asks_about_colored_action(query):
+    asks_whether_action_happened = bool(re.search(r"(?:았|었|했)(?:어|니|나요|습니까)[?\s]*$", query))
+    if not re.search(r"장면|구간|보여|찾아|있어|언제", query) and not asks_about_colored_action(query) and not asks_whether_action_happened:
         return None
     from pipeline.search.object_presence import _presence_subject
     if _presence_subject(query):
@@ -167,6 +194,8 @@ def find_action_event_scenes(query, video_id, top_k, source_event=None,
     # A missing color in the stored event must not hide a matching action.
     # The actual color is checked against the image before the result is shown.
     action_query = without_color_words(query) if asks_about_color(query) else query
+    context_query, action_query = _compound_action_parts(action_query)
+    context_candidates = candidates
     from pipeline.search.action_event_index import semantic_event_candidates
     ranked = semantic_event_candidates(action_query, candidates, video_id=video_id)
     if ranked is not None:
@@ -189,6 +218,19 @@ def find_action_event_scenes(query, video_id, top_k, source_event=None,
     uncertain = not matched
     if uncertain:
         matched = [event for event in related if _supports_explicit_constraints(query, event)]
+    if matched and context_query:
+        context_ranked = semantic_event_candidates(context_query, context_candidates, video_id=video_id)
+        if not context_ranked:
+            from pipeline.search.event_text_search import rank_events_by_text
+            context_ranked = (rank_events_by_text(context_query, context_candidates)[:120]
+                              if len(context_candidates) > 120 else context_candidates)
+        try:
+            context_selection = _select_matching_events(context_query, context_ranked)
+            context_events = context_selection.get("exact", []) if isinstance(context_selection, dict) else (context_selection or [])
+        except Exception as exc:
+            print(f"선행 행동 의미 비교 실패: {exc}", flush=True)
+            context_events = []
+        matched = [event for event in matched if _preceded_by_context(event, context_events)]
     if not matched:
         return {
             "query": query,
@@ -226,6 +268,11 @@ def find_action_event_scenes(query, video_id, top_k, source_event=None,
         result = event_as_search_result(event, float(event.get("confidence") or 0.5))
         if not result or not result.get("s3_key"):
             continue
+        # In "A then B" questions, seek to B's onset. Its thumbnail may be
+        # sampled later, and the earlier A must never become a selectable hit.
+        if context_query:
+            result["timestamp"] = episode["start"]
+            result["representative_timestamp"] = episode["start"]
         result["playback_start"] = max(0.0, episode["start"] - 1)
         result["playback_end"] = episode["end"] + 1
         result["match_level"] = "related_event" if uncertain else "behavior_event"
