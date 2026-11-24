@@ -39,6 +39,35 @@ def offset_event(event_id, start, end, summary, scene=False):
 
 
 class SequenceQueryTests(unittest.TestCase):
+    def test_broad_timeline_keeps_one_step_per_second_and_seeks_to_each_step(self):
+        events = [
+            event(1, 0, 21, "반려동물이 사람 쪽으로 다가감"),
+            event(2, 0, 21, "반려동물이 사람에게 접근함"),
+            event(3, 0, 23, "반려동물이 천을 가지고 놂"),
+        ]
+        result = run_sequence_query("오늘 행동 순서 알려줘", video_id="dog-video", events=events)
+        self.assertEqual(len(result["results"]), 2)
+        self.assertEqual([card["timestamp"] for card in result["results"]], [21, 23])
+        self.assertEqual([card["playback_start"] for card in result["results"]], [21, 23])
+
+    def test_daily_behavior_summary_chooses_from_whole_video(self):
+        events = [
+            {**event(index, 0, index * 5, f"반려동물이 주변을 살펴봄 {index}"),
+             "interestingness": 0.3, "confidence": 0.5}
+            for index in range(1, 9)
+        ]
+        events.append({**event(9, 0, 50, "반려동물이 욕조에서 목욕함"),
+                       "interestingness": 0.9, "confidence": 0.9})
+        for query in ("오늘 행동 요약해줘", "오늘 반려동물이 뭐했는지 알려줘"):
+            with self.subTest(query=query):
+                self.assertTrue(is_sequence_query(query))
+                result = run_sequence_query(query, video_id="dog-video", events=events, top_k=10)
+                self.assertLessEqual(len(result["results"]), 5)
+                self.assertIn(9, [card["source_event_id"] for card in result["results"]])
+                self.assertEqual(result["results"], sorted(result["results"], key=lambda card: card["timestamp"]))
+                self.assertIn("대표 행동", result["answer"])
+                self.assertNotIn("처음 5개만", result["answer"])
+
     def test_classifies_sequence_question(self):
         self.assertTrue(is_sequence_query("강아지가 무엇을 한 다음에 쉬었어?"))
         self.assertTrue(is_sequence_query("오늘 행동 순서 알려줘"))
