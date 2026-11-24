@@ -24,6 +24,7 @@ from pipeline.search.object_presence import find_presence_scenes, find_qualified
 from pipeline.search.grounded_action_search import find_grounded_action_scenes, find_action_event_scenes
 from pipeline.search.video_time import format_event_time, format_frame_time
 from pipeline.search.species_verification import confirmed_cat_frame_ids
+from pipeline.search.color_grounding import asks_about_color, include_explicit_color_events, verify_color_results
 from pipeline.storage.capture_time import trusted_capture_time
 
 SEQUENCE_MIN_RESULTS = 10
@@ -113,6 +114,35 @@ def _min_search_score() -> float:
 
 
 def run_rag_query(
+    query: str,
+    video_id: str | None = None,
+    top_k: int = 5,
+    user_id: str | None = None,
+    recording_date: str | None = None,
+    time_range: dict[str, int] | None = None,
+    source_event_id: int | None = None,
+    event_start: float | None = None,
+    event_end: float | None = None,
+) -> dict:
+    color_query = asks_about_color(query)
+    result = _run_rag_query(
+        query=query,
+        video_id=video_id,
+        top_k=max(top_k, 12) if color_query else top_k,
+        user_id=user_id,
+        recording_date=recording_date,
+        time_range=time_range,
+        source_event_id=source_event_id,
+        event_start=event_start,
+        event_end=event_end,
+    )
+    if not color_query:
+        return result
+    result = include_explicit_color_events(query, result, video_id, recording_date, time_range)
+    return verify_color_results(query, result, top_k)
+
+
+def _run_rag_query(
     query: str,
     video_id: str | None = None,
     top_k: int = 5,
