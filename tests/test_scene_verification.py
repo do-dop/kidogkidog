@@ -131,6 +131,46 @@ class SceneVerificationTests(unittest.TestCase):
         self.assertEqual(result["results"][0]["timestamp"], 3.0)
         verify.assert_called_once()
 
+    def test_singular_scene_stops_at_first_verified_match(self):
+        original = {"match_level": "unverified_action", "results": []}
+        windows = [scene_verification._window(_result(second)) for second in (2, 15, 30)]
+        frames = [{"time": 2.0, "jpeg": b"image"}]
+        with patch.dict("os.environ", {"OPENAI_API_KEY": "test"}), patch.object(
+            scene_verification, "_candidate_windows", return_value=windows
+        ), patch.object(scene_verification, "_verification_mode", return_value="static"), patch(
+            "pipeline.storage.gcs_uploader.download_video"
+        ), patch("pipeline.search.video_aggregate.video_duration", return_value=42), patch(
+            "pipeline.search.video_aggregate.sample_frames", return_value=frames
+        ), patch.object(scene_verification, "_verify_frames", return_value=2.0) as verify, patch.object(
+            scene_verification, "_verify_witness_frame", return_value=True
+        ), patch.object(scene_verification, "_nearest_indexed_frame", return_value=None):
+            result = scene_verification.verify_uncertain_scene(
+                "강아지 두 마리 함께 나오는 장면 보여줘", "video", original, 3,
+            )
+        self.assertEqual(len(result["results"]), 1)
+        verify.assert_called_once()
+
+    def test_explicit_multiple_scenes_keep_distinct_moments_only(self):
+        self.assertEqual(scene_verification._requested_result_count("모든 장면 보여줘", 3), 3)
+        self.assertEqual(scene_verification._requested_result_count("한 장면 보여줘", 3), 1)
+        confirmed = [_result(2)]
+        self.assertTrue(scene_verification._same_verified_scene(_result(3), confirmed))
+        self.assertFalse(scene_verification._same_verified_scene(_result(9), confirmed))
+
+        original = {"match_level": "unverified_action", "results": []}
+        windows = [scene_verification._window(_result(second)) for second in (2, 3, 9)]
+        with patch.dict("os.environ", {"OPENAI_API_KEY": "test"}), patch.object(
+            scene_verification, "_candidate_windows", return_value=windows
+        ), patch.object(scene_verification, "_verification_mode", return_value="static"), patch(
+            "pipeline.storage.gcs_uploader.download_video"
+        ), patch("pipeline.search.video_aggregate.video_duration", return_value=42), patch(
+            "pipeline.search.video_aggregate.sample_frames", return_value=[{"time": 2.0, "jpeg": b"image"}]
+        ), patch.object(scene_verification, "_verify_frames", side_effect=[2.0, 3.0, 9.0]), patch.object(
+            scene_verification, "_verify_witness_frame", return_value=True
+        ), patch.object(scene_verification, "_nearest_indexed_frame", return_value=None):
+            result = scene_verification.verify_uncertain_scene("모든 장면 보여줘", "video", original, 3)
+        self.assertEqual([item["timestamp"] for item in result["results"]], [2.0, 9.0])
+
     def test_rag_query_rechecks_only_uncertain_non_color_answer(self):
         payload = {"match_level": "unverified_action", "results": []}
         with patch.object(rag_chain, "_run_rag_query", return_value=payload), patch.object(

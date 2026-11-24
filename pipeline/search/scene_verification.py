@@ -20,6 +20,8 @@ MAX_FRAMES = 11
 MAX_WINDOW_SECONDS = 16.0
 _FRAME_KEY = re.compile(r"^frames/([^/]+)/([^/]+)_frame_[0-9.]+\.(?:jpg|jpeg)$")
 _SCENE_QUESTION = re.compile(r"장면|구간|보여|찾아|있어|언제|어디")
+_MULTIPLE_SCENES = re.compile(r"모든|모두|전부|여러|각각|장면들|구간들|전\s*구간|다\s*보여")
+_SAME_SCENE_SECONDS = 2.0
 
 
 def _chunk_key(result: dict) -> str | None:
@@ -64,6 +66,19 @@ def _window(result: dict) -> dict | None:
         "end": max(0.0, end + 2.0),
         "source": result,
     }
+
+
+def _requested_result_count(query: str, top_k: int) -> int:
+    """A search limit is not a request to analyze every candidate scene."""
+    return max(1, top_k) if _MULTIPLE_SCENES.search(query) else 1
+
+
+def _same_verified_scene(result: dict, confirmed: list[dict]) -> bool:
+    return any(
+        _chunk_key(result) == _chunk_key(previous)
+        and abs(float(result["timestamp"]) - float(previous["timestamp"])) <= _SAME_SCENE_SECONDS
+        for previous in confirmed
+    )
 
 
 def _candidate_windows(query: str, video_id: str, payload: dict) -> list[dict]:
@@ -323,6 +338,7 @@ def verify_uncertain_scene(query: str, video_id: str | None, payload: dict, top_
     from pipeline.storage.gcs_uploader import download_video
 
     confirmed = []
+    requested_count = _requested_result_count(query, top_k)
     with tempfile.TemporaryDirectory(prefix="kidog-scene-") as directory:
         downloaded: dict[str, tuple[Path, float] | None] = {}
         for window in windows:
@@ -362,7 +378,9 @@ def verify_uncertain_scene(query: str, video_id: str | None, payload: dict, top_
                 continue
             if moment is None:
                 continue
-            result = dict(window["source"])
+            result = {**window["source"], "timestamp": moment}
+            if _same_verified_scene(result, confirmed):
+                continue
             try:
                 thumbnail = _nearest_indexed_frame(video_id, result, moment)
                 if thumbnail:
@@ -380,7 +398,7 @@ def verify_uncertain_scene(query: str, video_id: str | None, payload: dict, top_
                 match_level="verified_video",
             )
             confirmed.append(result)
-            if len(confirmed) >= max(1, top_k):
+            if len(confirmed) >= requested_count:
                 break
     if not confirmed:
         return payload
