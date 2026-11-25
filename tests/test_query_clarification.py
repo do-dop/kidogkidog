@@ -54,12 +54,32 @@ class QueryClarificationTests(unittest.TestCase):
                          "유리문 앞에서 앞발을 들어 올리는 장면 보여줘")
         self.assertEqual(result["results"], [])
 
+    def test_named_pet_with_no_action_offers_recorded_scene_choices(self):
+        events = [
+            {"action": "반려동물이 유리문 앞에서 두 앞발을 들어 올림", "target_object": "유리문"},
+            {"action": "반려동물이 물을 마심"},
+        ]
+        with patch("pipeline.search.rag_chain.get_behavior_events_for_aggregation", return_value=events), \
+             patch("pipeline.search.question_understanding.question_clarity") as model:
+            result = run_rag_query("코코가 하는거 보여줘", video_id="example_video")
+        model.assert_not_called()
+        self.assertNotIn("이해하지 못했어요", result["answer"])
+        self.assertIn("말씀하신 건가요", result["answer"])
+        self.assertEqual(len(result["clarification"]["options"]), 2)
+        self.assertEqual(result["results"], [])
+
+    def test_named_pet_without_selected_video_does_not_invent_scene(self):
+        result = run_rag_query("코코가 하는거 보여줘")
+        self.assertEqual(result["clarification"]["options"], [])
+        self.assertNotIn("이해하지 못했어요", result["answer"])
+
     def test_concrete_question_or_daily_overview_is_not_rewritten(self):
         for question in ("강아지가 소파에 올라간 장면 보여줘", "그 장면에서 두 마리야?",
                          "오늘 강아지가 뭐 했어?"):
             with self.subTest(question=question):
                 self.assertFalse(needs_scene_clarification(question))
         self.assertTrue(needs_scene_clarification("그거 보여줘"))
+        self.assertTrue(needs_scene_clarification("코코가 하는거 보여줘"))
 
     def test_generic_vague_question_without_video_asks_for_details(self):
         clarification = build_scene_clarification("그거 보여줘", [{"action": "물을 마심"}])

@@ -48,6 +48,11 @@ _VAGUE_REFERENCE = re.compile(
     re.I,
 )
 _OVERVIEW_REQUEST = re.compile(r"오늘|어제|하루|요약|전체|타임라인")
+_BROAD_ACTION_REQUEST = re.compile(
+    r"(?:하는\s*(?:거|것|행동|모습)|하고\s*있는\s*(?:거|것|모습)|어떤\s*행동)"
+    r"\s*(?:좀\s*)?(?:보여|찾아|알려)",
+    re.I,
+)
 _SPECIFIC_CONDITION = re.compile(
     r"점프|뛰|달리|걷|먹|마시|올라|내려|넘|들어가|나가|목욕|잠|자고|놀|"
     r"접근|다가|짖|핥|떨|떨어|두\s*마리|몇\s*마리|빨간|파란|색깔",
@@ -104,7 +109,7 @@ def build_count_clarification(query: str, events: list[dict[str, Any]]) -> dict[
 def needs_scene_clarification(query: str) -> bool:
     """Recognize missing referents, without treating every failed search as vague."""
     return bool(
-        _VAGUE_REFERENCE.search(query)
+        (_VAGUE_REFERENCE.search(query) or _BROAD_ACTION_REQUEST.search(query))
         and not _OVERVIEW_REQUEST.search(query)
         and not _SPECIFIC_CONDITION.search(query)
         and not any(re.search(pattern, query, re.I) for pattern, _ in ACTION_PATTERNS.values())
@@ -113,11 +118,17 @@ def needs_scene_clarification(query: str) -> bool:
 
 def build_scene_clarification(query: str, events: list[dict[str, Any]]) -> dict[str, Any]:
     """Suggest recorded actions as questions, without claiming they match the user's intent."""
+    broad_action_request = bool(_BROAD_ACTION_REQUEST.search(query))
     clues = re.sub(_VAGUE_REFERENCE, " ", query)
+    clues = re.sub(_BROAD_ACTION_REQUEST, " ", clues)
     clues = re.sub(r"보여\s*줘|찾아\s*줘|있어|했어|해줘|강아지|고양이|반려동물", " ", clues)
     clue_terms = [part for part in re.findall(r"[가-힣a-zA-Z]{2,}", clues) if len(part) >= 2]
-    if not clue_terms:
+    if not clue_terms and not broad_action_request:
         return {"question": "무엇을 보여드릴까요? 찾고 싶은 행동이나 장면을 알려 주세요.", "options": []}
+    if broad_action_request:
+        # A pet name identifies the subject, not an action. Use only events in
+        # the selected video, rather than matching the name to an arbitrary event.
+        clue_terms = []
     candidates: dict[str, tuple[int, str]] = {}
     for event in events:
         description = " ".join(str(event.get(key) or "") for key in ("action", "target_object", "summary"))
@@ -140,14 +151,15 @@ def build_scene_clarification(query: str, events: list[dict[str, Any]]) -> dict[
             key = action_text
         score = sum(2 for part in clue_terms if part in description)
         previous = candidates.get(key)
-        candidates[key] = (score + (previous[0] if previous else 0) + 1, option)
+        salience = float(event.get("interestingness") or 0) + float(event.get("confidence") or 0)
+        candidates[key] = (score + (previous[0] if previous else 0) + 1 + salience, option)
     ranked = sorted(candidates.values(), key=lambda item: -item[0])[:3]
     options = [{"label": text, "query": text} for _, text in ranked]
     if len(options) == 1:
         scene = options[0]["query"].removesuffix(" 장면 보여줘")
-        prompt = f"{scene} 장면을 찾으셨나요?"
+        prompt = f"{scene} 장면을 말씀하신 건가요?"
     elif options:
-        prompt = "찾고 싶은 장면이 아래 중 하나인가요? 선택하거나 직접 설명해 주세요."
+        prompt = "혹시 아래 장면 중 하나를 말씀하신 건가요? 선택하거나 직접 설명해 주세요."
     else:
         prompt = "어떤 장면을 찾고 싶으신가요? 행동이나 장소를 조금 더 알려 주세요."
     return {"question": prompt, "options": options}
