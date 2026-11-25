@@ -63,7 +63,7 @@ class ObjectPresenceTests(unittest.TestCase):
             self.assertNotIn("초인종 앞에 있어요", result["answer"])
 
     def test_action_question_does_not_fall_back_to_presence_only(self):
-        for query in ("고양이가 수영장에 들어갔어?", "고양이가 카메라에 얼굴 몇 번 가까이해?", "강아지가 밥 먹는 장면 있어?", "강아지가 목욕하는 장면 있어?", "강아지가 잠자는 장면 있어?"):
+        for query in ("고양이가 수영장에 들어갔어?", "고양이가 카메라에 얼굴 몇 번 가까이해?", "강아지가 밥 먹는 장면 있어?", "강아지가 목욕하는 장면 있어?", "강아지가 잠자는 장면 있어?", "울타리 위의 고양이가 점프하는 장면 보여줘"):
             self.assertIsNone(object_presence.find_qualified_presence_candidates(query, "video", 3))
 
     def test_unconfirmed_cat_label_does_not_claim_a_cat_scene(self):

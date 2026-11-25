@@ -448,6 +448,12 @@ def _run_rag_query(
             "evidence_items": [],
             "behavior_events": [],
             "used_llm": False,
+            # A missed detector or event extractor is not proof that the
+            # action is absent. Let the short original-video check decide.
+            "match_level": (
+                "unverified_action" if video_id and search_succeeded and candidate_count
+                and not _has_datetime_filter(recording_date, time_range) else None
+            ),
         }
 
     retrieved_context = _build_retrieved_context(retrieved_frames)

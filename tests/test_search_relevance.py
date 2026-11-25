@@ -99,7 +99,7 @@ class SearchRelevanceTests(unittest.TestCase):
         result, _ = self.run_query("물 마시는 장면", found, env={"SEARCH_RELATED_MIN_SCORE": "0"})
 
         self.assertEqual(result["results"], [])
-        self.assertNotIn("match_level", result)
+        self.assertNotEqual(result.get("match_level"), "related")
 
     def test_a_real_match_is_not_mixed_with_related_candidates(self):
         found = [frame("good", 0.27), frame("near", 0.215)]
