@@ -34,6 +34,18 @@ def search_with(events, ranked=None):
 
 
 class GlobalActionPolicyTests(TestCase):
+    def test_cat_verification_survives_global_candidate_diversity(self):
+        puppy = event(1, "long", 0, "반려동물이 사료를 먹음")
+        cat = event(2, "cat-video", 10, "반려동물이 사료를 먹음")
+        named = event(3, "named-cat", 20, "고양이가 사료를 먹음")
+        unknown = event(4, "unknown", 30, "반려동물이 사료를 먹음")
+        for row in (puppy, cat):
+            row["source_frames"][0].update(object_labels=["cat"], frame_id=f"frame-{row['id']}")
+        with search_with([puppy, cat, named, unknown]) as search, patch.object(
+                search, "confirmed_cat_frame_ids", return_value={"frame-2"}):
+            result = search.find_action_event_scenes("고양이가 밥 먹는 장면 있어?", None, 3)
+        self.assertEqual({row["source_event_id"] for row in result["results"]}, {2, 3})
+
     def test_three_occurrences_do_not_hide_other_matching_videos(self):
         events = [event(i, "long", i * 10) for i in range(5)]
         events += [event(10, "second"), event(11, "third")]

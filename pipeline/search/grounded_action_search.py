@@ -15,6 +15,7 @@ from pipeline.search.video_time import format_frame_time, frame_video_seconds
 from pipeline.storage.capture_time import trusted_capture_time
 from pipeline.search.search_policy import contradicts_action, diverse_video_candidates
 from pipeline.search.color_grounding import asks_about_color, asks_about_colored_action, without_color_words
+from pipeline.search.species_verification import confirmed_cat_frame_ids
 
 
 _UNCERTAIN = re.compile(r"않|못|없|싶|추정|하려|려고")
@@ -63,6 +64,35 @@ def _supports_explicit_constraints(query, event):
         if place and place.group(1) not in description:
             return False
     return True
+
+
+def _cat_labelled_frame_ids(event):
+    ids = []
+    for frame in event.get("source_frames") or []:
+        raw = frame.get("object_labels") or []
+        labels = {str(item).strip().lower() for item in (raw if isinstance(raw, list) else str(raw).split(","))}
+        if "cat" in labels and frame.get("frame_id"):
+            ids.append(str(frame["frame_id"]))
+    return ids
+
+
+def _drop_unconfirmed_cats(query, events):
+    """For a cat question, require the record to name a cat or a frame to look like one.
+
+    The detector often labels puppies as cats, and many event descriptions only
+    say "pet", so the label alone cannot prove the species.
+    """
+    if "고양이" not in query or "강아지" in query:
+        return events
+    named = [
+        "고양이" in " ".join(str(event.get(key) or "") for key in ("subject", "action", "summary"))
+        for event in events
+    ]
+    frame_ids = [frame_id for event, is_named in zip(events, named) if not is_named
+                 for frame_id in _cat_labelled_frame_ids(event)]
+    confirmed = (confirmed_cat_frame_ids(frame_ids) or set()) if frame_ids else set()
+    return [event for event, is_named in zip(events, named)
+            if is_named or confirmed.intersection(_cat_labelled_frame_ids(event))]
 
 
 def _event_in_datetime(event, recording_date, time_range):
@@ -227,10 +257,11 @@ def find_action_event_scenes(query, video_id, top_k, source_event=None,
     # Older callers and tests may still provide a plain list of exact matches.
     exact = selection.get("exact", []) if isinstance(selection, dict) else selection
     related = selection.get("related", []) if isinstance(selection, dict) else []
-    matched = [event for event in exact if _supports_explicit_constraints(query, event)]
+    matched = _drop_unconfirmed_cats(query, [event for event in exact if _supports_explicit_constraints(query, event)])
     uncertain = not matched
     if uncertain:
-        matched = [event for event in related if _supports_explicit_constraints(query, event)]
+        matched = _drop_unconfirmed_cats(
+            query, [event for event in related if _supports_explicit_constraints(query, event)])
     if matched and context_query:
         context_ranked = semantic_event_candidates(context_query, context_candidates, video_id=video_id)
         if not context_ranked:
@@ -248,7 +279,7 @@ def find_action_event_scenes(query, video_id, top_k, source_event=None,
         return {
             "query": query,
             "video_id": video_id,
-            "answer": "질문한 행동은 저장된 행동 기록에서 확인하지 못했어요. 원본 영상을 확인해 주세요.",
+            "answer": "저장된 행동 기록에서 해당 장면을 확인하지 못했어요. 원본 영상을 확인해 주세요.",
             "results": [],
             "evidence_items": [],
             "behavior_events": [],
@@ -288,6 +319,7 @@ def find_action_event_scenes(query, video_id, top_k, source_event=None,
         episodes = [episode for episode in episodes if episode["events"][0].get("video_id") in selected_videos]
 
     results = []
+    labels = []
     scenes_per_video = {}
     for episode in episodes:
         event = episode["events"][0]
@@ -305,23 +337,27 @@ def find_action_event_scenes(query, video_id, top_k, source_event=None,
         result["playback_end"] = episode["end"] + 1
         result["match_level"] = "related_event" if uncertain else "behavior_event"
         results.append(result)
+        labels.append(str(event.get("action") or event.get("summary") or "").strip().rstrip(".") or "행동 기록")
         scenes_per_video[event.get("video_id")] = scenes_per_video.get(event.get("video_id"), 0) + 1
         if video_id and len(results) >= max(1, top_k):
             break
     if not results:
         return None
-    positions = ", ".join(
-        (f"{item['video_id']} " if not video_id else "") + format_frame_time(item, float(item["timestamp"]))
-        for item in results[:3]
-    )
+    # Name each recorded action in the answer, grouping the times that share one.
+    times_by_label = {}
+    for label, item in list(zip(labels, results))[:3]:
+        times_by_label.setdefault(label, []).append(
+            (f"{item['video_id']} " if not video_id else "") + format_frame_time(item, float(item["timestamp"]))
+        )
+    positions = ", ".join(f"‘{label}’ 장면은 {', '.join(times)}" for label, times in times_by_label.items())
     if len(results) > 3:
         positions += " 등"
     return {
         "query": query,
         "video_id": video_id,
         "answer": (
-            f"관련 행동 기록은 {positions} 근처에 있지만 질문의 세부 조건까지는 확인하지 못했어요."
-            if uncertain else f"질문한 행동은 {positions} 근처에서 확인할 수 있어요."
+            f"{positions} 근처에 관련 기록이 있지만 질문의 세부 조건까지는 확인하지 못했어요."
+            if uncertain else f"{positions} 근처에서 확인할 수 있어요."
         ),
         "results": results,
         "evidence_items": results,
