@@ -608,8 +608,8 @@ button {
   display: flex;
   flex-direction: column;
   gap: 28px;
-  margin: -60px -40px -40px;
-  padding-top: 60px;
+  margin: -68px -40px -40px; /* 상단바 높이(68px)만큼 끌어올려 위에 틈이 생기지 않게 한다 */
+  padding-top: 68px;
   /* Smooth natural vignette over coco.jpg */
   background-image: 
     linear-gradient(180deg, rgba(16, 12, 8, 0.45) 0%, rgba(16, 12, 8, 0.6) 40%, rgba(16, 12, 8, 0.92) 100%),
@@ -1322,127 +1322,192 @@ button {
   border-top: 1px solid var(--border);
 }
 
-.home-recordings-head {
+.behavior-strip {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.home-recordings-head span {
+.behavior-strip-head span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   font-size: 12px;
   font-weight: 800;
   color: var(--accent);
-  text-transform: uppercase;
 }
 
-.home-recordings-head strong {
+.behavior-strip-head span .material-symbols-rounded {
+  font-size: 15px;
+}
+
+.behavior-strip-head strong {
   display: block;
+  margin-top: 2px;
   font-size: 22px;
   font-weight: 800;
   color: var(--text);
 }
 
-.behavior-strip {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 24px 28px;
-  border-radius: var(--r-lg);
-  background: var(--surface);
-  border: 1px solid var(--border-strong);
-  backdrop-filter: var(--glass-blur);
-  box-shadow: var(--shadow);
-}
-
-.behavior-strip-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.behavior-strip-head span {
-  font-size: 12px;
-  font-weight: 800;
-  color: var(--accent);
-  text-transform: uppercase;
-}
-
-.behavior-strip-head strong {
-  display: block;
-  font-size: 18px;
-  font-weight: 800;
-  color: var(--text);
-}
-
-.behavior-strip-head p {
-  margin: 0;
-  font-size: 13px;
-  color: var(--text-2);
-}
-
 .behavior-row {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.behavior-row.featured {
+  grid-template-columns: minmax(0, 1.5fr) repeat(2, minmax(0, 1fr));
+}
+
+.behavior-row.featured .behavior-card:first-child {
+  grid-row: span 2;
 }
 
 .behavior-card {
   display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  padding: 16px;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
   border-radius: var(--r-md);
-  background: var(--surface-2);
+  background: var(--surface-solid);
   border: 1px solid var(--border);
-  backdrop-filter: blur(8px);
+  box-shadow: var(--shadow);
   text-align: left;
-  transition: all 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .behavior-card:hover {
-  background: var(--surface-hover);
   border-color: var(--border-strong);
-  transform: translateY(-2px);
+  box-shadow: var(--shadow-float);
+  transform: translateY(-3px);
 }
 
-.behavior-icon {
+.behavior-thumb {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+}
+
+/* 큰 카드는 옆의 두 줄 높이에 맞춰 사진이 남는 공간을 채운다. */
+.behavior-row.featured .behavior-card:first-child .behavior-thumb {
+  flex: 1;
+  aspect-ratio: auto;
+  min-height: 240px;
+}
+
+.behavior-thumb img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.35s ease;
+}
+
+.behavior-card:hover .behavior-thumb img {
+  transform: scale(1.04);
+}
+
+.behavior-time {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  padding: 4px 9px;
+  border-radius: 8px;
+  background: rgba(15, 10, 5, 0.75);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.behavior-play {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
   display: grid;
   place-items: center;
-  flex-shrink: 0;
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
-  color: var(--accent-ink);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
   background: var(--accent-gradient);
-  box-shadow: 0 4px 12px var(--accent-glow);
+  color: #fff;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
-.behavior-card span {
-  font-size: 11px;
+.behavior-card:hover .behavior-play,
+.behavior-card:focus-visible .behavior-play {
+  opacity: 1;
+  transform: none;
+}
+
+.behavior-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px 16px;
+}
+
+.behavior-body strong,
+.behavior-body p {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  word-break: keep-all;
+}
+
+.behavior-body strong {
+  font-size: 15px;
   font-weight: 800;
-  color: var(--text-3);
-}
-
-.behavior-card strong {
-  display: block;
-  font-size: 14px;
-  font-weight: 800;
-  color: var(--text);
-  margin: 2px 0 3px;
-}
-
-.behavior-card p {
-  margin: 0;
-  font-size: 12px;
-  color: var(--text-2);
   line-height: 1.4;
+  color: var(--text);
 }
 
-.behavior-score {
-  margin-left: auto;
-  font-size: 12px;
-  font-weight: 900;
+.behavior-row.featured .behavior-card:first-child .behavior-body strong {
+  font-size: 19px;
+}
+
+.behavior-body p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-2);
+}
+
+.behavior-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.behavior-tags span,
+.behavior-tags em {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 700;
+}
+
+.behavior-tags span {
+  background: var(--accent-soft);
   color: var(--accent);
+}
+
+.behavior-tags em {
+  background: var(--surface-2);
+  color: var(--text-2);
+}
+
+.behavior-tags .material-symbols-rounded {
+  font-size: 14px;
 }
 
 /* ==========================================================================
@@ -2273,8 +2338,15 @@ button {
 @media (max-width: 1200px) {
   .result-grid,
   .clip-grid,
-  .behavior-row {
-    grid-template-columns: repeat(2, 1fr);
+  .behavior-row,
+  .behavior-row.featured {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* 두 칸에서는 큰 카드가 첫 줄 전체를 차지한다. */
+  .behavior-row.featured .behavior-card:first-child {
+    grid-column: 1 / -1;
+    grid-row: auto;
   }
 
   .feature-matrix-grid {
@@ -2321,6 +2393,7 @@ button {
   .result-grid,
   .clip-grid,
   .behavior-row,
+  .behavior-row.featured,
   .feature-matrix-grid {
     grid-template-columns: 1fr;
   }
@@ -4503,7 +4576,12 @@ button.agg-row:hover .agg-thumb-play {
   }
 }
 
-/* 최근 녹화 영상 영역: 고정된 히어로 배경 위로 비치지 않게 전체 폭 단색 띠를 깐다(위쪽은 부드럽게 이어짐) */
+/* 최근 녹화 영상 영역: 고정된 히어로 배경 위로 비치지 않게 전체 폭 단색 띠를 깐다(위쪽은 부드럽게 이어짐)
+   띠는 하단 배너를 지나 페이지 끝까지 이어지고, 넘치는 부분은 .search-page가 잘라낸다. */
+.search-page {
+  overflow: clip;
+}
+
 .home-rec {
   position: relative;
   isolation: isolate;
@@ -4520,7 +4598,7 @@ button.agg-row:hover .agg-thumb-play {
   position: absolute;
   z-index: -1;
   top: -90px;
-  bottom: -120px;
+  bottom: calc(-1 * max(100vh, 900px));
   left: 50%;
   width: 100vw;
   transform: translateX(-50%);
@@ -4529,7 +4607,12 @@ button.agg-row:hover .agg-thumb-play {
 }
 
 /* 최근 녹화 영역 안의 시간대 필터·행동 하이라이트는 타일과 간격을 둔다. */
-.home-rec .home-recordings-head { margin-bottom: 14px; }
-.home-rec .behavior-strip { margin-bottom: 24px; }
+.home-rec .behavior-strip { margin-bottom: 36px; }
+
+.home-rec-filter {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 14px;
+}
 
 .home-clip-body .clip-info-pills { margin-top: 8px; flex-wrap: wrap; }
