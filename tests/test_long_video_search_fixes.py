@@ -167,6 +167,23 @@ class LongVideoSearchFixes(unittest.TestCase):
         self.assertEqual(correct["results"][0]["source_event_id"], 1)
         self.assertIsNone(wrong)
 
+    def test_cat_action_search_drops_puppies_labelled_as_cats(self):
+        puppy = event(1, 1, 47, 49, "반려동물이 그릇에서 사료를 먹고 있음")
+        real = event(2, 2, 9, 12, "반려동물이 사료를 먹고 있음")
+        named = event(3, 3, 4, 6, "고양이가 그릇에서 먹음")
+        unlabelled = event(4, 4, 4, 6, "반려동물이 사료를 먹고 있음")
+        for row in (puppy, real):
+            row["source_frames"][0]["object_labels"] = ["bowl", "cat"]
+        events = [puppy, real, named, unlabelled]
+        cat_frame = real["source_frames"][0]["frame_id"]
+        with patch.object(grounded_action_search, "get_behavior_events_for_aggregation", return_value=events), \
+             patch.object(grounded_action_search, "_select_matching_events", return_value=events), \
+             patch.object(grounded_action_search, "confirmed_cat_frame_ids", return_value={cat_frame}):
+            result = grounded_action_search.find_action_event_scenes("고양이가 밥 먹는 장면 있어?", "long", 5)
+        self.assertEqual([row["source_event_id"] for row in result["results"]], [2, 3])
+        self.assertIn("‘반려동물이 사료를 먹고 있음’ 장면은", result["answer"])
+        self.assertIn("‘고양이가 그릇에서 먹음’ 장면은", result["answer"])
+
     def test_cat_verification_rejects_dog_and_keeps_cat(self):
         class Collection:
             def get(self, ids, include):
