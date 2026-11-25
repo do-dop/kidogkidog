@@ -1,7 +1,8 @@
 import { CSSProperties, FormEvent, Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { videoTitle } from "./videoTitles";
 
-import { resolveSearchRecording, playbackOffsets } from "./searchPlayback";
+import { resolveSearchRecording, playbackOffsets, displayOffsets } from "./searchPlayback";
+import { groupBehaviorEvents, type EventPosition } from "./eventGroups";
 
 type Screen = "live" | "recordings" | "search" | "chunkPlayback" | "searchPlayback" | "profile";
 type Theme = "dark" | "light";
@@ -57,6 +58,8 @@ type SearchResult = {
   startSeconds?: number;
   playbackStartSeconds?: number;
   playbackEndSeconds?: number;
+  displayStartSeconds?: number;
+  displayEndSeconds?: number;
   recordingId?: string;
   seekStartSeconds?: number;
   seekEndSeconds?: number;
@@ -362,23 +365,19 @@ function captureDateTime(recordedAt: string, seconds: number) {
     clockTime: `${value("hour")}:${value("minute")}:${value("second")}` };
 }
 
-function resultDateTime(recording: Recording | undefined, seconds: number) {
-  const durationSeconds = durationToSeconds(recording?.duration);
-  const offset = recording && durationSeconds && seconds <= durationSeconds + 1
-    ? Math.max(0, Math.floor(seconds))
-    : Math.max(0, Math.floor(seconds - (recording?.startSeconds ?? 0)));
-  const videoSeconds = (recording?.startSeconds ?? 0) + offset;
+function resultDateTime(recording: Recording | undefined, localSeconds: number, videoSeconds: number) {
+  const offset = Math.max(0, Math.floor(localSeconds));
   const hasCaptureTime = Boolean(recording?.recordedAt);
   const capture = recording?.recordedAt ? captureDateTime(recording.recordedAt, offset) : undefined;
-  const clockTime = capture?.clockTime ?? (hasCaptureTime && recording ? addSecondsToClockTime(recording.time, offset) : formatSeconds(videoSeconds));
+  const clockTime = formatSeconds(videoSeconds);
   const dateLabel = hasCaptureTime ? capture?.dateLabel ?? formatDateLabel(recording?.recordingDate) : undefined;
 
   return {
     clockTime,
     dateLabel,
-    displayDateTime: hasCaptureTime ? [dateLabel, clockTime].filter(Boolean).join(" ") : `영상 시작 후 ${clockTime}`,
-    offsetLabel: hasCaptureTime ? `청크 +${formatSeconds(offset)}` : `영상 시작 후 ${clockTime}`,
-    chunkLabel: hasCaptureTime && recording?.duration ? `${recording.time}부터 ${recording.duration}` : undefined,
+    displayDateTime: `영상 시작 후 ${clockTime}`,
+    offsetLabel: `영상 시작 후 ${clockTime}`,
+    chunkLabel: undefined,
   };
 }
 
@@ -407,7 +406,7 @@ function mapApiResults(payload: ApiQueryResult, items: Recording[] = []): Search
     const seconds = Number(result.representative_timestamp ?? result.timestamp ?? 0);
     const playbackStart = Number(result.playback_start ?? seconds);
     const playbackEnd = result.playback_end !== undefined ? Number(result.playback_end) : undefined;
-    const { recording, chunkRelative } = resolveSearchRecording(result, items);
+    const { recording, chunkRelative, chunkStartSeconds } = resolveSearchRecording(result, items);
     const frameImageUrl = (s3Key?: string) => s3Key ? mediaUrl(`/media/s3?key=${encodeURIComponent(s3Key)}&w=${THUMBNAIL_WIDTH}`) : undefined;
     const frameThumbnailUrl = frameImageUrl(result.s3_key);
     const stepFrames: StepFrame[] = (result.step_frames ?? []).flatMap((frame) => {
@@ -416,8 +415,9 @@ function mapApiResults(payload: ApiQueryResult, items: Recording[] = []): Search
     });
     // 검색한 순간의 썸네일을 우선해 카드와 재생 장면을 일치시킨다.
     const thumbnailUrl = frameThumbnailUrl || recording?.thumbnailUrl;
-    const dateTime = resultDateTime(recording, seconds);
     const offsets = playbackOffsets(playbackStart, playbackEnd, recording?.startSeconds ?? 0, chunkRelative);
+    const display = displayOffsets(seconds, playbackStart, playbackEnd, chunkStartSeconds, chunkRelative);
+    const dateTime = resultDateTime(recording, chunkRelative ? seconds : seconds - (recording?.startSeconds ?? 0), display.moment);
     const playbackStartSeconds = offsets.start;
     const playbackEndSeconds = offsets.end;
     const eventStart = result.event_start;
@@ -425,7 +425,7 @@ function mapApiResults(payload: ApiQueryResult, items: Recording[] = []): Search
     const noteParts = [];
 
     if (playbackEnd !== undefined) {
-      noteParts.push(`재생 구간: ${formatSeconds(playbackStart)}~${formatSeconds(playbackEnd)}`);
+      noteParts.push(`영상 구간: ${formatSeconds(display.start)}~${formatSeconds(display.end!)}`);
     }
     if (Number(result.merged_frame_count) > 1) {
       noteParts.push(`인접 프레임 ${result.merged_frame_count}개 통합`);
@@ -462,6 +462,8 @@ function mapApiResults(payload: ApiQueryResult, items: Recording[] = []): Search
       startSeconds: seconds,
       playbackStartSeconds,
       playbackEndSeconds,
+      displayStartSeconds: display.start,
+      displayEndSeconds: display.end,
       recordingId: recording?.id,
       seekStartSeconds: playbackStart,
       seekEndSeconds: playbackEnd,
@@ -476,7 +478,7 @@ function mapApiResults(payload: ApiQueryResult, items: Recording[] = []): Search
       eventStart,
       eventEnd,
       representativeTimestamp: seconds,
-      timelineSeconds: (recording?.startSeconds ?? 0) + playbackStartSeconds,
+      timelineSeconds: display.start,
       matchedSceneCount: result.matched_scene_count,
       relatedScenes,
     };
@@ -537,15 +539,17 @@ async function clampResultsToMediaDuration(results: SearchResult[], items: Recor
     const playbackEnd = Math.min(result.playbackEndSeconds, mediaDuration);
     if (playbackEnd >= result.playbackEndSeconds) return { ...result, relatedScenes };
 
+    const displayEnd = (result.displayStartSeconds ?? playbackStart) - playbackStart + playbackEnd;
     const updatedNote = result.note.replace(
-      /재생 구간: [^·]+/,
-      `재생 구간: ${formatSeconds(playbackStart)}~${formatSeconds(playbackEnd)}`,
+      /영상 구간: [^·]+/,
+      `영상 구간: ${formatSeconds(result.displayStartSeconds ?? playbackStart)}~${formatSeconds(displayEnd)}`,
     );
     return {
       ...result,
       note: updatedNote,
       duration: formatDuration(Math.max(0, playbackEnd - playbackStart)),
       playbackEndSeconds: playbackEnd,
+      displayEndSeconds: displayEnd,
       relatedScenes,
     };
   }));
@@ -793,6 +797,19 @@ function eventsForRecording(recording: Recording, events: BehaviorEvent[]) {
 function eventsForVideo(videoId: string | undefined, events: BehaviorEvent[]) {
   if (!videoId) return [];
   return events.filter((event) => event.video_id === videoId);
+}
+
+/** 이벤트의 근거 프레임으로 청크를 찾아, 묶기에 쓸 위치를 만든다. */
+function behaviorEventPosition(event: BehaviorEvent, recordings: Recording[]): EventPosition {
+  const frame = event.source_frames?.find((item) => item.s3_key);
+  if (!frame?.s3_key) return {};
+  const chunkKey = frame.s3_key.split("/").at(-1)!.replace(/_frame_.*$/, "");
+  const { recording, chunkRelative } = resolveSearchRecording({ video_id: event.video_id, s3_key: frame.s3_key }, recordings);
+  return { chunkKey, chunkStartSeconds: chunkRelative ? recording?.startSeconds : undefined };
+}
+
+function groupEventsForDisplay(events: BehaviorEvent[], recordings: Recording[]) {
+  return groupBehaviorEvents(events, (event) => behaviorEventPosition(event, recordings));
 }
 
 function scoreBehavior(event: BehaviorEvent) {
@@ -1200,7 +1217,9 @@ export default function App() {
   );
 
   const highlightedBehaviors = useMemo(
-    () => behaviorEvents
+    // 거의 같은 장면이 목록을 채우지 않도록 묶음마다 대표 하나만 고른다.
+    () => groupEventsForDisplay(behaviorEvents, recordingItems)
+      .map((group) => group.representative)
       .map((event) => ({
         event,
         recording: recordingItems.find((recording) => eventMatchesRecording(event, recording)),
@@ -1996,7 +2015,7 @@ export default function App() {
                           <>
                             <div className="result-header">
                               <strong>관련 영상 {visibleResults.length}개</strong>
-                              <span>{visibleResults.some((result) => result.matchLevel === "object_label") ? "객체 감지 장면" : visibleResults.every((result) => MATCH_LABELS[result.matchLevel ?? ""]) ? "일치 장면" : "유사도 순"}</span>
+                              <span>{visibleResults.some((result) => result.matchLevel === "related_event" || result.matchLevel === "related") ? "비슷한 장면 · 세부 조건 미확인" : visibleResults.some((result) => result.matchLevel === "object_label") ? "객체 감지 장면" : visibleResults.every((result) => MATCH_LABELS[result.matchLevel ?? ""]) ? "일치 장면" : "유사도 순"}</span>
                             </div>
                             <div className="result-grid">
                               {visibleResults.map((result) => (
@@ -2020,12 +2039,12 @@ export default function App() {
                           playbackSegments={searchPlaybackSegments(playbackResult, recordingItems)}
                         />
                         <dl className="results-player-meta">
-                          <dt>{playbackResult.dateLabel ? "촬영 시각" : "영상 위치"}</dt>
+                          <dt>영상 위치</dt>
                           <dd>{playbackResult.displayDateTime || playbackResult.time}</dd>
                           {playbackResult.playbackEndSeconds !== undefined && (
                             <>
-                              <dt>재생 구간</dt>
-                              <dd>{formatSeconds(playbackResult.playbackStartSeconds ?? 0)} - {formatSeconds(playbackResult.playbackEndSeconds)}</dd>
+                              <dt>영상 구간</dt>
+                              <dd>{formatSeconds(playbackResult.displayStartSeconds ?? 0)} - {formatSeconds(playbackResult.displayEndSeconds ?? playbackResult.playbackEndSeconds)}</dd>
                             </>
                           )}
                           {resultQueryType === "search" && playbackResult.objects.length > 0 && (
@@ -2222,7 +2241,7 @@ export default function App() {
                     <strong>{activeRecording.note || activeRecording.id}</strong>
                     {currentVideoRecordings.length > 1 && <p>이 영상은 1분 단위 구간으로 나뉘어 저장돼 있어요. 한 구간이 끝나면 다음 구간이 이어서 재생됩니다.</p>}
                   </div>
-                  <BehaviorEventPanel videoEvents={activeVideoEvents} chunkEvents={activeRecordingEvents} recording={activeRecording} />
+                  <BehaviorEventPanel videoEvents={activeVideoEvents} chunkEvents={activeRecordingEvents} recording={activeRecording} recordings={recordingItems} />
                   <button className="primary-button" onClick={() => {
                     setQuery(`${activeRecording.videoId || "이 영상"} ${activeRecording.time} 근처 장면`);
                     go("search");
@@ -2700,6 +2719,22 @@ function BehaviorHighlights({
   );
 }
 
+/** 묶음의 시간 범위. 청크 위치를 알면 영상 전체 기준, 모르면(같은 청크 안) 청크 안 초로 말한다. */
+function groupTimeLabel(videoStart: number | undefined, videoEnd: number | undefined, members: BehaviorEvent[]) {
+  if (videoStart !== undefined && videoEnd !== undefined) {
+    return `영상 ${formatSeconds(videoStart)} ~ ${formatSeconds(videoEnd)} · 비슷한 장면 ${members.length}건`;
+  }
+  const start = Math.min(...members.map((member) => member.start_time ?? 0));
+  const end = Math.max(...members.map((member) => member.end_time ?? member.start_time ?? 0));
+  return `${start.toFixed(1)}초 ~ ${end.toFixed(1)}초 · 비슷한 장면 ${members.length}건`;
+}
+
+function groupMemberTimeLabel(event: BehaviorEvent, recordings: Recording[]) {
+  const offset = behaviorEventPosition(event, recordings).chunkStartSeconds;
+  if (offset === undefined || event.start_time === undefined) return behaviorVideoTimeLabel(event);
+  return `영상 ${formatSeconds(offset + event.start_time)} ~ ${formatSeconds(offset + (event.end_time ?? event.start_time))}`;
+}
+
 function behaviorDetailItems(event: BehaviorEvent) {
   const items = [];
 
@@ -2723,29 +2758,36 @@ function BehaviorEventPanel({
   videoEvents,
   chunkEvents,
   recording,
+  recordings,
 }: {
   videoEvents: BehaviorEvent[];
   chunkEvents: BehaviorEvent[];
   recording: Recording;
+  recordings: Recording[];
 }) {
   const summaryEvents = videoEvents.length > 0 ? videoEvents : chunkEvents;
+  const summaryGroups = groupEventsForDisplay(summaryEvents, recordings);
 
   return (
     <div className="chunk-events">
       <div className="chunk-events-head">
         <span>이 영상에서 발견한 행동 요약</span>
-        <strong>{summaryEvents.length}개</strong>
+        <strong>{summaryGroups.length}개</strong>
       </div>
       {summaryEvents.length > 0 ? (
         <div className="chunk-event-list">
-          {summaryEvents.slice(0, 5).map((event) => {
+          {summaryGroups.slice(0, 5).map((group) => {
+            const event = group.representative;
+            const grouped = group.members.length > 1;
             const details = behaviorDetailItems(event);
             const evidenceItems = behaviorEvidenceItems(event);
 
             return (
             <div className="chunk-event-row" key={`${event.id}-${recording.id}`}>
               <div>
-                <span className="chunk-event-time">{behaviorVideoTimeLabel(event)}</span>
+                <span className="chunk-event-time">
+                  {grouped ? groupTimeLabel(group.videoStart, group.videoEnd, group.members) : groupMemberTimeLabel(event, recordings)}
+                </span>
                 <strong>{behaviorTitle(event)}</strong>
                 <p>{event.summary || "행동 변화가 감지됐어요."}</p>
                 {details.length > 0 && <small>{details.join(" · ")}</small>}
@@ -2755,6 +2797,18 @@ function BehaviorEventPanel({
                       <li key={item}>{item}</li>
                     ))}
                   </ul>
+                )}
+                {grouped && (
+                  <details className="chunk-event-group">
+                    <summary>묶인 기록 {group.members.length}건 보기</summary>
+                    <ul>
+                      {group.members.map((member) => (
+                        <li key={member.id}>
+                          {groupMemberTimeLabel(member, recordings)} · {behaviorTitle(member)}
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
                 )}
               </div>
               <span>{scoreBehavior(event)}%</span>

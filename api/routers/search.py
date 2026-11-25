@@ -6,6 +6,7 @@ from fastapi import APIRouter, BackgroundTasks, HTTPException
 from api.schemas import QueryRequest
 from db.search_history import insert_search_log, upsert_user_frequent_query
 from pipeline.search.result_grouping import group_results_by_video
+from pipeline.search.scene_answer import build_scene_answer
 
 
 router = APIRouter(tags=["search"])
@@ -82,13 +83,19 @@ def query(request: QueryRequest, background_tasks: BackgroundTasks):
         except Exception as exc:
             print(f"검색 로그 저장 실패: {exc}", flush=True)
 
+    answer = rag_result["answer"]
+    if (not is_sequence and grouped_results and not rag_result.get("aggregate_result")
+            and not rag_result.get("clarification")
+            and all(row.get("match_level") in {"behavior_event", "related_event"} for row in grouped_results)):
+        answer = build_scene_answer(grouped_results)
+
     response = {
         "status": "ok",
         "query": request.query,
         "video_id": request.video_id,
         "recording_date": request.recording_date,
         "top_k": top_k,
-        "answer": rag_result["answer"],
+        "answer": answer,
         "results": grouped_results,
         "evidence_items": grouped_evidence,
         "behavior_events": rag_result.get("behavior_events", []),
