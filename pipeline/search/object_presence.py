@@ -8,8 +8,10 @@ from pipeline.search.species_verification import confirmed_cat_frame_ids
 
 _SUBJECTS = {"고양이": "cat", "강아지": "dog", "사람": "person"}
 _FRAME_CHUNK = re.compile(r"_(\d{3})_frame_[0-9.]+\.jpg$")
-_ACTION_WORDS = re.compile(r"먹|마시|올라|들어|나가|뛰|달리|걷|다가|가까|이동|움직|떨어|숙이|바라|앞발|목욕|씻|잠|자는|자고|수건|몇\s*(?:번|회)|횟수")
-_STATIC_QUESTION = re.compile(r"있어|있니|있나요|있는|보여|보이|나와|나오|장면")
+_ACTION_WORDS = re.compile(r"먹|마시|올라|들어|나가|뛰|점프|달리|걷|다가|가까|이동|움직|떨어|숙이|바라|앞발|목욕|씻|잠|자는|자고|수건|몇\s*(?:번|회)|횟수")
+# "장면 보여줘" can request an action. Only explicit presence wording
+# belongs in the presence-only shortcut.
+_STATIC_QUESTION = re.compile(r"있어|있니|있나요|있는|보이|나와|나오")
 
 
 def _presence_subject(query):

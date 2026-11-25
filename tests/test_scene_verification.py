@@ -59,6 +59,30 @@ class SceneVerificationTests(unittest.TestCase):
             windows = scene_verification._candidate_windows("강아지 장면", "video", {"results": []})
         self.assertEqual(windows[0]["source"]["timestamp"], 3)
 
+    def test_missing_action_widens_unlabeled_visual_lead(self):
+        with patch("db.behavior_events.get_behavior_events_for_aggregation", return_value=[]), patch(
+            "pipeline.storage.vector_store.search_with_query_expansion", return_value=[_result(4.5)]
+        ):
+            windows = scene_verification._candidate_windows(
+                "고양이가 점프하는 장면", "video", {"results": [], "match_level": "unverified_action"}
+            )
+        self.assertEqual((windows[0]["start"], windows[0]["end"]), (0.0, 10.5))
+
+    def test_initial_target_state_requires_visible_start_and_consistent_time(self):
+        frames = [{"time": 0.0, "jpeg": b"first"}, {"time": 11.0, "jpeg": b"last"}]
+        payload = {"already_at_target": True, "initial_state": "강아지가 식탁 위에 있어요",
+                   "opposite_action": "식탁에서 내려오는 모습",
+                   "opposite_time": 11.0}
+        with patch("openai.OpenAI") as client:
+            client.return_value.responses.create.return_value = SimpleNamespace(output_text=json.dumps(payload))
+            state = scene_verification._initial_target_state("식탁에 올라갔어?", frames, "on table")
+            self.assertEqual(state["opposite_time"], 11.0)
+            payload["opposite_time"] = 8.0
+            client.return_value.responses.create.return_value = SimpleNamespace(output_text=json.dumps(payload))
+            state = scene_verification._initial_target_state("식탁에 올라갔어?", frames, "on table")
+            self.assertIsNone(state["opposite_action"])
+        self.assertIsNone(scene_verification._initial_target_state("질문", frames[1:], "on table"))
+
     def test_visual_verifier_requires_visible_timestamp_and_true_match(self):
         frames = [{"time": 3.0, "jpeg": b"image"}, {"time": 4.0, "jpeg": b"image"}]
         with patch.dict("os.environ", {"OPENAI_API_KEY": "test"}), patch("openai.OpenAI") as client:
@@ -148,6 +172,48 @@ class SceneVerificationTests(unittest.TestCase):
             result = scene_verification.verify_uncertain_scene("강아지 두 마리 함께 보여줘", "video", original, 3)
         self.assertEqual(result["results"][0]["timestamp"], 3.0)
         verify.assert_called_once()
+
+    def test_motion_uses_temporal_confirmation_without_single_frame_witness(self):
+        original = {"match_level": "unverified_action", "results": []}
+        window = scene_verification._window(_result(4, 0, 8))
+        frames = [{"time": 4.0, "jpeg": b"image"}]
+        with patch.dict("os.environ", {"OPENAI_API_KEY": "test"}), patch.object(
+            scene_verification, "_candidate_windows", return_value=[window]
+        ), patch.object(scene_verification, "_verification_plan", return_value=("motion", None)), patch(
+            "pipeline.storage.gcs_uploader.download_video"
+        ), patch("pipeline.search.video_aggregate.video_duration", return_value=9), patch(
+            "pipeline.search.video_aggregate.sample_frames", return_value=frames
+        ), patch.object(scene_verification, "_verify_frames", side_effect=[4.0, 4.0]) as verify, patch.object(
+            scene_verification, "_verify_witness_frame", side_effect=AssertionError("single frame cannot prove motion")
+        ), patch.object(scene_verification, "_nearest_indexed_frame", return_value=None):
+            result = scene_verification.verify_uncertain_scene("고양이가 점프하는 장면", "video", original, 5)
+        self.assertEqual(result["match_level"], "verified_video")
+        self.assertEqual(verify.call_args.kwargs["mode"], "motion")
+
+    def test_short_clip_already_at_target_explains_missing_transition(self):
+        original = {"match_level": "unverified_action", "answer": "찾지 못함", "results": []}
+        window = scene_verification._window(_result(7))
+        frames = [{"time": 0.0, "jpeg": b"first"}, {"time": 11.0, "jpeg": b"last"}]
+        state = {"initial_state": "강아지가 식탁 위에 있어요",
+                 "opposite_action": "강아지가 식탁에서 내려오는 모습", "opposite_time": 11.0}
+        with patch.dict("os.environ", {"OPENAI_API_KEY": "test"}), patch.object(
+            scene_verification, "_candidate_windows", return_value=[window]
+        ), patch.object(scene_verification, "_verification_plan", return_value=(
+            "transition", {"source": "floor", "intermediate": "climbing", "target": "on table"}
+        )), patch("pipeline.storage.gcs_uploader.download_video"), patch(
+            "pipeline.search.video_aggregate.video_duration", return_value=14.0
+        ), patch("pipeline.search.video_aggregate.sample_frames", return_value=frames), patch.object(
+            scene_verification, "_verify_frames", return_value=None
+        ), patch.object(scene_verification, "_initial_target_state", return_value=state), patch.object(
+            scene_verification, "_nearest_indexed_frame", return_value=_result(0)
+        ):
+            result = scene_verification.verify_uncertain_scene(
+                "강아지가 식탁 위로 올라가는 장면 보여줘", "video", original, 5
+            )
+        self.assertEqual(result["match_level"], "verified_start_state")
+        self.assertEqual(result["results"][0]["playback_start"], 0.0)
+        self.assertIn("요청한 동작이 시작되는 순간은 확인할 수 없어요", result["answer"])
+        self.assertIn("00:11", result["answer"])
 
     def test_singular_scene_stops_at_first_verified_match(self):
         original = {"match_level": "unverified_action", "results": []}
