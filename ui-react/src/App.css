@@ -16,7 +16,7 @@
 
 body {
   margin: 0;
-  min-width: 768px; /* 폰 레이아웃은 아직 없다. 태블릿 세로(768px)까지만 맞춘다. */
+  min-width: 320px;
   min-height: 100vh;
   background-color: #120e0a;
 }
@@ -4533,6 +4533,55 @@ button.agg-row:hover .agg-thumb-play {
 .home-rec .behavior-strip { margin-bottom: 24px; }
 
 .home-clip-body .clip-info-pills { margin-top: 8px; flex-wrap: wrap; }
+
+html, #root { width: 100%; min-width: 0; }
+
+/* Keep search, filters and playback usable below tablet width. */
+@media (max-width: 768px) {
+  .topbar { padding: 0 16px; gap: 10px; }
+  .topbar-brand { min-width: 0; }
+  .topbar-logo-text { font-size: 17px; }
+  .topbar-nav { display: none; } /* The same destinations remain in the menu. */
+  .top-actions { margin-left: auto; gap: 6px; }
+  .topbar-menu, .top-actions .icon-button, .top-actions .user-avatar {
+    flex-shrink: 0; width: 44px; height: 44px;
+  }
+  .content { padding: 0 16px 32px; }
+  .search-page { margin: -68px -16px -32px; padding-top: 68px; }
+  .search-hero { padding: 32px 16px 56px; }
+  .search-hero-inner, .search-bar-wrap, .filter-wrap { min-width: 0; }
+  .search-hero-inner h2 { font-size: clamp(28px, 5.4vw, 38px); overflow-wrap: anywhere; }
+  .search-page-inner { padding: 0 16px 48px; }
+  .search-bar { gap: 8px; padding: 8px 8px 8px 12px; }
+  .search-bar input { font-size: 16px; }
+  .search-bar button[type="submit"] { flex-shrink: 0; height: 44px; padding: 0 16px; }
+  .suggestions, .query-summary { max-width: 100%; }
+  .suggestions button, .query-chip { max-width: 100%; min-height: 44px; }
+  .suggestions button, .query-chip-main { white-space: normal; overflow-wrap: anywhere; }
+  .filter-summary { padding: 0 12px; }
+  .filter-summary-toggle { font-size: 12px; }
+  .filter-wrap .date-scope { flex-wrap: wrap; }
+  .filter-wrap .video-select { max-width: 100%; min-width: 0; }
+  .result-header { flex-wrap: wrap; gap: 8px; }
+  .answer-card { padding: 16px; gap: 12px; }
+  .answer-card > div { min-width: 0; overflow-wrap: anywhere; }
+  .results-player, .video-panel, .seq-panel { min-width: 0; max-width: 100%; }
+  .seq-summary { padding: 16px; overflow-wrap: anywhere; }
+  .brand-callout-banner { padding: 32px 16px; }
+  .brand-callout-content h2 { font-size: clamp(24px, 6vw, 36px); }
+  .notification-popover { width: min(320px, calc(100vw - 32px)); }
+}
+
+@media (max-width: 480px) {
+  .topbar-brand .brand-mark { display: none; }
+}
+
+@media (max-width: 380px) {
+  .topbar { padding-inline: 8px; gap: 6px; }
+  .top-actions { gap: 4px; }
+  .topbar-logo-text { font-size: 15px; }
+  .filter-summary-label { display: none; }
+}
 
 .chunk-event-group {
   margin-top: 6px;

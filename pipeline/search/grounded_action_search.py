@@ -13,6 +13,7 @@ from pipeline.search.aggregate_query import count_episodes
 from pipeline.search.event_text_search import event_as_search_result
 from pipeline.search.video_time import format_frame_time, frame_video_seconds
 from pipeline.storage.capture_time import trusted_capture_time
+from pipeline.search.search_policy import contradicts_action, diverse_video_candidates
 from pipeline.search.color_grounding import asks_about_color, asks_about_colored_action, without_color_words
 
 
@@ -42,6 +43,8 @@ def _source_chunk(event):
 
 def _supports_explicit_constraints(query, event):
     """Reject contradictions the model might overlook in species or direction."""
+    if contradicts_action(query, event):
+        return False
     description = " ".join(str(event.get(key) or "") for key in ("subject", "action", "summary"))
     labels = set()
     for frame in event.get("source_frames") or []:
@@ -199,11 +202,21 @@ def find_action_event_scenes(query, video_id, top_k, source_event=None,
     from pipeline.search.action_event_index import semantic_event_candidates
     ranked = semantic_event_candidates(action_query, candidates, video_id=video_id)
     if ranked is not None:
-        candidates = ranked
+        if video_id:
+            candidates = ranked
+        else:
+            # Semantic top-N can be filled by one long video. Reserve a text-
+            # ranked lead from other videos before the final meaning check.
+            from pipeline.search.event_text_search import rank_events_by_text
+            ranked_ids = {event.get("id") for event in ranked}
+            remaining = [event for event in rank_events_by_text(action_query, candidates)
+                         if event.get("id") not in ranked_ids]
+            candidates = diverse_video_candidates(ranked + remaining, 120)
     elif len(candidates) > 120:
         # Existing recordings without a complete index keep the prior path.
         from pipeline.search.event_text_search import rank_events_by_text
-        candidates = rank_events_by_text(action_query, candidates)[:120]
+        ranked = rank_events_by_text(action_query, candidates)
+        candidates = ranked[:120] if video_id else diverse_video_candidates(ranked, 120)
     try:
         selection = _select_matching_events(action_query, candidates)
     except Exception as exc:
@@ -243,8 +256,11 @@ def find_action_event_scenes(query, video_id, top_k, source_event=None,
             "match_level": "unverified_action",
         }
 
-    if video_id:
-        matched.sort(key=lambda event: (
+    semantic_order = {id(event): index for index, event in enumerate(matched)}
+    # Merge in chronological order even when the global candidates were ranked
+    # by relevance. Otherwise a later episode can swallow an earlier one.
+    matched.sort(key=lambda event: (
+            str(event.get("video_id") or ""), _source_chunk(event),
             frame_video_seconds((event.get("source_frames") or [{}])[0], event.get("start_time") or 0) or 0,
             float(event.get("end_time") or 0),
         ))
@@ -262,9 +278,21 @@ def find_action_event_scenes(query, video_id, top_k, source_event=None,
         else:
             episodes.append({"chunk": chunk, "start": start, "end": end, "events": [event]})
 
+    if not video_id:
+        episodes.sort(key=lambda episode: min(semantic_order[id(event)] for event in episode["events"]))
+        selected_videos = set()
+        for episode in episodes:
+            candidate_video = episode["events"][0].get("video_id")
+            if candidate_video not in selected_videos and len(selected_videos) < max(1, top_k):
+                selected_videos.add(candidate_video)
+        episodes = [episode for episode in episodes if episode["events"][0].get("video_id") in selected_videos]
+
     results = []
+    scenes_per_video = {}
     for episode in episodes:
         event = episode["events"][0]
+        if not video_id and scenes_per_video.get(event.get("video_id"), 0) >= max(1, top_k):
+            continue
         result = event_as_search_result(event, float(event.get("confidence") or 0.5))
         if not result or not result.get("s3_key"):
             continue
@@ -277,7 +305,8 @@ def find_action_event_scenes(query, video_id, top_k, source_event=None,
         result["playback_end"] = episode["end"] + 1
         result["match_level"] = "related_event" if uncertain else "behavior_event"
         results.append(result)
-        if len(results) >= max(1, top_k):
+        scenes_per_video[event.get("video_id")] = scenes_per_video.get(event.get("video_id"), 0) + 1
+        if video_id and len(results) >= max(1, top_k):
             break
     if not results:
         return None
