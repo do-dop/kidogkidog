@@ -2203,13 +2203,13 @@ button {
 
 .playback-grid {
   display: grid;
-  grid-template-columns: 1fr 340px;
+  grid-template-columns: minmax(0, 1fr) 340px;
   gap: 24px;
 }
 
 .chunk-info-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
 }
 
@@ -2371,7 +2371,7 @@ button {
 
   .live-grid,
   .playback-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .search-hero-inner h2 {
@@ -4666,6 +4666,79 @@ html, #root { width: 100%; min-width: 0; }
   .filter-summary-label { display: none; }
 }
 
+/* 영상 상세의 행동 요약. 시각·제목·설명이 한 줄에 붙지 않도록 항목 안을 세로로 쌓는다. */
+.chunk-events-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.chunk-event-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.chunk-event-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+}
+
+.chunk-event-row > div {
+  min-width: 0;
+}
+
+.chunk-event-row > span {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.chunk-event-time {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+.chunk-event-row strong {
+  display: block;
+  line-height: 1.45;
+}
+
+.chunk-event-row p {
+  margin: 6px 0 0;
+}
+
+.chunk-event-row small {
+  display: block;
+  margin-top: 6px;
+  line-height: 1.5;
+  opacity: 0.7;
+}
+
+.chunk-event-row ul {
+  margin: 6px 0 0;
+  padding-left: 18px;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.chunk-event-empty {
+  margin: 10px 0 0;
+  font-size: 12px;
+  opacity: 0.7;
+}
+
 .chunk-event-group {
   margin-top: 6px;
 }
@@ -4674,4 +4747,11 @@ html, #root { width: 100%; min-width: 0; }
   cursor: pointer;
   font-size: 12px;
   opacity: 0.75;
+}
+
+/* 휴대폰 폭에서는 청크 정보 카드를 한 줄에 하나씩 둔다. 두 칸이면 시간 표시가 잘린다. */
+@media (max-width: 768px) {
+  .chunk-info-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
