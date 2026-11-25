@@ -1,8 +1,9 @@
 """Short Korean answers based only on returned scene evidence."""
 
 import re
+import math
 
-from pipeline.search.video_time import format_frame_time
+from pipeline.search.video_time import frame_video_seconds
 
 
 _ACTIONS = (
@@ -38,8 +39,13 @@ def build_scene_answer(results):
     if video_count > 1:
         answer = f"{subject}을 영상 {video_count}개에서 찾았어요. 아래에서 보고 싶은 장면을 골라 보세요."
     else:
-        moment = format_frame_time(first, float(first.get("timestamp") or 0))
-        location = f"{moment}쯤 촬영된 영상에서" if moment.count(":") == 2 else f"영상 {moment}쯤부터"
+        timestamp = first.get("representative_timestamp")
+        if timestamp is None:
+            timestamp = first.get("timestamp") or 0
+        whole = max(0, math.floor(frame_video_seconds(first, float(timestamp)) or 0))
+        minute, second = divmod(whole, 60)
+        moment = f"{minute:02d}:{second:02d}"
+        location = f"영상 {moment}쯤부터"
         answer = f"{subject}을 찾았어요. {location} 확인해 보세요."
     if partial:
         answer += " 다만 질문의 세부 조건까지는 확인하지 못했어요. 비슷한 장면으로 참고해 주세요."

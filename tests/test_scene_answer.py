@@ -31,6 +31,18 @@ class SceneAnswerTests(unittest.TestCase):
     def test_empty_result_does_not_claim_the_action_did_not_happen(self):
         self.assertIn("아직 확인하지 못했어요", build_scene_answer([]))
 
+    def test_fractional_seconds_use_the_same_floor_as_video_cards(self):
+        answer = build_scene_answer([scene("사료를 먹음", timestamp=2.8)])
+        self.assertIn("03:02", answer)
+        self.assertNotIn("03:03", answer)
+
+    def test_answer_uses_representative_frame_and_full_video_not_capture_clock(self):
+        answer = build_scene_answer([scene("사료를 먹음", timestamp=10,
+            representative_timestamp=2.8, capture_time_source="petcam",
+            recorded_at="2026-11-26T02:30:00+09:00")])
+        self.assertIn("영상 03:02", answer)
+        self.assertNotIn("02:30", answer)
+
 
 if __name__ == "__main__":
     unittest.main()

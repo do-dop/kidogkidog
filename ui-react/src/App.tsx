@@ -1,7 +1,7 @@
 import { CSSProperties, FormEvent, Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { videoTitle } from "./videoTitles";
 
-import { resolveSearchRecording, playbackOffsets } from "./searchPlayback";
+import { resolveSearchRecording, playbackOffsets, displayOffsets } from "./searchPlayback";
 
 type Screen = "live" | "recordings" | "search" | "chunkPlayback" | "searchPlayback" | "profile";
 type Theme = "dark" | "light";
@@ -57,6 +57,8 @@ type SearchResult = {
   startSeconds?: number;
   playbackStartSeconds?: number;
   playbackEndSeconds?: number;
+  displayStartSeconds?: number;
+  displayEndSeconds?: number;
   recordingId?: string;
   seekStartSeconds?: number;
   seekEndSeconds?: number;
@@ -362,23 +364,19 @@ function captureDateTime(recordedAt: string, seconds: number) {
     clockTime: `${value("hour")}:${value("minute")}:${value("second")}` };
 }
 
-function resultDateTime(recording: Recording | undefined, seconds: number) {
-  const durationSeconds = durationToSeconds(recording?.duration);
-  const offset = recording && durationSeconds && seconds <= durationSeconds + 1
-    ? Math.max(0, Math.floor(seconds))
-    : Math.max(0, Math.floor(seconds - (recording?.startSeconds ?? 0)));
-  const videoSeconds = (recording?.startSeconds ?? 0) + offset;
+function resultDateTime(recording: Recording | undefined, localSeconds: number, videoSeconds: number) {
+  const offset = Math.max(0, Math.floor(localSeconds));
   const hasCaptureTime = Boolean(recording?.recordedAt);
   const capture = recording?.recordedAt ? captureDateTime(recording.recordedAt, offset) : undefined;
-  const clockTime = capture?.clockTime ?? (hasCaptureTime && recording ? addSecondsToClockTime(recording.time, offset) : formatSeconds(videoSeconds));
+  const clockTime = formatSeconds(videoSeconds);
   const dateLabel = hasCaptureTime ? capture?.dateLabel ?? formatDateLabel(recording?.recordingDate) : undefined;
 
   return {
     clockTime,
     dateLabel,
-    displayDateTime: hasCaptureTime ? [dateLabel, clockTime].filter(Boolean).join(" ") : `영상 시작 후 ${clockTime}`,
-    offsetLabel: hasCaptureTime ? `청크 +${formatSeconds(offset)}` : `영상 시작 후 ${clockTime}`,
-    chunkLabel: hasCaptureTime && recording?.duration ? `${recording.time}부터 ${recording.duration}` : undefined,
+    displayDateTime: `영상 시작 후 ${clockTime}`,
+    offsetLabel: `영상 시작 후 ${clockTime}`,
+    chunkLabel: undefined,
   };
 }
 
@@ -407,7 +405,7 @@ function mapApiResults(payload: ApiQueryResult, items: Recording[] = []): Search
     const seconds = Number(result.representative_timestamp ?? result.timestamp ?? 0);
     const playbackStart = Number(result.playback_start ?? seconds);
     const playbackEnd = result.playback_end !== undefined ? Number(result.playback_end) : undefined;
-    const { recording, chunkRelative } = resolveSearchRecording(result, items);
+    const { recording, chunkRelative, chunkStartSeconds } = resolveSearchRecording(result, items);
     const frameImageUrl = (s3Key?: string) => s3Key ? mediaUrl(`/media/s3?key=${encodeURIComponent(s3Key)}&w=${THUMBNAIL_WIDTH}`) : undefined;
     const frameThumbnailUrl = frameImageUrl(result.s3_key);
     const stepFrames: StepFrame[] = (result.step_frames ?? []).flatMap((frame) => {
@@ -416,8 +414,9 @@ function mapApiResults(payload: ApiQueryResult, items: Recording[] = []): Search
     });
     // 검색한 순간의 썸네일을 우선해 카드와 재생 장면을 일치시킨다.
     const thumbnailUrl = frameThumbnailUrl || recording?.thumbnailUrl;
-    const dateTime = resultDateTime(recording, seconds);
     const offsets = playbackOffsets(playbackStart, playbackEnd, recording?.startSeconds ?? 0, chunkRelative);
+    const display = displayOffsets(seconds, playbackStart, playbackEnd, chunkStartSeconds, chunkRelative);
+    const dateTime = resultDateTime(recording, chunkRelative ? seconds : seconds - (recording?.startSeconds ?? 0), display.moment);
     const playbackStartSeconds = offsets.start;
     const playbackEndSeconds = offsets.end;
     const eventStart = result.event_start;
@@ -425,7 +424,7 @@ function mapApiResults(payload: ApiQueryResult, items: Recording[] = []): Search
     const noteParts = [];
 
     if (playbackEnd !== undefined) {
-      noteParts.push(`재생 구간: ${formatSeconds(playbackStart)}~${formatSeconds(playbackEnd)}`);
+      noteParts.push(`영상 구간: ${formatSeconds(display.start)}~${formatSeconds(display.end!)}`);
     }
     if (Number(result.merged_frame_count) > 1) {
       noteParts.push(`인접 프레임 ${result.merged_frame_count}개 통합`);
@@ -462,6 +461,8 @@ function mapApiResults(payload: ApiQueryResult, items: Recording[] = []): Search
       startSeconds: seconds,
       playbackStartSeconds,
       playbackEndSeconds,
+      displayStartSeconds: display.start,
+      displayEndSeconds: display.end,
       recordingId: recording?.id,
       seekStartSeconds: playbackStart,
       seekEndSeconds: playbackEnd,
@@ -476,7 +477,7 @@ function mapApiResults(payload: ApiQueryResult, items: Recording[] = []): Search
       eventStart,
       eventEnd,
       representativeTimestamp: seconds,
-      timelineSeconds: (recording?.startSeconds ?? 0) + playbackStartSeconds,
+      timelineSeconds: display.start,
       matchedSceneCount: result.matched_scene_count,
       relatedScenes,
     };
@@ -537,15 +538,17 @@ async function clampResultsToMediaDuration(results: SearchResult[], items: Recor
     const playbackEnd = Math.min(result.playbackEndSeconds, mediaDuration);
     if (playbackEnd >= result.playbackEndSeconds) return { ...result, relatedScenes };
 
+    const displayEnd = (result.displayStartSeconds ?? playbackStart) - playbackStart + playbackEnd;
     const updatedNote = result.note.replace(
-      /재생 구간: [^·]+/,
-      `재생 구간: ${formatSeconds(playbackStart)}~${formatSeconds(playbackEnd)}`,
+      /영상 구간: [^·]+/,
+      `영상 구간: ${formatSeconds(result.displayStartSeconds ?? playbackStart)}~${formatSeconds(displayEnd)}`,
     );
     return {
       ...result,
       note: updatedNote,
       duration: formatDuration(Math.max(0, playbackEnd - playbackStart)),
       playbackEndSeconds: playbackEnd,
+      displayEndSeconds: displayEnd,
       relatedScenes,
     };
   }));
@@ -1983,12 +1986,12 @@ export default function App() {
                           playbackSegments={searchPlaybackSegments(playbackResult, recordingItems)}
                         />
                         <dl className="results-player-meta">
-                          <dt>{playbackResult.dateLabel ? "촬영 시각" : "영상 위치"}</dt>
+                          <dt>영상 위치</dt>
                           <dd>{playbackResult.displayDateTime || playbackResult.time}</dd>
                           {playbackResult.playbackEndSeconds !== undefined && (
                             <>
-                              <dt>재생 구간</dt>
-                              <dd>{formatSeconds(playbackResult.playbackStartSeconds ?? 0)} - {formatSeconds(playbackResult.playbackEndSeconds)}</dd>
+                              <dt>영상 구간</dt>
+                              <dd>{formatSeconds(playbackResult.displayStartSeconds ?? 0)} - {formatSeconds(playbackResult.displayEndSeconds ?? playbackResult.playbackEndSeconds)}</dd>
                             </>
                           )}
                           {resultQueryType === "search" && playbackResult.objects.length > 0 && (
