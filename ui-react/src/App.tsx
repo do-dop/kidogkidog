@@ -2,6 +2,7 @@ import { CSSProperties, FormEvent, Fragment, useEffect, useMemo, useRef, useStat
 import { videoTitle } from "./videoTitles";
 
 import { resolveSearchRecording, playbackOffsets, displayOffsets } from "./searchPlayback";
+import { groupBehaviorEvents, type EventPosition } from "./eventGroups";
 
 type Screen = "live" | "recordings" | "search" | "chunkPlayback" | "searchPlayback" | "profile";
 type Theme = "dark" | "light";
@@ -789,6 +790,19 @@ function eventsForVideo(videoId: string | undefined, events: BehaviorEvent[]) {
   return events.filter((event) => event.video_id === videoId);
 }
 
+/** 이벤트의 근거 프레임으로 청크를 찾아, 묶기에 쓸 위치를 만든다. */
+function behaviorEventPosition(event: BehaviorEvent, recordings: Recording[]): EventPosition {
+  const frame = event.source_frames?.find((item) => item.s3_key);
+  if (!frame?.s3_key) return {};
+  const chunkKey = frame.s3_key.split("/").at(-1)!.replace(/_frame_.*$/, "");
+  const { recording, chunkRelative } = resolveSearchRecording({ video_id: event.video_id, s3_key: frame.s3_key }, recordings);
+  return { chunkKey, chunkStartSeconds: chunkRelative ? recording?.startSeconds : undefined };
+}
+
+function groupEventsForDisplay(events: BehaviorEvent[], recordings: Recording[]) {
+  return groupBehaviorEvents(events, (event) => behaviorEventPosition(event, recordings));
+}
+
 function scoreBehavior(event: BehaviorEvent) {
   return Math.round(((event.interestingness ?? event.confidence ?? 0.75) * 100));
 }
@@ -1165,7 +1179,9 @@ export default function App() {
   );
 
   const highlightedBehaviors = useMemo(
-    () => behaviorEvents
+    // 거의 같은 장면이 목록을 채우지 않도록 묶음마다 대표 하나만 고른다.
+    () => groupEventsForDisplay(behaviorEvents, recordingItems)
+      .map((group) => group.representative)
       .map((event) => ({
         event,
         recording: recordingItems.find((recording) => eventMatchesRecording(event, recording)),
@@ -2193,7 +2209,7 @@ export default function App() {
                     <strong>{activeRecording.note || activeRecording.id}</strong>
                     <p>이 영상은 1분 단위 구간으로 나뉘어 저장돼 있어요. 한 구간이 끝나면 다음 구간이 이어서 재생됩니다.</p>
                   </div>
-                  <BehaviorEventPanel videoEvents={activeVideoEvents} chunkEvents={activeRecordingEvents} recording={activeRecording} />
+                  <BehaviorEventPanel videoEvents={activeVideoEvents} chunkEvents={activeRecordingEvents} recording={activeRecording} recordings={recordingItems} />
                   <button className="primary-button" onClick={() => {
                     setQuery(`${activeRecording.videoId || "이 영상"} ${activeRecording.time} 근처 장면`);
                     go("search");
@@ -2661,6 +2677,22 @@ function BehaviorHighlights({
   );
 }
 
+/** 묶음의 시간 범위. 청크 위치를 알면 영상 전체 기준, 모르면(같은 청크 안) 청크 안 초로 말한다. */
+function groupTimeLabel(videoStart: number | undefined, videoEnd: number | undefined, members: BehaviorEvent[]) {
+  if (videoStart !== undefined && videoEnd !== undefined) {
+    return `영상 ${formatSeconds(videoStart)} ~ ${formatSeconds(videoEnd)} · 비슷한 장면 ${members.length}건`;
+  }
+  const start = Math.min(...members.map((member) => member.start_time ?? 0));
+  const end = Math.max(...members.map((member) => member.end_time ?? member.start_time ?? 0));
+  return `${start.toFixed(1)}초 ~ ${end.toFixed(1)}초 · 비슷한 장면 ${members.length}건`;
+}
+
+function groupMemberTimeLabel(event: BehaviorEvent, recordings: Recording[]) {
+  const offset = behaviorEventPosition(event, recordings).chunkStartSeconds;
+  if (offset === undefined || event.start_time === undefined) return behaviorVideoTimeLabel(event);
+  return `영상 ${formatSeconds(offset + event.start_time)} ~ ${formatSeconds(offset + (event.end_time ?? event.start_time))}`;
+}
+
 function behaviorDetailItems(event: BehaviorEvent) {
   const items = [];
 
@@ -2684,29 +2716,36 @@ function BehaviorEventPanel({
   videoEvents,
   chunkEvents,
   recording,
+  recordings,
 }: {
   videoEvents: BehaviorEvent[];
   chunkEvents: BehaviorEvent[];
   recording: Recording;
+  recordings: Recording[];
 }) {
   const summaryEvents = videoEvents.length > 0 ? videoEvents : chunkEvents;
+  const summaryGroups = groupEventsForDisplay(summaryEvents, recordings);
 
   return (
     <div className="chunk-events">
       <div className="chunk-events-head">
         <span>이 영상에서 발견한 행동 요약</span>
-        <strong>{summaryEvents.length}개</strong>
+        <strong>{summaryGroups.length}개</strong>
       </div>
       {summaryEvents.length > 0 ? (
         <div className="chunk-event-list">
-          {summaryEvents.slice(0, 5).map((event) => {
+          {summaryGroups.slice(0, 5).map((group) => {
+            const event = group.representative;
+            const grouped = group.members.length > 1;
             const details = behaviorDetailItems(event);
             const evidenceItems = behaviorEvidenceItems(event);
 
             return (
             <div className="chunk-event-row" key={`${event.id}-${recording.id}`}>
               <div>
-                <span className="chunk-event-time">{behaviorVideoTimeLabel(event)}</span>
+                <span className="chunk-event-time">
+                  {grouped ? groupTimeLabel(group.videoStart, group.videoEnd, group.members) : groupMemberTimeLabel(event, recordings)}
+                </span>
                 <strong>{behaviorTitle(event)}</strong>
                 <p>{event.summary || "행동 변화가 감지됐어요."}</p>
                 {details.length > 0 && <small>{details.join(" · ")}</small>}
@@ -2716,6 +2755,18 @@ function BehaviorEventPanel({
                       <li key={item}>{item}</li>
                     ))}
                   </ul>
+                )}
+                {grouped && (
+                  <details className="chunk-event-group">
+                    <summary>묶인 기록 {group.members.length}건 보기</summary>
+                    <ul>
+                      {group.members.map((member) => (
+                        <li key={member.id}>
+                          {groupMemberTimeLabel(member, recordings)} · {behaviorTitle(member)}
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
                 )}
               </div>
               <span>{scoreBehavior(event)}%</span>

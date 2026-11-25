@@ -4582,3 +4582,13 @@ html, #root { width: 100%; min-width: 0; }
   .topbar-logo-text { font-size: 15px; }
   .filter-summary-label { display: none; }
 }
+
+.chunk-event-group {
+  margin-top: 6px;
+}
+
+.chunk-event-group summary {
+  cursor: pointer;
+  font-size: 12px;
+  opacity: 0.75;
+}
