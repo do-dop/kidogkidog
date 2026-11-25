@@ -1,5 +1,6 @@
 import { CSSProperties, FormEvent, Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { videoTitle } from "./videoTitles";
+import { selectHighlights } from "./highlightSelection";
 
 import { resolveSearchRecording, playbackOffsets, displayOffsets } from "./searchPlayback";
 import { groupBehaviorEvents, type EventPosition } from "./eventGroups";
@@ -1217,16 +1218,15 @@ export default function App() {
   );
 
   const highlightedBehaviors = useMemo(
-    // 거의 같은 장면이 목록을 채우지 않도록 묶음마다 대표 하나만 고른다.
-    () => groupEventsForDisplay(behaviorEvents, recordingItems)
+    // 같은 영상의 같은 행동은 시간 간격에 관계없이 대표 하이라이트 하나만 남긴다.
+    () => selectHighlights(groupEventsForDisplay(behaviorEvents, recordingItems)
       .map((group) => group.representative)
       .map((event) => ({
         event,
         recording: recordingItems.find((recording) => eventMatchesRecording(event, recording)),
       }))
       .filter((item): item is { event: BehaviorEvent; recording: Recording } => Boolean(item.recording))
-      .sort((a, b) => scoreBehavior(b.event) - scoreBehavior(a.event))
-      .slice(0, 5),
+    , 5),
     [behaviorEvents, recordingItems],
   );
 
