@@ -22,6 +22,9 @@ OTHER_PROMPTS = [
     "a photo of a stuffed toy",
     "a photo of a bed",
     "a photo of a pile of fabric",
+    # 고양이가 dog으로 잡힌 박스는 물건 문구만으로는 강아지 쪽에 가깝게 나온다(확률 0.60~0.68로 기준에 근접).
+    "a photo of a cat",
+    "a photo of a kitten",
 ]
 
 # 2026-11-19 로컬 영상 2개(고양이 45박스 / 강아지 193박스) 측정으로 정한 값.

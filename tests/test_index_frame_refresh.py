@@ -83,6 +83,13 @@ class DogVerificationTests(unittest.TestCase):
         self.assertEqual(labels, ["dog"])
         verify.assert_not_called()
 
+class DogPromptTests(unittest.TestCase):
+    def test_cat_is_among_the_alternatives(self):
+        verifier = yolo_detector.species_verifier
+        self.assertIn("a photo of a cat", verifier.OTHER_PROMPTS)
+        # dog_probability는 앞쪽 DOG_PROMPTS 개수만큼을 강아지 확률로 합산한다.
+        self.assertFalse(set(verifier.DOG_PROMPTS) & set(verifier.OTHER_PROMPTS))
+
 
 if __name__ == "__main__":
     unittest.main()
