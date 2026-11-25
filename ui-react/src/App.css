@@ -2138,13 +2138,13 @@ button {
 
 .playback-grid {
   display: grid;
-  grid-template-columns: 1fr 340px;
+  grid-template-columns: minmax(0, 1fr) 340px;
   gap: 24px;
 }
 
 .chunk-info-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
 }
 
@@ -2299,7 +2299,7 @@ button {
 
   .live-grid,
   .playback-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .search-hero-inner h2 {
@@ -4664,4 +4664,11 @@ html, #root { width: 100%; min-width: 0; }
   cursor: pointer;
   font-size: 12px;
   opacity: 0.75;
+}
+
+/* 휴대폰 폭에서는 청크 정보 카드를 한 줄에 하나씩 둔다. 두 칸이면 시간 표시가 잘린다. */
+@media (max-width: 768px) {
+  .chunk-info-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
