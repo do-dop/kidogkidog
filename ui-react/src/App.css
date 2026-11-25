@@ -4533,3 +4533,13 @@ button.agg-row:hover .agg-thumb-play {
 .home-rec .behavior-strip { margin-bottom: 24px; }
 
 .home-clip-body .clip-info-pills { margin-top: 8px; flex-wrap: wrap; }
+
+.chunk-event-group {
+  margin-top: 6px;
+}
+
+.chunk-event-group summary {
+  cursor: pointer;
+  font-size: 12px;
+  opacity: 0.75;
+}
