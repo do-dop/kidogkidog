@@ -7,6 +7,7 @@ const titles: Record<string, string> = {
   dog_escape: "장애물 앞의 강아지",
   funny_moments: "강아지 일상 모음",
   funny_moments2: "반려동물 일상 모음",
+  long: "새끼 강아지들의 하루",
   smartbench_0017: "탁자 앞의 강아지",
   smartbench_0022: "장난감을 물고 노는 강아지",
   smartbench_0030: "누워 있는 고양이",

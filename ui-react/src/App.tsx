@@ -1,5 +1,6 @@
 import { CSSProperties, FormEvent, Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { videoTitle } from "./videoTitles";
+import { selectHighlights } from "./highlightSelection";
 
 import { resolveSearchRecording, playbackOffsets, displayOffsets } from "./searchPlayback";
 import { groupBehaviorEvents, type EventPosition } from "./eventGroups";
@@ -599,7 +600,16 @@ const MATCH_LABELS: Record<string, string> = {
   verified_start_state: "영상 확인",
 };
 
+// 답변 문장에 섞인 영상 ID는 화면에서 쓰는 영상 이름으로 바꿔 보여준다.
+function nameVideosInAnswer(answer: string, results: SearchResult[]) {
+  return results.reduce((text, { videoId }) => {
+    if (!videoId || videoTitle(videoId) === videoId) return text;
+    return text.split(`${videoId} `).join(`${videoTitle(videoId)} 영상 `);
+  }, answer);
+}
+
 function pickRelevantResults(items: SearchResult[]) {
+  // 이미 일치가 확인된 결과는 점수 차이로 숨기지 않는다. 답변이 말한 장면이 모두 보여야 한다.
   if (items.every((item) => MATCH_LABELS[item.matchLevel ?? ""])) return items;
 
   const sortedItems = [...items].sort((a, b) => b.score - a.score).slice(0, 3);
@@ -866,7 +876,7 @@ export default function App() {
   const [suggestionRefreshToken, setSuggestionRefreshToken] = useState(0);
   const [s3Recordings, setS3Recordings] = useState<Recording[]>([]);
   const [behaviorEvents, setBehaviorEvents] = useState<BehaviorEvent[]>([]);
-  const [behaviorNotice, setBehaviorNotice] = useState("");
+  const [measuredSeconds, setMeasuredSeconds] = useState<Record<string, number>>({});
   const [apiNotice, setApiNotice] = useState("");
   const [activeResult, setActiveResult] = useState<SearchResult | null>(null);
   const [playbackRevision, setPlaybackRevision] = useState(0);
@@ -1014,8 +1024,39 @@ export default function App() {
     };
   }, [recordingsRefreshToken]);
 
+  // 서버는 청크 길이를 모두 60초로 알려주지만 영상의 마지막 청크는 더 짧을 수 있어, 영상 정보에서 실제 길이를 읽는다.
+  useEffect(() => {
+    let ignore = false;
+
+    async function measureLastChunks() {
+      const lastChunks = groupRecordingsByVideo(s3Recordings).map((group) => group.chunks[group.chunks.length - 1]);
+
+      // 브라우저의 동시 연결 수를 넘지 않게 나눠서 읽는다.
+      for (let index = 0; index < lastChunks.length && !ignore; index += 4) {
+        const measured = await Promise.all(lastChunks.slice(index, index + 4).map(async (chunk) => [chunk.id, await loadRecordingDuration(chunk)] as const));
+        if (ignore) return;
+        setMeasuredSeconds((current) => ({
+          ...current,
+          ...Object.fromEntries(measured.filter((entry): entry is readonly [string, number] => entry[1] !== undefined)),
+        }));
+      }
+    }
+
+    measureLastChunks();
+
+    return () => {
+      ignore = true;
+    };
+  }, [s3Recordings]);
+
   // 데모 녹화는 썸네일과 영상이 없어 실제 청크처럼 보이면 안 되므로 목록에는 섞지 않는다.
-  const recordingItems = s3Recordings;
+  const recordingItems = useMemo(
+    () => s3Recordings.map((recording) => {
+      const seconds = measuredSeconds[recording.id];
+      return seconds === undefined ? recording : { ...recording, duration: formatDuration(seconds), durationSeconds: seconds };
+    }),
+    [s3Recordings, measuredSeconds],
+  );
   const searchVideoOptions = useMemo(
     () => Array.from(new Set(recordingItems.map((recording) => recording.videoId).filter(Boolean))) as string[],
     [recordingItems],
@@ -1137,12 +1178,10 @@ export default function App() {
 
         if (!ignore) {
           setBehaviorEvents(nextEvents.length > 0 ? nextEvents : []);
-          setBehaviorNotice(nextEvents.length > 0 ? "DB 메타데이터에서 주요 행동을 불러왔습니다." : "DB에 표시할 주요 행동 이벤트가 아직 없습니다.");
         }
       } catch {
         if (!ignore) {
           setBehaviorEvents([]);
-          setBehaviorNotice("행동 이벤트 API에 연결하지 못했습니다.");
         }
       }
     }
@@ -1152,7 +1191,7 @@ export default function App() {
     return () => {
       ignore = true;
     };
-  }, [recordingItems, selectedSearchVideoId, behaviorRefreshToken]);
+  }, [s3Recordings, selectedSearchVideoId, behaviorRefreshToken]);
 
   const filteredRecordings = useMemo(
     () => recordingItems.filter((recording) => {
@@ -1179,16 +1218,15 @@ export default function App() {
   );
 
   const highlightedBehaviors = useMemo(
-    // 거의 같은 장면이 목록을 채우지 않도록 묶음마다 대표 하나만 고른다.
-    () => groupEventsForDisplay(behaviorEvents, recordingItems)
+    // 같은 영상의 같은 행동은 시간 간격에 관계없이 대표 하이라이트 하나만 남긴다.
+    () => selectHighlights(groupEventsForDisplay(behaviorEvents, recordingItems)
       .map((group) => group.representative)
       .map((event) => ({
         event,
         recording: recordingItems.find((recording) => eventMatchesRecording(event, recording)),
       }))
       .filter((item): item is { event: BehaviorEvent; recording: Recording } => Boolean(item.recording))
-      .sort((a, b) => scoreBehavior(b.event) - scoreBehavior(a.event))
-      .slice(0, 5),
+    , 5),
     [behaviorEvents, recordingItems],
   );
 
@@ -1327,7 +1365,7 @@ export default function App() {
       // 시퀀스와 집계는 점수로 걸러내지 않고 근거 구간을 전부 보여준다.
       const rankedResults = payload.query_type === "sequence" || aggregate ? mappedResults : pickRelevantResults(mappedResults);
       const nextResults = await clampResultsToMediaDuration(rankedResults, recordingItems);
-      setAnswer(payload.answer || `${nextQuery}와 관련된 장면을 찾았어요.`);
+      setAnswer(nameVideosInAnswer(payload.answer || `${nextQuery}와 관련된 장면을 찾았어요.`, nextResults));
       setClarification(payload.clarification ?? null);
       setResultQueryType(payload.query_type === "sequence" ? "sequence" : aggregate ? "aggregate" : "search");
       setAggregateResult(aggregate);
@@ -1715,7 +1753,6 @@ export default function App() {
               <TimeChips value={timeFilter} onChange={setTimeFilter} />
               <BehaviorHighlights
                 items={highlightedBehaviors}
-                notice={behaviorNotice}
                 petName={petName}
                 onOpen={(recording) => openRecording(recording)}
               />
@@ -2061,19 +2098,14 @@ export default function App() {
                     <h2>최근 녹화 영상</h2>
                     <p>{searchAllDates ? "전체 날짜" : `${selectedYear}년 ${selectedMonth}월 ${selectedDay}일`} · 총 {filteredRecordings.length}개 클립 · 눌러서 바로 재생</p>
                   </div>
-                  <div className="home-recordings-head">
-                    <div>
-                      <span>시간대 필터</span>
-                      <strong>{timeFilter === "all" ? "전체 시간대" : `${timeFilter} 영상`}</strong>
-                    </div>
-                    <TimeChips value={timeFilter} onChange={setTimeFilter} compact />
-                  </div>
                   <BehaviorHighlights
                     items={highlightedBehaviors}
-                    notice={behaviorNotice}
                     petName={petName}
                     onOpen={(recording) => openRecording(recording)}
                   />
+                  <div className="home-rec-filter">
+                    <TimeChips value={timeFilter} onChange={setTimeFilter} compact />
+                  </div>
                   <div className="home-rec-grid">
                     {recentRecordings.map((clip) => (
                       <HomeClipTile key={clip.id} clip={clip} eventCount={eventsForRecording(clip, behaviorEvents).length} chunkCount={chunkCountByVideo.get(clip.videoId ?? "") ?? 1} onOpen={() => openRecording(clip)} />
@@ -2196,7 +2228,7 @@ export default function App() {
                   <ChunkTimeline chunks={currentVideoRecordings} activeId={activeRecording.id} onSelect={setActiveRecording} />
                   <div className="chunk-info-grid">
                     <Metric icon="movie" label="원본 영상" value={videoTitle(activeRecording.videoId)} />
-                    <Metric icon="schedule" label="현재 구간" value={`${activeRecording.recordedAt ? activeRecording.time : `영상 ${activeRecording.time}`} · ${activeRecording.duration}`} />
+                    <Metric icon="schedule" label="현재 구간" value={`${activeRecording.recordedAt ? activeRecording.time : `영상 ${activeRecording.time}`} · ${recordingItems.find((item) => item.id === activeRecording.id)?.duration ?? activeRecording.duration}`} />
                   </div>
                   <div className="button-row">
                     <button className="secondary-button" onClick={() => stepRecording(-1)}><Icon>skip_previous</Icon>이전 청크</button>
@@ -2207,7 +2239,7 @@ export default function App() {
                   <div className="chunk-detail-card">
                     <span>청크 정보</span>
                     <strong>{activeRecording.note || activeRecording.id}</strong>
-                    <p>이 영상은 1분 단위 구간으로 나뉘어 저장돼 있어요. 한 구간이 끝나면 다음 구간이 이어서 재생됩니다.</p>
+                    {currentVideoRecordings.length > 1 && <p>이 영상은 1분 단위 구간으로 나뉘어 저장돼 있어요. 한 구간이 끝나면 다음 구간이 이어서 재생됩니다.</p>}
                   </div>
                   <BehaviorEventPanel videoEvents={activeVideoEvents} chunkEvents={activeRecordingEvents} recording={activeRecording} recordings={recordingItems} />
                   <button className="primary-button" onClick={() => {
@@ -2638,12 +2670,10 @@ function TimeRangeBar({
 
 function BehaviorHighlights({
   items,
-  notice,
   petName,
   onOpen,
 }: {
   items: Array<{ event: BehaviorEvent; recording: Recording }>;
-  notice: string;
   petName: string;
   onOpen: (recording: Recording, event?: BehaviorEvent) => void;
 }) {
@@ -2654,24 +2684,36 @@ function BehaviorHighlights({
   return (
     <section className="behavior-strip">
       <div className="behavior-strip-head">
-        <div>
-          <span>오늘 발견한 주요행동</span>
-          <strong>눈에 띄는 구간 {items.length}개</strong>
-        </div>
-        <p>{notice}</p>
+        <span><Icon filled>auto_awesome</Icon>주요 행동</span>
+        <strong>눈에 띄는 순간 {items.length}개</strong>
       </div>
-      <div className="behavior-row">
-        {items.map(({ event, recording }) => (
-          <button className="behavior-card" key={`${event.id}-${recording.id}`} onClick={() => onOpen(recording, event)}>
-            <div className="behavior-icon"><Icon filled>auto_awesome</Icon></div>
-            <div>
-              <span>{[behaviorTimeLabel(event, recording), recording.period].filter(Boolean).join(" · ")}</span>
-              <strong>{behaviorTitle(event)}</strong>
-              <p>{event.summary || `${petName}의 행동 변화가 감지된 구간입니다.`}</p>
-            </div>
-            <span className="behavior-score">{scoreBehavior(event)}%</span>
-          </button>
-        ))}
+      {/* 다섯 장이면 첫 장을 크게 두어 빈칸 없이 채운다. */}
+      <div className={items.length === 5 ? "behavior-row featured" : "behavior-row"}>
+        {items.map(({ event, recording }) => {
+          const frames = event.source_frames ?? [];
+          const frameKey = frames[Math.floor(frames.length / 2)]?.s3_key;
+          const thumbnailUrl = frameKey
+            ? resizedThumbnailUrl(mediaUrl(`/media/s3?key=${encodeURIComponent(frameKey)}`))
+            : recording.thumbnailUrl;
+
+          return (
+            <button className="behavior-card" type="button" key={`${event.id}-${recording.id}`} onClick={() => onOpen(recording, event)}>
+              <div className="behavior-thumb" style={{ background: gradients[recording.thumb] }}>
+                {thumbnailUrl && <img src={thumbnailUrl} alt="" loading="lazy" />}
+                <span className="behavior-time">{[behaviorTimeLabel(event, recording), recording.period].filter(Boolean).join(" · ")}</span>
+                <span className="behavior-play"><Icon filled>play_arrow</Icon></span>
+              </div>
+              <div className="behavior-body">
+                <strong>{event.action || "행동"}</strong>
+                <p>{event.summary || `${petName}의 행동 변화가 감지된 구간입니다.`}</p>
+                <div className="behavior-tags">
+                  {recording.videoId && <span><Icon>movie</Icon>{videoTitle(recording.videoId)}</span>}
+                  {event.target_object && <em>{event.target_object}</em>}
+                </div>
+              </div>
+            </button>
+          );
+        })}
       </div>
     </section>
   );
@@ -2925,7 +2967,7 @@ function ResultCard({ result, active = false, onOpen }: { result: SearchResult; 
       </div>
       <div className="result-body">
         <strong>{result.note}</strong>
-        <p>{[result.chunkLabel, result.offsetLabel].filter(Boolean).join(" · ")}</p>
+        <p>{[result.videoId && videoTitle(result.videoId), result.chunkLabel, result.offsetLabel].filter(Boolean).join(" · ")}</p>
         <div className="tag-row">{tagList(result.objects)}</div>
       </div>
     </button>
