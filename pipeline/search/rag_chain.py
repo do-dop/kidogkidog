@@ -114,6 +114,27 @@ def _min_search_score() -> float:
         return DEFAULT_MIN_SEARCH_SCORE
 
 
+def _clarify_scene_query(
+    query: str,
+    video_id: str | None,
+    recording_date: str | None,
+    time_range: dict[str, int] | None,
+) -> dict[str, Any]:
+    from pipeline.search.query_clarification import build_scene_clarification
+
+    events = []
+    if video_id:
+        try:
+            events = get_behavior_events_for_aggregation(video_id=video_id)
+            events = _filter_events_by_datetime(events, recording_date, time_range)
+        except Exception as exc:
+            print(f"장면 재질의 후보 조회 실패: {exc}", flush=True)
+    clarification = build_scene_clarification(query, events)
+    result = _empty_aggregate_result(query, video_id, clarification["question"])
+    result["clarification"] = clarification
+    return result
+
+
 def run_rag_query(
     query: str,
     video_id: str | None = None,
@@ -128,18 +149,22 @@ def run_rag_query(
     # Question meaning is assessed before retrieval. An unrelated event must
     # never become an answer just because it has the highest similarity score.
     from pipeline.search.query_clarification import needs_scene_clarification
-    from pipeline.search.question_understanding import question_is_understood
+    from pipeline.search.question_understanding import question_clarity
 
-    if (classify_with_rules(query).question_type != QuestionType.AGGREGATE
-            and not needs_scene_clarification(query)
-            and not question_is_understood(query.strip())):
-        clarification = {
-            "question": "질문을 정확히 이해하지 못했어요. 어떤 행동이나 장면을 찾으시나요?",
-            "options": [],
-        }
-        result = _empty_aggregate_result(query, video_id, clarification["question"])
-        result["clarification"] = clarification
-        return result
+    if classify_with_rules(query).question_type != QuestionType.AGGREGATE:
+        if needs_scene_clarification(query):
+            return _clarify_scene_query(query, video_id, recording_date, time_range)
+        clarity = question_clarity(query.strip())
+        if clarity == "underspecified":
+            return _clarify_scene_query(query, video_id, recording_date, time_range)
+        if clarity == "unintelligible":
+            clarification = {
+                "question": "질문을 이해하지 못했어요. 찾고 싶은 행동이나 장면을 다시 적어 주세요.",
+                "options": [],
+            }
+            result = _empty_aggregate_result(query, video_id, clarification["question"])
+            result["clarification"] = clarification
+            return result
     color_query = asks_about_color(query)
     result = _run_rag_query(
         query=query,
@@ -198,20 +223,10 @@ def _run_rag_query(
             time_range=time_range,
         )
 
-    from pipeline.search.query_clarification import build_scene_clarification, needs_scene_clarification
+    from pipeline.search.query_clarification import needs_scene_clarification
 
     if needs_scene_clarification(query):
-        events = []
-        if video_id:
-            try:
-                events = get_behavior_events_for_aggregation(video_id=video_id)
-                events = _filter_events_by_datetime(events, recording_date, time_range)
-            except Exception as exc:
-                print(f"장면 재질의 후보 조회 실패: {exc}", flush=True)
-        clarification = build_scene_clarification(query, events)
-        result = _empty_aggregate_result(query, video_id, clarification["question"])
-        result["clarification"] = clarification
-        return result
+        return _clarify_scene_query(query, video_id, recording_date, time_range)
 
     gate_scene_result = _run_gate_climb_scene_query(
         query=query,
