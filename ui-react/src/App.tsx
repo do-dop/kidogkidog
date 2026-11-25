@@ -587,7 +587,17 @@ function searchPlaybackSegments(result: SearchResult, items: Recording[]): Playb
   return segments;
 }
 
+// 행동 기록이나 원본 영상으로 확인한 결과. 점수가 검색어 유사도가 아니라서 유사도처럼 다루지 않는다.
+const MATCH_LABELS: Record<string, string> = {
+  behavior_event: "행동 기록",
+  related_event: "관련 기록",
+  verified_video: "영상 확인",
+  verified_start_state: "영상 확인",
+};
+
 function pickRelevantResults(items: SearchResult[]) {
+  if (items.every((item) => MATCH_LABELS[item.matchLevel ?? ""])) return items;
+
   const sortedItems = [...items].sort((a, b) => b.score - a.score).slice(0, 3);
   const topScore = sortedItems[0]?.score;
 
@@ -1949,7 +1959,7 @@ export default function App() {
                           <>
                             <div className="result-header">
                               <strong>관련 영상 {visibleResults.length}개</strong>
-                              <span>{visibleResults.some((result) => result.matchLevel === "object_label") ? "객체 감지 장면" : "유사도 순"}</span>
+                              <span>{visibleResults.some((result) => result.matchLevel === "related_event" || result.matchLevel === "related") ? "비슷한 장면 · 세부 조건 미확인" : visibleResults.some((result) => result.matchLevel === "object_label") ? "객체 감지 장면" : visibleResults.every((result) => MATCH_LABELS[result.matchLevel ?? ""]) ? "일치 장면" : "유사도 순"}</span>
                             </div>
                             <div className="result-grid">
                               {visibleResults.map((result) => (
@@ -2856,7 +2866,7 @@ function ResultCard({ result, active = false, onOpen }: { result: SearchResult; 
           {result.dateLabel && <small>{result.dateLabel}</small>}
           <strong>{result.clockTime || result.time}</strong>
         </span>
-        <span className="score-pill">{result.matchLevel === "object_label" ? "객체 감지" : `유사도 ${score}`}</span>
+        <span className="score-pill">{result.matchLevel === "object_label" ? "객체 감지" : MATCH_LABELS[result.matchLevel ?? ""] ?? `유사도 ${score}`}</span>
         <div className="play-circle"><Icon filled>play_arrow</Icon></div>
       </div>
       <div className="result-body">

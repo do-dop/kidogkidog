@@ -26,6 +26,7 @@ from pipeline.search.video_time import format_event_time, format_frame_time
 from pipeline.search.species_verification import confirmed_cat_frame_ids
 from pipeline.search.color_grounding import asks_about_color, include_explicit_color_events, verify_color_results
 from pipeline.search.scene_verification import verify_uncertain_scene
+from pipeline.search.query_normalization import normalize_search_query
 from pipeline.storage.capture_time import trusted_capture_time
 
 SEQUENCE_MIN_RESULTS = 10
@@ -146,6 +147,7 @@ def run_rag_query(
     event_start: float | None = None,
     event_end: float | None = None,
 ) -> dict:
+    query = normalize_search_query(query)
     # Question meaning is assessed before retrieval. An unrelated event must
     # never become an answer just because it has the highest similarity score.
     from pipeline.search.query_clarification import needs_scene_clarification
