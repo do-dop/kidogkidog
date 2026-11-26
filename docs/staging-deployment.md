@@ -1,6 +1,6 @@
 # Staging deployment
 
-For normal releases, merge a pull request into `main`. CI runs first; when it succeeds, `Deploy staging` automatically deploys that exact commit. The **GitHub > Actions > Deploy staging > Run workflow** button remains available for a manual redeploy.
+For normal releases, merge a pull request into `main`. CI runs first; when it succeeds, `Deploy staging` deploys that commit if it is still the latest `main`. For each service it compares the commit with the one currently receiving traffic, so changes from a skipped or failed run are included in the next deploy. A deploy in progress is never cancelled. The **GitHub > Actions > Deploy staging > Run workflow** button remains available for a manual redeploy.
 
 ## One-time GCP setup
 
