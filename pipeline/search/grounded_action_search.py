@@ -52,7 +52,10 @@ def _supports_explicit_constraints(query, event):
         raw = frame.get("object_labels") or []
         labels.update(str(item).lower() for item in (raw if isinstance(raw, list) else str(raw).split(",")))
     for korean, label, opposite in (("고양이", "cat", "강아지"), ("강아지", "dog", "고양이")):
-        if korean in query and (opposite in description or (labels and label not in labels)):
+        # A description that names the asked animal outweighs the detector, and
+        # may also mention the other one ("고양이가 강아지 옆에서 ...").
+        if korean in query and korean not in description and (
+                opposite in description or (labels and label not in labels)):
             return False
     for direction in ("안으로", "밖으로"):
         if direction not in query:

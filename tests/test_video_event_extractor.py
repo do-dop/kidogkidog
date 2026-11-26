@@ -18,7 +18,7 @@ def frames(times, video_id="clip"):
 
 
 RAW = {
-    "start_time": 2.0, "end_time": 6.0, "subject_type": "pet", "action": "강아지가 소파 쪽으로 걸어옴",
+    "start_time": 2.0, "end_time": 6.0, "subject": "강아지", "subject_type": "pet", "action": "강아지가 소파 쪽으로 걸어옴",
     "summary": "강아지가 왼쪽에서 소파 쪽으로 걸어와요", "appearance": "갈색 강아지", "count": 1,
     "location": "화면 왼쪽", "direction": "오른쪽", "objects": ["소파"], "evidence_description": "왼쪽에서 걸어 들어옴",
     "confidence": 0.9, "interestingness": 0.8, "action_type": "walk", "continues_previous": False,
@@ -42,9 +42,9 @@ class MappingTests(unittest.TestCase):
         events = vee._to_pipeline_events([RAW], frames(range(0, 10)), "clip")
         self.assertEqual(len(events), 1)
         event = events[0]
-        self.assertEqual(event["subject"], "반려동물")
-        self.assertTrue(event["action"].startswith("반려동물"))
-        self.assertTrue(event["summary"].startswith("반려동물"))
+        self.assertEqual(event["subject"], "강아지")
+        self.assertTrue(event["action"].startswith("강아지"))
+        self.assertTrue(event["summary"].startswith("강아지"))
         self.assertEqual((event["start_time"], event["end_time"]), (2.0, 6.0))
         self.assertEqual(event["evidence"][0], "2.00초: 왼쪽에서 걸어 들어옴")
         self.assertIn("외형 갈색 강아지", event["evidence"][1])

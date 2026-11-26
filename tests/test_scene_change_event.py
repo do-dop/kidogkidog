@@ -34,14 +34,23 @@ class SceneChangeEventTests(unittest.TestCase):
         self.assertEqual(saved["summary"], "소파가 뒤로 젖혀지면서 반려동물도 같이 넘어갔어요")
         self.assertTrue(is_scene_event(saved))
 
-    def test_pet_event_is_still_generalized(self):
-        pet = vlm_event(subject_type="pet", subject="강아지", action="강아지가 소파에 올라감",
-                        summary="강아지가 소파에 올라갔어요")
+    def test_pet_event_keeps_the_animal_name(self):
+        pet = vlm_event(subject_type="pet", subject="새끼 강아지", action="새끼 강아지가 소파에 올라감",
+                        summary="새끼 강아지가 소파에 올라갔어요")
         saved = _normalize_behavior_event(pet, frames(), frames())
 
-        self.assertEqual(saved["subject"], "반려동물")
-        self.assertTrue(saved["summary"].startswith("반려동물이"))
+        self.assertEqual(saved["subject"], "강아지")
+        self.assertEqual(saved["summary"], "새끼 강아지가 소파에 올라갔어요")
         self.assertFalse(is_scene_event(saved))
+
+    def test_unknown_subject_is_pet_and_sentence_is_not_rewritten(self):
+        for subject, expected in (("개", "강아지"), ("반려묘", "고양이"), ("동물", "반려동물"), (None, "반려동물")):
+            pet = vlm_event(subject_type="pet", subject=subject, action="사람이 간식을 건넴",
+                            summary="사람이 간식을 건네요")
+            saved = _normalize_behavior_event(pet, frames(), frames())
+
+            self.assertEqual(saved["subject"], expected)
+            self.assertEqual(saved["summary"], "사람이 간식을 건네요")
 
     def test_scene_type_without_an_object_falls_back_to_pet_event(self):
         saved = _normalize_behavior_event(vlm_event(target_object=None), frames(), frames())
