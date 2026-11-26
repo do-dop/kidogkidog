@@ -61,17 +61,19 @@ def include_explicit_color_events(query: str, payload: dict, video_id: str | Non
                                   recording_date=None, time_range=None) -> dict:
     """Bring color-labeled events into the shortlist before visual verification."""
     requested = {name for name, pattern in _COLOR_FAMILIES.items() if pattern.search(query)}
-    if len(requested) != 1 or recording_date or time_range:
+    if len(requested) != 1:
         return payload
     color = next(iter(requested))
     try:
         from db.behavior_events import get_behavior_events_for_aggregation
         from pipeline.search.event_text_search import event_as_search_result, rank_events_by_text
+        from pipeline.search.grounded_action_search import _event_in_datetime
 
         events = get_behavior_events_for_aggregation(video_id=video_id)
         matching = [event for event in events
-                    if _COLOR_FAMILIES[color].search(" ".join(str(event.get(key) or "")
-                                                        for key in ("target_object", "action")))]
+                    if _event_in_datetime(event, recording_date, time_range)
+                    and _COLOR_FAMILIES[color].search(" ".join(str(event.get(key) or "")
+                                                            for key in ("target_object", "action")))]
         ranked = rank_events_by_text(query, matching)[:MAX_EXPLICIT_COLOR_EVENTS]
         added = [(event, event_as_search_result(event, 1.0)) for event in ranked]
         added = [(event, result) for event, result in added if result and result.get("s3_key")]
@@ -109,11 +111,15 @@ def _recorded_color_conflicts(query: str, event: dict | None) -> bool:
 def _evidence_frames(result: dict, event: dict | None) -> list[dict]:
     frames = [frame for frame in (event or {}).get("source_frames") or []
               if isinstance(frame, dict) and frame.get("s3_key")]
-    if not frames:
-        frames = [frame for frame in result.get("step_frames") or []
-                  if isinstance(frame, dict) and frame.get("s3_key")]
+    # A single event thumbnail cannot show movement. When available, prefer
+    # the ordered before/after frames gathered from the same chunk.
+    nearby = [frame for frame in result.get("step_frames") or []
+              if isinstance(frame, dict) and frame.get("s3_key")]
+    if len(nearby) > len(frames):
+        frames = nearby
     if not frames and result.get("s3_key"):
         frames = [result]
+    frames = list({frame["s3_key"]: frame for frame in frames}.values())
     if len(frames) <= MAX_EVENT_FRAMES:
         return frames
     return [frames[0], frames[len(frames) // 2], frames[-1]]
@@ -152,9 +158,9 @@ def verify_result_color(query: str, result: dict, event: dict | None = None) -> 
                 "The requested color must visibly belong to the requested object, not merely appear elsewhere "
                 "in the frame. Distinguish blue from red. If the color is unclear or the object is absent, "
                 "answer false. The stored action must also match the action in the question; a matching color "
-                "alone is insufficient. The stored action below may support movement, but never use its wording "
-                "as proof of color. When the question asks about movement and no stored action is supplied, "
-                "a single still image cannot prove it: answer false. Do not infer movement from proximity. "
+                "alone is insufficient. The stored action may support movement, but never use its wording "
+                "as proof of color. For movement questions, compare time-ordered frames when available. "
+                "If no stored action supports movement, a single still image or mere proximity cannot prove it. "
                 "Return only JSON {\"match\":true|false}.\n"
                 f"Question: {query}\n"
                 f"Stored action: {event.get('action') if event else 'none'}\n"
@@ -185,7 +191,7 @@ def verify_color_results(query: str, payload: dict, top_k: int) -> dict:
     for result in (payload.get("evidence_items") or payload.get("results") or [])[:MAX_COLOR_CANDIDATES]:
         event = events.get(result.get("source_event_id"))
         verification_result = result
-        if _MOVEMENT_WORDS.search(query) and event is None:
+        if _MOVEMENT_WORDS.search(query) and len(_evidence_frames(result, event)) < 2:
             video_id = result.get("video_id")
             if video_id not in indexed_by_video:
                 try:
@@ -194,9 +200,11 @@ def verify_color_results(query: str, payload: dict, top_k: int) -> dict:
                 except Exception:
                     indexed_by_video[video_id] = []
             nearby = _nearby_frames(result, indexed_by_video[video_id])
-            if len(nearby) < 2:
+            if len(nearby) >= 2:
+                verification_result = {**result, "step_frames": nearby}
+            elif event is None:
+                # A frame match without an action event cannot prove motion.
                 continue
-            verification_result = {**result, "step_frames": nearby}
         if verify_result_color(query, verification_result, event):
             confirmed.append(result)
             if len(confirmed) >= max(1, top_k):
