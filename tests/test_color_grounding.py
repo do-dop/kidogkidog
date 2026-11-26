@@ -97,6 +97,48 @@ class ColorGroundingTests(unittest.TestCase):
             )
         self.assertEqual(payload["results"][0]["source_event_id"], 252)
 
+    def test_full_day_filter_keeps_color_event_but_restricted_time_does_not(self):
+        event = {"id": 252, "video_id": "long", "start_time": 42, "end_time": 44,
+                 "action": "반려동물이 빨간 물체에 다가감", "target_object": "빨간 물체",
+                 "source_frames": [{"s3_key": "frames/long/chunk_frame_43.jpg", "timestamp": 43}]}
+        empty = {"results": [], "behavior_events": []}
+        with patch("db.behavior_events.get_behavior_events_for_aggregation", return_value=[event]):
+            full_day = color_grounding.include_explicit_color_events(
+                "빨간 통에 다가가는 장면", empty, "long",
+                time_range={"start_hour": 0, "end_hour": 24},
+            )
+            restricted = color_grounding.include_explicit_color_events(
+                "빨간 통에 다가가는 장면", empty, "long",
+                time_range={"start_hour": 9, "end_hour": 10},
+            )
+        self.assertEqual([item["source_event_id"] for item in full_day["results"]], [252])
+        self.assertEqual(restricted["results"], [])
+
+    def test_movement_event_uses_neighbor_frames_for_color_check(self):
+        event = {"id": 252, "action": "반려동물이 빨간 물체에 다가감",
+                 "target_object": "빨간 물체", "source_frames": [
+                     {"s3_key": "frames/long/chunk_frame_43.jpg", "timestamp": 43},
+                 ]}
+        result = {"source_event_id": 252, "video_id": "long", "s3_key": "frames/long/chunk_frame_43.jpg",
+                  "timestamp": 43}
+        indexed = [
+            {"s3_key": "frames/long/chunk_frame_41.jpg", "timestamp": 41},
+            result,
+            {"s3_key": "frames/long/chunk_frame_45.jpg", "timestamp": 45},
+        ]
+        response = SimpleNamespace(output_text=json.dumps({"match": True}))
+        with patch.dict("os.environ", {"OPENAI_API_KEY": "test"}), patch(
+            "pipeline.storage.vector_store.get_indexed_frames", return_value=indexed
+        ), patch.object(color_grounding, "_image_data", side_effect=lambda key: f"data:{key}") as images, \
+             patch("openai.OpenAI") as client:
+            client.return_value.responses.create.return_value = response
+            verified = color_grounding.verify_color_results(
+                "빨간 통에 다가가는 장면", {"results": [result], "behavior_events": [event]}, 3,
+            )
+        self.assertEqual(verified["match_level"], "verified_color")
+        self.assertEqual([call.args[0] for call in images.call_args_list],
+                         [item["s3_key"] for item in indexed])
+
 
 if __name__ == "__main__":
     unittest.main()
