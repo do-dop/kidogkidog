@@ -19,6 +19,56 @@ class SceneAnswerTests(unittest.TestCase):
         self.assertIn("젖 먹는 장면", answer)
         self.assertIn("세부 조건까지는 확인하지 못했어요", answer)
 
+    def test_eating_motion_does_not_require_a_food_noun(self):
+        for summary in (
+            "고양이가 고개를 숙여 먹고 있어요",
+            "고양이가 고개를 숙여 먹고 있는 모습입니다.",
+            "고양이가 먹는 중입니다.",
+            "고양이가 먹었어요.",
+            "고양이가 먹음",
+        ):
+            with self.subTest(summary=summary):
+                self.assertEqual(
+                    build_scene_answer([scene(summary)]),
+                    "밥 먹는 장면을 찾았어요. 영상 03:03쯤부터 확인해 보세요.",
+                )
+
+    def test_mixed_eating_descriptions_share_one_action(self):
+        answer = build_scene_answer([
+            scene("고양이가 사료를 먹음"),
+            scene("고양이가 고개를 숙여 먹고 있어요", video_id="second"),
+            scene("고양이가 먹는 중입니다.", video_id="third"),
+        ])
+        self.assertEqual(
+            answer,
+            "밥 먹는 장면을 영상 3개에서 찾았어요. 아래에서 보고 싶은 장면을 골라 보세요.",
+        )
+
+    def test_drinking_and_nursing_keep_their_specific_actions(self):
+        for summary, action in (
+            ("고양이가 물을 먹고 있어요", "물 마시는"),
+            ("새끼 강아지가 젖을 먹고 있어요", "젖 먹는"),
+        ):
+            with self.subTest(summary=summary):
+                self.assertTrue(build_scene_answer([scene(summary)]).startswith(f"{action} 장면"))
+
+    def test_food_context_without_actual_eating_is_not_classified_as_a_meal(self):
+        for summary in (
+            "고양이가 자동 급식기 주변에서 먹이를 기다림",
+            "고양이가 먹지 않고 있어요",
+            "고양이가 먹고 싶어 해요",
+            "고양이가 먹고 있지 않아요",
+            "고양이가 먹는 척해요",
+            "고양이가 사료를 먹지 않아요",
+            "고양이가 밥을 먹으려고 기다리고 있어요",
+            "고양이가 물을 먹지 않아요",
+            "고양이가 사료를 먹는 것으로 추정됨",
+            "고양이가 사료를 먹는 것으로 보여요",
+            "고양이가 잠자지 않아요",
+        ):
+            with self.subTest(summary=summary):
+                self.assertIn(f"‘{summary}’ 장면", build_scene_answer([scene(summary)]))
+
     def test_multiple_videos_do_not_get_one_ambiguous_timestamp(self):
         answer = build_scene_answer([scene("물을 마심"), scene("물을 마심", video_id="second")])
         self.assertIn("영상 2개", answer)
