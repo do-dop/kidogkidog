@@ -21,19 +21,30 @@ def _action(row):
     return next((label for pattern, label in _ACTIONS if re.search(pattern, description)), None)
 
 
+# 서로 다른 행동이 섞였을 때 답변에 이름을 적는 최대 개수. 더 있으면 "등"으로 줄인다.
+_NAMED_ACTIONS = 2
+
+
+def _scene_names(results):
+    """결과에 담긴 행동의 이름을 순서대로, 중복 없이 돌려준다."""
+    names = []
+    for row in results:
+        action = _action(row)
+        description = str(row.get("summary") or "").strip().rstrip(".")
+        name = f"{action} 장면" if action else f"‘{description}’ 장면" if description else None
+        if name and name not in names:
+            names.append(name)
+    return names
+
+
 def build_scene_answer(results):
     if not results:
         return "찾으시는 장면을 아직 확인하지 못했어요. 다른 행동이나 시간대로 찾아보세요."
     first = results[0]
-    action = _action(first)
-    same_action = action is not None and all(_action(row) == action for row in results)
-    descriptions = {str(row.get("summary") or "").strip().rstrip(".") for row in results}
-    if same_action:
-        subject = f"{action} 장면"
-    elif len(descriptions) == 1 and next(iter(descriptions)):
-        subject = f"‘{next(iter(descriptions))}’ 장면"
-    else:
-        subject = "관련 장면"
+    names = _scene_names(results)
+    subject = ", ".join(names[:_NAMED_ACTIONS]) or "관련 장면"
+    if len(names) > _NAMED_ACTIONS:
+        subject += " 등"
     partial = any(row.get("match_level") in {"related", "related_event"} for row in results)
     video_count = len({row.get("video_id") for row in results if row.get("video_id")})
     if video_count > 1:

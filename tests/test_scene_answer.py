@@ -28,6 +28,20 @@ class SceneAnswerTests(unittest.TestCase):
         answer = build_scene_answer([scene("사람이 강아지를 들어 올림")])
         self.assertIn("사람이 강아지를 들어 올림", answer)
 
+    def test_mixed_actions_are_named(self):
+        answer = build_scene_answer([scene("사료를 먹음"), scene("물을 마심", video_id="second"),
+                                     scene("사료를 섭취함", video_id="third")])
+        self.assertEqual(answer, "밥 먹는 장면, 물 마시는 장면을 영상 3개에서 찾았어요. 아래에서 보고 싶은 장면을 골라 보세요.")
+
+    def test_unfamiliar_mixed_actions_are_quoted_and_shortened(self):
+        answer = build_scene_answer([scene("강아지가 배식을 기다림."), scene("강아지가 급식기 앞에 앉음"),
+                                     scene("강아지가 문 앞을 서성임")])
+        self.assertTrue(answer.startswith("‘강아지가 배식을 기다림’ 장면, ‘강아지가 급식기 앞에 앉음’ 장면 등을 찾았어요."))
+        self.assertNotIn("문 앞", answer)
+
+    def test_rows_without_a_description_fall_back_to_a_generic_name(self):
+        self.assertIn("관련 장면", build_scene_answer([scene("")]))
+
     def test_empty_result_does_not_claim_the_action_did_not_happen(self):
         self.assertIn("아직 확인하지 못했어요", build_scene_answer([]))
 

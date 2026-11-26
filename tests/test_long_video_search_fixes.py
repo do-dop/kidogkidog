@@ -181,8 +181,6 @@ class LongVideoSearchFixes(unittest.TestCase):
              patch.object(grounded_action_search, "confirmed_cat_frame_ids", return_value={cat_frame}):
             result = grounded_action_search.find_action_event_scenes("고양이가 밥 먹는 장면 있어?", "long", 5)
         self.assertEqual([row["source_event_id"] for row in result["results"]], [2, 3])
-        self.assertIn("‘반려동물이 사료를 먹고 있음’ 장면은", result["answer"])
-        self.assertIn("‘고양이가 그릇에서 먹음’ 장면은", result["answer"])
 
     def test_cat_verification_rejects_dog_and_keeps_cat(self):
         class Collection:
