@@ -182,6 +182,13 @@ class LongVideoSearchFixes(unittest.TestCase):
             result = grounded_action_search.find_action_event_scenes("고양이가 밥 먹는 장면 있어?", "long", 5)
         self.assertEqual([row["source_event_id"] for row in result["results"]], [2, 3])
 
+    def test_description_naming_the_asked_animal_is_not_rejected_for_mentioning_the_other(self):
+        both = event(1, 1, 4, 6, "고양이가 강아지 옆에서 사료를 먹고 있음")
+        both["source_frames"][0]["object_labels"] = ["dog"]
+        dog_only = event(2, 2, 4, 6, "강아지가 사료를 먹고 있음")
+        self.assertTrue(grounded_action_search._supports_explicit_constraints("고양이가 밥 먹었어?", both))
+        self.assertFalse(grounded_action_search._supports_explicit_constraints("고양이가 밥 먹었어?", dog_only))
+
     def test_cat_verification_rejects_dog_and_keeps_cat(self):
         class Collection:
             def get(self, ids, include):

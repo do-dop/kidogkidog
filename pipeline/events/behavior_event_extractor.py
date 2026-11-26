@@ -616,10 +616,10 @@ def _build_vlm_prompt(segment_context: dict) -> str:
 - 확실하지 않은 행동은 단정하지 말고 "~로 보임", "~하는 것으로 보임"처럼 표현한다.
 - 단순히 객체 라벨이 보인다는 설명은 피한다.
 - 동물 종류는 코드나 metadata의 라벨을 그대로 따라 쓰지 말고, 이미지를 보고 판단한다.
-- 반려동물 행동 이벤트의 subject는 항상 "반려동물", subject_type은 "pet"이라고 적는다.
-- action과 summary에서도 강아지, 고양이, 새처럼 특정 동물명을 쓰지 말고 "반려동물"이라고 표현한다.
-- 동물 종류를 맞히는 것이 목적이 아니라, 행동과 상황을 설명하는 것이 목적이다.
-- 이미지에서 특정 동물처럼 보여도 화면에 표시되는 설명에서는 "반려동물"로 일반화한다.
+- 반려동물 행동 이벤트의 subject_type은 "pet"이다. subject에는 이미지에서 확실히 구분되는 동물 이름(강아지, 고양이, 토끼, 햄스터, 거북이, 앵무새)을 적는다.
+- 작거나 가려지거나 흐려서 종류가 확실하지 않으면 subject를 "반려동물"로 적는다. 짐작해서 고르지 않는다.
+- action과 summary에서도 subject와 같은 이름을 쓴다. 새끼는 "새끼 강아지"처럼, 다른 개체는 "다른 강아지"처럼 구분한다.
+- 아래 출력 예시의 동물 이름은 형식을 보여 줄 뿐이다. 이름은 반드시 이미지를 보고 정한다.
 - 행동, 대상, 반복 여부, 지속 시간을 중심으로 설명한다.
 - 보호자에게 유용한 행동일수록 interestingness를 높게 준다.
 - 건강, 식사, 물 섭취, 불안, 반복 행동, 사람/물체와의 상호작용은 중요하게 본다.
@@ -636,11 +636,11 @@ def _build_vlm_prompt(segment_context: dict) -> str:
 {{"events": [{{
   "start_time": 4.0,
   "end_time": 8.0,
-  "subject": "반려동물",
+  "subject": "강아지",
   "subject_type": "pet",
-  "action": "반려동물이 소파 위에서 앞쪽을 바라봄",
+  "action": "강아지가 소파 위에서 앞쪽을 바라봄",
   "target_object": "소파",
-  "summary": "반려동물이 소파 위에 올라가 앞쪽을 바라보고 있어요",
+  "summary": "강아지가 소파 위에 올라가 앞쪽을 바라보고 있어요",
   "repeat_count": 1,
   "confidence": 0.7,
   "interestingness": 0.6,
@@ -730,6 +730,17 @@ def _build_fallback_behavior_event(frames: list[dict]) -> dict | None:
         "evidence": evidence,
     }
 
+_PET_NAMES = ("강아지", "고양이", "토끼", "햄스터", "거북이", "앵무새")
+_PET_ALIASES = {"개": "강아지", "반려견": "강아지", "반려묘": "고양이"}
+
+
+def _pet_subject(value) -> str:
+    """모델이 적은 주체에서 동물 이름만 남긴다. "새끼 강아지"는 "강아지"다."""
+    words = str(value or "").split()
+    name = _PET_ALIASES.get(words[-1], words[-1]) if words else ""
+    return name if name in _PET_NAMES else "반려동물"
+
+
 def _normalize_behavior_event(
     event: dict,
     group: list[dict],
@@ -775,10 +786,8 @@ def _normalize_behavior_event(
         target_object = str(target_object).strip()
         subject = target_object
     else:
-        # 화면 표시에서는 특정 동물명을 쓰지 않고 반려동물로 일반화한다.
-        subject = "반려동물"
-        action = _generalize_subject_prefix(action)
-        summary = _generalize_subject_prefix(summary)
+        # 모델이 이미지에서 구분한 동물 이름을 그대로 쓰고, 목록 밖이거나 없으면 반려동물로 둔다.
+        subject = _pet_subject(event.get("subject"))
 
     if not action and not summary:
         return None
@@ -1054,26 +1063,3 @@ def _clamp_score(value, default=0.5, treat_zero_as_default=True) -> float:
         score = float(default)
 
     return round(max(0.0, min(score, 1.0)), 2)
-
-def _generalize_subject_prefix(text: str | None) -> str | None:
-    """
-    문장 맨 앞의 특정 주어를 '반려동물'로 일반화한다.
-
-    예:
-    - 고양이가 물을 마시는 것으로 보임
-      -> 반려동물이 물을 마시는 것으로 보임
-
-    - 강아지가 바닥을 긁는 것으로 보임
-      -> 반려동물이 바닥을 긁는 것으로 보임
-
-    동물 리스트를 코드에 두지 않고, 문장 앞 주어 패턴만 일반화한다.
-    """
-    if not text:
-        return text
-
-    text = str(text).strip()
-
-    # 문장 맨 앞의 "OO이/가 " 패턴을 반려동물로 바꾼다.
-    text = re.sub(r"^[^\s]+(이|가)\s+", "반려동물이 ", text)
-
-    return text

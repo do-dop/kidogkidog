@@ -56,14 +56,14 @@ _PROMPT = """이 영상은 고정 카메라로 찍은 반려동물/가정 영상
 - 종료 화면, 자막, 광고만 보이는 구간은 이벤트가 아니다.
 - 소파·의자·문 같은 가구나 물건이 움직이거나 넘어지는 등 장면 자체가 바뀌면 반려동물 행동과 별도의 이벤트로 쓰고 subject_type을 "scene", target_object를 그 물건으로 쓴다. 그 외에는 subject_type을 "pet"으로 쓴다.
 - start_time, end_time은 초 단위 소수 첫째 자리이고 start_time < end_time 이다.
-- action과 summary에서는 강아지·고양이 같은 특정 동물명을 쓰지 않고 "반려동물"이라고 쓴다. 다른 개체는 "다른 반려동물"로 구분한다.
+- subject에는 영상에서 확실히 구분되는 동물 이름(강아지, 고양이, 토끼, 햄스터, 거북이, 앵무새)을 적고, action과 summary에도 같은 이름을 쓴다. 종류가 확실하지 않으면 "반려동물"이라고 쓰며 짐작하지 않는다. 새끼는 "새끼 강아지"처럼, 다른 개체는 "다른 강아지"처럼 구분한다.
 - action은 행동을 한 문장으로 쓴다.
 - summary는 보호자에게 말해 주듯 해요체 한두 문장으로 쓴다. 위치, 이동 방향, 함께 있는 개체나 물건처럼 영상에서 보이는 구체적인 내용을 넣는다. 확실하지 않은 것은 "~로 보여요"로 쓴다.
 - 확인할 행동이 없으면 빈 배열을 반환한다.
 
 JSON 배열만 출력한다. markdown 코드블록을 쓰지 마라. 각 원소의 필드:
-start_time, end_time, subject_type("pet" 또는 "scene"), target_object(scene일 때만), action, summary,
-appearance(보이는 개체의 털색·크기 등 외형. 종 이름은 여기에만 쓸 수 있다), count(화면에 보이는 개체 수, 정수),
+start_time, end_time, subject, subject_type("pet" 또는 "scene"), target_object(scene일 때만), action, summary,
+appearance(보이는 개체의 털색·크기 등 외형), count(화면에 보이는 개체 수, 정수),
 location(화면 안 위치나 장소), direction(이동 방향. 이동이 없으면 빈 문자열), objects(상호작용한 물건 목록),
 evidence_description(화면에서 본 근거), confidence(0~1), interestingness(0~1, 보호자에게 유용할수록 높게),
 action_type(eat, drink, walk, run, jump, swim, sniff, look, rest, play, groom, hide, interact_person, leave_frame, other 중 하나),
