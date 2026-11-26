@@ -140,6 +140,25 @@ def _delete_file(name: str) -> None:
         pass
 
 
+def _describe_unusable(payload: dict, text: str) -> str:
+    """해석하지 못한 응답의 원인 정보. 영상 내용이 담길 수 있는 응답 본문은 남기지 않는다."""
+    candidate = (payload.get("candidates") or [{}])[0]
+    usage = payload.get("usageMetadata") or {}
+    if not text:
+        reason = "본문 없음"
+    else:
+        try:
+            json.loads(_strip_code_fence(text))
+            reason = "이벤트 목록 아님"
+        except ValueError as exc:
+            reason = f"JSON 오류: {exc}"
+    return (
+        f"{reason}, finishReason={candidate.get('finishReason')}, "
+        f"blockReason={(payload.get('promptFeedback') or {}).get('blockReason')}, 글자 수={len(text)}, "
+        f"출력 토큰={usage.get('candidatesTokenCount')}, 추론 토큰={usage.get('thoughtsTokenCount')}"
+    )
+
+
 def _generate(video_part: dict[str, Any]) -> str | None:
     body = {
         "contents": [{"role": "user", "parts": [video_part, {"text": _PROMPT}]}],
@@ -150,12 +169,18 @@ def _generate(video_part: dict[str, Any]) -> str | None:
         try:
             response = httpx.post(url, json=body, headers=_headers(), timeout=REQUEST_TIMEOUT_SECONDS)
             if response.status_code == 200:
-                candidates = response.json().get("candidates") or []
+                payload = response.json()
+                candidates = payload.get("candidates") or []
                 parts = ((candidates[0].get("content") or {}).get("parts") or []) if candidates else []
-                return "".join(part.get("text", "") for part in parts).strip() or None
-            print(f"영상 이벤트 추출 호출 실패: HTTP {response.status_code}", flush=True)
-            if response.status_code not in (429, 500, 502, 503, 504):
-                return None
+                text = "".join(part.get("text", "") for part in parts).strip()
+                if text and parse_events(text) is not None:
+                    return text
+                # HTTP는 성공했지만 쓸 수 없는 응답이다. 원인을 남기고 한 번 더 시도한 뒤 대체 방식에 맡긴다.
+                print(f"영상 이벤트 응답 해석 실패: {_describe_unusable(payload, text)}", flush=True)
+            else:
+                print(f"영상 이벤트 추출 호출 실패: HTTP {response.status_code}", flush=True)
+                if response.status_code not in (429, 500, 502, 503, 504):
+                    return None
         except (httpx.HTTPError, ValueError) as exc:
             print(f"영상 이벤트 추출 호출 실패: {type(exc).__name__}", flush=True)
         if attempt + 1 < MAX_ATTEMPTS:
@@ -221,11 +246,14 @@ def _call_gemini_video_unbounded(video_path: str) -> str | None:
             _delete_file(uploaded["name"])
 
 
+def _strip_code_fence(text: str) -> str:
+    return re.sub(r"^```(?:json)?|```$", "", text.strip(), flags=re.MULTILINE).strip()
+
+
 def parse_events(text: str) -> list[dict] | None:
     """모델 응답에서 이벤트 목록을 꺼낸다. 형식이 틀리면 None."""
-    cleaned = re.sub(r"^```(?:json)?|```$", "", text.strip(), flags=re.MULTILINE).strip()
     try:
-        parsed = json.loads(cleaned)
+        parsed = json.loads(_strip_code_fence(text))
     except ValueError:
         return None
     if isinstance(parsed, dict):
