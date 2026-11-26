@@ -26,6 +26,9 @@ class SceneAnswerTests(unittest.TestCase):
             "고양이가 먹는 중입니다.",
             "고양이가 먹었어요.",
             "고양이가 먹음",
+            "반려동물이 먹고 있어요",
+            "반려동물이 먹음",
+            "반려동물이 음식물을 먹고 있어요",
         ):
             with self.subTest(summary=summary):
                 self.assertEqual(
