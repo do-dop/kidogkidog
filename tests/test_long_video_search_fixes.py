@@ -189,6 +189,55 @@ class LongVideoSearchFixes(unittest.TestCase):
         self.assertTrue(grounded_action_search._supports_explicit_constraints("고양이가 밥 먹었어?", both))
         self.assertFalse(grounded_action_search._supports_explicit_constraints("고양이가 밥 먹었어?", dog_only))
 
+    def _search(self, query, events, matches, confirmed=()):
+        with patch.object(grounded_action_search, "get_behavior_events_for_aggregation", return_value=events), \
+             patch("pipeline.search.action_event_index.semantic_event_candidates", return_value=None), \
+             patch.object(grounded_action_search, "_select_matching_events", return_value=matches), \
+             patch.object(grounded_action_search, "confirmed_cat_frame_ids", return_value=set(confirmed)):
+            result = grounded_action_search.find_action_event_scenes(query, "long", 5)
+        return [row["source_event_id"] for row in result["results"]]
+
+    def _labelled(self, event_id, chunk, action, labels, subject="반려동물"):
+        row = event(event_id, chunk, 4, 6, action)
+        row["subject"] = subject
+        row["source_frames"][0]["object_labels"] = labels
+        return row
+
+    def test_held_dog_without_a_dog_box_uses_the_rest_of_its_video(self):
+        held = self._labelled(1, 1, "반려동물이 사람에게 안겨 있음", ["person"])
+        seen = self._labelled(2, 2, "반려동물이 사람 쪽을 바라봄", ["dog", "person"])
+        found = self._search("사람이 강아지를 안고 있는 장면 보여줘", [held, seen], [held])
+        self.assertEqual(found, [1])
+
+    def test_leaving_cat_without_any_box_uses_confirmed_cat_frames(self):
+        seen = self._labelled(1, 1, "반려동물이 고개를 내밀고 있음", ["cat"])
+        gone = self._labelled(2, 2, "반려동물이 문 앞에서 사라짐", [])
+        found = self._search("고양이가 사라지는 장면 보여줘", [seen, gone], [gone],
+                             confirmed=[seen["source_frames"][0]["frame_id"]])
+        self.assertEqual(found, [2])
+
+    def test_species_is_not_borrowed_when_the_video_is_doubtful(self):
+        gone = self._labelled(1, 1, "반려동물이 문 앞에서 사라짐", [])
+        puppy = self._labelled(2, 2, "반려동물이 걸어감", ["cat"])
+        dog = self._labelled(3, 3, "반려동물이 누워 있음", ["dog"])
+        # Cat boxes that do not look like cats, or a dog in the same video.
+        self.assertEqual(self._search("고양이가 사라지는 장면 보여줘", [gone, puppy], [gone]), [])
+        self.assertEqual(self._search(
+            "고양이가 사라지는 장면 보여줘", [gone, puppy, dog], [gone],
+            confirmed=[puppy["source_frames"][0]["frame_id"]]), [])
+
+    def test_species_is_not_borrowed_for_a_person(self):
+        person = self._labelled(1, 1, "사람이 화면에 나타남", ["person"])
+        dog = self._labelled(2, 2, "반려동물이 누워 있음", ["dog"])
+        self.assertEqual(self._search("강아지가 나타나는 장면 보여줘", [person, dog], [person]), [])
+
+    def test_progressive_form_is_not_split_into_two_actions(self):
+        for query in ("사람이 강아지를 안고 있는 장면 보여줘", "강아지가 사료를 먹고 있는 장면 보여줘"):
+            self.assertEqual(grounded_action_search._compound_action_parts(query), (None, query))
+        self.assertEqual(
+            grounded_action_search._compound_action_parts("강아지가 산책하고 밥을 먹었어?"),
+            ("강아지가 산책", "밥을 먹었어?"))
+
     def test_cat_verification_rejects_dog_and_keeps_cat(self):
         class Collection:
             def get(self, ids, include):
