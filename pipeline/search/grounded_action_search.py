@@ -319,7 +319,6 @@ def find_action_event_scenes(query, video_id, top_k, source_event=None,
         episodes = [episode for episode in episodes if episode["events"][0].get("video_id") in selected_videos]
 
     results = []
-    labels = []
     scenes_per_video = {}
     for episode in episodes:
         event = episode["events"][0]
@@ -337,27 +336,23 @@ def find_action_event_scenes(query, video_id, top_k, source_event=None,
         result["playback_end"] = episode["end"] + 1
         result["match_level"] = "related_event" if uncertain else "behavior_event"
         results.append(result)
-        labels.append(str(event.get("action") or event.get("summary") or "").strip().rstrip(".") or "행동 기록")
         scenes_per_video[event.get("video_id")] = scenes_per_video.get(event.get("video_id"), 0) + 1
         if video_id and len(results) >= max(1, top_k):
             break
     if not results:
         return None
-    # Name each recorded action in the answer, grouping the times that share one.
-    times_by_label = {}
-    for label, item in list(zip(labels, results))[:3]:
-        times_by_label.setdefault(label, []).append(
-            (f"{item['video_id']} " if not video_id else "") + format_frame_time(item, float(item["timestamp"]))
-        )
-    positions = ", ".join(f"‘{label}’ 장면은 {', '.join(times)}" for label, times in times_by_label.items())
+    positions = ", ".join(
+        (f"{item['video_id']} " if not video_id else "") + format_frame_time(item, float(item["timestamp"]))
+        for item in results[:3]
+    )
     if len(results) > 3:
         positions += " 등"
     return {
         "query": query,
         "video_id": video_id,
         "answer": (
-            f"{positions} 근처에 관련 기록이 있지만 질문의 세부 조건까지는 확인하지 못했어요."
-            if uncertain else f"{positions} 근처에서 확인할 수 있어요."
+            f"관련 행동 기록은 {positions} 근처에 있지만 질문의 세부 조건까지는 확인하지 못했어요."
+            if uncertain else f"질문한 행동은 {positions} 근처에서 확인할 수 있어요."
         ),
         "results": results,
         "evidence_items": results,
