@@ -23,65 +23,80 @@ env:
   RUNTIME_SERVICE_ACCOUNT: ${{ vars.CLOUD_RUN_RUNTIME_SERVICE_ACCOUNT }}
   IMAGE_TAG: ${{ github.event.workflow_run.head_sha || github.sha }}
 
-concurrency:
-  group: staging-deployment
-  cancel-in-progress: true
+# 워크플로 전체에는 concurrency를 두지 않는다. 오래된 커밋의 실행이 최신 배포를 취소할 수 있기 때문이다.
+# 순서 제어는 배포 job마다 하며, 진행 중인 배포는 취소하지 않는다.
 
 jobs:
   changes:
+    name: Check that the commit is still the latest
     if: >-
       github.event_name == 'workflow_dispatch' ||
       github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     outputs:
-      api: ${{ steps.paths.outputs.api }}
-      web: ${{ steps.paths.outputs.web }}
+      latest: ${{ steps.head.outputs.latest }}
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
-          fetch-depth: 2
-      - id: paths
+      - id: head
         shell: bash
         run: |
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]] || ! git rev-parse HEAD^ >/dev/null 2>&1; then
-            echo "api=true" >> "$GITHUB_OUTPUT"
-            echo "web=true" >> "$GITHUB_OUTPUT"
+          # 그사이 main이 앞으로 갔으면 새 커밋의 실행이 배포한다. 여기서 끝내야 배포 대기열에도 끼어들지 않는다.
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "latest=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-
-          changed_files="$(git diff --name-only HEAD^ HEAD)"
-          if grep -Eq '^(api/|db/|pipeline/|requirements\.txt$|api/Dockerfile$)' <<< "$changed_files"; then
-            echo "api=true" >> "$GITHUB_OUTPUT"
+          main_sha="$(git ls-remote origin refs/heads/main | cut -f1)"
+          test -n "${main_sha}"
+          if [[ "${main_sha}" == "${IMAGE_TAG}" ]]; then
+            echo "latest=true" >> "$GITHUB_OUTPUT"
           else
-            echo "api=false" >> "$GITHUB_OUTPUT"
-          fi
-
-          if grep -Eq '^ui-react/' <<< "$changed_files"; then
-            echo "web=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "web=false" >> "$GITHUB_OUTPUT"
+            echo "latest=false" >> "$GITHUB_OUTPUT"
+            echo "건너뜀: ${IMAGE_TAG:0:7} 는 최신 main(${main_sha:0:7})이 아닙니다." >> "$GITHUB_STEP_SUMMARY"
           fi
 
   deploy-api:
     needs: changes
-    if: needs.changes.outputs.api == 'true'
+    if: needs.changes.outputs.latest == 'true'
     runs-on: ubuntu-latest
     environment: staging
+    concurrency:
+      group: staging-deploy-api
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          fetch-depth: 0
       - id: auth
         uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
           service_account: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
       - uses: google-github-actions/setup-gcloud@v2
+      - name: Decide whether api needs a deploy
+        id: target
+        shell: bash
+        run: |
+          # 트래픽을 받는 리비전의 commit-sha 라벨을 기준으로 삼는다(배포에 실패한 리비전은 제외된다).
+          # Cloud Run은 이미지를 digest로 저장하므로 이미지 이름에서는 커밋을 알 수 없다.
+          service="$(gcloud run services describe "${API_SERVICE}" --region "${REGION}" --format=json || echo '{}')"
+          revision="$(jq -r '[.status.traffic[]? | select((.percent // 0) > 0)][0].revisionName // empty' <<< "$service")"
+          deployed=""
+          if [[ -n "$revision" ]]; then
+            deployed="$(gcloud run revisions describe "$revision" --region "${REGION}" --format='value(metadata.labels.commit-sha)' || true)"
+          fi
+          result="$(ops/ci/deploy_target.sh api "$deployed" "${{ github.event_name }}")"
+          echo "$result" >> "$GITHUB_OUTPUT"
+          echo "api: $(tr '\n' ' ' <<< "$result")" | tee -a "$GITHUB_STEP_SUMMARY"
       - name: Authenticate Docker to Artifact Registry
+        if: steps.target.outputs.deploy == 'true'
         run: gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
       - uses: docker/setup-buildx-action@v3
+        if: steps.target.outputs.deploy == 'true'
       - name: Build and push API image
+        if: steps.target.outputs.deploy == 'true'
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -91,8 +106,10 @@ jobs:
           cache-from: type=gha,scope=kidog-api
           cache-to: type=gha,mode=max,scope=kidog-api
       - name: Deploy API to Cloud Run
+        if: steps.target.outputs.deploy == 'true'
         run: |
           gcloud run deploy "${API_SERVICE}" \
+            --update-labels "commit-sha=${IMAGE_TAG}" \
             --image "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/kidog-api:${IMAGE_TAG}" \
             --region "${REGION}" \
             --allow-unauthenticated \
@@ -114,29 +131,52 @@ jobs:
 
   deploy-web:
     needs: changes
-    if: needs.changes.outputs.web == 'true'
+    if: needs.changes.outputs.latest == 'true'
     runs-on: ubuntu-latest
     environment: staging
+    concurrency:
+      group: staging-deploy-web
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          fetch-depth: 0
       - id: auth
         uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
           service_account: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
       - uses: google-github-actions/setup-gcloud@v2
+      - name: Decide whether web needs a deploy
+        id: target
+        shell: bash
+        run: |
+          # 트래픽을 받는 리비전의 commit-sha 라벨을 기준으로 삼는다(배포에 실패한 리비전은 제외된다).
+          # Cloud Run은 이미지를 digest로 저장하므로 이미지 이름에서는 커밋을 알 수 없다.
+          service="$(gcloud run services describe "${WEB_SERVICE}" --region "${REGION}" --format=json || echo '{}')"
+          revision="$(jq -r '[.status.traffic[]? | select((.percent // 0) > 0)][0].revisionName // empty' <<< "$service")"
+          deployed=""
+          if [[ -n "$revision" ]]; then
+            deployed="$(gcloud run revisions describe "$revision" --region "${REGION}" --format='value(metadata.labels.commit-sha)' || true)"
+          fi
+          result="$(ops/ci/deploy_target.sh web "$deployed" "${{ github.event_name }}")"
+          echo "$result" >> "$GITHUB_OUTPUT"
+          echo "web: $(tr '\n' ' ' <<< "$result")" | tee -a "$GITHUB_STEP_SUMMARY"
       - name: Authenticate Docker to Artifact Registry
+        if: steps.target.outputs.deploy == 'true'
         run: gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
       - name: Resolve API URL
+        if: steps.target.outputs.deploy == 'true'
         id: api
         run: |
           url="$(gcloud run services describe "${API_SERVICE}" --region "${REGION}" --format='value(status.url)')"
           test -n "${url}"
           echo "url=${url}" >> "$GITHUB_OUTPUT"
       - uses: docker/setup-buildx-action@v3
+        if: steps.target.outputs.deploy == 'true'
       - name: Build and push web image
+        if: steps.target.outputs.deploy == 'true'
         uses: docker/build-push-action@v6
         with:
           context: ui-react
@@ -146,8 +186,10 @@ jobs:
           cache-from: type=gha,scope=kidog-web
           cache-to: type=gha,mode=max,scope=kidog-web
       - name: Deploy web to Cloud Run
+        if: steps.target.outputs.deploy == 'true'
         run: |
           gcloud run deploy "${WEB_SERVICE}" \
+            --update-labels "commit-sha=${IMAGE_TAG}" \
             --image "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/kidog-web:${IMAGE_TAG}" \
             --region "${REGION}" \
             --allow-unauthenticated \
