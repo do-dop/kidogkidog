@@ -37,6 +37,35 @@ def query(request: QueryRequest, background_tasks: BackgroundTasks):
         # 질문 라우터는 shadow 기능이므로 어떤 실패도 기존 검색을 막지 않는다.
         print(f"질문 라우터 shadow 실행 실패: {exc}", flush=True)
 
+    # 질문이 반려동물 영상 검색에 맞는지 먼저 본다. 추천 질문(source_event_id)은 이미 영상에서 만든 것이라 건너뛴다.
+    gate_decision = None
+    try:
+        from pipeline.search.question_gate import OUT_OF_SCOPE_ANSWER, check_question_fit, get_gate_mode
+
+        gate_mode = get_gate_mode()
+        if gate_mode != "off" and request.source_event_id is None:
+            gate_decision = check_question_fit(request.query)
+            if gate_mode == "on" and not gate_decision.fit:
+                return {
+                    "status": "ok",
+                    "query": request.query,
+                    "video_id": request.video_id,
+                    "recording_date": request.recording_date,
+                    "top_k": top_k,
+                    "answer": OUT_OF_SCOPE_ANSWER,
+                    "results": [],
+                    "evidence_items": [],
+                    "behavior_events": [],
+                    "used_llm": False,
+                    "query_type": "out_of_scope",
+                    "match_level": "out_of_scope",
+                    "question_gate": gate_decision.to_dict(),
+                }
+    except Exception as exc:
+        # 질문 적합성 판단은 보조 기능이라 어떤 실패도 검색을 막지 않는다.
+        print(f"질문 적합성 판단 실패: {exc}", flush=True)
+        gate_decision = None
+
     try:
         from pipeline.search.rag_chain import run_rag_query
 
@@ -106,6 +135,11 @@ def query(request: QueryRequest, background_tasks: BackgroundTasks):
         "sequence_intent": rag_result.get("sequence_intent"),
         "truncated": rag_result.get("truncated", False),
     }
+
+    if gate_decision is not None:
+        response["question_gate"] = gate_decision.to_dict()
+    if rag_result.get("match_level"):
+        response["match_level"] = rag_result["match_level"]
 
     if route_decision and expose_route in {"1", "true", "yes"}:
         response["question_route"] = route_decision.to_dict()

@@ -1,0 +1,255 @@
+{
+ "note": "질문 적합성 판단(question_gate)의 평가 질문. fit=false는 막아야 하는 질문, fit=true는 막으면 안 되는 질문. 경계 사례('아기가 우는 장면', '사람이 요리하는 장면')는 정답을 정하지 않아 넣지 않았다.",
+ "cases": [
+  {
+   "query": "강아지가 밥 먹는 장면",
+   "fit": true,
+   "category": "rules(동물 단어)"
+  },
+  {
+   "query": "고양이가 소파에 올라간 장면",
+   "fit": true,
+   "category": "rules(동물 단어)"
+  },
+  {
+   "query": "개가 짖는 장면",
+   "fit": true,
+   "category": "rules(동물 단어)"
+  },
+  {
+   "query": "코코가 산책하는 장면",
+   "fit": true,
+   "category": "rules(동물 단어)"
+  },
+  {
+   "query": "개가 연못에서 헤엄침",
+   "fit": true,
+   "category": "rules(동물 단어)"
+  },
+  {
+   "query": "수영장에서 나오는 장면",
+   "fit": true,
+   "category": "rules(동물 단어)"
+  },
+  {
+   "query": "다람쥐가 먹이를 먹는 장면",
+   "fit": true,
+   "category": "rules(동물 단어)"
+  },
+  {
+   "query": "새가 날아가는 장면",
+   "fit": true,
+   "category": "rules(동물 단어)"
+  },
+  {
+   "query": "오늘 뭐했는지 알려줘",
+   "fit": true,
+   "category": "질문 유형(순서·횟수·시간)"
+  },
+  {
+   "query": "물 몇 번 마셨어?",
+   "fit": true,
+   "category": "질문 유형(순서·횟수·시간)"
+  },
+  {
+   "query": "울타리에 몇 번 올라탔어?",
+   "fit": true,
+   "category": "질문 유형(순서·횟수·시간)"
+  },
+  {
+   "query": "처음에는 뭐 했어?",
+   "fit": true,
+   "category": "질문 유형(순서·횟수·시간)"
+  },
+  {
+   "query": "마지막에는 뭐 했어?",
+   "fit": true,
+   "category": "질문 유형(순서·횟수·시간)"
+  },
+  {
+   "query": "어떤 순서로 행동했어?",
+   "fit": true,
+   "category": "질문 유형(순서·횟수·시간)"
+  },
+  {
+   "query": "언제 밥 먹었어?",
+   "fit": true,
+   "category": "질문 유형(순서·횟수·시간)"
+  },
+  {
+   "query": "아침에 무슨 일이 있었어?",
+   "fit": true,
+   "category": "질문 유형(순서·횟수·시간)"
+  },
+  {
+   "query": "그 다음에는 뭐가 나와?",
+   "fit": true,
+   "category": "질문 유형(순서·횟수·시간)"
+  },
+  {
+   "query": "가장 오래 쉬었던 때는 언제야?",
+   "fit": true,
+   "category": "질문 유형(순서·횟수·시간)"
+  },
+  {
+   "query": "전등이 꺼지는 장면",
+   "fit": true,
+   "category": "상황 변화(주변)"
+  },
+  {
+   "query": "소파가 넘어지는 장면",
+   "fit": true,
+   "category": "상황 변화(주변)"
+  },
+  {
+   "query": "물건이 바닥에 떨어진 장면",
+   "fit": true,
+   "category": "상황 변화(주변)"
+  },
+  {
+   "query": "화분이 쓰러진 장면",
+   "fit": true,
+   "category": "상황 변화(주변)"
+  },
+  {
+   "query": "문이 열린 장면",
+   "fit": true,
+   "category": "상황 변화(주변)"
+  },
+  {
+   "query": "TV가 켜진 장면",
+   "fit": true,
+   "category": "상황 변화(주변)"
+  },
+  {
+   "query": "택배 기사가 문 앞에 온 장면",
+   "fit": true,
+   "category": "사람이 나오는 질문"
+  },
+  {
+   "query": "누가 집에 들어왔어",
+   "fit": true,
+   "category": "사람이 나오는 질문"
+  },
+  {
+   "query": "아이가 거실에서 노는 장면",
+   "fit": true,
+   "category": "사람이 나오는 질문"
+  },
+  {
+   "query": "도둑이 들어온 장면",
+   "fit": true,
+   "category": "사람이 나오는 질문"
+  },
+  {
+   "query": "집에 아무도 없을 때 무슨 일이 있었어",
+   "fit": true,
+   "category": "사람이 나오는 질문"
+  },
+  {
+   "query": "밥",
+   "fit": true,
+   "category": "짧거나 서툰 표현"
+  },
+  {
+   "query": "물 마시는거",
+   "fit": true,
+   "category": "짧거나 서툰 표현"
+  },
+  {
+   "query": "뭐해?",
+   "fit": true,
+   "category": "짧거나 서툰 표현"
+  },
+  {
+   "query": "움직인 장면 찾아줘",
+   "fit": true,
+   "category": "짧거나 서툰 표현"
+  },
+  {
+   "query": "dog eating",
+   "fit": true,
+   "category": "짧거나 서툰 표현"
+  },
+  {
+   "query": "cat on sofa",
+   "fit": true,
+   "category": "짧거나 서툰 표현"
+  },
+  {
+   "query": "우주선이 날아가는 장면",
+   "fit": false,
+   "category": "명백히 무관"
+  },
+  {
+   "query": "비행기가 활주로에 착륙하는 장면",
+   "fit": false,
+   "category": "명백히 무관"
+  },
+  {
+   "query": "자동차가 도로를 달리는 장면",
+   "fit": false,
+   "category": "명백히 무관"
+  },
+  {
+   "query": "축구 경기를 하는 장면",
+   "fit": false,
+   "category": "명백히 무관"
+  },
+  {
+   "query": "불꽃놀이 장면",
+   "fit": false,
+   "category": "명백히 무관"
+  },
+  {
+   "query": "기타를 연주하는 장면",
+   "fit": false,
+   "category": "명백히 무관"
+  },
+  {
+   "query": "컴퓨터로 코딩하는 장면",
+   "fit": false,
+   "category": "명백히 무관"
+  },
+  {
+   "query": "결혼식 장면",
+   "fit": false,
+   "category": "명백히 무관"
+  },
+  {
+   "query": "바다에서 서핑하는 장면",
+   "fit": false,
+   "category": "명백히 무관"
+  },
+  {
+   "query": "오늘 서울 날씨 알려줘",
+   "fit": false,
+   "category": "서비스 밖 요청"
+  },
+  {
+   "query": "김치찌개 레시피",
+   "fit": false,
+   "category": "서비스 밖 요청"
+  },
+  {
+   "query": "주식 시장 전망",
+   "fit": false,
+   "category": "서비스 밖 요청"
+  },
+  {
+   "query": "영화 추천해줘",
+   "fit": false,
+   "category": "서비스 밖 요청"
+  },
+  {
+   "query": "파이썬으로 정렬하는 법 알려줘",
+   "fit": false,
+   "category": "서비스 밖 요청"
+  },
+  {
+   "query": "1+1은 뭐야",
+   "fit": false,
+   "category": "서비스 밖 요청"
+  }
+ ]
+}
