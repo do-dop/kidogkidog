@@ -10,14 +10,27 @@ _ACTIONS = (
     (r"젖.{0,6}먹|수유", "젖 먹는"),
     (r"마시|마심|마셔|음수|물.{0,3}먹", "물 마시는"),
     (r"(?:사료|음식|먹이|밥|간식).{0,12}(?:먹|섭취)|식사", "밥 먹는"),
+    # The description may name the eating motion without naming the food.
+    # Nursing and drinking above retain their more specific labels.
+    (r"(?<![가-힣])먹(?:고\s*있(?:어요|습니다|다|음|는)"
+     r"|는\s*(?:모습|중|장면|행동)|었(?:어요|습니다|다|음)|어요|습니다|는다|음)", "밥 먹는"),
     (r"목욕|씻고|씻는", "목욕하는"),
     (r"잠을 자|잠자|낮잠", "잠자는"),
     (r"몸.{0,5}(?:털|터는)", "몸을 터는"),
 )
 
+# Keep the original description when it denies, anticipates, or only infers an
+# action. Naming it as an observed action would remove that qualification.
+_UNCONFIRMED = re.compile(
+    r"지\s*(?:않|못)|(?:으)?려(?:고|는)|고\s*싶|는\s*척|추정"
+    r"|것(?:으로\s*보|처럼\s*보|\s*같)|듯|수\s*없"
+)
+
 
 def _action(row):
     description = str(row.get("summary") or "")
+    if _UNCONFIRMED.search(description):
+        return None
     return next((label for pattern, label in _ACTIONS if re.search(pattern, description)), None)
 
 
