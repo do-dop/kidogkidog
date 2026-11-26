@@ -8,7 +8,7 @@ from pipeline.search.video_time import frame_video_seconds
 
 _ACTIONS = (
     (r"젖.{0,6}먹|수유", "젖 먹는"),
-    (r"마시|마심|마셔|음수|물.{0,3}먹", "물 마시는"),
+    (r"마시|마심|마셔|음수|(?<![가-힣])물(?:을|도|만)?\s*먹", "물 마시는"),
     (r"(?:사료|음식|먹이|밥|간식).{0,12}(?:먹|섭취)|식사", "밥 먹는"),
     # The description may name the eating motion without naming the food.
     # Nursing and drinking above retain their more specific labels.
