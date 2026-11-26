@@ -19,7 +19,10 @@ from pipeline.search.species_verification import confirmed_cat_frame_ids
 
 
 _UNCERTAIN = re.compile(r"않|못|없|싶|추정|하려|려고")
-_COMPOUND_ACTION = re.compile(r"(?P<context>.+)(?:하고|(?<!하)고)\s+(?P<focus>[^?]{2,}\??)$")
+# "안고 있는", "먹고 싶어" are one action, not "A then B".
+_COMPOUND_ACTION = re.compile(
+    r"(?P<context>.+)(?:하고|(?<!하)고)\s+(?!\s|있|계[시신셔세]|싶)(?P<focus>[^?]{2,}\??)$")
+_SPECIES = (("고양이", "cat", "강아지"), ("강아지", "dog", "고양이"))
 _INTENTS = (
     ("카메라 접근", re.compile(r"카메라"), re.compile(r"가까|다가|접근|얼굴"),
      re.compile(r"카메라"), re.compile(r"다가|접근|가까")),
@@ -42,16 +45,26 @@ def _source_chunk(event):
     return str(event.get("video_id") or "")
 
 
-def _supports_explicit_constraints(query, event):
-    """Reject contradictions the model might overlook in species or direction."""
-    if contradicts_action(query, event):
-        return False
-    description = " ".join(str(event.get(key) or "") for key in ("subject", "action", "summary"))
+def _description(event):
+    return " ".join(str(event.get(key) or "") for key in ("subject", "action", "summary"))
+
+
+def _frame_labels(event):
     labels = set()
     for frame in event.get("source_frames") or []:
         raw = frame.get("object_labels") or []
-        labels.update(str(item).lower() for item in (raw if isinstance(raw, list) else str(raw).split(",")))
-    for korean, label, opposite in (("고양이", "cat", "강아지"), ("강아지", "dog", "고양이")):
+        items = raw if isinstance(raw, list) else str(raw).split(",")
+        labels.update(str(item).strip().lower() for item in items if str(item).strip())
+    return labels
+
+
+def _supports_explicit_constraints(query, event, species_proven=False):
+    """Reject contradictions the model might overlook in species or direction."""
+    if contradicts_action(query, event):
+        return False
+    description = _description(event)
+    labels = _frame_labels(event)
+    for korean, label, opposite in () if species_proven else _SPECIES:
         # A description that names the asked animal outweighs the detector, and
         # may also mention the other one ("고양이가 강아지 옆에서 ...").
         if korean in query and korean not in description and (
@@ -79,7 +92,45 @@ def _cat_labelled_frame_ids(event):
     return ids
 
 
-def _drop_unconfirmed_cats(query, events):
+def _events_proven_by_video(query, events, video_events):
+    """Pick events whose animal the detector missed but the rest of their video shows.
+
+    A held or departing pet often has no dog or cat box on the event's own
+    frames. Borrow the species only when no clue in that video points to the
+    other animal. Returns the id() of each such event.
+    """
+    asked = [item for item in _SPECIES if item[0] in query]
+    if len(asked) != 1:
+        return set()
+    korean, label, opposite = asked[0]
+    other_label = "dog" if label == "cat" else "cat"
+    unlabelled = [
+        event for event in events
+        if not _frame_labels(event) & {"dog", "cat"}
+        and opposite not in _description(event)
+        and any(word in str(event.get("subject") or "") for word in ("반려동물", korean))
+        and not str(event.get("action") or "").startswith("사람")
+    ]
+    proven_videos = set()
+    for video in {event.get("video_id") for event in unlabelled}:
+        rows = [row for row in video_events if row.get("video_id") == video]
+        if any(other_label in _frame_labels(row) or opposite in _description(row) for row in rows):
+            continue
+        if any(korean in _description(row) for row in rows):
+            proven_videos.add(video)
+        elif label == "dog":
+            if any(label in _frame_labels(row) for row in rows):
+                proven_videos.add(video)
+        else:
+            # Puppies are often boxed as cats, so most cat boxes must look like cats.
+            frame_ids = {frame_id for row in rows for frame_id in _cat_labelled_frame_ids(row)}
+            confirmed = (confirmed_cat_frame_ids(sorted(frame_ids)) or set()) if frame_ids else set()
+            if len(confirmed) * 2 > len(frame_ids):
+                proven_videos.add(video)
+    return {id(event) for event in unlabelled if event.get("video_id") in proven_videos}
+
+
+def _drop_unconfirmed_cats(query, events, proven=frozenset()):
     """For a cat question, require the record to name a cat or a frame to look like one.
 
     The detector often labels puppies as cats, and many event descriptions only
@@ -95,7 +146,8 @@ def _drop_unconfirmed_cats(query, events):
                  for frame_id in _cat_labelled_frame_ids(event)]
     confirmed = (confirmed_cat_frame_ids(frame_ids) or set()) if frame_ids else set()
     return [event for event, is_named in zip(events, named)
-            if is_named or confirmed.intersection(_cat_labelled_frame_ids(event))]
+            if is_named or id(event) in proven
+            or confirmed.intersection(_cat_labelled_frame_ids(event))]
 
 
 def _event_in_datetime(event, recording_date, time_range):
@@ -260,11 +312,18 @@ def find_action_event_scenes(query, video_id, top_k, source_event=None,
     # Older callers and tests may still provide a plain list of exact matches.
     exact = selection.get("exact", []) if isinstance(selection, dict) else selection
     related = selection.get("related", []) if isinstance(selection, dict) else []
-    matched = _drop_unconfirmed_cats(query, [event for event in exact if _supports_explicit_constraints(query, event)])
+    proven = _events_proven_by_video(query, [*exact, *related], events)
+
+    def species_checked(rows):
+        return _drop_unconfirmed_cats(query, [
+            event for event in rows
+            if _supports_explicit_constraints(query, event, id(event) in proven)
+        ], proven)
+
+    matched = species_checked(exact)
     uncertain = not matched
     if uncertain:
-        matched = _drop_unconfirmed_cats(
-            query, [event for event in related if _supports_explicit_constraints(query, event)])
+        matched = species_checked(related)
     if matched and context_query:
         context_ranked = semantic_event_candidates(context_query, context_candidates, video_id=video_id)
         if not context_ranked:
