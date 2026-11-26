@@ -131,6 +131,50 @@ class CallTests(unittest.TestCase):
         self.assertEqual(post.call_count, vee.MAX_ATTEMPTS)
 
 
+class UnusableResponseTests(unittest.TestCase):
+    def _response(self, payload):
+        response = MagicMock(status_code=200)
+        response.json.return_value = payload
+        return response
+
+    def _payload(self, text, finish="STOP"):
+        return {"candidates": [{"content": {"parts": [{"text": text}]}, "finishReason": finish}],
+                "usageMetadata": {"candidatesTokenCount": 7, "thoughtsTokenCount": 3}}
+
+    def _call(self, responses):
+        with tempfile.TemporaryDirectory() as d, patch.dict(os.environ, {"GEMINI_API_KEY": "k"}):
+            path = Path(d) / "c.mp4"
+            path.write_bytes(b"xx")
+            with patch.object(vee.httpx, "post", side_effect=[self._response(r) for r in responses]) as post, \
+                 patch.object(vee.time, "sleep"), patch("builtins.print") as log:
+                result = vee._call_gemini_video(str(path))
+        return result, post.call_count, " ".join(str(call.args[0]) for call in log.call_args_list)
+
+    def test_broken_json_is_logged_and_retried(self):
+        result, calls, log = self._call([self._payload('[{"action": "비공개 설명', "MAX_TOKENS"), self._payload("[]")])
+
+        self.assertEqual((result, calls), ("[]", 2))
+        self.assertIn("JSON 오류", log)
+        self.assertIn("finishReason=MAX_TOKENS", log)
+        self.assertIn("추론 토큰=3", log)
+        self.assertNotIn("비공개 설명", log)
+
+    def test_empty_response_is_retried_then_given_up(self):
+        blocked = {"promptFeedback": {"blockReason": "OTHER"}}
+        result, calls, log = self._call([blocked, blocked])
+
+        self.assertIsNone(result)
+        self.assertEqual(calls, vee.MAX_ATTEMPTS)
+        self.assertIn("본문 없음", log)
+        self.assertIn("blockReason=OTHER", log)
+
+    def test_json_without_an_event_list_is_retried(self):
+        result, calls, log = self._call([self._payload('{"note": 1}'), self._payload('{"events": []}')])
+
+        self.assertEqual((result, calls), ('{"events": []}', 2))
+        self.assertIn("이벤트 목록 아님", log)
+
+
 class DispatchTests(unittest.TestCase):
     FRAMES_RESULT = [{"action": "frames"}]
 
